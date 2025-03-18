@@ -53,7 +53,8 @@ class GameState:
         # Convert time to hours:minutes
         hours = int(self.time // 3600) % 24
         minutes = int(self.time // 60) % 60
-        time_str = f"Time: {hours:02d}:{minutes:02d}"
+        seconds = int(self.time) % 60
+        time_str = f"Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
         
         text = font.render(time_str, True, (0, 0, 0))
         surface.blit(text, (10, 10))
