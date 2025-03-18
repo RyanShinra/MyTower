@@ -1,0 +1,21 @@
+#!/bin/bash
+# Create main project directory
+mkdir -p mytower
+
+# Create the required directories
+mkdir -p mytower/game
+mkdir -p mytower/assets/images
+mkdir -p mytower/assets/sounds
+mkdir -p mytower/tests
+
+# Create empty files
+touch mytower/main.py
+touch mytower/requirements.txt
+touch mytower/game/__init__.py
+touch mytower/game/building.py
+touch mytower/game/elevator.py
+touch mytower/game/floor.py
+touch mytower/game/person.py
+touch mytower/game/game_state.py
+touch mytower/game/ui.py
+touch mytower/tests/__init__.py
