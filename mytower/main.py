@@ -7,13 +7,13 @@ from game.game_state import GameState
 pygame.init()
 
 # Constants
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1024
+SCREEN_HEIGHT = 760
 FPS = 60
 BACKGROUND_COLOR = (240, 240, 240)
 
 # Set up the display
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
 pygame.display.set_caption("MyTower")
 clock = pygame.time.Clock()
 
