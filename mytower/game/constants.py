@@ -10,8 +10,8 @@
 from typing import Final
 
 # Display constants
-SCREEN_WIDTH: Final = 800
-SCREEN_HEIGHT: Final = 600
+SCREEN_WIDTH: Final = 1200
+SCREEN_HEIGHT: Final = 900
 FPS: Final = 60
 BACKGROUND_COLOR: Final = (240, 240, 240)
 
