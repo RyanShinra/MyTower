@@ -8,44 +8,37 @@
 # (at your option) any later version.
 
 from typing import Final
+from game.types import Color, RGB, Money
 
 # Display constants
-SCREEN_WIDTH: Final = 1200
-SCREEN_HEIGHT: Final = 900
-FPS: Final = 60
-BACKGROUND_COLOR: Final = (240, 240, 240)
+SCREEN_WIDTH: Final[int] = 800
+SCREEN_HEIGHT: Final[int] = 600
+FPS: Final[int] = 60
+BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants
-CELL_WIDTH: Final = 20  # Width of a grid cell in pixels
-CELL_HEIGHT: Final = 20  # Height of a grid cell in pixels
+CELL_WIDTH: Final[int] = 20  # Width of a grid cell in pixels
+CELL_HEIGHT: Final[int] = 20  # Height of a grid cell in pixels
 
 # Color constants
-UI_BACKGROUND_COLOR: Final = (220, 220, 220)
-UI_BORDER_COLOR: Final = (150, 150, 150)
-UI_TEXT_COLOR: Final = (0, 0, 0)
-BUTTON_COLOR: Final = (200, 200, 200)
-BUTTON_HOVER_COLOR: Final = (180, 180, 180)
+UI_BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)
+UI_BORDER_COLOR: Final[RGB] = (150, 150, 150)
+UI_TEXT_COLOR: Final[RGB] = (0, 0, 0)
+BUTTON_COLOR: Final[RGB] = (200, 200, 200)
+BUTTON_HOVER_COLOR: Final[RGB] = (180, 180, 180)
 
 # Floor colors
-LOBBY_COLOR: Final = (200, 200, 200)
-OFFICE_COLOR: Final = (150, 200, 250)
-APARTMENT_COLOR: Final = (250, 200, 150)
-HOTEL_COLOR: Final = (200, 150, 250)
-RESTAURANT_COLOR: Final = (250, 150, 200)
-RETAIL_COLOR: Final = (150, 250, 200)
-
-# Floor heights
-LOBBY_HEIGHT: Final = 1
-OFFICE_HEIGHT: Final = 1
-APARTMENT_HEIGHT: Final = 1
-HOTEL_HEIGHT: Final = 1
-RESTAURANT_HEIGHT: Final = 1
-RETAIL_HEIGHT: Final = 1
+LOBBY_COLOR: Final[RGB] = (200, 200, 200)
+OFFICE_COLOR: Final[RGB] = (150, 200, 250)
+APARTMENT_COLOR: Final[RGB] = (250, 200, 150)
+HOTEL_COLOR: Final[RGB] = (200, 150, 250)
+RESTAURANT_COLOR: Final[RGB] = (250, 150, 200)
+RETAIL_COLOR: Final[RGB] = (150, 250, 200)
 
 # Elevator constants
-ELEVATOR_SHAFT_COLOR: Final = (100, 100, 100)
-ELEVATOR_CLOSED_COLOR: Final = (50, 50, 200)
-ELEVATOR_OPEN_COLOR: Final = (200, 200, 50)
+ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
+ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
+ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
 
 # Game balance constants
-STARTING_MONEY: Final = 100000
+STARTING_MONEY: Final[Money] = Money(100000)
