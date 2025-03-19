@@ -1,5 +1,9 @@
 # game/floor.py
 import pygame
+from game.constants import ( CELL_WIDTH, CELL_HEIGHT, 
+    LOBBY_COLOR, OFFICE_COLOR, APARTMENT_COLOR, HOTEL_COLOR, RESTAURANT_COLOR, RETAIL_COLOR,
+    LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT
+)
 
 class Floor:
     """
@@ -7,12 +11,12 @@ class Floor:
     """
     # Available floor types
     FLOOR_TYPES = {
-        "LOBBY": {"color": (200, 200, 200), "height": 1},
-        "OFFICE": {"color": (150, 200, 250), "height": 1},
-        "APARTMENT": {"color": (250, 200, 150), "height": 1},
-        "HOTEL": {"color": (200, 150, 250), "height": 1},
-        "RESTAURANT": {"color": (250, 150, 200), "height": 1},
-        "RETAIL": {"color": (150, 250, 200), "height": 1},
+        "LOBBY": {"color": LOBBY_COLOR, "height": LOBBY_HEIGHT},
+        "OFFICE": {"color": OFFICE_COLOR, "height": OFFICE_HEIGHT},
+        "APARTMENT": {"color": APARTMENT_COLOR, "height": APARTMENT_HEIGHT},
+        "HOTEL": {"color": HOTEL_COLOR, "height": HOTEL_HEIGHT},
+        "RESTAURANT": {"color": RESTAURANT_COLOR, "height": RESTAURANT_HEIGHT},
+        "RETAIL": {"color": RETAIL_COLOR, "height": RETAIL_HEIGHT},
     }
     
     def __init__(self, building, floor_num, floor_type):
@@ -36,16 +40,15 @@ class Floor:
     def draw(self, surface):
         """Draw the floor on the given surface"""
         # Calculate vertical position (inverted Y axis, 0 is at the bottom)
-        # Each floor is 20 pixels tall in this example
         screen_height = surface.get_height()
-        floor_height = 20 * self.height
+        floor_height = CELL_HEIGHT * self.height
         y_pos = screen_height - (self.floor_num * floor_height) - floor_height
         
         # Draw the main floor rectangle
         pygame.draw.rect(
             surface, 
             self.color, 
-            (0, y_pos, self.building.width * 20, floor_height)
+            (0, y_pos, self.building.width * CELL_WIDTH, floor_height)
         )
         
         # Draw floor number

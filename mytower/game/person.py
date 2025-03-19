@@ -1,6 +1,7 @@
 # game/person.py
 import random
 import pygame
+from game.constants import CELL_WIDTH, CELL_HEIGHT
 
 class Person:
     """
@@ -27,9 +28,8 @@ class Person:
         """Draw the person on the given surface"""
         # Calculate position and draw a simple circle for now
         screen_height = surface.get_height()
-        floor_height = 20
-        y_pos = screen_height - (self.current_floor * floor_height) - floor_height / 2
-        x_pos = self.x_pos * 20 + 10  # 20 pixels per grid cell
+        y_pos = screen_height - (self.current_floor * CELL_HEIGHT) - CELL_HEIGHT / 2
+        x_pos = self.x_pos * CELL_WIDTH + CELL_WIDTH / 2
         
         pygame.draw.circle(
             surface,

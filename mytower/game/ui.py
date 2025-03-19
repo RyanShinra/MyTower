@@ -1,11 +1,15 @@
 # game/ui.py
 import pygame
+from game.constants import (
+    BUTTON_COLOR, BUTTON_HOVER_COLOR, UI_TEXT_COLOR,
+    UI_BACKGROUND_COLOR, UI_BORDER_COLOR
+)
 
 class Button:
     """
     A simple button UI element
     """
-    def __init__(self, x, y, width, height, text, color=(200, 200, 200), hover_color=(180, 180, 180), text_color=(0, 0, 0)):
+    def __init__(self, x, y, width, height, text, color=BUTTON_COLOR, hover_color=BUTTON_HOVER_COLOR, text_color=UI_TEXT_COLOR):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.color = color
@@ -40,7 +44,7 @@ class Toolbar:
         self.rect = pygame.Rect(x, y, width, height)
         self.buttons = []
         self.active_tool = None
-        self.bg_color = (220, 220, 220)
+        self.bg_color = UI_BACKGROUND_COLOR
         
     def add_button(self, text, width=100, height=30):
         """Add a button to the toolbar"""
@@ -60,7 +64,7 @@ class Toolbar:
         """Draw the toolbar and its buttons"""
         # Draw toolbar background
         pygame.draw.rect(surface, self.bg_color, self.rect)
-        pygame.draw.rect(surface, (150, 150, 150), self.rect, 2)  # Border
+        pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 2)  # Border
         
         # Draw buttons
         for button in self.buttons:

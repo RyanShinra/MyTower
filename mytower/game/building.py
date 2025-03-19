@@ -1,4 +1,5 @@
 # game/building.py
+from game.constants import STARTING_MONEY
 class Building:
     """
     The main building class that contains all floors, elevators, and people.
@@ -9,7 +10,7 @@ class Building:
         self.elevators = [] # List of elevator objects
         self.people = []    # List of people in the building
         self.time = 0       # Game time in minutes
-        self.money = 100000 # Starting money
+        self.money = STARTING_MONEY # Starting money
         
         # Add ground floor by default
         self.add_floor(0, "LOBBY")

@@ -1,5 +1,9 @@
 # game/elevator.py
 import pygame
+from game.constants import (
+    CELL_WIDTH, CELL_HEIGHT,
+    ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR
+)
 
 class Elevator:
     """
@@ -33,24 +37,23 @@ class Elevator:
         """Draw the elevator on the given surface"""
         # Calculate positions
         screen_height = surface.get_height()
-        floor_height = 20
-        y_pos = screen_height - int(self.current_floor * floor_height) - floor_height
-        x_pos = self.x_pos * 20  # 20 pixels per grid cell
-        width = 20
+        y_pos = screen_height - int(self.current_floor * CELL_HEIGHT) - CELL_HEIGHT
+        x_pos = self.x_pos * CELL_WIDTH
+        width = CELL_WIDTH
         
         # Draw shaft from min to max floor
-        shaft_top = screen_height - (self.max_floor * floor_height) - floor_height
-        shaft_bottom = screen_height - (self.min_floor * floor_height)
+        shaft_top = screen_height - (self.max_floor * CELL_HEIGHT) - CELL_HEIGHT
+        shaft_bottom = screen_height - (self.min_floor * CELL_HEIGHT)
         pygame.draw.rect(
             surface,
-            (100, 100, 100),
+            ELEVATOR_SHAFT_COLOR,
             (x_pos, shaft_top, width, shaft_bottom - shaft_top)
         )
         
         # Draw elevator car
-        color = (200, 200, 50) if self.door_open else (50, 50, 200)
+        color = ELEVATOR_OPEN_COLOR if self.door_open else ELEVATOR_CLOSED_COLOR
         pygame.draw.rect(
             surface,
             color,
-            (x_pos, y_pos, width, floor_height)
+            (x_pos, y_pos, width, CELL_HEIGHT)
         )

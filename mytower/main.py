@@ -3,14 +3,10 @@ import sys
 from pygame.locals import *
 from game.game_state import GameState
 
+from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BACKGROUND_COLOR
+
 # Initialize pygame
 pygame.init()
-
-# Constants
-SCREEN_WIDTH = 1024
-SCREEN_HEIGHT = 760
-FPS = 60
-BACKGROUND_COLOR = (240, 240, 240)
 
 # Set up the display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
