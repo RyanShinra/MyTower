@@ -1,16 +1,20 @@
 # game/building.py
+from typing import List
 from game.constants import STARTING_MONEY
+from mytower.game.elevator import Elevator
+from mytower.game.floor import Floor
+from mytower.game.person import Person
 class Building:
     """
     The main building class that contains all floors, elevators, and people.
     """
-    def __init__(self, width=20):
-        self.width = width  # Width in grid cells
-        self.floors = {}    # Dictionary with floor number as key
-        self.elevators = [] # List of elevator objects
-        self.people = []    # List of people in the building
-        self.time = 0       # Game time in minutes
-        self.money = STARTING_MONEY # Starting money
+    def __init__(self, width: int = 20):
+        self.width: int = width  # Width in grid cells
+        self.floors: List[Floor] = {}    # Dictionary with floor number as key
+        self.elevators: List[Elevator] = [] # List of elevator objects
+        self.people: List[Person] = []    # List of people in the building
+        self.time: float = 0       # Game time in minutes
+        self.money: int = STARTING_MONEY # Starting money
         
         # Add ground floor by default
         self.add_floor(0, "LOBBY")

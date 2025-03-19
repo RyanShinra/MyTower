@@ -5,6 +5,8 @@ from game.constants import ( CELL_WIDTH, CELL_HEIGHT,
     LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT
 )
 
+
+
 class Floor:
     """
     A floor in the building that can contain various room types
@@ -28,7 +30,7 @@ class Floor:
         
         self.floor_type = floor_type
         self.color = self.FLOOR_TYPES[floor_type]["color"]
-        self.height = self.FLOOR_TYPES[floor_type]["height"]
+        self.height: int = self.FLOOR_TYPES[floor_type]["height"]
         
         # Grid of rooms/spaces on this floor
         self.grid = [None] * building.width
