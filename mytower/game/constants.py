@@ -8,7 +8,7 @@
 # (at your option) any later version.
 
 from typing import Final
-from game.types import Color, RGB, Money
+from game.types import  RGB, Money
 
 # Display constants
 SCREEN_WIDTH: Final[int] = 800
@@ -34,6 +34,14 @@ APARTMENT_COLOR: Final[RGB] = (250, 200, 150)
 HOTEL_COLOR: Final[RGB] = (200, 150, 250)
 RESTAURANT_COLOR: Final[RGB] = (250, 150, 200)
 RETAIL_COLOR: Final[RGB] = (150, 250, 200)
+
+# Floor heights
+LOBBY_HEIGHT: Final[int] = 1
+OFFICE_HEIGHT: Final[int] = 1
+APARTMENT_HEIGHT: Final[int] = 1
+HOTEL_HEIGHT: Final[int] = 1
+RESTAURANT_HEIGHT: Final[int] = 1
+RETAIL_HEIGHT: Final[int] = 1
 
 # Elevator constants
 ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)

@@ -5,9 +5,10 @@ from game.constants import (
     CELL_WIDTH, CELL_HEIGHT,
     ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR
 )
-from game.types import Color, ElevatorState, Direction
+from game.types import ElevatorState, Direction
 from game.building import Building
 from game.person import Person
+from pygame.surface import Surface
 class Elevator:
     """
     An elevator in the building that transports people between floors.
@@ -24,21 +25,21 @@ class Elevator:
         """
         self.building: Building = building
         self.x_pos: int = x_pos
-        self.min_floo: int = min_floor
+        self.min_floor: int = min_floor
         self.max_floor: int = max_floor
         
         # Current state
-        self.current_floor: int = min_floor  # Floor number (can be fractional when moving)
+        self.current_floor: float = min_floor  # Floor number (can be fractional when moving)
         self.door_open: bool = False
         self.state: ElevatorState = "IDLE"
         self.direction: Direction = 0  # -1 for down, 0 for stopped, 1 for up
         self.occupants: List[Person] = []  # People inside the elevator
     
-    def update(self, dt):
+    def update(self, dt: float):
         """Update elevator status over time increment dt (in seconds)"""
         pass  # To be implemented
     
-    def draw(self, surface):
+    def draw(self, surface: Surface):
         """Draw the elevator on the given surface"""
         # Calculate positions
         screen_height = surface.get_height()

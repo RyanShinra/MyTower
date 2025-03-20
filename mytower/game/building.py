@@ -1,43 +1,48 @@
 # game/building.py
-from typing import List
+from typing import Dict, List
 from game.constants import STARTING_MONEY
 from mytower.game.elevator import Elevator
 from mytower.game.floor import Floor
 from mytower.game.person import Person
+from game.floor import Floor
+from mytower.game.types import FloorType
+from pygame.surface import Surface
+
 class Building:
     """
     The main building class that contains all floors, elevators, and people.
     """
     def __init__(self, width: int = 20):
         self.width: int = width  # Width in grid cells
-        self.floors: List[Floor] = {}    # Dictionary with floor number as key
+        self.floors: Dict[int, Floor] = {}    # Dictionary with floor number as key
         self.elevators: List[Elevator] = [] # List of elevator objects
         self.people: List[Person] = []    # List of people in the building
         self.time: float = 0       # Game time in minutes
         self.money: int = STARTING_MONEY # Starting money
         
         # Add ground floor by default
-        self.add_floor(0, "LOBBY")
+        self.add_floor("LOBBY")
     
-    def add_floor(self, floor_num, floor_type):
-        """Add a new floor to the building"""
-        from game.floor import Floor
-        
-        if floor_num in self.floors:
-            raise ValueError(f"Floor {floor_num} already exists")
-        
-        self.floors[floor_num] = Floor(self, floor_num, floor_type)
-        return self.floors[floor_num]
+    @property
+    def num_floors(self) -> int:
+        """Return the number of floors in the building."""
+        return len(self.floors)
     
-    def add_elevator(self, elevator):
+    def add_floor(self, floor_type: FloorType) -> Floor:
+        """Add a new floor to the building"""    
+        nextFloor = self.num_floors + 1    
+        self.floors[nextFloor] = Floor(self, nextFloor, floor_type)
+        return self.floors[nextFloor]
+    
+    def add_elevator(self, elevator: Elevator):
         """Add a new elevator to the building"""
         self.elevators.append(elevator)
     
-    def update(self, dt):
+    def update(self, dt: float):
         """Update the building simulation by dt time"""
         pass  # To be implemented
     
-    def draw(self, surface):
+    def draw(self, surface: Surface):
         """Draw the building on the given surface"""
         # Draw floors from bottom to top
         for floor_num in sorted(self.floors.keys()):

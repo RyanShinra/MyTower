@@ -2,19 +2,19 @@
 import pygame
 from game.building import Building
 from game.elevator import Elevator
-
+from pygame.surface import Surface
 class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
     """
-    def __init__(self, screen_width, screen_height):
-        self.screen_width = screen_width
-        self.screen_height = screen_height
+    def __init__(self, screen_width: int, screen_height: int):
+        self.screen_width: int = screen_width
+        self.screen_height: int = screen_height
         self.building = Building(width=20)
         
         # Initialize with some basic floors and an elevator
-        self.building.add_floor(1, "OFFICE")
-        self.building.add_floor(2, "APARTMENT")
+        self.building.add_floor("OFFICE")
+        self.building.add_floor("APARTMENT")
         
         # Add one elevator
         elevator = Elevator(self.building, x_pos=10, min_floor=0, max_floor=2)
@@ -27,7 +27,7 @@ class GameState:
         # UI state
         self.paused = False
     
-    def update(self, dt):
+    def update(self, dt: float) -> None:
         """Update game state by time increment dt (in seconds)"""
         if not self.paused:
             # Scale dt by game speed
@@ -37,7 +37,7 @@ class GameState:
             # Update building and all its components
             self.building.update(game_dt)
     
-    def draw(self, surface):
+    def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         # Draw building
         self.building.draw(surface)
@@ -45,7 +45,7 @@ class GameState:
         # Draw UI elements
         self._draw_ui(surface)
     
-    def _draw_ui(self, surface):
+    def _draw_ui(self, surface: Surface):
         """Draw UI elements like time, money, etc."""
         # Draw time
         font = pygame.font.SysFont(None, 24)

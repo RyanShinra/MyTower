@@ -2,12 +2,15 @@
 import random
 import pygame
 from game.constants import CELL_WIDTH, CELL_HEIGHT
+from pygame.surface import Surface
+
+from mytower.game.building import Building
 
 class Person:
     """
     A person in the building who moves between floors and has needs.
     """
-    def __init__(self, building, current_floor, x_pos):
+    def __init__(self, building: Building, current_floor: int, x_pos: int):
         self.building = building
         self.current_floor = current_floor
         self.x_pos = x_pos
@@ -20,11 +23,11 @@ class Person:
             random.randint(0, 255)
         )
     
-    def update(self, dt):
+    def update(self, dt: float):
         """Update person's state and position"""
         pass  # To be implemented
     
-    def draw(self, surface):
+    def draw(self, surface: Surface):
         """Draw the person on the given surface"""
         # Calculate position and draw a simple circle for now
         screen_height = surface.get_height()

@@ -1,17 +1,20 @@
 import pygame
 import sys
-from pygame.locals import *
+
 from game.game_state import GameState
 
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BACKGROUND_COLOR
+from pygame.surface import Surface
+from pygame.time import Clock
 
 # Initialize pygame
 pygame.init()
 
 # Set up the display
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
+screen: Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
 pygame.display.set_caption("MyTower")
-clock = pygame.time.Clock()
+
+clock: Clock = pygame.time.Clock()
 
 def main():
     # Create game state
@@ -21,16 +24,16 @@ def main():
     
     while running:
         # Calculate delta time (for time-based movement)
-        dt = clock.get_time() / 1000.0  # Convert to seconds
+        dt: float = clock.get_time() / 1000.0  # Convert to seconds
         
         # Handle events
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 running = False
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
                     running = False
-                elif event.key == K_SPACE:
+                elif event.key == pygame.K_SPACE:
                     # Toggle pause
                     game_state.paused = not game_state.paused
         
