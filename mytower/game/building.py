@@ -1,13 +1,14 @@
 # game/building.py
-from typing import Dict, List
+from __future__ import annotations  # Defer type evaluation
+from typing import Dict, List, TYPE_CHECKING
 from game.constants import STARTING_MONEY
-from mytower.game.elevator import Elevator
-from mytower.game.floor import Floor
-from mytower.game.person import Person
+from game.person import Person
 from game.floor import Floor
-from mytower.game.types import FloorType
+from game.types import FloorType
 from pygame.surface import Surface
 
+if TYPE_CHECKING:
+    from game.elevator import Elevator
 class Building:
     """
     The main building class that contains all floors, elevators, and people.

@@ -1,10 +1,14 @@
 # game/person.py
+from __future__ import annotations  # Defer type evaluation
+from typing import TYPE_CHECKING
+
 import random
 import pygame
 from game.constants import CELL_WIDTH, CELL_HEIGHT
 from pygame.surface import Surface
 
-from mytower.game.building import Building
+if TYPE_CHECKING:
+    from game.building import Building
 
 class Person:
     """

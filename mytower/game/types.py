@@ -8,6 +8,7 @@
 # (at your option) any later version.
 
 from typing import Tuple, Literal, TypeAlias, Union, NewType
+import pygame
 
 # Type definitions for colors
 # RGB color type as a tuple of three integers
@@ -16,6 +17,11 @@ RGB: TypeAlias = Tuple[int, int, int]
 RGBA: TypeAlias = Tuple[int, int, int, int]
 # Either RGB or RGBA
 Color: TypeAlias = Union[RGB, RGBA]
+
+# Pygame-specific types
+MousePos: TypeAlias = Tuple[int, int]
+MouseButtons: TypeAlias = Tuple[bool, bool, bool]
+PygameSurface: TypeAlias = pygame.Surface
 
 # Floor types with string literals
 FloorType: TypeAlias = Literal["LOBBY", "OFFICE", "APARTMENT", "HOTEL", "RESTAURANT", "RETAIL"]

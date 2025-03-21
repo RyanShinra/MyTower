@@ -1,14 +1,19 @@
 # game/elevator.py
-from typing import List
+from __future__ import annotations  # Defer type evaluation
+from typing import List, TYPE_CHECKING
+
 import pygame
 from game.constants import (
     CELL_WIDTH, CELL_HEIGHT,
     ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR
 )
 from game.types import ElevatorState, Direction
-from game.building import Building
 from game.person import Person
 from pygame.surface import Surface
+
+if TYPE_CHECKING:
+    from game.building import Building
+
 class Elevator:
     """
     An elevator in the building that transports people between floors.

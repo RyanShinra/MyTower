@@ -4,6 +4,8 @@ import sys
 from game.game_state import GameState
 
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BACKGROUND_COLOR
+from game.input import mouse
+
 from pygame.surface import Surface
 from pygame.time import Clock
 
@@ -36,6 +38,9 @@ def main():
                 elif event.key == pygame.K_SPACE:
                     # Toggle pause
                     game_state.paused = not game_state.paused
+        
+        # Update mouse state
+        mouse.update()
         
         # Update game state
         game_state.update(dt)
