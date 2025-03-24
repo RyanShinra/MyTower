@@ -41,6 +41,7 @@ class Floor:
     
     def __init__(self, building: Building, floor_num: int, floor_type: FloorType):
         self.building: Building = building
+        # Floors are 1 indexed
         self.floor_num: int = floor_num
         
         if floor_type not in self.FLOOR_TYPES:
@@ -62,7 +63,10 @@ class Floor:
         # Calculate vertical position (inverted Y axis, 0 is at the bottom)
         screen_height: int = surface.get_height()
         floor_height: int = CELL_HEIGHT * self.height
-        y_pos = screen_height - (self.floor_num * floor_height) - floor_height
+        # These are 1 indexed, plus 
+        # 460 = 480 - (1 * 20) , the top of floor 1
+        # 440 = 480 - (2 * 20) , the top of floor 2
+        y_pos = screen_height - (self.floor_num * floor_height)
         
         # Draw the main floor rectangle
         pygame.draw.rect(

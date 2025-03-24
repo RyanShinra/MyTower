@@ -31,7 +31,7 @@ class Building:
     
     def add_floor(self, floor_type: FloorType) -> Floor:
         """Add a new floor to the building"""    
-        nextFloor = self.num_floors + 1    
+        nextFloor = self.num_floors + 1
         self.floors[nextFloor] = Floor(self, nextFloor, floor_type)
         return self.floors[nextFloor]
     

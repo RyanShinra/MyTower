@@ -48,17 +48,20 @@ class Elevator:
         """Draw the elevator on the given surface"""
         # Calculate positions
         screen_height = surface.get_height()
-        y_pos = screen_height - int(self.current_floor * CELL_HEIGHT) - CELL_HEIGHT
-        x_pos = self.x_pos * CELL_WIDTH
+        #   450 = 480 - (1.5 * 20)
+        car_top = screen_height - int(self.current_floor * CELL_HEIGHT)
+        shaft_left = self.x_pos * CELL_WIDTH
         width = CELL_WIDTH
         
         # Draw shaft from min to max floor
-        shaft_top = screen_height - (self.max_floor * CELL_HEIGHT) - CELL_HEIGHT
-        shaft_bottom = screen_height - (self.min_floor * CELL_HEIGHT)
+        #     420 = 480 - (3 * 20)
+        shaft_top = screen_height - (self.max_floor * CELL_HEIGHT)
+        #     480 = 480 - ((1 - 1) * 20)
+        shaft_bottom = screen_height - ((self.min_floor - 1) * CELL_HEIGHT)
         pygame.draw.rect(
             surface,
             ELEVATOR_SHAFT_COLOR,
-            (x_pos, shaft_top, width, shaft_bottom - shaft_top)
+            (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
         )
         
         # Draw elevator car
@@ -66,5 +69,5 @@ class Elevator:
         pygame.draw.rect(
             surface,
             color,
-            (x_pos, y_pos, width, CELL_HEIGHT)
+            (shaft_left, car_top, width, CELL_HEIGHT)
         )

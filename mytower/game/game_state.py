@@ -17,8 +17,8 @@ class GameState:
         self.building.add_floor("APARTMENT")
         
         # Add one elevator
-        elevator = Elevator(self.building, x_pos=10, min_floor=0, max_floor=2)
-        self.building.add_elevator(elevator)
+        self.test_elevator = Elevator(self.building, x_pos=10, min_floor=1, max_floor=self.building.num_floors)
+        self.building.add_elevator(self.test_elevator)
         
         # Game time tracking
         self.time = 0  # Game time in seconds
@@ -32,7 +32,12 @@ class GameState:
         if not self.paused:
             # Scale dt by game speed
             game_dt = dt * self.speed
-            self.time += game_dt
+            self.time += game_dt           
+            
+            # Sample hack to move the elevator
+            cur_floor: float = self.test_elevator.current_floor
+            cur_floor = min(self.building.num_floors, cur_floor + game_dt / 5.0) # 5.0 seconds per floor
+            self.test_elevator.current_floor = cur_floor
             
             # Update building and all its components
             self.building.update(game_dt)
