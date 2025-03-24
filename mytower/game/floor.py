@@ -1,4 +1,6 @@
 # game/floor.py
+from __future__ import annotations  # Defer type evaluation
+from typing import TYPE_CHECKING
 from typing import Any, Dict, List, Optional
 import pygame
 from game.constants import ( CELL_WIDTH, CELL_HEIGHT, 
@@ -8,8 +10,10 @@ from game.constants import ( CELL_WIDTH, CELL_HEIGHT,
 
 from game.types import Color
 from game.types import FloorType
-from building import Building
 from pygame.surface import Surface
+
+if TYPE_CHECKING:
+    from game.building import Building
 
 # See FloorInfo below
 class Floor:
