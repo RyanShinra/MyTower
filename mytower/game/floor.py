@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 import pygame
 from game.constants import ( CELL_WIDTH, CELL_HEIGHT, 
     LOBBY_COLOR,  OFFICE_COLOR,  APARTMENT_COLOR,  HOTEL_COLOR,  RESTAURANT_COLOR,  RETAIL_COLOR, 
-    LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT
+    LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT, UI_TEXT_COLOR
 )
 
 from game.types import Color
@@ -73,6 +73,11 @@ class Floor:
             surface, 
             self.color, 
             (0, y_pos, self.building.width * CELL_WIDTH, floor_height)
+        )
+        pygame.draw.rect(
+            surface, 
+            UI_TEXT_COLOR, 
+            (0, y_pos, self.building.width * CELL_WIDTH, 2)
         )
         
         # Draw floor number

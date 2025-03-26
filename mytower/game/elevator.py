@@ -5,7 +5,7 @@ from typing import List, TYPE_CHECKING
 import pygame
 from game.constants import (
     CELL_WIDTH, CELL_HEIGHT,
-    ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR
+    ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, UI_TEXT_COLOR
 )
 from game.types import ElevatorState, Direction
 from game.person import Person
@@ -56,12 +56,19 @@ class Elevator:
         # Draw shaft from min to max floor
         #     420 = 480 - (3 * 20)
         shaft_top = screen_height - (self.max_floor * CELL_HEIGHT)
+        shaft_overhead = screen_height - ((self.max_floor + 1) * CELL_HEIGHT)
         #     480 = 480 - ((1 - 1) * 20)
         shaft_bottom = screen_height - ((self.min_floor - 1) * CELL_HEIGHT)
         pygame.draw.rect(
             surface,
             ELEVATOR_SHAFT_COLOR,
             (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
+        )
+        
+        pygame.draw.rect(
+            surface,
+            UI_TEXT_COLOR,
+            (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
         )
         
         # Draw elevator car
