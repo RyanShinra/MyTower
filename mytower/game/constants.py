@@ -11,14 +11,14 @@ from typing import Final
 from game.types import  RGB, Money
 
 # Display constants
-SCREEN_WIDTH: Final[int] = 800
-SCREEN_HEIGHT: Final[int] = 600
+SCREEN_WIDTH: Final[int] = 1600
+SCREEN_HEIGHT: Final[int] = 1200
 FPS: Final[int] = 60
 BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants
-CELL_WIDTH: Final[int] = 20  # Width of a grid cell in pixels
-CELL_HEIGHT: Final[int] = 20  # Height of a grid cell in pixels
+CELL_WIDTH: Final[int] = 40  # Width of a grid cell in pixels
+CELL_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels
 
 # Color constants
 UI_BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)
