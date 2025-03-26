@@ -13,7 +13,23 @@ class GameState:
         self.building = Building(width=20)
         
         # Initialize with some basic floors and an elevator
+        self.building.add_floor("RETAIL")
+        self.building.add_floor("RETAIL")
+        self.building.add_floor("RETAIL")
+        self.building.add_floor("RESTAURANT")
+        self.building.add_floor("RESTAURANT")
         self.building.add_floor("OFFICE")
+        self.building.add_floor("OFFICE")
+        self.building.add_floor("OFFICE")
+        self.building.add_floor("OFFICE")
+        self.building.add_floor("OFFICE")
+        self.building.add_floor("HOTEL")
+        self.building.add_floor("HOTEL")
+        self.building.add_floor("HOTEL")
+        self.building.add_floor("HOTEL")
+        self.building.add_floor("APARTMENT")
+        self.building.add_floor("APARTMENT")
+        self.building.add_floor("APARTMENT")
         self.building.add_floor("APARTMENT")
         
         # Add one elevator
@@ -36,7 +52,7 @@ class GameState:
             
             # Sample hack to move the elevator
             cur_floor: float = self.test_elevator.current_floor
-            cur_floor = min(self.building.num_floors, cur_floor + game_dt / 5.0) # 5.0 seconds per floor
+            cur_floor = min(self.building.num_floors, cur_floor + game_dt / 2.0) # 2.0 seconds per floor
             self.test_elevator.current_floor = cur_floor
             
             # Update building and all its components
