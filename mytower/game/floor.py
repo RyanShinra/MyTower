@@ -66,21 +66,22 @@ class Floor:
         # These are 1 indexed, plus 
         # 460 = 480 - (1 * 20) , the top of floor 1
         # 440 = 480 - (2 * 20) , the top of floor 2
-        y_pos = screen_height - (self.floor_num * floor_height)
+        floor_y_top = screen_height - (self.floor_num * floor_height)
+        floor_x_left = 0
         
         # Draw the main floor rectangle
         pygame.draw.rect(
             surface, 
             self.color, 
-            (0, y_pos, self.building.width * CELL_WIDTH, floor_height)
+            (floor_x_left, floor_y_top, self.building.width * CELL_WIDTH, floor_height)
         )
         pygame.draw.rect(
             surface, 
             UI_TEXT_COLOR, 
-            (0, y_pos, self.building.width * CELL_WIDTH, 2)
+            (floor_x_left, floor_y_top, self.building.width * CELL_WIDTH, 2)
         )
         
         # Draw floor number
-        font = pygame.font.SysFont(None, 20)
+        font = pygame.font.SysFont(['Palatino Linotype','Menlo', 'Lucida Sans Typewriter'], 18)
         text = font.render(f"{self.floor_num}", True, (0, 0, 0))
-        surface.blit(text, (5, y_pos + 5))
+        surface.blit(text, (floor_x_left + 8, floor_y_top + 12))
