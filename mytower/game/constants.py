@@ -47,6 +47,7 @@ RETAIL_HEIGHT: Final[int] = 1
 ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
 ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
 ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
+ELEVATOR_MAX_SPEED: Final[float] = 0.5  # floors per second
 
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)

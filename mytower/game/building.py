@@ -41,7 +41,9 @@ class Building:
     
     def update(self, dt: float):
         """Update the building simulation by dt time"""
-        pass  # To be implemented
+        for elevator in self.elevators:
+            elevator.update(dt)
+        
     
     def draw(self, surface: Surface):
         """Draw the building on the given surface"""
