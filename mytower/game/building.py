@@ -5,7 +5,7 @@ from game.constants import STARTING_MONEY
 from game.person import Person
 from game.floor import Floor
 from game.types import FloorType
-from pygame.surface import Surface
+from pygame import Surface
 
 if TYPE_CHECKING:
     from game.elevator import Elevator
@@ -31,18 +31,23 @@ class Building:
     
     def add_floor(self, floor_type: FloorType) -> Floor:
         """Add a new floor to the building"""    
-        nextFloor = self.num_floors + 1
-        self.floors[nextFloor] = Floor(self, nextFloor, floor_type)
-        return self.floors[nextFloor]
+        next_floor = self.num_floors + 1
+        self.floors[next_floor] = Floor(self, next_floor, floor_type)
+        return self.floors[next_floor]
     
     def add_elevator(self, elevator: Elevator):
         """Add a new elevator to the building"""
         self.elevators.append(elevator)
     
+    def add_person(self, person: Person) -> None:
+        self.people.append(person)
+    
+
     def update(self, dt: float):
         """Update the building simulation by dt time"""
         for elevator in self.elevators:
-            elevator.update(dt)
+            if hasattr(elevator, 'update'):
+                elevator.update(dt)
         
     
     def draw(self, surface: Surface):
@@ -51,11 +56,10 @@ class Building:
         for floor_num in sorted(self.floors.keys()):
             self.floors[floor_num].draw(surface)
         
-        # Draw elevators
         for elevator in self.elevators:
-            elevator.draw(surface)
+            if hasattr(elevator, 'draw'):
+                elevator.draw(surface)
         
-        # Draw people
         for person in self.people:
-            if hasattr(person, 'draw'):
+            if hasattr(person, 'draw') and callable(person.draw):
                 person.draw(surface)

@@ -1,0 +1,6 @@
+[MESSAGES CONTROL]
+disable=all
+enable=unused-import,undefined-variable
+
+[BASIC]
+good-names=i,j,k,ex,_,fd

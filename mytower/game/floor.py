@@ -10,23 +10,26 @@ from game.constants import ( CELL_WIDTH, CELL_HEIGHT,
 
 from game.types import Color
 from game.types import FloorType
-from pygame.surface import Surface
+from pygame import Surface
 
 if TYPE_CHECKING:
     from game.building import Building
 
 # See FloorInfo below
 class Floor:
-    class FloorInfo:
-        def __init__(self, color: Color, height: int) -> None:            
-            self.color: Color = color
-            self.height: int = height
-            pass
-        
-        
     """
     A floor in the building that can contain various room types
     """
+    class FloorInfo:
+        """
+        Struct
+        """
+        def __init__(self, color: Color, height: int) -> None:
+            self.color: Color = color
+            self.height: int = height
+            pass
+
+
     # Available floor types
     # We shall return one day to fix this Any (turns out, that day is today)
     lobby_info = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)

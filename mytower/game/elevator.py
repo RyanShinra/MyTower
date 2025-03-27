@@ -9,7 +9,7 @@ from game.constants import (
 )
 from game.types import ElevatorState, Direction
 from game.person import Person
-from pygame.surface import Surface
+from pygame import Surface
 
 if TYPE_CHECKING:
     from game.building import Building
@@ -83,7 +83,7 @@ class Elevator:
         self.current_floor = cur_floor
         
     
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""
         # Calculate positions
         screen_height = surface.get_height()

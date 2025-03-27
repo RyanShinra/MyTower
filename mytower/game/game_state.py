@@ -1,9 +1,10 @@
 # game/game_state.py
 import pygame
+from pygame import Surface
 from game.building import Building
 from game.elevator import Elevator
-from pygame.surface import Surface
 from game.constants import ELEVATOR_MAX_SPEED
+from game.person import Person
 class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
@@ -35,11 +36,14 @@ class GameState:
 
         # Add one elevator
         self.test_elevator = Elevator(
-            self.building, x_pos=10, min_floor=1, 
-            max_floor=self.building.num_floors, max_velocity=ELEVATOR_MAX_SPEED
+            self.building, x_pos=10, min_floor=1,
+            max_floor=self.building.num_floors, max_velocity = ELEVATOR_MAX_SPEED
         )
         self.building.add_elevator(self.test_elevator)
         self.test_elevator.set_destination_floor(self.building.num_floors)
+
+        # Add a sample person
+        self.test_person = Person(building = self.building, current_floor = 1, x_pos = 4)
 
         # Game time tracking
         self.time = 0  # Game time in seconds
@@ -53,7 +57,7 @@ class GameState:
         if not self.paused:
             # Scale dt by game speed
             game_dt = dt * self.speed
-            self.time += game_dt           
+            self.time += game_dt
 
             # Update building and all its components
             self.building.update(game_dt)

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import random
 import pygame
 from game.constants import CELL_WIDTH, CELL_HEIGHT
-from pygame.surface import Surface
+from pygame import Surface
 
 if TYPE_CHECKING:
     from game.building import Building
@@ -22,9 +22,9 @@ class Person:
         
         # Appearance (for visualization)
         self.color = (
-            random.randint(0, 255),
-            random.randint(0, 255),
-            random.randint(0, 255)
+            random.randint(0, 128),
+            random.randint(0, 128),
+            random.randint(0, 128)
         )
     
     def update(self, dt: float):
