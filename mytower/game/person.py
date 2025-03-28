@@ -27,11 +27,11 @@ class Person:
             random.randint(0, 128)
         )
     
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         """Update person's state and position"""
         pass  # To be implemented
     
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface) -> None:
         """Draw the person on the given surface"""
         # Calculate position and draw a simple circle for now
         screen_height = surface.get_height()

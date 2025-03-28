@@ -9,7 +9,7 @@ class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
     """
-    def __init__(self, screen_width: int, screen_height: int):
+    def __init__(self, screen_width: int, screen_height: int) -> None:
         self.screen_width: int = screen_width
         self.screen_height: int = screen_height
         self.building = Building(width=20)
@@ -46,8 +46,8 @@ class GameState:
         self.test_person = Person(building = self.building, current_floor = 1, x_pos = 4)
 
         # Game time tracking
-        self.time = 0  # Game time in seconds
-        self.speed = 1  # Game speed multiplier
+        self.time: float = 0.0  # Game time in seconds
+        self.speed: float = 1.0  # Game speed multiplier
 
         # UI state
         self.paused = False
@@ -70,7 +70,7 @@ class GameState:
         # Draw UI elements
         self._draw_ui(surface)
 
-    def _draw_ui(self, surface: Surface):
+    def _draw_ui(self, surface: Surface) -> None:
         """Draw UI elements like time, money, etc."""
         # Draw time
         font = pygame.font.SysFont(None, 24)

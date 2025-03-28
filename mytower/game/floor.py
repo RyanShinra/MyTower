@@ -55,13 +55,13 @@ class Floor:
         self.height: int = self.FLOOR_TYPES[floor_type].height
         
         # Grid of rooms/spaces on this floor
-        self.gri: List[Optional[Any]] = [None] * building.width
+        self.gri: List[Optional[Any]] = [None] * building.floor_width
     
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         """Update floor simulation"""
         pass  # To be implemented
     
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface) -> None:
         """Draw the floor on the given surface"""
         # Calculate vertical position (inverted Y axis, 0 is at the bottom)
         screen_height: int = surface.get_height()
@@ -76,12 +76,12 @@ class Floor:
         pygame.draw.rect(
             surface, 
             self.color, 
-            (floor_x_left, floor_y_top, self.building.width * CELL_WIDTH, floor_height)
+            (floor_x_left, floor_y_top, self.building.floor_width * CELL_WIDTH, floor_height)
         )
         pygame.draw.rect(
             surface, 
             UI_TEXT_COLOR, 
-            (floor_x_left, floor_y_top, self.building.width * CELL_WIDTH, 2)
+            (floor_x_left, floor_y_top, self.building.floor_width * CELL_WIDTH, 2)
         )
         
         # Draw floor number
