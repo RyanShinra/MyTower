@@ -17,8 +17,8 @@ FPS: Final[int] = 60
 BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants
-CELL_WIDTH: Final[int] = 40  # Width of a grid cell in pixels
-CELL_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels
+BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels
+BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels
 
 # Color constants
 UI_BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)
@@ -47,6 +47,10 @@ RETAIL_HEIGHT: Final[int] = 1
 ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
 ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
 ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
+ELEVATOR_MAX_SPEED: Final[float] = 0.75  # floors per second
+
+# Person attributes (we'll add colors here later)
+PERSON_MAX_SPEED: Final[float] = 1.25 # Blocks per second
 
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)

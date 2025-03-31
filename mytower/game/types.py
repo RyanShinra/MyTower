@@ -27,7 +27,8 @@ PygameSurface: TypeAlias = pygame.Surface
 FloorType: TypeAlias = Literal["LOBBY", "OFFICE", "APARTMENT", "HOTEL", "RESTAURANT", "RETAIL"]
 
 # Direction types
-Direction: TypeAlias = Literal[-1, 0, 1]  # -1 for down, 0 for stationary, 1 for up
+VerticalDirection: TypeAlias = Literal[-1, 0, 1]  # -1 for down, 0 for stationary, 1 for up
+HorizontalDirection: TypeAlias = Literal[-1, 0, 1] # -1 for left,  0 for stationary, +1 for right
 
 # Person state type
 PersonState: TypeAlias = Literal["IDLE", "WALKING", "WAITING_FOR_ELEVATOR", "IN_ELEVATOR"]

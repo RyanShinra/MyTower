@@ -3,30 +3,33 @@ from __future__ import annotations  # Defer type evaluation
 from typing import TYPE_CHECKING
 from typing import Any, Dict, List, Optional
 import pygame
-from game.constants import ( CELL_WIDTH, CELL_HEIGHT, 
+from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT, 
     LOBBY_COLOR,  OFFICE_COLOR,  APARTMENT_COLOR,  HOTEL_COLOR,  RESTAURANT_COLOR,  RETAIL_COLOR, 
     LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT, UI_TEXT_COLOR
 )
 
 from game.types import Color
 from game.types import FloorType
-from pygame.surface import Surface
+from pygame import Surface
 
 if TYPE_CHECKING:
     from game.building import Building
 
 # See FloorInfo below
 class Floor:
-    class FloorInfo:
-        def __init__(self, color: Color, height: int) -> None:            
-            self.color: Color = color
-            self.height: int = height
-            pass
-        
-        
     """
     A floor in the building that can contain various room types
     """
+    class FloorInfo:
+        """
+        Struct
+        """
+        def __init__(self, color: Color, height: int) -> None:
+            self.color: Color = color
+            self.height: int = height
+            pass
+
+
     # Available floor types
     # We shall return one day to fix this Any (turns out, that day is today)
     lobby_info = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
@@ -52,17 +55,17 @@ class Floor:
         self.height: int = self.FLOOR_TYPES[floor_type].height
         
         # Grid of rooms/spaces on this floor
-        self.gri: List[Optional[Any]] = [None] * building.width
+        self.gri: List[Optional[Any]] = [None] * building.floor_width
     
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         """Update floor simulation"""
         pass  # To be implemented
     
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface) -> None:
         """Draw the floor on the given surface"""
         # Calculate vertical position (inverted Y axis, 0 is at the bottom)
         screen_height: int = surface.get_height()
-        floor_height: int = CELL_HEIGHT * self.height
+        floor_height: int = BLOCK_HEIGHT * self.height
         # These are 1 indexed, plus 
         # 460 = 480 - (1 * 20) , the top of floor 1
         # 440 = 480 - (2 * 20) , the top of floor 2
@@ -73,12 +76,12 @@ class Floor:
         pygame.draw.rect(
             surface, 
             self.color, 
-            (floor_x_left, floor_y_top, self.building.width * CELL_WIDTH, floor_height)
+            (floor_x_left, floor_y_top, self.building.floor_width * BLOCK_WIDTH, floor_height)
         )
         pygame.draw.rect(
             surface, 
             UI_TEXT_COLOR, 
-            (floor_x_left, floor_y_top, self.building.width * CELL_WIDTH, 2)
+            (floor_x_left, floor_y_top, self.building.floor_width * BLOCK_WIDTH, 2)
         )
         
         # Draw floor number
