@@ -17,8 +17,8 @@ FPS: Final[int] = 60
 BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants
-CELL_WIDTH: Final[int] = 40  # Width of a grid cell in pixels
-CELL_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels
+BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels
+BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels
 
 # Color constants
 UI_BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)

@@ -50,6 +50,17 @@ class Building:
     def add_person(self, person: Person) -> None:
         self.__people.append(person)
     
+    def get_elevator_banks_on_floor(self, floor_num: int) -> List[Elevator]:
+        """Returns a list of all elevators that are currently on the specified floor"""
+        return [
+            elevator for elevator in self.__elevators
+            if (
+                hasattr(elevator, 'min_floor') and
+                hasattr(elevator, 'max_floor') and
+                (elevator.min_floor <= floor_num <= elevator.max_floor)
+            )
+        ]
+        
 
     def update(self, dt: float) -> None:
         """Update the building simulation by dt time"""

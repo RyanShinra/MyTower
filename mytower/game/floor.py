@@ -3,7 +3,7 @@ from __future__ import annotations  # Defer type evaluation
 from typing import TYPE_CHECKING
 from typing import Any, Dict, List, Optional
 import pygame
-from game.constants import ( CELL_WIDTH, CELL_HEIGHT, 
+from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT, 
     LOBBY_COLOR,  OFFICE_COLOR,  APARTMENT_COLOR,  HOTEL_COLOR,  RESTAURANT_COLOR,  RETAIL_COLOR, 
     LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT, UI_TEXT_COLOR
 )
@@ -65,7 +65,7 @@ class Floor:
         """Draw the floor on the given surface"""
         # Calculate vertical position (inverted Y axis, 0 is at the bottom)
         screen_height: int = surface.get_height()
-        floor_height: int = CELL_HEIGHT * self.height
+        floor_height: int = BLOCK_HEIGHT * self.height
         # These are 1 indexed, plus 
         # 460 = 480 - (1 * 20) , the top of floor 1
         # 440 = 480 - (2 * 20) , the top of floor 2
@@ -76,12 +76,12 @@ class Floor:
         pygame.draw.rect(
             surface, 
             self.color, 
-            (floor_x_left, floor_y_top, self.building.floor_width * CELL_WIDTH, floor_height)
+            (floor_x_left, floor_y_top, self.building.floor_width * BLOCK_WIDTH, floor_height)
         )
         pygame.draw.rect(
             surface, 
             UI_TEXT_COLOR, 
-            (floor_x_left, floor_y_top, self.building.floor_width * CELL_WIDTH, 2)
+            (floor_x_left, floor_y_top, self.building.floor_width * BLOCK_WIDTH, 2)
         )
         
         # Draw floor number

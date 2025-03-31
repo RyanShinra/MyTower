@@ -4,7 +4,7 @@ from typing import Final, List, TYPE_CHECKING
 
 import pygame
 from game.constants import (
-    CELL_WIDTH, CELL_HEIGHT,
+    BLOCK_WIDTH, BLOCK_HEIGHT,
     ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, UI_TEXT_COLOR
 )
 from game.types import ElevatorState, VerticalDirection
@@ -30,7 +30,7 @@ class Elevator:
             max_velocity: Speed in floors per second
         """
         self.building: Building = building
-        self.x_pos: int = h_cell
+        self.horizontal_block: int = h_cell
         self.min_floor: int = min_floor
         self.max_floor: int = max_floor
         self.max_veloxity: float = max_velocity
@@ -88,16 +88,16 @@ class Elevator:
         # Calculate positions
         screen_height = surface.get_height()
         #   450 = 480 - (1.5 * 20)
-        car_top = screen_height - int(self.current_floor * CELL_HEIGHT)
-        shaft_left = self.x_pos * CELL_WIDTH
-        width = CELL_WIDTH
+        car_top = screen_height - int(self.current_floor * BLOCK_HEIGHT)
+        shaft_left = self.horizontal_block * BLOCK_WIDTH
+        width = BLOCK_WIDTH
         
         # Draw shaft from min to max floor
         #     420 = 480 - (3 * 20)
-        shaft_top = screen_height - (self.max_floor * CELL_HEIGHT)
-        shaft_overhead = screen_height - ((self.max_floor + 1) * CELL_HEIGHT)
+        shaft_top = screen_height - (self.max_floor * BLOCK_HEIGHT)
+        shaft_overhead = screen_height - ((self.max_floor + 1) * BLOCK_HEIGHT)
         #     480 = 480 - ((1 - 1) * 20)
-        shaft_bottom = screen_height - ((self.min_floor - 1) * CELL_HEIGHT)
+        shaft_bottom = screen_height - ((self.min_floor - 1) * BLOCK_HEIGHT)
         pygame.draw.rect(
             surface,
             ELEVATOR_SHAFT_COLOR,
@@ -115,5 +115,5 @@ class Elevator:
         pygame.draw.rect(
             surface,
             color,
-            (shaft_left, car_top, width, CELL_HEIGHT)
+            (shaft_left, car_top, width, BLOCK_HEIGHT)
         )
