@@ -24,7 +24,7 @@ enable=
     too-few-public-methods,
     
     # Typing
-    invalid-name
+    # invalid-name
 
 
 [BASIC]

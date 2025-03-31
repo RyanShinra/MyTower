@@ -1,5 +1,6 @@
 import pygame
 import sys
+from typing import NoReturn
 
 from game.game_state import GameState
 
@@ -10,15 +11,15 @@ from pygame.surface import Surface
 from pygame.time import Clock
 
 # Initialize pygame
-pygame.init()
+# pylint: disable=no-member
+pygame.init()  
 
 # Set up the display
 screen: Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
 pygame.display.set_caption("MyTower")
 
 clock: Clock = pygame.time.Clock()
-
-def main():
+def main() -> NoReturn:
     # Create game state
     game_state = GameState(SCREEN_WIDTH, SCREEN_HEIGHT)
     

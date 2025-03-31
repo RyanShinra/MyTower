@@ -9,12 +9,13 @@
 
 import pygame
 
-from typing import Tuple, List, Dict, Any, Protocol, cast # type: ignore
+# from typing import Tuple, List, Dict, Any, Protocol, cast # type: ignore
+from typing import List 
 from game.types import MousePos, MouseButtons
 
 class MouseState:
     """Class to store and manage mouse state"""
-    def __init__(self):
+    def __init__(self) -> None:
         self.position: MousePos = (0, 0)
         self.buttons: MouseButtons = (False, False, False)
         # Store additional button states if needed

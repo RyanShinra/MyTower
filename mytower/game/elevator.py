@@ -7,7 +7,7 @@ from game.constants import (
     CELL_WIDTH, CELL_HEIGHT,
     ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, UI_TEXT_COLOR
 )
-from game.types import ElevatorState, Direction
+from game.types import ElevatorState, VerticalDirection
 from game.person import Person
 from pygame import Surface
 
@@ -18,7 +18,7 @@ class Elevator:
     """
     An elevator in the building that transports people between floors.
     """
-    def __init__(self, building: Building, x_pos: int, min_floor: int, max_floor: int, max_velocity: float):
+    def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int, max_velocity: float):
         """
         Initialize a new elevator
         
@@ -30,7 +30,7 @@ class Elevator:
             max_velocity: Speed in floors per second
         """
         self.building: Building = building
-        self.x_pos: int = x_pos
+        self.x_pos: int = h_cell
         self.min_floor: int = min_floor
         self.max_floor: int = max_floor
         self.max_veloxity: float = max_velocity
@@ -40,10 +40,10 @@ class Elevator:
         self.destination_floor: int = min_floor # Let's not stop between floors
         self.door_open: bool = False
         self.state: ElevatorState = "IDLE"
-        self.direction: Direction = 0  # -1 for down, 0 for stopped, 1 for up
+        self.direction: VerticalDirection = 0  # -1 for down, 0 for stopped, 1 for up
         self.occupants: List[Person] = []  # People inside the elevator
     
-    def set_destination_floor(self, dest_floor: int):
+    def set_destination_floor(self, dest_floor: int) -> None:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
         
@@ -57,7 +57,7 @@ class Elevator:
         self.destination_floor = dest_floor
         
     
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         cur_floor: float = self.current_floor + dt * self.max_veloxity * self.direction
         
@@ -75,7 +75,7 @@ class Elevator:
                 done = True
                 
         if done:
-            self.direction = STOP
+            self.direction = STOP # type: ignore[assignment]
             cur_floor = self.destination_floor
         
         cur_floor = min(self.max_floor, cur_floor)
