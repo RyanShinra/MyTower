@@ -45,7 +45,7 @@ class GameState:
         # Add a sample person
         self.test_person = Person(building = self.building, current_floor = 1, current_block = 1, max_velocity=PERSON_MAX_SPEED)
         self.building.add_person(self.test_person)
-        self.test_person.set_destination(dest_floor = 1, dest_block = 13)
+        self.test_person.set_destination(dest_floor = 5, dest_block = 7)
 
         # Game time tracking
         self.time: float = 0.0  # Game time in seconds

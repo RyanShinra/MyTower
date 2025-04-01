@@ -8,11 +8,11 @@ from game.constants import (
     ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, UI_TEXT_COLOR
 )
 from game.types import ElevatorState, VerticalDirection
-from game.person import Person
 from pygame import Surface
 
 if TYPE_CHECKING:
     from game.building import Building
+    from game.person import Person
 
 class Elevator:
     """
@@ -56,6 +56,9 @@ class Elevator:
             
         self.destination_floor = dest_floor
         
+    def get_waiting_block(self) -> int:
+        # TODO: Update this once we add building extents
+        return max(1, self.horizontal_block - 1)
     
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""

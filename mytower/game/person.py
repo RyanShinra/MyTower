@@ -7,12 +7,12 @@ import pygame
 from pygame import Surface
 from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT
 from game.types import HorizontalDirection, PersonState
-from mytower.game.elevator import Elevator
+from game.elevator import Elevator
 
 
 if TYPE_CHECKING:
     from game.building import Building
-    from mytower.game.elevator import Elevator
+    from game.elevator import Elevator
 
 class Person:
     """
@@ -28,6 +28,7 @@ class Person:
         self.direction: HorizontalDirection = 1
         self.max_velocity: float = max_velocity
         self._next_elevator: Elevator | None = None
+        self.__idle_timout: float = 0
                 
         # Appearance (for visualization)
         self.color = (
@@ -52,10 +53,10 @@ class Person:
     def find_nearest_elevator(self) -> None | Elevator:
         elevator_list: List[Elevator] = self.building.get_elevator_banks_on_floor(self.current_floor)
         closest_el = None
-        closest_dist = self.building.floor_width + 5
+        closest_dist: float = float(self.building.floor_width + 5)
         
         for elevator in elevator_list :
-            dist = abs(elevator.horizontal_block - self.current_block)
+            dist: float = abs(elevator.horizontal_block - self.current_block)
             if (dist < closest_dist) :
                 closest_dist = dist
                 closest_el = elevator
@@ -67,7 +68,7 @@ class Person:
         """Update person's state and position"""
         match self.state:
             case "IDLE":
-                self.update_idle()
+                self.update_idle(dt)
 
             case "WALKING":
                 self.update_walking(dt)
@@ -80,30 +81,41 @@ class Person:
                 pass
             case _:
                 # Handle unexpected states
-                print(f"Unknown state: {self.state}")
+                # print(f"Unknown state: {self.state}")
+                pass
              
-    def update_idle(self) -> None:
-        LEFT: Final[int] = -1 
-        RIGHT: Final[int] = 1
+    def update_idle(self, dt: float) -> None:
+        from typing import Literal
+        LEFT: Final[Literal[-1]] = -1
+        RIGHT: Final[Literal[1]] = 1
         self.direction = 0
         
-        if self._dest_floor > self.current_floor or self._dest_floor < self.current_floor:
-            '''TODO: Find the nearest elevator, go in that direction'''
+        self.__idle_timout = max(0, self.__idle_timout - dt)
+        if self.__idle_timout > 0.0:
+            return
+        
+        current_destination_block: float = float(self._dest_block)
+        
+        if self._dest_floor != self.current_floor:
+            # Find the nearest elevator, go in that direction
             self._next_elevator = self.find_nearest_elevator()
             if self._next_elevator:
                 # TODO: Bounds wrap this to block 1 (i.e. have them board on the right)
-                
-                self.state = "WALKING"
+                current_destination_block = float(self._next_elevator.get_waiting_block())
+                self.state = "WALKING" # This is technically redundant (I think), I may remove it soon...
             else:
-                self.state = "IDLE"
-                # TODO: Set a timer so that we don't run this constantly (like every 5 seconds)
+                # There's no elevator on this floor, maybe one is coming soon...
+                current_destination_block = self.current_block # why move? There's nowhere to go
+                self.state = "IDLE" # This is also prob's redundant (Since we were already idle)
+                # Set a timer so that we don't run this constantly (like every 5 seconds)
+                self.__idle_timout = 5.0
         
-        elif self._dest_block < self.current_block:
+        if current_destination_block < self.current_block:
             # Already on the right floor (or walking to elevator?)
             self.state = "WALKING"
             self.direction = LEFT    
         
-        elif self._dest_block > self.current_block:
+        elif current_destination_block > self.current_block:
             self.state = "WALKING"
             self.direction = RIGHT
 
@@ -112,27 +124,34 @@ class Person:
         LEFT: Final[int] = -1
         RIGHT: Final[int] = 1 # pylint disable=invalid-name
         done: bool = False
+        
+        current_destination_block = self._dest_block
         if self._next_elevator:
             # TODO: Probably need a next_block_this_floor or some such for all these walking directions
+            current_destination_block = self._next_elevator.get_waiting_block()
             pass
-        else:
-            next_block: float = self.current_block + dt * self.max_velocity * self.direction
-            # Alredy on the right floor
-            if self.direction == RIGHT:
-                if next_block >= self._dest_block:
-                    done = True
-            elif self.direction == LEFT:
-                if next_block <= self._dest_block:
-                    done = True
-            
-            if done:
-                self.direction = 0
-                next_block = self._dest_block
+        
+        next_block: float = self.current_block + dt * self.max_velocity * self.direction
+        
+        if self.direction == RIGHT:
+            if next_block >= current_destination_block:
+                done = True
+        elif self.direction == LEFT:
+            if next_block <= current_destination_block:
+                done = True
+        
+        if done:
+            self.direction = 0
+            next_block = current_destination_block
+            if self._next_elevator:
+                self.state = "WAITING_FOR_ELEVATOR"
+            else:
                 self.state = "IDLE"    
-                
-            next_block = min(next_block, self.building.floor_width)
-            next_block = max(next_block, 0)
-            self.current_block = next_block    
+        
+        # TODO: Update these once we have building extents
+        next_block = min(next_block, self.building.floor_width)
+        next_block = max(next_block, 0)
+        self.current_block = next_block    
 
     
     def draw(self, surface: Surface) -> None:
