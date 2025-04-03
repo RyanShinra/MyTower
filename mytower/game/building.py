@@ -20,6 +20,7 @@ class Building:
         self.__people: List[Person] = []    # List of people in the building
         self.__time: float = 0.0       # Game time in minutes
         self.__money: int = STARTING_MONEY # Starting money
+        # TODO: Add Elevator Banks...
         
         # Add ground floor by default
         self.add_floor("LOBBY")

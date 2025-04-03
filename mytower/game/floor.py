@@ -42,7 +42,7 @@ class Floor:
         "RETAIL": FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
     
-    def __init__(self, building: Building, floor_num: int, floor_type: FloorType):
+    def __init__(self, building: Building, floor_num: int, floor_type: FloorType) -> None:
         self.building: Building = building
         # Floors are 1 indexed
         self.floor_num: int = floor_num
@@ -55,7 +55,7 @@ class Floor:
         self.height: int = self.FLOOR_TYPES[floor_type].height
         
         # Grid of rooms/spaces on this floor
-        self.gri: List[Optional[Any]] = [None] * building.floor_width
+        self.grid: List[Optional[Any]] = [None] * building.floor_width
     
     def update(self, dt: float) -> None:
         """Update floor simulation"""
