@@ -1,6 +1,21 @@
 # game/elevator.py
+# This file is part of MyTower.
+#
+# MyTower is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# MyTower is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MyTower. If not, see <https://www.gnu.org/licenses/>.
+
 from __future__ import annotations  # Defer type evaluation
-from typing import Final, List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 import pygame
 from game.constants import (
@@ -18,7 +33,7 @@ class Elevator:
     """
     An elevator in the building that transports people between floors.
     """
-    def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int, max_velocity: float):
+    def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int, max_velocity: float) -> None:
         """
         Initialize a new elevator
         
@@ -40,19 +55,20 @@ class Elevator:
         self.destination_floor: int = min_floor # Let's not stop between floors
         self.door_open: bool = False
         self.state: ElevatorState = "IDLE"
-        self.direction: VerticalDirection = 0  # -1 for down, 0 for stopped, 1 for up
+        self.direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
         self.occupants: List[Person] = []  # People inside the elevator
+       
     
     def set_destination_floor(self, dest_floor: int) -> None:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
         
         if self.current_floor < dest_floor:
-            self.direction = 1 # Go Up
+            self.direction = VerticalDirection.UP
         elif self.current_floor > dest_floor:
-            self.direction = -1
+            self.direction = VerticalDirection.DOWN
         else:
-            self.direction = 0
+            self.direction = VerticalDirection.STATIONARY
             
         self.destination_floor = dest_floor
         
@@ -62,23 +78,19 @@ class Elevator:
     
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
-        cur_floor: float = self.current_floor + dt * self.max_veloxity * self.direction
-        
-        UP: Final[int] = 1
-        DOWN: Final[int] = -1
-        STOP: Final[int] = 0
-        
+        cur_floor: float = self.current_floor + dt * self.max_veloxity * self.direction.value
+              
         done: bool = False
         
-        if self.direction == UP:
+        if self.direction == VerticalDirection.UP:
             if cur_floor >= self.destination_floor:
                 done = True
-        elif self.direction == DOWN:
+        elif self.direction == VerticalDirection.DOWN:
             if cur_floor <= self.destination_floor:
                 done = True
                 
         if done:
-            self.direction = STOP # type: ignore[assignment]
+            self.direction = VerticalDirection.STATIONARY 
             cur_floor = self.destination_floor
         
         cur_floor = min(self.max_floor, cur_floor)

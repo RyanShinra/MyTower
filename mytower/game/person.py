@@ -1,6 +1,14 @@
 # game/person.py
+# This file is part of MyTower. 
+# Copyright (C) 2025 [Your Name]
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
 from __future__ import annotations  # Defer type evaluation
-from typing import TYPE_CHECKING, Final, List
+from typing import TYPE_CHECKING, List
 
 import random
 import pygame
@@ -25,7 +33,7 @@ class Person:
         self._dest_block: int = int(current_block)
         self._dest_floor: int = current_floor
         self.state: PersonState = "IDLE"  # IDLE, WALKING, WAITING_FOR_ELEVATOR, IN_ELEVATOR
-        self.direction: HorizontalDirection = 1
+        self.direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self.max_velocity: float = max_velocity
         self._next_elevator: Elevator | None = None
         self.__idle_timout: float = 0
@@ -85,10 +93,7 @@ class Person:
                 pass
              
     def update_idle(self, dt: float) -> None:
-        from typing import Literal
-        LEFT: Final[Literal[-1]] = -1
-        RIGHT: Final[Literal[1]] = 1
-        self.direction = 0
+        self.direction = HorizontalDirection.STATIONARY
         
         self.__idle_timout = max(0, self.__idle_timout - dt)
         if self.__idle_timout > 0.0:
@@ -113,16 +118,13 @@ class Person:
         if current_destination_block < self.current_block:
             # Already on the right floor (or walking to elevator?)
             self.state = "WALKING"
-            self.direction = LEFT    
+            self.direction = HorizontalDirection.LEFT    
         
         elif current_destination_block > self.current_block:
             self.state = "WALKING"
-            self.direction = RIGHT
+            self.direction = HorizontalDirection.RIGHT
 
     def update_walking(self, dt: float) -> None:
-         # pylint disable=C103
-        LEFT: Final[int] = -1
-        RIGHT: Final[int] = 1 # pylint disable=invalid-name
         done: bool = False
         
         current_destination_block = self._dest_block
@@ -131,17 +133,22 @@ class Person:
             current_destination_block = self._next_elevator.get_waiting_block()
             pass
         
-        next_block: float = self.current_block + dt * self.max_velocity * self.direction
+        if current_destination_block < self.current_block:
+            self.direction = HorizontalDirection.LEFT    
         
-        if self.direction == RIGHT:
+        elif current_destination_block > self.current_block:
+            self.direction = HorizontalDirection.RIGHT
+
+        next_block: float = self.current_block + dt * self.max_velocity * self.direction.value
+        if self.direction == HorizontalDirection.RIGHT:
             if next_block >= current_destination_block:
                 done = True
-        elif self.direction == LEFT:
+        elif self.direction == HorizontalDirection.LEFT:
             if next_block <= current_destination_block:
                 done = True
         
         if done:
-            self.direction = 0
+            self.direction = HorizontalDirection.STATIONARY
             next_block = current_destination_block
             if self._next_elevator:
                 self.state = "WAITING_FOR_ELEVATOR"
