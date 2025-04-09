@@ -14,20 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with MyTower. If not, see <https://www.gnu.org/licenses/>.
 
-# pylint: disable=unused-import, import-error
-# type: ignore[import]
 
 from __future__ import annotations  # Defer type evaluation
-from csv import Error
-from operator import truediv
-from typing import Final, List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 import pygame
 from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT,
-    ELEVATOR_SHAFT_COLOR, ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, UI_TEXT_COLOR
+    ELEVATOR_SHAFT_COLOR, UI_TEXT_COLOR
 )
-from game.types import ElevatorState, VerticalDirection
+from game.types import ElevatorState, VerticalDirection  # pyright: ignore
 from pygame import Surface
 
 if TYPE_CHECKING:
@@ -49,26 +45,30 @@ class ElevatorBank:
         pass
     
     def add_elevator(self, elevator: Elevator) -> None:
-        if elevator is None: 
+        if elevator is None: # pyright: ignore
             raise ValueError("Elevator cannot be None") 
         
         self.__elevators.append(elevator)
         
     def request_elevator(self, floor: int, direction: VerticalDirection) -> bool:
-        if floor not in self.__requests.keys():
+        floor_request: set[VerticalDirection] | None = self.__requests.get(floor)
+        if floor_request is None:
             raise KeyError(f"Floor {floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")           
         
-        self.__requests.get(floor).add(direction)
+        floor_request.add(direction)
         return True
     
     def add_waiting_passenger(self, passenger: Person) -> bool:
-        if passenger is None:
+        if passenger is None: # pyright: ignore
             raise ValueError('Person cannot be None')
         
-        if passenger.current_floor not in self.__waiting_passengers.keys():
+        current_queue: List[Person] | None = self.__waiting_passengers.get(passenger.current_floor)
+        if current_queue is None:
             raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")  
         
-        self.__waiting_passengers.get(passenger.current_floor).append(passenger)
+        #TODO: Do we want a max queue length?
+        current_queue.append(passenger)
+        return True 
     
     
     def update(self, dt: float) -> None:
@@ -77,4 +77,26 @@ class ElevatorBank:
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""
+        screen_height: int = surface.get_height()
+        
+        shaft_left = self.__horizontal_block * BLOCK_WIDTH
+        width = BLOCK_WIDTH
+        
+        # Draw shaft from min to max floor
+        #     420 = 480 - (3 * 20)
+        shaft_top = screen_height - (self.__max_floor * BLOCK_HEIGHT)
+        shaft_overhead = screen_height - ((self.__max_floor + 1) * BLOCK_HEIGHT)
+        #     480 = 480 - ((1 - 1) * 20)
+        shaft_bottom = screen_height - ((self.__min_floor - 1) * BLOCK_HEIGHT)
+        pygame.draw.rect(
+            surface,
+            ELEVATOR_SHAFT_COLOR,
+            (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
+        )
+        
+        pygame.draw.rect(
+            surface,
+            UI_TEXT_COLOR,
+            (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
+        )
         pass

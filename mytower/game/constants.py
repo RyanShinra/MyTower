@@ -48,6 +48,7 @@ ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
 ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
 ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
 ELEVATOR_MAX_SPEED: Final[float] = 0.75  # floors per second
+ELEVATOR_DEFAULT_CAPACITY: Final[int] = 15
 
 # Person attributes (we'll add colors here later)
 PERSON_MAX_SPEED: Final[float] = 1.25 # Blocks per second

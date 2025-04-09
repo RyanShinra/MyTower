@@ -3,7 +3,7 @@ import pygame
 from pygame import Surface
 from game.building import Building
 from game.elevator import Elevator
-from game.constants import ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
+from game.constants import ELEVATOR_DEFAULT_CAPACITY, ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
 from game.person import Person
 class GameState:
     """
@@ -37,7 +37,8 @@ class GameState:
         # Add one elevator
         self.test_elevator = Elevator(
             self.building, h_cell=14, min_floor=1,
-            max_floor=self.building.num_floors, max_velocity = ELEVATOR_MAX_SPEED
+            max_floor=self.building.num_floors, max_velocity=ELEVATOR_MAX_SPEED,
+            max_capacity=ELEVATOR_DEFAULT_CAPACITY
         )
         self.building.add_elevator(self.test_elevator)
         self.test_elevator.set_destination_floor(self.building.num_floors)
