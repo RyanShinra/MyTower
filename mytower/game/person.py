@@ -48,6 +48,10 @@ class Person:
     @property
     def current_floor(self) -> int:
         return self._current_floor
+    
+    @property
+    def destination_floor(self)-> int:
+        return self._dest_floor
                 
     def set_destination(self, dest_floor: int, dest_block: int) -> None:
         dest_floor = min(dest_floor, self.building.num_floors)

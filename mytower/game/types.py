@@ -48,7 +48,7 @@ class HorizontalDirection(Enum):
 PersonState: TypeAlias = Literal["IDLE", "WALKING", "WAITING_FOR_ELEVATOR", "IN_ELEVATOR"]
 
 # Elevator state type
-ElevatorState: TypeAlias = Literal["IDLE", "MOVING",  "LOADING", "UNLOADING"]
+ElevatorState: TypeAlias = Literal["IDLE", "MOVING", "ARRIVED", "LOADING", "UNLOADING"]
 
 # Money type (for stronger typing)
 Money = NewType('Money', int)
