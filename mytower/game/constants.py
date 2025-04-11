@@ -53,6 +53,15 @@ PASSENGER_LOADING_TIME: Final[float] = 1.0
 
 # Person attributes (we'll add colors here later)
 PERSON_MAX_SPEED: Final[float] = 1.25 # Blocks per second
+PERSON_MAX_WAIT_TIME: Final[float] = 5.0 # minutes, before they storm off somewhere
+
+PERSON_MAX_RED: Final[int] = 192
+PERSON_INIT_RED: Final[int] = 32
+PERSON_INIT_GREEN: Final[int] = 128
+PERSON_INIT_BLUE: Final[int] = 128
+PERSON_MIN_RED: Final[int] = 0
+PERSON_MIN_GREEN: Final[int] = 0
+PERSON_MIN_BLUE: Final[int] = 0
 
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)

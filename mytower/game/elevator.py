@@ -48,7 +48,7 @@ class Elevator:
         self.horizontal_block: int = h_cell
         self.min_floor: int = min_floor
         self.max_floor: int = max_floor
-        self.max_veloxity: float = max_velocity
+        self.max_velocity: float = max_velocity
         self.__max_capacity: int = max_capacity
         
         # Current state
@@ -62,7 +62,7 @@ class Elevator:
         self._nominal_direction: VerticalDirection = VerticalDirection.STATIONARY 
         self.passengers: List[Person] = []  # People inside the elevator
         
-        self.__unloading_timout: float = 0.0
+        self.__unloading_timeout: float = 0.0
         self.__loading_timeout: float = 0.0
        
     
@@ -99,6 +99,14 @@ class Elevator:
     def current_floor(self) -> int:
         return int(self._current_floor_pos)
     
+    @property
+    def fractional_floor(self) -> float:
+        return self._current_floor_pos
+    
+    @property
+    def parent_elevator_bank(self) -> ElevatorBank:
+        return self._parent_elevator_bank
+    
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         match self._state:
@@ -131,7 +139,7 @@ class Elevator:
         
         
     def update_moving(self, dt: float) -> None:
-        cur_floor: float = self.current_floor + dt * self.max_veloxity * self.motion_direction.value
+        cur_floor: float = self.current_floor + dt * self.max_velocity * self.motion_direction.value
               
         done: bool = False
         

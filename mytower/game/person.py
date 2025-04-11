@@ -8,12 +8,13 @@
 # (at your option) any later version.
 
 from __future__ import annotations  # Defer type evaluation
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Final, List
 
 import random
 import pygame
-from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT
+from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT, PERSON_INIT_BLUE, PERSON_INIT_GREEN, PERSON_INIT_RED, PERSON_MAX_RED, PERSON_MAX_WAIT_TIME, PERSON_MIN_BLUE, PERSON_MIN_GREEN, PERSON_MIN_RED
 from game.types import HorizontalDirection, PersonState
+from mytower.game.elevator import Elevator
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -27,7 +28,7 @@ class Person:
     """
     def __init__(self, building: Building, current_floor: int, current_block: float, max_velocity: float) -> None:
         self.building: Building = building
-        self._current_floor: int = current_floor
+        self._current_floor: float = float(current_floor)
         self.current_block: float = current_block
         self._dest_block: int = int(current_block)
         self._dest_floor: int = current_floor
@@ -35,18 +36,19 @@ class Person:
         self.direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self.max_velocity: float = max_velocity
         self._next_elevator_bank: ElevatorBank | None = None
-        self.__idle_timout: float = 0
+        self.__idle_timeout: float = 0
+        self.__current_elevator: Elevator | None = None
+        self.__waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
                 
         # Appearance (for visualization)
-        self.color = (
-            random.randint(0, 32), # let's save some red for being mad at the elevator
-            random.randint(0, 128),
-            random.randint(0, 128)
-        )
+        self.__original_red: Final[int] = random.randint(PERSON_MIN_RED, PERSON_INIT_RED) # let's save some red for being mad at the elevator
+        self.__original_green: Final[int] = random.randint(PERSON_MIN_GREEN, PERSON_INIT_GREEN)
+        self.__original_blue: Final[int] = random.randint(PERSON_MIN_BLUE, PERSON_INIT_BLUE)
+
         
     @property
     def current_floor(self) -> int:
-        return self._current_floor
+        return int(self._current_floor)
     
     @property
     def destination_floor(self)-> int:
@@ -74,7 +76,22 @@ class Person:
                 
         return closest_el
 
+    def board_elevator(self, elevator: Elevator) -> None:
+        self.__current_elevator = elevator
+        self.__waiting_time = 0.0
+        self.state = "IN_ELEVATOR"
+    
+    def disembark_elevator(self) -> None:
+        if self.__current_elevator is None:
+            raise RuntimeError("Cannot disembark elevator: no elevator is currently boarded.")
         
+        self.current_block = self.__current_elevator.parent_elevator_bank.get_waiting_block()
+        self._current_floor = float(self.__current_elevator.current_floor)
+        self.__waiting_time = 0.0
+        self.__current_elevator = None
+        self.state = "WALKING"
+    
+    
     def update(self, dt: float) -> None:
         """Update person's state and position"""
         match self.state:
@@ -83,13 +100,18 @@ class Person:
 
             case "WALKING":
                 self.update_walking(dt)
-                pass
+            
             case "WAITING_FOR_ELEVATOR":
-                # Handle waiting for elevator
-                pass
+                # Later on, we can do the staggered line appearance here
+                self.__waiting_time += dt
+                # Eventually, we can handle "Storming off to another elevator / stairs / managers office" here
+            
             case "IN_ELEVATOR":
-                # Handle in elevator state
-                pass
+                if self.__current_elevator:
+                    self.__waiting_time += dt
+                    self._current_floor = self.__current_elevator.fractional_floor
+                    self.current_block = self.__current_elevator.parent_elevator_bank.horizontal_block
+            
             case _:
                 # Handle unexpected states
                 # print(f"Unknown state: {self.state}")
@@ -98,8 +120,8 @@ class Person:
     def update_idle(self, dt: float) -> None:
         self.direction = HorizontalDirection.STATIONARY
         
-        self.__idle_timout = max(0, self.__idle_timout - dt)
-        if self.__idle_timout > 0.0:
+        self.__idle_timeout = max(0, self.__idle_timeout - dt)
+        if self.__idle_timeout > 0.0:
             return
         
         current_destination_block: float = float(self._dest_block)
@@ -116,7 +138,7 @@ class Person:
                 current_destination_block = self.current_block # why move? There's nowhere to go
                 self.state = "IDLE" # This is also prob's redundant (Since we were already idle)
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
-                self.__idle_timout = 5.0
+                self.__idle_timeout = 5.0
         
         if current_destination_block < self.current_block:
             # Already on the right floor (or walking to elevator?)
@@ -169,15 +191,21 @@ class Person:
         """Draw the person on the given surface"""
         # Calculate position and draw a simple circle for now
         screen_height = surface.get_height()
-        y_pos = screen_height - ((self.current_floor - 1) * BLOCK_HEIGHT) - (BLOCK_HEIGHT / 2)
-        x_pos = self.current_block * BLOCK_WIDTH + BLOCK_WIDTH / 2
+        # Note: this needs to be the private, float _current_floor
+        y_pos: int = screen_height - int(((self._current_floor - 1.0) * BLOCK_HEIGHT) - (BLOCK_HEIGHT / 2))
+        x_pos: int = int(self.current_block * BLOCK_WIDTH + BLOCK_WIDTH / 2)
         
-        # Print coordinates for debugging
+        # How mad ARE we??
+        mad_fraction: float = self.__waiting_time / PERSON_MAX_WAIT_TIME
+        draw_red: int = self.__original_red + int(abs(PERSON_MAX_RED - self.__original_red) * mad_fraction)
+        draw_green: int = self.__original_green - int(abs(self.__original_green - PERSON_MIN_GREEN) * mad_fraction)
+        draw_blue: int = self.__original_blue - int(abs(self.__original_blue - PERSON_MIN_BLUE) * mad_fraction)
+        
         
         
         pygame.draw.circle(
             surface,
-            self.color,
+            (draw_red, draw_green, draw_blue),
             (int(x_pos), int(y_pos)),
             5  # radius
         )
