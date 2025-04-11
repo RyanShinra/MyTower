@@ -26,14 +26,14 @@ from game.types import ElevatorState, VerticalDirection
 from pygame import Surface
 
 if TYPE_CHECKING:
-    from game.building import Building
+    from game.elevator_bank import ElevatorBank
     from game.person import Person
 
 class Elevator:
     """
     An elevator in the building that transports people between floors.
     """
-    def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int, max_velocity: float, max_capacity: int) -> None:
+    def __init__(self, elevator_bank: ElevatorBank, h_cell: int, min_floor: int, max_floor: int, max_velocity: float, max_capacity: int) -> None:
         """
         Initialize a new elevator
         
@@ -44,7 +44,7 @@ class Elevator:
             max_floor: Highest floor this elevator serves
             max_velocity: Speed in floors per second
         """
-        self.building: Building = building
+        self._parent_elevator_bank: ElevatorBank = elevator_bank
         self.horizontal_block: int = h_cell
         self.min_floor: int = min_floor
         self.max_floor: int = max_floor
@@ -52,12 +52,18 @@ class Elevator:
         self.__max_capacity: int = max_capacity
         
         # Current state
-        self._current_floor_pos: float = min_floor  # Floor number (can be fractional when moving)
+        self._current_floor_pos: float = float(min_floor)  # Floor number (can be fractional when moving)
         self.destination_floor: int = min_floor # Let's not stop between floors
         self.door_open: bool = False
         self._state: ElevatorState = "IDLE"
-        self._direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
+        self._motion_direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
+        
+        # Used for assignments; What people say: "is this elevator going up or down?"
+        self._nominal_direction: VerticalDirection = VerticalDirection.STATIONARY 
         self.passengers: List[Person] = []  # People inside the elevator
+        
+        self.__unloading_timout: float = 0.0
+        self.__loading_timeout: float = 0.0
        
     
     def set_destination_floor(self, dest_floor: int) -> None:
@@ -65,18 +71,14 @@ class Elevator:
             raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
         
         if self.current_floor < dest_floor:
-            self._direction = VerticalDirection.UP
+            self._motion_direction = VerticalDirection.UP
         elif self.current_floor > dest_floor:
-            self._direction = VerticalDirection.DOWN
+            self._motion_direction = VerticalDirection.DOWN
         else:
-            self._direction = VerticalDirection.STATIONARY
+            self._motion_direction = VerticalDirection.STATIONARY
             
         self.destination_floor = dest_floor
         
-    def get_waiting_block(self) -> int:
-        # TODO: Update this once we add building extents
-        return max(1, self.horizontal_block - 1)
-    
     @property
     def state(self) -> ElevatorState:
         return self._state
@@ -86,9 +88,13 @@ class Elevator:
         return self.__max_capacity - len(self.passengers)
     
     @property
-    def direction(self) -> VerticalDirection:
-        return self._direction
+    def motion_direction(self) -> VerticalDirection:
+        return self._motion_direction
         
+    @property
+    def nominal_direction(self) -> VerticalDirection:
+        return self._nominal_direction
+    
     @property
     def current_floor(self) -> int:
         return int(self._current_floor_pos)
@@ -97,7 +103,7 @@ class Elevator:
         """Update elevator status over time increment dt (in seconds)"""
         match self._state:
             case "IDLE":
-                self._direction = VerticalDirection.STATIONARY
+                self._motion_direction = VerticalDirection.STATIONARY
             
             case "MOVING":
                 # Continue moving towards the destination floor
@@ -125,14 +131,14 @@ class Elevator:
         
         
     def update_moving(self, dt: float) -> None:
-        cur_floor: float = self.current_floor + dt * self.max_veloxity * self.direction.value
+        cur_floor: float = self.current_floor + dt * self.max_veloxity * self.motion_direction.value
               
         done: bool = False
         
-        if self.direction == VerticalDirection.UP:
+        if self.motion_direction == VerticalDirection.UP:
             if cur_floor >= self.destination_floor:
                 done = True
-        elif self.direction == VerticalDirection.DOWN:
+        elif self.motion_direction == VerticalDirection.DOWN:
             if cur_floor <= self.destination_floor:
                 done = True
                 
@@ -140,6 +146,7 @@ class Elevator:
             # self._direction = VerticalDirection.STATIONARY 
             cur_floor = self.destination_floor
             self._state = "ARRIVED"
+            self._motion_direction = VerticalDirection.STATIONARY
         
         cur_floor = min(self.max_floor, cur_floor)
         cur_floor = max(self.min_floor, cur_floor)
@@ -155,6 +162,9 @@ class Elevator:
             self._state = "UNLOADING"
         else:
             self._state = "IDLE"
+    
+    def update_unloading(self, dt: float) -> None:
+        pass
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""

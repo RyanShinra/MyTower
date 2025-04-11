@@ -8,7 +8,7 @@ from game.types import FloorType
 from pygame import Surface
 
 if TYPE_CHECKING:
-    from game.elevator import Elevator
+    from game.elevator_bank import ElevatorBank
 class Building:
     """
     The main building class that contains all floors, elevators, and people.
@@ -16,11 +16,10 @@ class Building:
     def __init__(self, width: int = 20) -> None:
         self.__floor_width: int = width  # Width in grid cells
         self.__floors: Dict[int, Floor] = {}    # Dictionary with floor number as key
-        self.__elevators: List[Elevator] = [] # List of elevator objects
+        self.__elevator_banks: List[ElevatorBank] = [] # List of elevator objects
         self.__people: List[Person] = []    # List of people in the building
         self.__time: float = 0.0       # Game time in minutes
         self.__money: int = STARTING_MONEY # Starting money
-        # TODO: Add Elevator Banks...
         
         # Add ground floor by default
         self.add_floor("LOBBY")
@@ -44,21 +43,21 @@ class Building:
         self.__floors[next_floor] = Floor(self, next_floor, floor_type)
         return self.__floors[next_floor]
     
-    def add_elevator(self, elevator: Elevator) -> None:
+    def add_elevator_bank(self, elevator_bank: ElevatorBank) -> None:
         """Add a new elevator to the building"""
-        self.__elevators.append(elevator)
+        self.__elevator_banks.append(elevator_bank)
     
     def add_person(self, person: Person) -> None:
         self.__people.append(person)
     
-    def get_elevator_banks_on_floor(self, floor_num: int) -> List[Elevator]:
+    def get_elevator_banks_on_floor(self, floor_num: int) -> List[ElevatorBank]:
         """Returns a list of all elevators that are currently on the specified floor"""
         return [
-            elevator for elevator in self.__elevators
+            bank for bank in self.__elevator_banks
             if (
-                hasattr(elevator, 'min_floor') and
-                hasattr(elevator, 'max_floor') and
-                (elevator.min_floor <= floor_num <= elevator.max_floor)
+                hasattr(bank, 'min_floor') and
+                hasattr(bank, 'max_floor') and
+                (bank.min_floor <= floor_num <= bank.max_floor)
             )
         ]
         
@@ -67,7 +66,7 @@ class Building:
         """Update the building simulation by dt time"""
         self.__time += dt
         
-        for elevator in self.__elevators:
+        for elevator in self.__elevator_banks:
             if hasattr(elevator, 'update'):
                 elevator.update(dt)
                 
@@ -82,7 +81,7 @@ class Building:
         for floor_num in sorted(self.__floors.keys()):
             self.__floors[floor_num].draw(surface)
         
-        for elevator in self.__elevators:
+        for elevator in self.__elevator_banks:
             if hasattr(elevator, 'draw'):
                 elevator.draw(surface)
         

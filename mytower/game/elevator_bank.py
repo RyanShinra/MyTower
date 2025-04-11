@@ -24,25 +24,54 @@ from game.constants import (
     ELEVATOR_SHAFT_COLOR, UI_TEXT_COLOR
 )
 from game.types import ElevatorState, VerticalDirection  # pyright: ignore
-from pygame import Surface
+from collections import deque
 
 if TYPE_CHECKING:
+    from pygame import Surface
     from game.building import Building
     from game.person import Person
     from game.elevator import Elevator
 
 class ElevatorBank:
     
-    def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int, elevators: List[Elevator]) -> None:
+    def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int) -> None:
          # Passengers waiting for the elevator on each floor
         self.__building: Building = building
         self.__horizontal_block: int = h_cell
         self.__min_floor: int = min_floor
         self.__max_floor: int = max_floor
-        self.__waiting_passengers: dict[int, List[Person]] = {floor: [] for floor in range(self.__min_floor, self.__max_floor + 1)}
-        self.__elevators: List[Elevator] = elevators.copy()
+        self.__waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self.__min_floor, self.__max_floor + 1)}
+        self.__elevators: List[Elevator] = []
         self.__requests: dict[int, set[VerticalDirection]] = {floor: set() for floor in range(self.__min_floor, self.__max_floor + 1)}
         pass
+    
+    @property
+    def building(self) -> Building:
+        return self.__building
+    
+    @property
+    def min_floor(self) -> int:
+        return self.__min_floor
+
+    @property
+    def max_floor(self) -> int:
+        return self.__max_floor
+    
+    @property
+    def horizontal_block(self) -> int:
+        return self.__horizontal_block
+
+    @property
+    def elevators(self) -> List[Elevator]:
+        return self.__elevators
+
+    @property
+    def waiting_passengers(self) -> dict[int, deque[Person]]:
+        return self.__waiting_passengers
+
+    @property
+    def requests(self) -> dict[int, set[VerticalDirection]]:
+        return self.__requests
     
     def add_elevator(self, elevator: Elevator) -> None:
         if elevator is None: # pyright: ignore
@@ -62,7 +91,7 @@ class ElevatorBank:
         if passenger is None: # pyright: ignore
             raise ValueError('Person cannot be None')
         
-        current_queue: List[Person] | None = self.__waiting_passengers.get(passenger.current_floor)
+        current_queue: deque[Person] | None = self.__waiting_passengers.get(passenger.current_floor)
         if current_queue is None:
             raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")  
         
@@ -70,6 +99,19 @@ class ElevatorBank:
         current_queue.append(passenger)
         return True 
     
+    def dequeue_waiting_passenger(self, floor: int) -> Person | None: 
+        current_queue: deque[Person] | None = self.__waiting_passengers.get(floor)
+        if current_queue is None:
+            raise KeyError(f"Floor {floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")  
+        
+        if len(current_queue) == 0:
+            return None
+        
+        return current_queue.popleft()
+        
+    def get_waiting_block(self) -> int:
+        # TODO: Update this once we add building extents
+        return max(1, self.horizontal_block - 1)
     
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""

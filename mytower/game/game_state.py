@@ -5,6 +5,8 @@ from game.building import Building
 from game.elevator import Elevator
 from game.constants import ELEVATOR_DEFAULT_CAPACITY, ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
 from game.person import Person
+from game.elevator_bank import ElevatorBank
+
 class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
@@ -35,12 +37,19 @@ class GameState:
         self.building.add_floor("APARTMENT")
 
         # Add one elevator
-        self.test_elevator = Elevator(
+        
+        self.test_elevator_bank = ElevatorBank(
             self.building, h_cell=14, min_floor=1,
+            max_floor=self.building.num_floors
+        )
+        
+        self.test_elevator = Elevator(
+            self.test_elevator_bank, h_cell=14, min_floor=1,
             max_floor=self.building.num_floors, max_velocity=ELEVATOR_MAX_SPEED,
             max_capacity=ELEVATOR_DEFAULT_CAPACITY
         )
-        self.building.add_elevator(self.test_elevator)
+        
+        self.building.add_elevator_bank(self.test_elevator_bank)
         self.test_elevator.set_destination_floor(self.building.num_floors)
 
         # Add a sample person
