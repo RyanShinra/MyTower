@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Final, List
 
 import random
 import pygame
-from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT, PERSON_INIT_BLUE, PERSON_INIT_GREEN, PERSON_INIT_RED, PERSON_MAX_RED, PERSON_MAX_WAIT_TIME, PERSON_MIN_BLUE, PERSON_MIN_GREEN, PERSON_MIN_RED
+from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT, PERSON_INIT_BLUE, PERSON_INIT_GREEN, PERSON_INIT_RED, PERSON_MAX_RED, PERSON_MAX_WAIT_TIME, PERSON_MIN_BLUE, PERSON_MIN_GREEN, PERSON_MIN_RED, PERSON_RADIUS
 from game.types import HorizontalDirection, PersonState
 from mytower.game.elevator import Elevator
 
@@ -201,11 +201,9 @@ class Person:
         draw_green: int = self.__original_green - int(abs(self.__original_green - PERSON_MIN_GREEN) * mad_fraction)
         draw_blue: int = self.__original_blue - int(abs(self.__original_blue - PERSON_MIN_BLUE) * mad_fraction)
         
-        
-        
         pygame.draw.circle(
             surface,
             (draw_red, draw_green, draw_blue),
             (int(x_pos), int(y_pos)),
-            5  # radius
+            PERSON_RADIUS  # radius  
         )

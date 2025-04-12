@@ -20,7 +20,7 @@ from typing import List, TYPE_CHECKING
 import pygame
 from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT,
-    ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR
+    ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, PASSENGER_LOADING_TIME
 )
 from game.types import ElevatorState, VerticalDirection
 from pygame import Surface
@@ -64,20 +64,6 @@ class Elevator:
         
         self.__unloading_timeout: float = 0.0
         self.__loading_timeout: float = 0.0
-       
-    
-    def set_destination_floor(self, dest_floor: int) -> None:
-        if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
-            raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
-        
-        if self.current_floor < dest_floor:
-            self._motion_direction = VerticalDirection.UP
-        elif self.current_floor > dest_floor:
-            self._motion_direction = VerticalDirection.DOWN
-        else:
-            self._motion_direction = VerticalDirection.STATIONARY
-            
-        self.destination_floor = dest_floor
         
     @property
     def state(self) -> ElevatorState:
@@ -107,10 +93,33 @@ class Elevator:
     def parent_elevator_bank(self) -> ElevatorBank:
         return self._parent_elevator_bank
     
+    def set_destination_floor(self, dest_floor: int) -> None:
+        if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
+            raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
+        
+        if self.current_floor < dest_floor:
+            self._motion_direction = VerticalDirection.UP
+        elif self.current_floor > dest_floor:
+            self._motion_direction = VerticalDirection.DOWN
+        else:
+            self._motion_direction = VerticalDirection.STATIONARY
+            
+        self.destination_floor = dest_floor
+
+    def passengers_who_want_off(self) -> List[Person]:
+        answer: List[Person] = []
+        for p in self.passengers:
+            if p.destination_floor == self.current_floor:
+                answer.append(p)
+                
+        return answer
+    
+
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         match self._state:
             case "IDLE":
+                self.door_open = False
                 self._motion_direction = VerticalDirection.STATIONARY
             
             case "MOVING":
@@ -161,18 +170,47 @@ class Elevator:
         self._current_floor_pos = cur_floor
         
     def update_arrived(self, dt: float) -> None:
-        somebody_wants_off = False
-        for p in self.passengers:
-            if p.destination_floor == self.current_floor:
-                somebody_wants_off = True
+        who_wants_off: List[Person] = self.passengers_who_want_off()
         
-        if somebody_wants_off:
+        if len(who_wants_off) > 0:
             self._state = "UNLOADING"
         else:
             self._state = "IDLE"
     
     def update_unloading(self, dt: float) -> None:
-        pass
+        self.__unloading_timeout += dt
+        if self.__unloading_timeout < PASSENGER_LOADING_TIME:
+            return
+        
+        self.__unloading_timeout = 0.0
+        who_wants_off: List[Person] = self.passengers_who_want_off()
+        
+        if len(who_wants_off) > 0:
+            disembarking_passenger: Person = who_wants_off.pop()
+            self.passengers.remove(disembarking_passenger)
+            disembarking_passenger.disembark_elevator()
+        else:
+            self._state = "LOADING"
+        return    
+    
+    def update_loading(self, dt: float) -> None:
+        self.__loading_timeout += dt
+        if self.__loading_timeout < PASSENGER_LOADING_TIME:
+            return
+        
+        self.__loading_timeout = 0.0
+        
+        # We could have an "Overstuffed" option here in the future
+        if self.avail_capacity <= 0:
+            self._state = "IDLE" # We're full, get ready to move
+            self.door_open = False
+            return
+        
+        # There is still room, add a person
+        who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor)
+        if who_wants_on is not None:
+            self.passengers.append(who_wants_on)
+    
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""
@@ -209,3 +247,10 @@ class Elevator:
             color,
             (shaft_left, car_top, width, BLOCK_HEIGHT)
         )
+        
+        # Draw any passengers or other elements after the elevator
+        # to make them appear on top of the elevator
+        # TODO: Depending on the size of the passenger icon, we can add judder here later to make it look crowded
+        for p in self.passengers:
+            p.draw(surface)
+        

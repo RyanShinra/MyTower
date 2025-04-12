@@ -63,5 +63,7 @@ PERSON_MIN_RED: Final[int] = 0
 PERSON_MIN_GREEN: Final[int] = 0
 PERSON_MIN_BLUE: Final[int] = 0
 
+PERSON_RADIUS: Final[int] = 5
+
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)
