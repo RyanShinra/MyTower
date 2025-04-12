@@ -25,6 +25,7 @@ from game.constants import (
 from game.types import ElevatorState, VerticalDirection
 from pygame import Surface
 
+
 if TYPE_CHECKING:
     from game.elevator_bank import ElevatorBank
     from game.person import Person
@@ -114,7 +115,18 @@ class Elevator:
                 
         return answer
     
-
+    def passenger_requests_from_current_floor(self, direction: VerticalDirection) -> List[int] | None:
+        """ Returns unsorted list of floors in the direction of travel"""
+        floors_set: set[int] = set()
+        for p in self.passengers:
+            if direction == VerticalDirection.UP and p.destination_floor > self.current_floor:
+                floors_set.add(p.destination_floor)
+            
+            elif direction == VerticalDirection.DOWN and p.destination_floor < self.current_floor:
+                floors_set.add(p.destination_floor)
+        
+        return list(floors_set)
+        
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         match self._state:
@@ -128,20 +140,17 @@ class Elevator:
                 self.update_moving(dt)
             
             case "ARRIVED":
-                pass
+                self.update_arrived(dt)
             
             case "UNLOADING":
                 # Allow people to exit the elevator
                 self.door_open = True
-                # TODO: Write update_unloading(self)
-                # Transition to LOADING after unloading is complete
-                self._state = "LOADING"
+                self.update_unloading(dt)
             
             case "LOADING":
                 # Allow people to enter or exit the elevator
                 self.door_open = True
-                # Transition to IDLE after loading is complete
-                self._state = "IDLE"
+                self.update_loading(dt)
 
             case _:
                 raise ValueError(f"Unknown elevator state: {self._state}")
@@ -210,6 +219,11 @@ class Elevator:
         who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor)
         if who_wants_on is not None:
             self.passengers.append(who_wants_on)
+        else:
+            self._state = "IDLE" # Nobody else wants to get on
+            self.door_open = False
+            
+        return
     
     
     def draw(self, surface: Surface) -> None:
