@@ -86,5 +86,8 @@ class Building:
                 elevator.draw(surface)
         
         for person in self.__people:
-            if hasattr(person, 'draw') and callable(person.draw):
-                person.draw(surface)
+            # We will (or have) draw(n) this in the elevator chain
+            # I guess you don't HAVE to have this check, but it doesn't hurt
+            if person.state != "IN_ELEVATOR":
+                if hasattr(person, 'draw') and callable(person.draw):
+                    person.draw(surface)

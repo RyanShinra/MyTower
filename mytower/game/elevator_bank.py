@@ -133,6 +133,8 @@ class ElevatorBank:
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         for el in self.elevators:
+            # Need to actually update the thing
+            el.update(dt)
             if el.state == 'IDLE':
                 self._update_idle_elevator(el)
         pass
@@ -225,7 +227,7 @@ class ElevatorBank:
     
     
     def draw(self, surface: Surface) -> None:
-        """Draw the elevator on the given surface"""
+        """Draw the elevator Bank on the given surface"""
         screen_height: int = surface.get_height()
         
         shaft_left = self.__horizontal_block * BLOCK_WIDTH
@@ -248,4 +250,7 @@ class ElevatorBank:
             UI_TEXT_COLOR,
             (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
         )
-        pass
+    
+        # now draw the elevators
+        for el in self.elevators:
+            el.draw(surface)

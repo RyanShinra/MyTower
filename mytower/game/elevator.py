@@ -241,6 +241,7 @@ class Elevator:
         # There is still room, add a person
         who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor, self.nominal_direction)
         if who_wants_on is not None:
+            who_wants_on.board_elevator(self)
             self.__passengers.append(who_wants_on)
         else:
             self._state = "IDLE" # Nobody else wants to get on
