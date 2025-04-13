@@ -60,8 +60,9 @@ class Elevator:
         self._motion_direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
         
         # Used for assignments; What people say: "is this elevator going up or down?"
+        # It's only updated when a new destination is assigned
         self._nominal_direction: VerticalDirection = VerticalDirection.STATIONARY 
-        self.passengers: List[Person] = []  # People inside the elevator
+        self.__passengers: List[Person] = []  # People inside the elevator
         
         self.__unloading_timeout: float = 0.0
         self.__loading_timeout: float = 0.0
@@ -72,7 +73,11 @@ class Elevator:
     
     @property
     def avail_capacity(self) -> int:
-        return self.__max_capacity - len(self.passengers)
+        return self.__max_capacity - len(self.__passengers)
+    
+    @property
+    def is_empty(self) -> bool:
+        return len(self.__passengers) == 0
     
     @property
     def motion_direction(self) -> VerticalDirection:
@@ -100,32 +105,51 @@ class Elevator:
         
         if self.current_floor < dest_floor:
             self._motion_direction = VerticalDirection.UP
+            self._nominal_direction = VerticalDirection.UP
         elif self.current_floor > dest_floor:
             self._motion_direction = VerticalDirection.DOWN
+            self._nominal_direction = VerticalDirection.DOWN
         else:
             self._motion_direction = VerticalDirection.STATIONARY
+            self._nominal_direction = VerticalDirection.STATIONARY
             
         self.destination_floor = dest_floor
 
+    def request_load_passengers(self) -> None:
+        if self.state == "IDLE":
+            self._state = "LOADING"
+        else:
+            raise RuntimeError(f"Cannot load passengers while elevator is in {self.state} state")
+
     def passengers_who_want_off(self) -> List[Person]:
         answer: List[Person] = []
-        for p in self.passengers:
+        for p in self.__passengers:
             if p.destination_floor == self.current_floor:
                 answer.append(p)
                 
         return answer
     
-    def passenger_requests_from_current_floor(self, direction: VerticalDirection) -> List[int] | None:
-        """ Returns unsorted list of floors in the direction of travel"""
+    def get_passenger_destinations_in_direction(self, floor: int, direction: VerticalDirection) -> List[int]:
+        """ Returns sorted list of floors in the direction of travel"""
+        
+        if direction == VerticalDirection.STATIONARY:
+            raise ValueError(f"Cannot get passenger requests for STATIONARY direction from floor {floor}")
+        
         floors_set: set[int] = set()
-        for p in self.passengers:
-            if direction == VerticalDirection.UP and p.destination_floor > self.current_floor:
+        for p in self.__passengers:
+            if direction == VerticalDirection.UP and p.destination_floor > floor:
                 floors_set.add(p.destination_floor)
             
-            elif direction == VerticalDirection.DOWN and p.destination_floor < self.current_floor:
+            elif direction == VerticalDirection.DOWN and p.destination_floor < floor:
                 floors_set.add(p.destination_floor)
         
-        return list(floors_set)
+        sorted_floors: List[int] = list(floors_set)
+        if direction == VerticalDirection.UP:
+            sorted_floors.sort()
+        elif direction == VerticalDirection.DOWN:
+            sorted_floors.sort(reverse=True)
+        
+        return sorted_floors
         
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
@@ -169,7 +193,6 @@ class Elevator:
                 done = True
                 
         if done:
-            # self._direction = VerticalDirection.STATIONARY 
             cur_floor = self.destination_floor
             self._state = "ARRIVED"
             self._motion_direction = VerticalDirection.STATIONARY
@@ -196,7 +219,7 @@ class Elevator:
         
         if len(who_wants_off) > 0:
             disembarking_passenger: Person = who_wants_off.pop()
-            self.passengers.remove(disembarking_passenger)
+            self.__passengers.remove(disembarking_passenger)
             disembarking_passenger.disembark_elevator()
         else:
             self._state = "LOADING"
@@ -216,13 +239,12 @@ class Elevator:
             return
         
         # There is still room, add a person
-        who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor)
+        who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor, self.nominal_direction)
         if who_wants_on is not None:
-            self.passengers.append(who_wants_on)
+            self.__passengers.append(who_wants_on)
         else:
             self._state = "IDLE" # Nobody else wants to get on
             self.door_open = False
-            
         return
     
     
@@ -265,6 +287,6 @@ class Elevator:
         # Draw any passengers or other elements after the elevator
         # to make them appear on top of the elevator
         # TODO: Depending on the size of the passenger icon, we can add judder here later to make it look crowded
-        for p in self.passengers:
+        for p in self.__passengers:
             p.draw(surface)
         
