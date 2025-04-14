@@ -115,9 +115,10 @@ class Elevator:
             
         self.destination_floor = dest_floor
 
-    def request_load_passengers(self) -> None:
+    def request_load_passengers(self, direction: VerticalDirection) -> None:
         if self.state == "IDLE":
             self._state = "LOADING"
+            self._nominal_direction = direction
         else:
             raise RuntimeError(f"Cannot load passengers while elevator is in {self.state} state")
 
@@ -133,7 +134,8 @@ class Elevator:
         """ Returns sorted list of floors in the direction of travel"""
         
         if direction == VerticalDirection.STATIONARY:
-            raise ValueError(f"Cannot get passenger requests for STATIONARY direction from floor {floor}")
+            return []
+            # raise ValueError(f"Cannot get passenger requests for STATIONARY direction from floor {floor}")
         
         floors_set: set[int] = set()
         for p in self.__passengers:
@@ -234,7 +236,7 @@ class Elevator:
         
         # We could have an "Overstuffed" option here in the future
         if self.avail_capacity <= 0:
-            self._state = "IDLE" # We're full, get ready to move
+            self._state = "READY_TO_MOVE" # We're full, get ready to move
             self.door_open = False
             return
         
@@ -244,13 +246,14 @@ class Elevator:
             who_wants_on.board_elevator(self)
             self.__passengers.append(who_wants_on)
         else:
-            self._state = "IDLE" # Nobody else wants to get on
+            self._state = "READY_TO_MOVE" # Nobody else wants to get on
             self.door_open = False
         return
     
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""
+        # print("I'm drawing an elevator")
         # Calculate positions
         screen_height = surface.get_height()
         #   450 = 480 - (1.5 * 20) 

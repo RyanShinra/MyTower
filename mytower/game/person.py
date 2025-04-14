@@ -12,9 +12,10 @@ from typing import TYPE_CHECKING, Final, List
 
 import random
 import pygame
+
 from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT, PERSON_INIT_BLUE, PERSON_INIT_GREEN, PERSON_INIT_RED, PERSON_MAX_RED, PERSON_MAX_WAIT_TIME, PERSON_MIN_BLUE, PERSON_MIN_GREEN, PERSON_MIN_RED, PERSON_RADIUS
 from game.types import HorizontalDirection, PersonState
-from mytower.game.elevator import Elevator
+from game.elevator import Elevator
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -69,6 +70,7 @@ class Person:
         closest_dist: float = float(self.building.floor_width + 5)
         
         for elevator in elevator_list :
+            # TODO: Add logic to skip elevator banks that don't go to dest floor
             dist: float = abs(elevator.horizontal_block - self.current_block)
             if (dist < closest_dist) :
                 closest_dist = dist
@@ -89,7 +91,8 @@ class Person:
         self._current_floor = float(self.__current_elevator.current_floor)
         self.__waiting_time = 0.0
         self.__current_elevator = None
-        self.state = "WALKING"
+        self._next_elevator_bank = None
+        self.state = "IDLE"
     
     
     def update(self, dt: float) -> None:
@@ -152,29 +155,29 @@ class Person:
     def update_walking(self, dt: float) -> None:
         done: bool = False
         
-        current_destination_block = self._dest_block
+        waypoint_block = self._dest_block
         if self._next_elevator_bank:
             # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-            current_destination_block = self._next_elevator_bank.get_waiting_block()
+            waypoint_block = self._next_elevator_bank.get_waiting_block()
             pass
         
-        if current_destination_block < self.current_block:
+        if waypoint_block < self.current_block:
             self.direction = HorizontalDirection.LEFT    
         
-        elif current_destination_block > self.current_block:
+        elif waypoint_block > self.current_block:
             self.direction = HorizontalDirection.RIGHT
 
         next_block: float = self.current_block + dt * self.max_velocity * self.direction.value
         if self.direction == HorizontalDirection.RIGHT:
-            if next_block >= current_destination_block:
+            if next_block >= waypoint_block:
                 done = True
         elif self.direction == HorizontalDirection.LEFT:
-            if next_block <= current_destination_block:
+            if next_block <= waypoint_block:
                 done = True
         
         if done:
             self.direction = HorizontalDirection.STATIONARY
-            next_block = current_destination_block
+            next_block = waypoint_block
             if self._next_elevator_bank:
                 self._next_elevator_bank.add_waiting_passenger(self)
                 self.state = "WAITING_FOR_ELEVATOR"
@@ -191,9 +194,18 @@ class Person:
         """Draw the person on the given surface"""
         # Calculate position and draw a simple circle for now
         screen_height = surface.get_height()
+        
         # Note: this needs to be the private, float _current_floor
-        y_pos: int = screen_height - int(((self._current_floor - 1.0) * BLOCK_HEIGHT) - (BLOCK_HEIGHT / 2))
-        x_pos: int = int(self.current_block * BLOCK_WIDTH + BLOCK_WIDTH / 2)
+        apparent_floor:float = self._current_floor - 1.0
+        y_bottom: float = apparent_floor * BLOCK_HEIGHT
+        y_centered:int = int(y_bottom + (BLOCK_HEIGHT / 2))
+        
+        # Need to invert y coordinates
+        y_pos: int = screen_height - y_centered
+        
+        x_left: float = self.current_block * BLOCK_WIDTH
+        x_centered: float = int(x_left + (BLOCK_WIDTH / 2))
+        x_pos: int = x_centered
         
         # How mad ARE we??
         mad_fraction: float = self.__waiting_time / PERSON_MAX_WAIT_TIME
@@ -201,9 +213,17 @@ class Person:
         draw_green: int = self.__original_green - int(abs(self.__original_green - PERSON_MIN_GREEN) * mad_fraction)
         draw_blue: int = self.__original_blue - int(abs(self.__original_blue - PERSON_MIN_BLUE) * mad_fraction)
         
+        # Clamp the draw colors to the range 0 to 254
+        draw_red = max(0, min(254, draw_red))
+        draw_green = max(0, min(254, draw_green))
+        draw_blue = max(0, min(254, draw_blue))
+        
+        draw_color = (draw_red, draw_green, draw_blue)
+        # print(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
+        
         pygame.draw.circle(
             surface,
-            (draw_red, draw_green, draw_blue),
+            draw_color,
             (int(x_pos), int(y_pos)),
             PERSON_RADIUS  # radius  
         )

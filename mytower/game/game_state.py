@@ -48,9 +48,11 @@ class GameState:
             max_floor=self.building.num_floors, max_velocity=ELEVATOR_MAX_SPEED,
             max_capacity=ELEVATOR_DEFAULT_CAPACITY
         )
+        self.test_elevator.set_destination_floor(self.building.num_floors)
+        
+        self.test_elevator_bank.add_elevator(self.test_elevator)
         
         self.building.add_elevator_bank(self.test_elevator_bank)
-        self.test_elevator.set_destination_floor(self.building.num_floors)
 
         # Add a sample person
         self.test_person = Person(building = self.building, current_floor = 1, current_block = 1, max_velocity=PERSON_MAX_SPEED)
@@ -77,6 +79,7 @@ class GameState:
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         # Draw building
+        # print("I want to draw a building")
         self.building.draw(surface)
 
         # Draw UI elements

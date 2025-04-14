@@ -16,7 +16,7 @@
 
 
 from __future__ import annotations  # Defer type evaluation
-from typing import Final, List, TYPE_CHECKING, Optional as Opt
+from typing import Final, List, TYPE_CHECKING, Optional as Opt, Tuple
 
 import pygame
 from game.constants import (
@@ -99,8 +99,10 @@ class ElevatorBank:
             raise ValueError(f"Person cannot go to the same floor: current floor {passenger.current_floor} = destination floor {passenger.destination_floor}")
         
         elif passenger.current_floor < passenger.destination_floor:
+            print("Going UP")
             current_queue = self.__upward_waiting_passengers.get(passenger.current_floor)
         else:
+            print("Going DOWN")
             current_queue = self.__downward_waiting_passengers.get(passenger.current_floor)
         
         if current_queue is None:
@@ -115,7 +117,8 @@ class ElevatorBank:
         if direction == VerticalDirection.STATIONARY:
             raise ValueError(f"Trying to get 'STATIONARY' Queue on floor {floor}")
         
-        current_queue: deque[Person] | None = self._get_waiting_passengers(floor, direction)
+        result: Tuple[Opt[deque[Person]], VerticalDirection] = self._get_waiting_passengers(floor, direction)
+        current_queue: Opt[deque[Person]] = result[0]
         
         if current_queue is None:
             raise KeyError(f"Floor {floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")  
@@ -141,22 +144,27 @@ class ElevatorBank:
     
     def _update_idle_elevator(self, elevator: Elevator) -> None:
         """Idle generally means it's ready to move"""
+        # print("Updating an IDLE elevator")
         # First, let's figure out if there is anybody here who wants to go "UP" or "DOWN"
         # This section is if the elevator was just waiting at a floor and somebody pushed the button
         floor: int = elevator.current_floor
-        direction: VerticalDirection = elevator.nominal_direction
-        who_wants_to_get_on = self._get_waiting_passengers(floor, direction)
-            
+        nom_direction: VerticalDirection = elevator.nominal_direction
+        result = self._get_waiting_passengers(floor, nom_direction)
+        who_wants_to_get_on = result[0]
+        new_direction = result[1]
+        
         if who_wants_to_get_on:
-            elevator.request_load_passengers()
+            elevator.request_load_passengers(new_direction)
             return
         
         # OK, nobody wants to get on, let's see if the elevator has a reason to go "UP"
         dest_floor = floor
-        dest_direction = direction
+        dest_direction = nom_direction
         dest_floor = self._get_destination_floor(elevator, floor, dest_direction)
         if dest_floor == floor:
-            dest_direction = VerticalDirection.UP if direction == VerticalDirection.DOWN else VerticalDirection.UP
+            UP = VerticalDirection.UP
+            DOWN = VerticalDirection.DOWN
+            dest_direction = UP if nom_direction == DOWN else UP
             dest_floor = self._get_destination_floor(elevator, floor, dest_direction)
             
         # OK, now either dest_floor is this one, or above or below - go there now
@@ -164,19 +172,18 @@ class ElevatorBank:
         
         # Oh, and we need to clear the request on that floor
         dest_requests = self.__requests.get(dest_floor)
-        if not dest_requests:
-            raise KeyError(f"Destination floor (to clear request) {dest_floor} does not exist in the valid range of floors: {self.__min_floor}:{self.__max_floor}")
-        dest_requests.discard(dest_direction)
+        if dest_requests:
+            dest_requests.discard(dest_direction)
         
         return
             
-    def _get_destination_floor(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> int:
+    def _get_destination_floor(self, elevator: Elevator, floor: int, dest_direction: VerticalDirection) -> int:
         dest_floor: int = floor
-        isUp: Final[bool] = direction == VerticalDirection.UP
-        isDown: Final[bool] = direction == VerticalDirection.DOWN
+        isUp: Final[bool] = dest_direction == VerticalDirection.UP
+        isDown: Final[bool] = dest_direction == VerticalDirection.DOWN
         
-        elevator_call_destinations: List[int] = self._get_floor_requests_in_dir_from_floor(floor, direction)
-        passenger_requests: List[int] = elevator.get_passenger_destinations_in_direction(floor, direction)
+        elevator_call_destinations: List[int] = self._get_floor_requests_in_dir_from_floor(floor, dest_direction)
+        passenger_requests: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction)
         
         if elevator_call_destinations and passenger_requests:
             if isUp:
@@ -190,19 +197,26 @@ class ElevatorBank:
         # else there's no requests, so stay here
         return dest_floor
     
-    
-    
-    def _get_waiting_passengers(self, floor: int, direction: VerticalDirection) -> Opt[deque[Person]]:
+    def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> Tuple[Opt[deque[Person]], VerticalDirection]:
         """Helper method to get passengers waiting on a floor in a specific direction"""
-        if direction == VerticalDirection.UP:
-            up_pass: dict[int, deque[Person]] = self.__upward_waiting_passengers
-            return up_pass.get(floor) if up_pass.get(floor) else None
+        up_pass: deque[Person] = self.__upward_waiting_passengers.get(floor, deque())
+        down_pass: deque[Person] = self.__downward_waiting_passengers.get(floor, deque())
         
-        elif direction == VerticalDirection.DOWN:
-            down_pass: dict[int, deque[Person]] = self.__downward_waiting_passengers
-            return down_pass.get(floor) if down_pass.get(floor) else None
+        UP = VerticalDirection.UP
+        DOWN = VerticalDirection.DOWN
         
-        return None
+        if nom_direction == UP:
+            return (up_pass, UP) if up_pass else (None, UP)
+        
+        elif nom_direction == VerticalDirection.DOWN:
+            return (down_pass, DOWN) if down_pass else (None, DOWN)
+        
+        elif nom_direction == VerticalDirection.STATIONARY:
+            # We've been waiting, let's see if anybody wants to go up
+            if up_pass: return (up_pass, UP)
+            if down_pass: return (down_pass, DOWN)
+            
+        return (None, VerticalDirection.STATIONARY)
     
     def _get_floor_requests_in_dir_from_floor(self, start_floor: int, direction: VerticalDirection) -> List[int]:
         """The requests are where the 'call buttons' are pressed - this may need updating for programmable elevators"""
@@ -214,20 +228,21 @@ class ElevatorBank:
             
         elif direction == VerticalDirection.DOWN:
             search_range = range(start_floor - 1, self.min_floor - 1, -1)
-        else:
-            raise ValueError(f"Cannot get floor requests for STATIONARY direction from floor {start_floor}")
+        # else:
+            # raise ValueError(f"Cannot get floor requests for STATIONARY direction from floor {start_floor}")
     
-        for floor in search_range:
-            floor_requests = self.requests.get(floor)
-            if floor_requests is not None and direction in floor_requests:
-                answer.append(floor)
+        if search_range:
+            for floor in search_range:
+                floor_requests = self.requests.get(floor)
+                if floor_requests is not None and direction in floor_requests:
+                    answer.append(floor)
 
-    
         return answer
     
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator Bank on the given surface"""
+        # print("I'm drawing an Elevator Bank")
         screen_height: int = surface.get_height()
         
         shaft_left = self.__horizontal_block * BLOCK_WIDTH
@@ -253,4 +268,5 @@ class ElevatorBank:
     
         # now draw the elevators
         for el in self.elevators:
+            # print("I want to draw an elevator")
             el.draw(surface)

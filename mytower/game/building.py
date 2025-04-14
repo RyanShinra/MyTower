@@ -82,12 +82,11 @@ class Building:
             self.__floors[floor_num].draw(surface)
         
         for elevator in self.__elevator_banks:
+            # print("I want to draw an elevator bank")
             if hasattr(elevator, 'draw'):
                 elevator.draw(surface)
         
         for person in self.__people:
-            # We will (or have) draw(n) this in the elevator chain
-            # I guess you don't HAVE to have this check, but it doesn't hurt
-            if person.state != "IN_ELEVATOR":
-                if hasattr(person, 'draw') and callable(person.draw):
-                    person.draw(surface)
+            # print("I want to draw a person")
+            if hasattr(person, 'draw') and callable(person.draw):
+                person.draw(surface)
