@@ -53,7 +53,7 @@ PASSENGER_LOADING_TIME: Final[float] = 1.0
 ELEVATOR_IDLE_TIMEOUT: Final[float] = 0.5
 
 # Person attributes (we'll add colors here later)
-PERSON_MAX_SPEED: Final[float] = 3 # Blocks per second
+PERSON_MAX_SPEED: Final[float] = 1.5 # Blocks per second
 PERSON_MAX_WAIT_TIME: Final[float] = 5.0 # seconds, before they storm off somewhere
 
 PERSON_MAX_RED: Final[int] = 192

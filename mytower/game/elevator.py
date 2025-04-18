@@ -209,7 +209,7 @@ class Elevator:
     def __update_moving(self, dt: float) -> None:
         dy: float = dt * self.max_velocity * self.motion_direction.value
         cur_floor: float = self._current_floor_float + dy
-        print(f'At floor {cur_floor}, dy {dy}')
+        # print(f'At floor {cur_floor}, dy {dy}')
         done: bool = False
         
         if self.motion_direction == VerticalDirection.UP:

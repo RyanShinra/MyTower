@@ -48,7 +48,7 @@ class GameState:
             max_floor=self.building.num_floors, max_velocity=ELEVATOR_MAX_SPEED,
             max_capacity=ELEVATOR_DEFAULT_CAPACITY
         )
-        self.test_elevator.set_destination_floor(self.building.num_floors)
+        
         
         self.test_elevator_bank.add_elevator(self.test_elevator)
         
@@ -56,8 +56,17 @@ class GameState:
 
         # Add a sample person
         self.test_person = Person(building = self.building, current_floor = 1, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self.test_person.set_destination(dest_floor = 9, dest_block = 7)
+        self.test_person2 = Person(building = self.building, current_floor = 1, current_block = 3, max_velocity=PERSON_MAX_SPEED)
+        self.test_person2.set_destination(dest_floor = 3, dest_block = 7)
+        self.test_person3 = Person(building = self.building, current_floor = 1, current_block = 6, max_velocity=PERSON_MAX_SPEED)
+        self.test_person3.set_destination(dest_floor = 7, dest_block = 7)
+        self.test_person4 = Person(building = self.building, current_floor = 12, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self.test_person4.set_destination(dest_floor = 1, dest_block = 1)
         self.building.add_person(self.test_person)
-        self.test_person.set_destination(dest_floor = 5, dest_block = 7)
+        self.building.add_person(self.test_person2)
+        self.building.add_person(self.test_person3)
+        self.building.add_person(self.test_person4)
 
         # Game time tracking
         self.time: float = 0.0  # Game time in seconds
