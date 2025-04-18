@@ -16,6 +16,7 @@
 
 from __future__ import annotations  # Defer type evaluation
 from typing import List, TYPE_CHECKING
+import logging
 
 import pygame
 from game.constants import (
@@ -53,7 +54,7 @@ class Elevator:
         self.__max_capacity: int = max_capacity
         
         # Current state
-        self._current_floor_pos: float = float(min_floor)  # Floor number (can be fractional when moving)
+        self._current_floor_float: float = float(min_floor)  # Floor number (can be fractional when moving)
         self.destination_floor: int = min_floor # Let's not stop between floors
         self.door_open: bool = False
         self._state: ElevatorState = "IDLE"
@@ -66,6 +67,7 @@ class Elevator:
         
         self.__unloading_timeout: float = 0.0
         self.__loading_timeout: float = 0.0
+        self.idle_time = 0.0
         
     @property
     def state(self) -> ElevatorState:
@@ -88,12 +90,12 @@ class Elevator:
         return self._nominal_direction
     
     @property
-    def current_floor(self) -> int:
-        return int(self._current_floor_pos)
+    def current_floor_int(self) -> int:
+        return int(self._current_floor_float)
     
     @property
     def fractional_floor(self) -> float:
-        return self._current_floor_pos
+        return self._current_floor_float
     
     @property
     def parent_elevator_bank(self) -> ElevatorBank:
@@ -103,13 +105,18 @@ class Elevator:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
         
-        if self.current_floor < dest_floor:
+        if self.current_floor_int < dest_floor:
+            print('Going UP')
             self._motion_direction = VerticalDirection.UP
             self._nominal_direction = VerticalDirection.UP
-        elif self.current_floor > dest_floor:
+            # self._state = "MOVING"
+        elif self.current_floor_int > dest_floor:
+            print('Going DOWN')
             self._motion_direction = VerticalDirection.DOWN
             self._nominal_direction = VerticalDirection.DOWN
+            # self._state = "MOVING"
         else:
+            print('Going NOWHERE')
             self._motion_direction = VerticalDirection.STATIONARY
             self._nominal_direction = VerticalDirection.STATIONARY
             
@@ -119,13 +126,14 @@ class Elevator:
         if self.state == "IDLE":
             self._state = "LOADING"
             self._nominal_direction = direction
+            print(f'Loading: {direction}')
         else:
             raise RuntimeError(f"Cannot load passengers while elevator is in {self.state} state")
 
     def passengers_who_want_off(self) -> List[Person]:
         answer: List[Person] = []
         for p in self.__passengers:
-            if p.destination_floor == self.current_floor:
+            if p.destination_floor == self.current_floor_int:
                 answer.append(p)
                 
         return answer
@@ -134,6 +142,7 @@ class Elevator:
         """ Returns sorted list of floors in the direction of travel"""
         
         if direction == VerticalDirection.STATIONARY:
+            logging.warning(f"Attempt to get passenger destinations for STATIONARY direction from floor {floor}.")
             return []
             # raise ValueError(f"Cannot get passenger requests for STATIONARY direction from floor {floor}")
         
@@ -157,34 +166,50 @@ class Elevator:
         """Update elevator status over time increment dt (in seconds)"""
         match self._state:
             case "IDLE":
-                self.door_open = False
-                self._motion_direction = VerticalDirection.STATIONARY
+                # print('IDLE')
+                # Arrived at the floor w/ nobody who wanted to disembark on this floor        
+                self.door_open = False                 
+                self.__update_idle(dt)
             
             case "MOVING":
+                # print('MOVING')
                 # Continue moving towards the destination floor
                 self.door_open = False
-                self.update_moving(dt)
+                self.__update_moving(dt)
             
             case "ARRIVED":
-                self.update_arrived(dt)
+                # print("ARRIVED")
+                self.__update_arrived(dt)
             
             case "UNLOADING":
+                # print("UNLOADING")
                 # Allow people to exit the elevator
                 self.door_open = True
-                self.update_unloading(dt)
+                self.__update_unloading(dt)
             
             case "LOADING":
+                # print("LOADING")
                 # Allow people to enter or exit the elevator
                 self.door_open = True
-                self.update_loading(dt)
-
+                self.__update_loading(dt)
+                
+            case "READY_TO_MOVE":
+                # print("READY_TO_MOVE")
+                # Just finished loading
+                self.door_open = False
+                # TODO: Do we need a helper function?
+                self.__update_ready_to_move(dt) 
+                    
             case _:
                 raise ValueError(f"Unknown elevator state: {self._state}")
         
+    def __update_idle(self, dt: float) -> None:
+                self._motion_direction = VerticalDirection.STATIONARY
         
-    def update_moving(self, dt: float) -> None:
-        cur_floor: float = self.current_floor + dt * self.max_velocity * self.motion_direction.value
-              
+    def __update_moving(self, dt: float) -> None:
+        dy: float = dt * self.max_velocity * self.motion_direction.value
+        cur_floor: float = self._current_floor_float + dy
+        print(f'At floor {cur_floor}, dy {dy}')
         done: bool = False
         
         if self.motion_direction == VerticalDirection.UP:
@@ -201,9 +226,9 @@ class Elevator:
         
         cur_floor = min(self.max_floor, cur_floor)
         cur_floor = max(self.min_floor, cur_floor)
-        self._current_floor_pos = cur_floor
+        self._current_floor_float = cur_floor
         
-    def update_arrived(self, dt: float) -> None:
+    def __update_arrived(self, dt: float) -> None:
         who_wants_off: List[Person] = self.passengers_who_want_off()
         
         if len(who_wants_off) > 0:
@@ -211,7 +236,7 @@ class Elevator:
         else:
             self._state = "IDLE"
     
-    def update_unloading(self, dt: float) -> None:
+    def __update_unloading(self, dt: float) -> None:
         self.__unloading_timeout += dt
         if self.__unloading_timeout < PASSENGER_LOADING_TIME:
             return
@@ -227,7 +252,7 @@ class Elevator:
             self._state = "LOADING"
         return    
     
-    def update_loading(self, dt: float) -> None:
+    def __update_loading(self, dt: float) -> None:
         self.__loading_timeout += dt
         if self.__loading_timeout < PASSENGER_LOADING_TIME:
             return
@@ -241,7 +266,8 @@ class Elevator:
             return
         
         # There is still room, add a person
-        who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor, self.nominal_direction)
+        print(f'Dequeueing passenger going {self.nominal_direction} from {self.current_floor_int}')
+        who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor_int, self.nominal_direction)
         if who_wants_on is not None:
             who_wants_on.board_elevator(self)
             self.__passengers.append(who_wants_on)
@@ -249,6 +275,10 @@ class Elevator:
             self._state = "READY_TO_MOVE" # Nobody else wants to get on
             self.door_open = False
         return
+    
+    def __update_ready_to_move(self, dt: float) -> None:
+        if self.current_floor_int != self.destination_floor:
+            self._state = "MOVING"    
     
     
     def draw(self, surface: Surface) -> None:
@@ -258,7 +288,7 @@ class Elevator:
         screen_height = surface.get_height()
         #   450 = 480 - (1.5 * 20) 
         # We want the private member here since it's a float and we're computing pixels
-        car_top = screen_height - int(self._current_floor_pos * BLOCK_HEIGHT)
+        car_top = screen_height - int(self._current_floor_float * BLOCK_HEIGHT)
         shaft_left = self.horizontal_block * BLOCK_WIDTH
         width = BLOCK_WIDTH
         

@@ -88,7 +88,7 @@ class Person:
             raise RuntimeError("Cannot disembark elevator: no elevator is currently boarded.")
         
         self.current_block = self.__current_elevator.parent_elevator_bank.get_waiting_block()
-        self._current_floor = float(self.__current_elevator.current_floor)
+        self._current_floor = float(self.__current_elevator.current_floor_int)
         self.__waiting_time = 0.0
         self.__current_elevator = None
         self._next_elevator_bank = None

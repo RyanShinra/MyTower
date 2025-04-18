@@ -16,11 +16,12 @@
 
 
 from __future__ import annotations  # Defer type evaluation
-from typing import Final, List, TYPE_CHECKING, Optional as Opt, Tuple
+from typing import Final, List, TYPE_CHECKING, NamedTuple, Optional as Opt
+import logging 
 
 import pygame
 from game.constants import (
-    BLOCK_WIDTH, BLOCK_HEIGHT,
+    BLOCK_WIDTH, BLOCK_HEIGHT, ELEVATOR_IDLE_TIMEOUT,
     ELEVATOR_SHAFT_COLOR, UI_TEXT_COLOR
 )
 from game.types import VerticalDirection
@@ -33,6 +34,21 @@ if TYPE_CHECKING:
     from game.elevator import Elevator
 
 class ElevatorBank:
+    # Used in deciding if to move or not
+    class ElevatorDestination(NamedTuple):
+        has_destination: bool
+        floor: int
+        direction: VerticalDirection
+        
+    # Alias for ElevatorDestination
+    Destination = ElevatorDestination
+    
+    class DirQueue(NamedTuple):
+        queue: deque[Person]
+        direction: VerticalDirection
+    
+    # Define a reusable empty deque as a class-level constant
+    EMPTY_DEQUE: Final[deque[Person]] = deque()
     
     def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int) -> None:
          # Passengers waiting for the elevator on each floor
@@ -89,7 +105,7 @@ class ElevatorBank:
         floor_request.add(direction)
         return True
     
-    
+    # TODO: We may want to pass in the direction here, or target floor as an argument
     def add_waiting_passenger(self, passenger: Person) -> bool:
         if passenger is None: # pyright: ignore
             raise ValueError('Person cannot be None')
@@ -113,16 +129,13 @@ class ElevatorBank:
         return True 
     
     
-    def dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Person | None: 
+    def dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[Person]: 
         if direction == VerticalDirection.STATIONARY:
             raise ValueError(f"Trying to get 'STATIONARY' Queue on floor {floor}")
         
-        result: Tuple[Opt[deque[Person]], VerticalDirection] = self._get_waiting_passengers(floor, direction)
+        result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, direction)
         current_queue: Opt[deque[Person]] = result[0]
-        
-        if current_queue is None:
-            raise KeyError(f"Floor {floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")  
-        
+         
         if len(current_queue) == 0:
             return None
         
@@ -139,16 +152,24 @@ class ElevatorBank:
             # Need to actually update the thing
             el.update(dt)
             if el.state == 'IDLE':
-                self._update_idle_elevator(el)
+                self._update_idle_elevator(el, dt)
+            elif el.state == "READY_TO_MOVE":
+                self._update_ready_elevator(el)
         pass
     
-    def _update_idle_elevator(self, elevator: Elevator) -> None:
-        """Idle generally means it's ready to move"""
-        # print("Updating an IDLE elevator")
-        # First, let's figure out if there is anybody here who wants to go "UP" or "DOWN"
+    def _update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
+        """Idle means it arrived at this floor with nobody who wanted to disembark on this floor"""
+        elevator.idle_time += dt
+        if elevator.idle_time < ELEVATOR_IDLE_TIMEOUT:
+            return
+        
+        elevator.idle_time = 0.0
+        
+        # First, let's figure out if there is anybody here who wants to go UP or DOWN
         # This section is if the elevator was just waiting at a floor and somebody pushed the button
-        floor: int = elevator.current_floor
-        nom_direction: VerticalDirection = elevator.nominal_direction
+        floor: int = elevator.current_floor_int
+        nom_direction: VerticalDirection = elevator.nominal_direction   
+        
         result = self._get_waiting_passengers(floor, nom_direction)
         who_wants_to_get_on = result[0]
         new_direction = result[1]
@@ -157,28 +178,48 @@ class ElevatorBank:
             elevator.request_load_passengers(new_direction)
             return
         
-        # OK, nobody wants to get on, let's see if the elevator has a reason to go "UP"
-        dest_floor = floor
-        dest_direction = nom_direction
-        dest_floor = self._get_destination_floor(elevator, floor, dest_direction)
-        if dest_floor == floor:
-            UP = VerticalDirection.UP
-            DOWN = VerticalDirection.DOWN
-            dest_direction = UP if nom_direction == DOWN else UP
-            dest_floor = self._get_destination_floor(elevator, floor, dest_direction)
-            
-        # OK, now either dest_floor is this one, or above or below - go there now
-        elevator.set_destination_floor(dest_floor)
-        
-        # Oh, and we need to clear the request on that floor
-        dest_requests = self.__requests.get(dest_floor)
-        if dest_requests:
-            dest_requests.discard(dest_direction)
+        # OK, nobody wants to get on, let's see if the elevator has a reason to go UP or DOWN
+        self._update_ready_elevator(elevator)
         
         return
-            
-    def _get_destination_floor(self, elevator: Elevator, floor: int, dest_direction: VerticalDirection) -> int:
-        dest_floor: int = floor
+
+    def _update_ready_elevator(self, elevator: Elevator) -> None:
+        floor: int = elevator.current_floor_int
+        nom_direction: VerticalDirection = elevator.nominal_direction
+        
+        where_to: ElevatorBank.Destination = self._get_next_destination(elevator, floor, nom_direction)
+        print(f'Setting destination to {where_to.floor}')
+        elevator.set_destination_floor(where_to.floor)
+        
+        # Oh, and we need to clear the request on that floor
+        if where_to.has_destination:
+            dest_requests = self.__requests.get(where_to.floor)
+            if dest_requests:
+                dest_requests.discard(where_to.direction)
+        
+        return
+    
+    # Returns true if we're going to move
+    def _get_next_destination(self, elevator: Elevator, current_floor: int, init_nom_direction: VerticalDirection) -> ElevatorBank.Destination:
+        UP = VerticalDirection.UP
+        DOWN = VerticalDirection.DOWN
+        STATIONARY = VerticalDirection.STATIONARY
+        
+        dest_floor: int = current_floor
+        # If it's currently stationary, search UP first
+        dest_direction: VerticalDirection = init_nom_direction if init_nom_direction != STATIONARY else UP
+        dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
+        
+        if dest_floor == current_floor:
+            dest_direction = UP if init_nom_direction == DOWN else DOWN
+            dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
+
+        if dest_floor != current_floor:
+            return ElevatorBank.Destination(True, dest_floor, dest_direction)
+        else:
+            return ElevatorBank.Destination(False, current_floor, STATIONARY)
+                
+    def _get_destination_floor_in_dir(self, elevator: Elevator, floor: int, dest_direction: VerticalDirection) -> int:
         isUp: Final[bool] = dest_direction == VerticalDirection.UP
         isDown: Final[bool] = dest_direction == VerticalDirection.DOWN
         
@@ -187,17 +228,17 @@ class ElevatorBank:
         
         if elevator_call_destinations and passenger_requests:
             if isUp:
-                dest_floor = min(passenger_requests[0], elevator_call_destinations[0])
+                return min(passenger_requests[0], elevator_call_destinations[0])
             elif isDown:
-                dest_floor = max(passenger_requests[0], elevator_call_destinations[0])
+                return max(passenger_requests[0], elevator_call_destinations[0])
         elif elevator_call_destinations: # no passenger requests, just answering a call
-            dest_floor = elevator_call_destinations[0]
+            return elevator_call_destinations[0]
         elif passenger_requests:
-            dest_floor = passenger_requests[0]
+            return passenger_requests[0]
         # else there's no requests, so stay here
-        return dest_floor
+        return floor
     
-    def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> Tuple[Opt[deque[Person]], VerticalDirection]:
+    def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         up_pass: deque[Person] = self.__upward_waiting_passengers.get(floor, deque())
         down_pass: deque[Person] = self.__downward_waiting_passengers.get(floor, deque())
@@ -206,17 +247,17 @@ class ElevatorBank:
         DOWN = VerticalDirection.DOWN
         
         if nom_direction == UP:
-            return (up_pass, UP) if up_pass else (None, UP)
+            return ElevatorBank.DirQueue(up_pass, UP)
         
         elif nom_direction == VerticalDirection.DOWN:
-            return (down_pass, DOWN) if down_pass else (None, DOWN)
+            return ElevatorBank.DirQueue(down_pass, DOWN)
         
         elif nom_direction == VerticalDirection.STATIONARY:
             # We've been waiting, let's see if anybody wants to go up
-            if up_pass: return (up_pass, UP)
-            if down_pass: return (down_pass, DOWN)
+            if up_pass: return ElevatorBank.DirQueue(up_pass, UP)
+            if down_pass: return ElevatorBank.DirQueue(down_pass, DOWN)
             
-        return (None, VerticalDirection.STATIONARY)
+        return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, VerticalDirection.STATIONARY)
     
     def _get_floor_requests_in_dir_from_floor(self, start_floor: int, direction: VerticalDirection) -> List[int]:
         """The requests are where the 'call buttons' are pressed - this may need updating for programmable elevators"""
@@ -228,8 +269,9 @@ class ElevatorBank:
             
         elif direction == VerticalDirection.DOWN:
             search_range = range(start_floor - 1, self.min_floor - 1, -1)
-        # else:
-            # raise ValueError(f"Cannot get floor requests for STATIONARY direction from floor {start_floor}")
+        else:
+            logging.warning(f"Cannot get floor requests for STATIONARY direction from floor {start_floor}")
+            return answer
     
         if search_range:
             for floor in search_range:

@@ -9,6 +9,7 @@
 
 from typing import Tuple, Literal, TypeAlias, Union, NewType
 import pygame
+from enum import Enum
 
 # Type definitions for colors
 # RGB color type as a tuple of three integers
@@ -26,11 +27,6 @@ PygameSurface: TypeAlias = pygame.Surface
 # Floor types with string literals
 FloorType: TypeAlias = Literal["LOBBY", "OFFICE", "APARTMENT", "HOTEL", "RESTAURANT", "RETAIL"]
 
-# Direction types
-# VerticalDirection: TypeAlias = Literal[-1, 0, 1]  # -1 for down, 0 for stationary, 1 for up
-# HorizontalDirection: TypeAlias = Literal[-1, 0, 1] # -1 for left,  0 for stationary, +1 for right
-
-from enum import Enum
 
 # Direction types using Enum
 class VerticalDirection(Enum):
