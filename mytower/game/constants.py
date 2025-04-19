@@ -8,7 +8,10 @@
 # (at your option) any later version.
 
 from typing import Final
-from game.types import  RGB, Money
+from game.types import RGB, Money
+from game.logger import get_logger
+
+logger = get_logger("constants")
 
 # Display constants
 SCREEN_WIDTH: Final[int] = 1600

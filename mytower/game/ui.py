@@ -6,6 +6,9 @@ from game.constants import (
     UI_BACKGROUND_COLOR, UI_BORDER_COLOR
 )
 from game.types import RGB, MousePos, MouseButtons, PygameSurface
+from game.logger import get_logger
+
+logger = get_logger("ui")
 
 class Button:
     """

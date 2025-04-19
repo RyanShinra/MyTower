@@ -6,6 +6,9 @@ from game.elevator import Elevator
 from game.constants import ELEVATOR_DEFAULT_CAPACITY, ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
 from game.person import Person
 from game.elevator_bank import ElevatorBank
+from game.logger import get_logger
+
+logger = get_logger("game_state")
 
 class GameState:
     """
@@ -88,7 +91,7 @@ class GameState:
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         # Draw building
-        # print("I want to draw a building")
+        logger.debug("I want to draw a building")
         self.building.draw(surface)
 
         # Draw UI elements

@@ -12,6 +12,9 @@ import pygame
 # from typing import Tuple, List, Dict, Any, Protocol, cast # type: ignore
 from typing import List 
 from game.types import MousePos, MouseButtons
+from game.logger import get_logger
+
+logger = get_logger("input")
 
 class MouseState:
     """Class to store and manage mouse state"""

@@ -16,7 +16,9 @@
 
 from __future__ import annotations  # Defer type evaluation
 from typing import List, TYPE_CHECKING
-import logging
+# At the top of the file, replace 
+# the logging import with:
+from game.logger import get_logger
 
 import pygame
 from game.constants import (
@@ -26,6 +28,7 @@ from game.constants import (
 from game.types import ElevatorState, VerticalDirection
 from pygame import Surface
 
+logger = get_logger("elevator")
 
 if TYPE_CHECKING:
     from game.elevator_bank import ElevatorBank
@@ -106,17 +109,17 @@ class Elevator:
             raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
         
         if self.current_floor_int < dest_floor:
-            print('Going UP')
+            logger.info('Going UP')
             self._motion_direction = VerticalDirection.UP
             self._nominal_direction = VerticalDirection.UP
             # self._state = "MOVING"
         elif self.current_floor_int > dest_floor:
-            print('Going DOWN')
+            logger.info('Going DOWN')
             self._motion_direction = VerticalDirection.DOWN
             self._nominal_direction = VerticalDirection.DOWN
             # self._state = "MOVING"
         else:
-            print('Going NOWHERE')
+            logger.info('Going NOWHERE')
             self._motion_direction = VerticalDirection.STATIONARY
             self._nominal_direction = VerticalDirection.STATIONARY
             
@@ -126,7 +129,7 @@ class Elevator:
         if self.state == "IDLE":
             self._state = "LOADING"
             self._nominal_direction = direction
-            print(f'Loading: {direction}')
+            logger.info(f'Loading: {direction}')
         else:
             raise RuntimeError(f"Cannot load passengers while elevator is in {self.state} state")
 
@@ -142,7 +145,7 @@ class Elevator:
         """ Returns sorted list of floors in the direction of travel"""
         
         if direction == VerticalDirection.STATIONARY:
-            logging.warning(f"Attempt to get passenger destinations for STATIONARY direction from floor {floor}.")
+            logger.warning(f"Attempt to get passenger destinations for STATIONARY direction from floor {floor}.")
             return []
             # raise ValueError(f"Cannot get passenger requests for STATIONARY direction from floor {floor}")
         
@@ -166,35 +169,29 @@ class Elevator:
         """Update elevator status over time increment dt (in seconds)"""
         match self._state:
             case "IDLE":
-                # print('IDLE')
                 # Arrived at the floor w/ nobody who wanted to disembark on this floor        
                 self.door_open = False                 
                 self.__update_idle(dt)
             
             case "MOVING":
-                # print('MOVING')
                 # Continue moving towards the destination floor
                 self.door_open = False
                 self.__update_moving(dt)
             
             case "ARRIVED":
-                # print("ARRIVED")
                 self.__update_arrived(dt)
             
             case "UNLOADING":
-                # print("UNLOADING")
                 # Allow people to exit the elevator
                 self.door_open = True
                 self.__update_unloading(dt)
             
             case "LOADING":
-                # print("LOADING")
                 # Allow people to enter or exit the elevator
                 self.door_open = True
                 self.__update_loading(dt)
                 
             case "READY_TO_MOVE":
-                # print("READY_TO_MOVE")
                 # Just finished loading
                 self.door_open = False
                 # TODO: Do we need a helper function?
@@ -209,7 +206,6 @@ class Elevator:
     def __update_moving(self, dt: float) -> None:
         dy: float = dt * self.max_velocity * self.motion_direction.value
         cur_floor: float = self._current_floor_float + dy
-        # print(f'At floor {cur_floor}, dy {dy}')
         done: bool = False
         
         if self.motion_direction == VerticalDirection.UP:
@@ -266,7 +262,7 @@ class Elevator:
             return
         
         # There is still room, add a person
-        print(f'Dequeueing passenger going {self.nominal_direction} from {self.current_floor_int}')
+        logger.info(f'Dequeueing passenger going {self.nominal_direction} from {self.current_floor_int}')
         who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor_int, self.nominal_direction)
         if who_wants_on is not None:
             who_wants_on.board_elevator(self)
@@ -283,7 +279,6 @@ class Elevator:
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""
-        # print("I'm drawing an elevator")
         # Calculate positions
         screen_height = surface.get_height()
         #   450 = 480 - (1.5 * 20) 
@@ -323,4 +318,3 @@ class Elevator:
         # TODO: Depending on the size of the passenger icon, we can add judder here later to make it look crowded
         for p in self.__passengers:
             p.draw(surface)
-        

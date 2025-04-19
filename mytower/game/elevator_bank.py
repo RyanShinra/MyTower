@@ -26,6 +26,9 @@ from game.constants import (
 )
 from game.types import VerticalDirection
 from collections import deque
+from game.logger import get_logger
+
+logger = get_logger("elevator_bank")
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -115,10 +118,10 @@ class ElevatorBank:
             raise ValueError(f"Person cannot go to the same floor: current floor {passenger.current_floor} = destination floor {passenger.destination_floor}")
         
         elif passenger.current_floor < passenger.destination_floor:
-            print("Going UP")
+            logger.info("Going UP")
             current_queue = self.__upward_waiting_passengers.get(passenger.current_floor)
         else:
-            print("Going DOWN")
+            logger.info("Going DOWN")
             current_queue = self.__downward_waiting_passengers.get(passenger.current_floor)
         
         if current_queue is None:
@@ -188,7 +191,7 @@ class ElevatorBank:
         nom_direction: VerticalDirection = elevator.nominal_direction
         
         where_to: ElevatorBank.Destination = self._get_next_destination(elevator, floor, nom_direction)
-        print(f'Setting destination to {where_to.floor}')
+        logger.info(f'Setting destination to {where_to.floor}')
         elevator.set_destination_floor(where_to.floor)
         
         # Oh, and we need to clear the request on that floor
@@ -284,7 +287,7 @@ class ElevatorBank:
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator Bank on the given surface"""
-        # print("I'm drawing an Elevator Bank")
+        # logger.debug("I'm drawing an Elevator Bank")
         screen_height: int = surface.get_height()
         
         shaft_left = self.__horizontal_block * BLOCK_WIDTH
@@ -310,5 +313,5 @@ class ElevatorBank:
     
         # now draw the elevators
         for el in self.elevators:
-            # print("I want to draw an elevator")
+            # logger.debug("I want to draw an elevator")
             el.draw(surface)

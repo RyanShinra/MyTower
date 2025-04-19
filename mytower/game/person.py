@@ -16,6 +16,9 @@ import pygame
 from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT, PERSON_INIT_BLUE, PERSON_INIT_GREEN, PERSON_INIT_RED, PERSON_MAX_RED, PERSON_MAX_WAIT_TIME, PERSON_MIN_BLUE, PERSON_MIN_GREEN, PERSON_MIN_RED, PERSON_RADIUS
 from game.types import HorizontalDirection, PersonState
 from game.elevator import Elevator
+from game.logger import get_logger
+
+logger = get_logger("person")
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -117,9 +120,9 @@ class Person:
             
             case _:
                 # Handle unexpected states
-                # print(f"Unknown state: {self.state}")
-                pass
+                logger.debug(f"Unknown state: {self.state}")
              
+            
     def update_idle(self, dt: float) -> None:
         self.direction = HorizontalDirection.STATIONARY
         
@@ -219,7 +222,7 @@ class Person:
         draw_blue = max(0, min(254, draw_blue))
         
         draw_color = (draw_red, draw_green, draw_blue)
-        # print(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
+        logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
         
         pygame.draw.circle(
             surface,

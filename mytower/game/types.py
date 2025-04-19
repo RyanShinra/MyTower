@@ -10,6 +10,9 @@
 from typing import Tuple, Literal, TypeAlias, Union, NewType
 import pygame
 from enum import Enum
+from game.logger import get_logger
+
+logger = get_logger("types")
 
 # Type definitions for colors
 # RGB color type as a tuple of three integers

@@ -6,9 +6,13 @@ from game.person import Person
 from game.floor import Floor
 from game.types import FloorType
 from pygame import Surface
+from game.logger import get_logger
 
 if TYPE_CHECKING:
     from game.elevator_bank import ElevatorBank
+
+logger = get_logger("building")
+
 class Building:
     """
     The main building class that contains all floors, elevators, and people.
@@ -82,11 +86,11 @@ class Building:
             self.__floors[floor_num].draw(surface)
         
         for elevator in self.__elevator_banks:
-            # print("I want to draw an elevator bank")
+            logger.debug("I want to draw an elevator bank")
             if hasattr(elevator, 'draw'):
                 elevator.draw(surface)
         
         for person in self.__people:
-            # print("I want to draw a person")
+            logger.debug("I want to draw a person")
             if hasattr(person, 'draw') and callable(person.draw):
                 person.draw(surface)
