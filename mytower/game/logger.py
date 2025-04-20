@@ -45,12 +45,12 @@ def setup_logger(
     
     # Create formatters
     detailed_formatter = logging.Formatter(
-        '%(asctime)s | %(levelname)-8s | %(name)s:%(lineno)d | %(message)s',
+        '%(asctime)s.%(msecs)03d | %(levelname)-8s | %(name)s:%(lineno)d | %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     
     simple_formatter = logging.Formatter(
-        '%(asctime)s | %(levelname)-8s | %(message)s',
+        '%(asctime)s.%(msecs)03d | %(levelname)-8s | %(message)s',
         datefmt='%H:%M:%S'
     )
     

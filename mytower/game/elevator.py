@@ -301,6 +301,9 @@ class Elevator:
         if self.current_floor_int != self.destination_floor:
             logger.info(f"{self.state} Elevator: Elevator starting to MOVE {self.nominal_direction} towards floor {self.destination_floor}")
             self._state = "MOVING"    
+        else:
+            logger.info(f'{self.state} Elevator: No Destination -> IDLE')
+            self._state = "IDLE"
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""
