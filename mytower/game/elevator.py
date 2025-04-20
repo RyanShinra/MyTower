@@ -15,7 +15,7 @@
 # along with MyTower. If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations  # Defer type evaluation
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional as Opt
 # At the top of the file, replace 
 # the logging import with:
 from game.logger import get_logger
@@ -70,7 +70,10 @@ class Elevator:
         
         self.__unloading_timeout: float = 0.0
         self.__loading_timeout: float = 0.0
-        self.idle_time = 0.0
+        self.idle_time: float = 0.0
+        self._last_logged_state: Opt[ElevatorState] = None  # Track the last logged state
+        self._idle_log_timer: float = 0.0
+        self._moving_log_timer: float = 0.0
         
     @property
     def state(self) -> ElevatorState:
@@ -108,18 +111,19 @@ class Elevator:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
         
+        logger.info(f"{self.state} Elevator: Setting destination floor to {dest_floor} from current floor {self.current_floor_int}")
         if self.current_floor_int < dest_floor:
-            logger.info('Going UP')
+            logger.info(f'{self.state} Elevator: Going UP')
             self._motion_direction = VerticalDirection.UP
             self._nominal_direction = VerticalDirection.UP
             # self._state = "MOVING"
         elif self.current_floor_int > dest_floor:
-            logger.info('Going DOWN')
+            logger.info(f'{self.state} Elevator: Going DOWN')
             self._motion_direction = VerticalDirection.DOWN
             self._nominal_direction = VerticalDirection.DOWN
             # self._state = "MOVING"
         else:
-            logger.info('Going NOWHERE')
+            logger.info(f'{self.state} Elevator: Going NOWHERE')
             self._motion_direction = VerticalDirection.STATIONARY
             self._nominal_direction = VerticalDirection.STATIONARY
             
@@ -129,9 +133,10 @@ class Elevator:
         if self.state == "IDLE":
             self._state = "LOADING"
             self._nominal_direction = direction
-            logger.info(f'Loading: {direction}')
+            logger.info(f'{self.state} Elevator: Loading: {direction}')
         else:
-            raise RuntimeError(f"Cannot load passengers while elevator is in {self.state} state")
+            logger.warning(f"{self.state} Elevator: Cannot load passengers while elevator is in {self.state} state")
+            raise RuntimeError(f"{self.state} Elevator: Cannot load passengers while elevator is in {self.state} state")
 
     def passengers_who_want_off(self) -> List[Person]:
         answer: List[Person] = []
@@ -145,7 +150,7 @@ class Elevator:
         """ Returns sorted list of floors in the direction of travel"""
         
         if direction == VerticalDirection.STATIONARY:
-            logger.warning(f"Attempt to get passenger destinations for STATIONARY direction from floor {floor}.")
+            logger.error(f"{self.state} Elevator: Invalid direction STATIONARY for floor {floor}")
             return []
             # raise ValueError(f"Cannot get passenger requests for STATIONARY direction from floor {floor}")
         
@@ -167,6 +172,10 @@ class Elevator:
         
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
+        if self._state != self._last_logged_state:
+            logger.info(f"Elevator state changed to: {self._state}")
+            self._last_logged_state = self._state
+        
         match self._state:
             case "IDLE":
                 # Arrived at the floor w/ nobody who wanted to disembark on this floor        
@@ -198,14 +207,23 @@ class Elevator:
                 self.__update_ready_to_move(dt) 
                     
             case _:
+                logger.error(f"Unknown elevator state: {self._state}")
                 raise ValueError(f"Unknown elevator state: {self._state}")
         
     def __update_idle(self, dt: float) -> None:
-                self._motion_direction = VerticalDirection.STATIONARY
+        self._idle_log_timer += dt
+        if self._idle_log_timer >= 1.0:
+            logger.debug(f"{self.state} Elevator: Elevator is idle on floor {self.current_floor_int}")
+            self._idle_log_timer = 0.0
+        self._motion_direction = VerticalDirection.STATIONARY
         
     def __update_moving(self, dt: float) -> None:
         dy: float = dt * self.max_velocity * self.motion_direction.value
         cur_floor: float = self._current_floor_float + dy
+        if self._moving_log_timer >= 1.0:
+            logger.debug(f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_float} to {cur_floor}")
+            self._moving_log_timer = 0.0
+        
         done: bool = False
         
         if self.motion_direction == VerticalDirection.UP:
@@ -216,6 +234,7 @@ class Elevator:
                 done = True
                 
         if done:
+            logger.debug(f'{self.state} Elevator: The elevator has arrived from moving {self.motion_direction} -> ARRIVED')
             cur_floor = self.destination_floor
             self._state = "ARRIVED"
             self._motion_direction = VerticalDirection.STATIONARY
@@ -230,7 +249,8 @@ class Elevator:
         if len(who_wants_off) > 0:
             self._state = "UNLOADING"
         else:
-            self._state = "IDLE"
+            self._state = "IDLE"        
+        logger.debug(f'{self.state} Elevator: Having arrived, elevator has {len(who_wants_off)} passengers to disembark -> {self._state}')
     
     def __update_unloading(self, dt: float) -> None:
         self.__unloading_timeout += dt
@@ -241,10 +261,12 @@ class Elevator:
         who_wants_off: List[Person] = self.passengers_who_want_off()
         
         if len(who_wants_off) > 0:
+            logger.debug(f'{self.state} Elevator: Unloading Passenger')
             disembarking_passenger: Person = who_wants_off.pop()
             self.__passengers.remove(disembarking_passenger)
             disembarking_passenger.disembark_elevator()
         else:
+            logger.debug(f'{self.state} Elevator: Unloading Complete -> LOADING')
             self._state = "LOADING"
         return    
     
@@ -257,25 +279,28 @@ class Elevator:
         
         # We could have an "Overstuffed" option here in the future
         if self.avail_capacity <= 0:
+            logger.debug(f'{self.state} Elevator: Loading at Capacity -> READY_TO_MOVE')
             self._state = "READY_TO_MOVE" # We're full, get ready to move
             self.door_open = False
             return
         
         # There is still room, add a person
-        logger.info(f'Dequeueing passenger going {self.nominal_direction} from {self.current_floor_int}')
-        who_wants_on: Person | None = self.parent_elevator_bank.dequeue_waiting_passenger(self.current_floor_int, self.nominal_direction)
+        logger.info(f'{self.state} Elevator: Trying to dequeue a passenger going {self.nominal_direction} from {self.current_floor_int}')
+        who_wants_on: Person | None = self.parent_elevator_bank.try_dequeue_waiting_passenger(self.current_floor_int, self.nominal_direction)
         if who_wants_on is not None:
             who_wants_on.board_elevator(self)
             self.__passengers.append(who_wants_on)
         else:
+            logger.debug(f'{self.state} Elevator: Loading Complete: No more willing passengers -> READY_TO_MOVE')
             self._state = "READY_TO_MOVE" # Nobody else wants to get on
             self.door_open = False
         return
     
     def __update_ready_to_move(self, dt: float) -> None:
+        logger.debug(f"{self.state} Elevator: Elevator ready to move from floor {self.current_floor_int} to {self.destination_floor}")
         if self.current_floor_int != self.destination_floor:
+            logger.info(f"{self.state} Elevator: Elevator starting to MOVE {self.nominal_direction} towards floor {self.destination_floor}")
             self._state = "MOVING"    
-    
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""

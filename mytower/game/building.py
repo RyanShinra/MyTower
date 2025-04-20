@@ -86,11 +86,11 @@ class Building:
             self.__floors[floor_num].draw(surface)
         
         for elevator in self.__elevator_banks:
-            logger.debug("I want to draw an elevator bank")
+            # logger.debug("I want to draw an elevator bank")
             if hasattr(elevator, 'draw'):
                 elevator.draw(surface)
         
         for person in self.__people:
-            logger.debug("I want to draw a person")
+            # logger.debug("I want to draw a person")
             if hasattr(person, 'draw') and callable(person.draw):
                 person.draw(surface)

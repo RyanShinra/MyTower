@@ -91,7 +91,7 @@ class GameState:
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         # Draw building
-        logger.debug("I want to draw a building")
+        # logger.debug("I want to draw a building")
         self.building.draw(surface)
 
         # Draw UI elements

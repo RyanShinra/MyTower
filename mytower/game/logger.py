@@ -76,8 +76,9 @@ def setup_logger(
 # Create a root logger for the game
 root_logger = setup_logger(
     name="mytower",
-    level=logging.INFO,
-    log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    level=logging.DEBUG,
+    log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
+    file_level=logging.DEBUG
 )
 
 # Create function to get module-specific loggers

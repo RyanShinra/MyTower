@@ -32,7 +32,7 @@ class Person:
     """
     def __init__(self, building: Building, current_floor: int, current_block: float, max_velocity: float) -> None:
         self.building: Building = building
-        self._current_floor: float = float(current_floor)
+        self.__current_floor_float: float = float(current_floor)
         self.current_block: float = current_block
         self._dest_block: int = int(current_block)
         self._dest_floor: int = current_floor
@@ -52,7 +52,7 @@ class Person:
         
     @property
     def current_floor(self) -> int:
-        return int(self._current_floor)
+        return int(self.__current_floor_float)
     
     @property
     def destination_floor(self)-> int:
@@ -91,7 +91,7 @@ class Person:
             raise RuntimeError("Cannot disembark elevator: no elevator is currently boarded.")
         
         self.current_block = self.__current_elevator.parent_elevator_bank.get_waiting_block()
-        self._current_floor = float(self.__current_elevator.current_floor_int)
+        self.__current_floor_float = float(self.__current_elevator.current_floor_int)
         self.__waiting_time = 0.0
         self.__current_elevator = None
         self._next_elevator_bank = None
@@ -115,7 +115,7 @@ class Person:
             case "IN_ELEVATOR":
                 if self.__current_elevator:
                     self.__waiting_time += dt
-                    self._current_floor = self.__current_elevator.fractional_floor
+                    self.__current_floor_float = self.__current_elevator.fractional_floor
                     self.current_block = self.__current_elevator.parent_elevator_bank.horizontal_block
             
             case _:
@@ -136,22 +136,25 @@ class Person:
             # Find the nearest elevator, go in that direction
             self._next_elevator_bank = self.find_nearest_elevator_bank()
             if self._next_elevator_bank:
-                # TODO: Bounds wrap this to block 1 (i.e. have them board on the right)
                 current_destination_block = float(self._next_elevator_bank.get_waiting_block())
+                logger.debug(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> WALKING to Elevator block: {current_destination_block}')
                 self.state = "WALKING" # This is technically redundant (I think), I may remove it soon...
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
                 current_destination_block = self.current_block # why move? There's nowhere to go
+                logger.debug(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
                 self.state = "IDLE" # This is also prob's redundant (Since we were already idle)
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
                 self.__idle_timeout = 5.0
         
         if current_destination_block < self.current_block:
             # Already on the right floor (or walking to elevator?)
+            logger.debug(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING LEFT to block: {current_destination_block}')
             self.state = "WALKING"
             self.direction = HorizontalDirection.LEFT    
         
         elif current_destination_block > self.current_block:
+            logger.debug(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING RIGHT to block: {current_destination_block}')
             self.state = "WALKING"
             self.direction = HorizontalDirection.RIGHT
 
@@ -186,6 +189,7 @@ class Person:
                 self.state = "WAITING_FOR_ELEVATOR"
             else:
                 self.state = "IDLE"    
+            logger.debug(f'WALKING Person: Arrived at destination (fl {self.current_floor}, bk {waypoint_block}) -> {self.state}')
         
         # TODO: Update these once we have building extents
         next_block = min(next_block, self.building.floor_width)
@@ -199,7 +203,7 @@ class Person:
         screen_height = surface.get_height()
         
         # Note: this needs to be the private, float _current_floor
-        apparent_floor:float = self._current_floor - 1.0
+        apparent_floor:float = self.__current_floor_float - 1.0
         y_bottom: float = apparent_floor * BLOCK_HEIGHT
         y_centered:int = int(y_bottom + (BLOCK_HEIGHT / 2))
         
@@ -222,7 +226,7 @@ class Person:
         draw_blue = max(0, min(254, draw_blue))
         
         draw_color = (draw_red, draw_green, draw_blue)
-        logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
+        # logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
         
         pygame.draw.circle(
             surface,

@@ -132,7 +132,7 @@ class ElevatorBank:
         return True 
     
     
-    def dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[Person]: 
+    def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[Person]: 
         if direction == VerticalDirection.STATIONARY:
             raise ValueError(f"Trying to get 'STATIONARY' Queue on floor {floor}")
         
