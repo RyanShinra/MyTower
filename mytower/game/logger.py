@@ -3,14 +3,36 @@ import logging
 import os
 from datetime import datetime
 # from typing import Optional, Dict, Any
-from typing import Optional
+from typing import Optional, Any, cast
 
 # Define log levels with descriptive names
+TRACE = 5  # Even more detailed than DEBUG
 DEBUG = logging.DEBUG       # Detailed debug information
 INFO = logging.INFO         # Confirmation that things are working as expected
 WARNING = logging.WARNING   # Indication that something unexpected happened
 ERROR = logging.ERROR       # Error that prevented something from working
 CRITICAL = logging.CRITICAL # A serious error that might prevent the program from continuing
+
+# Register the TRACE level with the logging system
+logging.addLevelName(TRACE, "TRACE")
+
+class MyTowerLogger(logging.Logger):
+    """Custom logger class with TRACE level support."""
+    def trace(self, msg: object, *args: Any, **kwargs: Any) -> None:
+        """
+        Log a message with severity 'TRACE'.
+        
+        Args:
+            msg: The message to log
+            args: Arguments to merge into msg using string formatting
+            kwargs: Additional arguments to pass to the logging method
+        """
+        if self.isEnabledFor(TRACE):
+            self._log(TRACE, msg, args, **kwargs)
+
+
+# Register our custom logger class with the logging system BEFORE creating any loggers
+logging.setLoggerClass(MyTowerLogger)
 
 def setup_logger(
     name: str = "mytower",
@@ -76,13 +98,14 @@ def setup_logger(
 # Create a root logger for the game
 root_logger = setup_logger(
     name="mytower",
-    level=logging.DEBUG,
+    level=TRACE,  # Capture all logs at the logger level
     log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
-    file_level=logging.DEBUG
+    file_level=TRACE,  # Write all levels to file
+    console_level=DEBUG  # Only show DEBUG and higher in console
 )
 
 # Create function to get module-specific loggers
-def get_logger(module_name: str) -> logging.Logger:
+def get_logger(module_name: str) -> MyTowerLogger:
     """Get a logger for a specific module."""
     # Prepend mytower to create a hierarchy
-    return logging.getLogger(f"mytower.{module_name}")
+    return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
