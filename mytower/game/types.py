@@ -9,6 +9,10 @@
 
 from typing import Tuple, Literal, TypeAlias, Union, NewType
 import pygame
+from enum import Enum
+from game.logger import get_logger
+
+logger = get_logger("types")
 
 # Type definitions for colors
 # RGB color type as a tuple of three integers
@@ -26,15 +30,24 @@ PygameSurface: TypeAlias = pygame.Surface
 # Floor types with string literals
 FloorType: TypeAlias = Literal["LOBBY", "OFFICE", "APARTMENT", "HOTEL", "RESTAURANT", "RETAIL"]
 
-# Direction types
-VerticalDirection: TypeAlias = Literal[-1, 0, 1]  # -1 for down, 0 for stationary, 1 for up
-HorizontalDirection: TypeAlias = Literal[-1, 0, 1] # -1 for left,  0 for stationary, +1 for right
 
+# Direction types using Enum
+class VerticalDirection(Enum):
+    DOWN = -1
+    STATIONARY = 0
+    UP = 1
+
+# HorizontalDirection can also be defined similarly if needed
+class HorizontalDirection(Enum):
+    LEFT = -1
+    STATIONARY = 0
+    RIGHT = 1
+    
 # Person state type
 PersonState: TypeAlias = Literal["IDLE", "WALKING", "WAITING_FOR_ELEVATOR", "IN_ELEVATOR"]
 
 # Elevator state type
-ElevatorState: TypeAlias = Literal["IDLE", "MOVING", "LOADING", "UNLOADING"]
+ElevatorState: TypeAlias = Literal["IDLE", "MOVING", "ARRIVED", "LOADING", "UNLOADING", "READY_TO_MOVE"]
 
 # Money type (for stronger typing)
 Money = NewType('Money', int)

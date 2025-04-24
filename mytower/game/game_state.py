@@ -3,8 +3,13 @@ import pygame
 from pygame import Surface
 from game.building import Building
 from game.elevator import Elevator
-from game.constants import ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
+from game.constants import ELEVATOR_DEFAULT_CAPACITY, ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
 from game.person import Person
+from game.elevator_bank import ElevatorBank
+from game.logger import get_logger
+
+logger = get_logger("game_state")
+
 class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
@@ -35,17 +40,36 @@ class GameState:
         self.building.add_floor("APARTMENT")
 
         # Add one elevator
-        self.test_elevator = Elevator(
+        
+        self.test_elevator_bank = ElevatorBank(
             self.building, h_cell=14, min_floor=1,
-            max_floor=self.building.num_floors, max_velocity = ELEVATOR_MAX_SPEED
+            max_floor=self.building.num_floors
         )
-        self.building.add_elevator(self.test_elevator)
-        self.test_elevator.set_destination_floor(self.building.num_floors)
+        
+        self.test_elevator = Elevator(
+            self.test_elevator_bank, h_cell=14, min_floor=1,
+            max_floor=self.building.num_floors, max_velocity=ELEVATOR_MAX_SPEED,
+            max_capacity=ELEVATOR_DEFAULT_CAPACITY
+        )
+        
+        
+        self.test_elevator_bank.add_elevator(self.test_elevator)
+        
+        self.building.add_elevator_bank(self.test_elevator_bank)
 
         # Add a sample person
         self.test_person = Person(building = self.building, current_floor = 1, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self.test_person.set_destination(dest_floor = 9, dest_block = 7)
+        self.test_person2 = Person(building = self.building, current_floor = 1, current_block = 3, max_velocity=PERSON_MAX_SPEED)
+        self.test_person2.set_destination(dest_floor = 3, dest_block = 7)
+        self.test_person3 = Person(building = self.building, current_floor = 1, current_block = 6, max_velocity=PERSON_MAX_SPEED)
+        self.test_person3.set_destination(dest_floor = 7, dest_block = 7)
+        self.test_person4 = Person(building = self.building, current_floor = 12, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self.test_person4.set_destination(dest_floor = 1, dest_block = 1)
         self.building.add_person(self.test_person)
-        self.test_person.set_destination(dest_floor = 1, dest_block = 13)
+        self.building.add_person(self.test_person2)
+        self.building.add_person(self.test_person3)
+        self.building.add_person(self.test_person4)
 
         # Game time tracking
         self.time: float = 0.0  # Game time in seconds
@@ -67,6 +91,7 @@ class GameState:
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         # Draw building
+        # logger.debug("I want to draw a building")
         self.building.draw(surface)
 
         # Draw UI elements

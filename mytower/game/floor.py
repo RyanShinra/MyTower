@@ -7,6 +7,7 @@ from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT,
     LOBBY_COLOR,  OFFICE_COLOR,  APARTMENT_COLOR,  HOTEL_COLOR,  RESTAURANT_COLOR,  RETAIL_COLOR, 
     LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT, UI_TEXT_COLOR
 )
+from game.logger import get_logger
 
 from game.types import Color
 from game.types import FloorType
@@ -14,6 +15,8 @@ from pygame import Surface
 
 if TYPE_CHECKING:
     from game.building import Building
+
+logger = get_logger("floor")
 
 # See FloorInfo below
 class Floor:
@@ -42,7 +45,7 @@ class Floor:
         "RETAIL": FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
     
-    def __init__(self, building: Building, floor_num: int, floor_type: FloorType):
+    def __init__(self, building: Building, floor_num: int, floor_type: FloorType) -> None:
         self.building: Building = building
         # Floors are 1 indexed
         self.floor_num: int = floor_num
@@ -55,7 +58,7 @@ class Floor:
         self.height: int = self.FLOOR_TYPES[floor_type].height
         
         # Grid of rooms/spaces on this floor
-        self.gri: List[Optional[Any]] = [None] * building.floor_width
+        self.grid: List[Optional[Any]] = [None] * building.floor_width
     
     def update(self, dt: float) -> None:
         """Update floor simulation"""
