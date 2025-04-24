@@ -146,11 +146,11 @@ class ElevatorBank:
         current_queue: Opt[deque[Person]] = result[0]
         
         if len(current_queue) == 0:
-            logger.debug(f"No passengers waiting on floor {floor} in direction {direction}")
+            logger.info(f"No passengers waiting on floor {floor} in direction {direction}")
             return None
         
         passenger = current_queue.popleft()
-        logger.info(f"Dequeued passenger from floor {floor} heading {direction}")
+        logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
         return passenger
         
 
@@ -224,7 +224,7 @@ class ElevatorBank:
         dest_floor: int = current_floor
         # If it's currently stationary, search UP first
         dest_direction: VerticalDirection = init_nom_direction if init_nom_direction != STATIONARY else UP
-        logger.debug(f"First searching for destination in {dest_direction} direction from floor {current_floor}")
+        logger.trace(f"First searching for destination in {dest_direction} direction from floor {current_floor}")
         dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
         
         if dest_floor == current_floor:
@@ -247,9 +247,9 @@ class ElevatorBank:
         elevator_call_destinations: List[int] = self._get_floor_requests_in_dir_from_floor(floor, dest_direction)
         passenger_requests: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction)
         
-        logger.debug(f"Searching for destination in {dest_direction} direction from floor {floor}")
-        logger.debug(f"Elevator call requests: {elevator_call_destinations}")
-        logger.debug(f"Passenger destination requests: {passenger_requests}")
+        logger.trace(f"Searching for destination in {dest_direction} direction from floor {floor}")
+        logger.trace(f"Elevator call requests: {elevator_call_destinations}")
+        logger.trace(f"Passenger destination requests: {passenger_requests}")
         
         if elevator_call_destinations and passenger_requests:
             if isUp:

@@ -213,7 +213,7 @@ class Elevator:
     def __update_idle(self, dt: float) -> None:
         self._idle_log_timer += dt
         if self._idle_log_timer >= 1.0:
-            logger.debug(f"{self.state} Elevator: Elevator is idle on floor {self.current_floor_int}")
+            logger.trace(f"{self.state} Elevator: Elevator is idle on floor {self.current_floor_int}")
             self._idle_log_timer = 0.0
         self._motion_direction = VerticalDirection.STATIONARY
         
@@ -221,7 +221,7 @@ class Elevator:
         dy: float = dt * self.max_velocity * self.motion_direction.value
         cur_floor: float = self._current_floor_float + dy
         if self._moving_log_timer >= 1.0:
-            logger.debug(f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_float} to {cur_floor}")
+            logger.trace(f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_float} to {cur_floor}")
             self._moving_log_timer = 0.0
         
         done: bool = False
@@ -234,7 +234,7 @@ class Elevator:
                 done = True
                 
         if done:
-            logger.debug(f'{self.state} Elevator: The elevator has arrived from moving {self.motion_direction} -> ARRIVED')
+            logger.info(f'{self.state} Elevator: The elevator has arrived from moving {self.motion_direction} -> ARRIVED')
             cur_floor = self.destination_floor
             self._state = "ARRIVED"
             self._motion_direction = VerticalDirection.STATIONARY
@@ -279,13 +279,13 @@ class Elevator:
         
         # We could have an "Overstuffed" option here in the future
         if self.avail_capacity <= 0:
-            logger.debug(f'{self.state} Elevator: Loading at Capacity -> READY_TO_MOVE')
+            logger.info(f'{self.state} Elevator: Loading at Capacity -> READY_TO_MOVE')
             self._state = "READY_TO_MOVE" # We're full, get ready to move
             self.door_open = False
             return
         
         # There is still room, add a person
-        logger.info(f'{self.state} Elevator: Trying to dequeue a passenger going {self.nominal_direction} from {self.current_floor_int}')
+        logger.debug(f'{self.state} Elevator: Trying to dequeue a passenger going {self.nominal_direction} from {self.current_floor_int}')
         who_wants_on: Person | None = self.parent_elevator_bank.try_dequeue_waiting_passenger(self.current_floor_int, self.nominal_direction)
         if who_wants_on is not None:
             who_wants_on.board_elevator(self)
