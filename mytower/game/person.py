@@ -120,7 +120,7 @@ class Person:
             
             case _:
                 # Handle unexpected states
-                logger.debug(f"Unknown state: {self.state}")
+                logger.warning(f"Unknown state: {self.state}")
              
             
     def update_idle(self, dt: float) -> None:
@@ -137,24 +137,24 @@ class Person:
             self._next_elevator_bank = self.find_nearest_elevator_bank()
             if self._next_elevator_bank:
                 current_destination_block = float(self._next_elevator_bank.get_waiting_block())
-                logger.debug(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> WALKING to Elevator block: {current_destination_block}')
+                logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> WALKING to Elevator block: {current_destination_block}')
                 self.state = "WALKING" # This is technically redundant (I think), I may remove it soon...
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
                 current_destination_block = self.current_block # why move? There's nowhere to go
-                logger.debug(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
+                logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
                 self.state = "IDLE" # This is also prob's redundant (Since we were already idle)
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
                 self.__idle_timeout = 5.0
         
         if current_destination_block < self.current_block:
             # Already on the right floor (or walking to elevator?)
-            logger.debug(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING LEFT to block: {current_destination_block}')
+            logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING LEFT to block: {current_destination_block}')
             self.state = "WALKING"
             self.direction = HorizontalDirection.LEFT    
         
         elif current_destination_block > self.current_block:
-            logger.debug(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING RIGHT to block: {current_destination_block}')
+            logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING RIGHT to block: {current_destination_block}')
             self.state = "WALKING"
             self.direction = HorizontalDirection.RIGHT
 
