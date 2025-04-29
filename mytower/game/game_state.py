@@ -52,9 +52,7 @@ class GameState:
             max_capacity=ELEVATOR_DEFAULT_CAPACITY
         )
         
-        
         self.test_elevator_bank.add_elevator(self.test_elevator)
-        
         self.building.add_elevator_bank(self.test_elevator_bank)
 
         # Add a sample person

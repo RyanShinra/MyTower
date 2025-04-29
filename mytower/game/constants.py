@@ -20,8 +20,8 @@ FPS: Final[int] = 60
 BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants
-BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels
-BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels
+BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels, 3.0m
+BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels, 3.0m
 
 # Color constants
 UI_BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)
@@ -50,14 +50,14 @@ RETAIL_HEIGHT: Final[int] = 1
 ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
 ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
 ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
-ELEVATOR_MAX_SPEED: Final[float] = 2.0 # 0.75  # floors per second
+ELEVATOR_MAX_SPEED: Final[float] = 0.75  # floors per second
 ELEVATOR_DEFAULT_CAPACITY: Final[int] = 15
 PASSENGER_LOADING_TIME: Final[float] = 1.0
 ELEVATOR_IDLE_TIMEOUT: Final[float] = 0.5
 
 # Person attributes (we'll add colors here later)
-PERSON_MAX_SPEED: Final[float] = 1.5 # Blocks per second
-PERSON_MAX_WAIT_TIME: Final[float] = 60.0 # seconds, before they storm off somewhere
+PERSON_MAX_SPEED: Final[float] = 0.5 # Blocks per second 1.5 m/s -> 3.3 MPH
+PERSON_MAX_WAIT_TIME: Final[float] = 90.0 # seconds, before they storm off somewhere
 
 PERSON_MAX_RED: Final[int] = 192
 PERSON_INIT_RED: Final[int] = 32
