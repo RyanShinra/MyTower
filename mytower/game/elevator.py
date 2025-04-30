@@ -50,16 +50,16 @@ class Elevator:
             max_velocity: Speed in floors per second
         """
         self._parent_elevator_bank: ElevatorBank = elevator_bank
-        self.horizontal_block: int = h_cell
-        self.min_floor: int = min_floor
-        self.max_floor: int = max_floor
-        self.max_velocity: float = max_velocity
+        self._horizontal_block: int = h_cell
+        self._min_floor: int = min_floor
+        self._max_floor: int = max_floor
+        self._max_velocity: float = max_velocity
         self._max_capacity: int = max_capacity
         
         # Current state
         self._current_floor_float: float = float(min_floor)  # Floor number (can be fractional when moving)
-        self.destination_floor: int = min_floor # Let's not stop between floors
-        self.door_open: bool = False
+        self._destination_floor: int = min_floor # Let's not stop between floors
+        self._door_open: bool = False
         self._state: ElevatorState = "IDLE"
         self._motion_direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
         
@@ -70,7 +70,7 @@ class Elevator:
         
         self._unloading_timeout: float = 0.0
         self._loading_timeout: float = 0.0
-        self.idle_time: float = 0.0
+        self._idle_time: float = 0.0
         self._last_logged_state: Opt[ElevatorState] = None  # Track the last logged state
         self._idle_log_timer: float = 0.0
         self._moving_log_timer: float = 0.0
@@ -106,7 +106,46 @@ class Elevator:
     @property
     def parent_elevator_bank(self) -> ElevatorBank:
         return self._parent_elevator_bank
-    
+        
+    @property
+    def horizontal_block(self) -> int:
+        return self._horizontal_block
+        
+    @property
+    def door_open(self) -> bool:
+        return self._door_open
+        
+    @door_open.setter
+    def door_open(self, value: bool) -> None:
+        self._door_open = value
+        
+    @property
+    def min_floor(self) -> int:
+        return self._min_floor
+        
+    @property
+    def max_floor(self) -> int:
+        return self._max_floor
+        
+    @property
+    def max_velocity(self) -> float:
+        return self._max_velocity
+        
+    @property
+    def destination_floor(self) -> int:
+        return self._destination_floor
+        
+    # def set_destination_floor(self, value: int) -> None:
+    #     self._destination_floor = value
+        
+    @property
+    def idle_time(self) -> float:
+        return self._idle_time
+        
+    @idle_time.setter
+    def idle_time(self, value: float) -> None:
+        self._idle_time = value
+
     def set_destination_floor(self, dest_floor: int) -> None:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.")
@@ -127,7 +166,7 @@ class Elevator:
             self._motion_direction = VerticalDirection.STATIONARY
             self._nominal_direction = VerticalDirection.STATIONARY
             
-        self.destination_floor = dest_floor
+        self._destination_floor = dest_floor
 
     def request_load_passengers(self, direction: VerticalDirection) -> None:
         if self.state == "IDLE":

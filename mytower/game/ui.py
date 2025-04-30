@@ -15,30 +15,46 @@ class Button:
     A simple button UI element
     """
     def __init__(self, x: int, y: int, width: int, height: int, text: str, color:RGB=BUTTON_COLOR, hover_color:RGB=BUTTON_HOVER_COLOR, text_color:RGB=UI_TEXT_COLOR):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.text = text
-        self.color = color
-        self.hover_color = hover_color
-        self.text_color = text_color
-        self.is_hovered = False
-        self.is_clicked = False
+        self._rect = pygame.Rect(x, y, width, height)
+        self._text = text
+        self._color = color
+        self._hover_color = hover_color
+        self._text_color = text_color
+        self._is_hovered = False
+        self._is_clicked = False
+        
+    @property
+    def rect(self) -> pygame.Rect:
+        return self._rect
+        
+    @property
+    def text(self) -> str:
+        return self._text
+        
+    @property
+    def is_clicked(self) -> bool:
+        return self._is_clicked
+        
+    @property
+    def is_hovered(self) -> bool:
+        return self._is_hovered
         
     def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons) -> None:
         """Update button state based on mouse position and clicks"""
-        self.is_hovered = self.rect.collidepoint(mouse_pos)
-        self.is_clicked = self.is_hovered and mouse_pressed[0]
+        self._is_hovered = self._rect.collidepoint(mouse_pos)
+        self._is_clicked = self._is_hovered and mouse_pressed[0]
         
     def draw(self, surface: PygameSurface) -> None:
         """Draw the button on the given surface"""
         # Draw button background
-        color = self.hover_color if self.is_hovered else self.color
-        pygame.draw.rect(surface, color, self.rect)
-        pygame.draw.rect(surface, self.text_color, self.rect, 2)  # Border
+        color = self._hover_color if self._is_hovered else self._color
+        pygame.draw.rect(surface, color, self._rect)
+        pygame.draw.rect(surface, self._text_color, self._rect, 2)  # Border
         
         # Draw text
         font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(self.text, True, self.text_color)
-        text_rect = text_surface.get_rect(center=self.rect.center)
+        text_surface = font.render(self._text, True, self._text_color)
+        text_rect = text_surface.get_rect(center=self._rect.center)
         surface.blit(text_surface, text_rect)
 
 class Toolbar:
@@ -46,31 +62,46 @@ class Toolbar:
     A toolbar for building tools and controls
     """
     def __init__(self, x: int, y: int, width: int, height: int):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.buttons: List[Button] = []
-        self.active_tool: Optional[str] = None
-        self.bg_color = UI_BACKGROUND_COLOR
+        self._rect = pygame.Rect(x, y, width, height)
+        self._buttons: List[Button] = []
+        self._active_tool: Optional[str] = None
+        self._bg_color = UI_BACKGROUND_COLOR
+        
+    @property
+    def rect(self) -> pygame.Rect:
+        return self._rect
+        
+    @property
+    def buttons(self) -> List[Button]:
+        return self._buttons
+        
+    @property
+    def active_tool(self) -> Optional[str]:
+        return self._active_tool
+        
+    def set_active_tool(self, value: Optional[str]) -> None:
+        self._active_tool = value
         
     def add_button(self, text: str, width: int = 100, height: int = 30) -> Button:
         """Add a button to the toolbar"""
-        x = self.rect.x + 10 + len(self.buttons) * (width + 10)
-        y = self.rect.y + (self.rect.height - height) // 2
+        x = self._rect.x + 10 + len(self._buttons) * (width + 10)
+        y = self._rect.y + (self._rect.height - height) // 2
         
         button = Button(x, y, width, height, text)
-        self.buttons.append(button)
+        self._buttons.append(button)
         return button
         
     def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons) -> None:
         """Update toolbar and its buttons"""
-        for button in self.buttons:
+        for button in self._buttons:
             button.update(mouse_pos, mouse_pressed)
             
     def draw(self, surface: PygameSurface) -> None:
         """Draw the toolbar and its buttons"""
         # Draw toolbar background
-        pygame.draw.rect(surface, self.bg_color, self.rect)
-        pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 2)  # Border
+        pygame.draw.rect(surface, self._bg_color, self._rect)
+        pygame.draw.rect(surface, UI_BORDER_COLOR, self._rect, 2)  # Border
         
         # Draw buttons
-        for button in self.buttons:
+        for button in self._buttons:
             button.draw(surface)
