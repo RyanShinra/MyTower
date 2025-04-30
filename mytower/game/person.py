@@ -32,7 +32,7 @@ class Person:
     """
     def __init__(self, building: Building, current_floor: int, current_block: float, max_velocity: float) -> None:
         self.building: Building = building
-        self.__current_floor_float: float = float(current_floor)
+        self._current_floor_float: float = float(current_floor)
         self.current_block: float = current_block
         self._dest_block: int = int(current_block)
         self._dest_floor: int = current_floor
@@ -40,19 +40,19 @@ class Person:
         self.direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self.max_velocity: float = max_velocity
         self._next_elevator_bank: ElevatorBank | None = None
-        self.__idle_timeout: float = 0
-        self.__current_elevator: Elevator | None = None
-        self.__waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
+        self._idle_timeout: float = 0
+        self._current_elevator: Elevator | None = None
+        self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
                 
         # Appearance (for visualization)
-        self.__original_red: Final[int] = random.randint(PERSON_MIN_RED, PERSON_INIT_RED) # let's save some red for being mad at the elevator
-        self.__original_green: Final[int] = random.randint(PERSON_MIN_GREEN, PERSON_INIT_GREEN)
-        self.__original_blue: Final[int] = random.randint(PERSON_MIN_BLUE, PERSON_INIT_BLUE)
+        self._original_red: Final[int] = random.randint(PERSON_MIN_RED, PERSON_INIT_RED) # let's save some red for being mad at the elevator
+        self._original_green: Final[int] = random.randint(PERSON_MIN_GREEN, PERSON_INIT_GREEN)
+        self._original_blue: Final[int] = random.randint(PERSON_MIN_BLUE, PERSON_INIT_BLUE)
 
         
     @property
     def current_floor(self) -> int:
-        return int(self.__current_floor_float)
+        return int(self._current_floor_float)
     
     @property
     def destination_floor(self)-> int:
@@ -82,18 +82,18 @@ class Person:
         return closest_el
 
     def board_elevator(self, elevator: Elevator) -> None:
-        self.__current_elevator = elevator
-        self.__waiting_time = 0.0
+        self._current_elevator = elevator
+        self._waiting_time = 0.0
         self.state = "IN_ELEVATOR"
     
     def disembark_elevator(self) -> None:
-        if self.__current_elevator is None:
+        if self._current_elevator is None:
             raise RuntimeError("Cannot disembark elevator: no elevator is currently boarded.")
         
-        self.current_block = self.__current_elevator.parent_elevator_bank.get_waiting_block()
-        self.__current_floor_float = float(self.__current_elevator.current_floor_int)
-        self.__waiting_time = 0.0
-        self.__current_elevator = None
+        self.current_block = self._current_elevator.parent_elevator_bank.get_waiting_block()
+        self._current_floor_float = float(self._current_elevator.current_floor_int)
+        self._waiting_time = 0.0
+        self._current_elevator = None
         self._next_elevator_bank = None
         self.state = "IDLE"
     
@@ -109,14 +109,14 @@ class Person:
             
             case "WAITING_FOR_ELEVATOR":
                 # Later on, we can do the staggered line appearance here
-                self.__waiting_time += dt
+                self._waiting_time += dt
                 # Eventually, we can handle "Storming off to another elevator / stairs / managers office" here
             
             case "IN_ELEVATOR":
-                if self.__current_elevator:
-                    self.__waiting_time += dt
-                    self.__current_floor_float = self.__current_elevator.fractional_floor
-                    self.current_block = self.__current_elevator.parent_elevator_bank.horizontal_block
+                if self._current_elevator:
+                    self._waiting_time += dt
+                    self._current_floor_float = self._current_elevator.fractional_floor
+                    self.current_block = self._current_elevator.parent_elevator_bank.horizontal_block
             
             case _:
                 # Handle unexpected states
@@ -126,8 +126,8 @@ class Person:
     def update_idle(self, dt: float) -> None:
         self.direction = HorizontalDirection.STATIONARY
         
-        self.__idle_timeout = max(0, self.__idle_timeout - dt)
-        if self.__idle_timeout > 0.0:
+        self._idle_timeout = max(0, self._idle_timeout - dt)
+        if self._idle_timeout > 0.0:
             return
         
         current_destination_block: float = float(self._dest_block)
@@ -145,7 +145,7 @@ class Person:
                 logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
                 self.state = "IDLE" # This is also prob's redundant (Since we were already idle)
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
-                self.__idle_timeout = 5.0
+                self._idle_timeout = 5.0
         
         if current_destination_block < self.current_block:
             # Already on the right floor (or walking to elevator?)
@@ -203,7 +203,7 @@ class Person:
         screen_height = surface.get_height()
         
         # Note: this needs to be the private, float _current_floor
-        apparent_floor:float = self.__current_floor_float - 1.0
+        apparent_floor:float = self._current_floor_float - 1.0
         y_bottom: float = apparent_floor * BLOCK_HEIGHT
         y_centered:int = int(y_bottom + (BLOCK_HEIGHT / 2))
         
@@ -215,10 +215,10 @@ class Person:
         x_pos: int = x_centered
         
         # How mad ARE we??
-        mad_fraction: float = self.__waiting_time / PERSON_MAX_WAIT_TIME
-        draw_red: int = self.__original_red + int(abs(PERSON_MAX_RED - self.__original_red) * mad_fraction)
-        draw_green: int = self.__original_green - int(abs(self.__original_green - PERSON_MIN_GREEN) * mad_fraction)
-        draw_blue: int = self.__original_blue - int(abs(self.__original_blue - PERSON_MIN_BLUE) * mad_fraction)
+        mad_fraction: float = self._waiting_time / PERSON_MAX_WAIT_TIME
+        draw_red: int = self._original_red + int(abs(PERSON_MAX_RED - self._original_red) * mad_fraction)
+        draw_green: int = self._original_green - int(abs(self._original_green - PERSON_MIN_GREEN) * mad_fraction)
+        draw_blue: int = self._original_blue - int(abs(self._original_blue - PERSON_MIN_BLUE) * mad_fraction)
         
         # Clamp the draw colors to the range 0 to 254
         draw_red = max(0, min(254, draw_red))

@@ -54,55 +54,55 @@ class ElevatorBank:
     
     def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int) -> None:
          # Passengers waiting for the elevator on each floor
-        self.__building: Building = building
-        self.__horizontal_block: int = h_cell
-        self.__min_floor: int = min_floor
-        self.__max_floor: int = max_floor
-        self.__upward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self.__min_floor, self.__max_floor + 1)}
-        self.__downward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self.__min_floor, self.__max_floor + 1)}
-        self.__elevators: List[Elevator] = []
-        self.__requests: dict[int, set[VerticalDirection]] = {floor: set() for floor in range(self.__min_floor, self.__max_floor + 1)}
+        self._building: Building = building
+        self._horizontal_block: int = h_cell
+        self._min_floor: int = min_floor
+        self._max_floor: int = max_floor
+        self._upward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self._min_floor, self._max_floor + 1)}
+        self._downward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self._min_floor, self._max_floor + 1)}
+        self._elevators: List[Elevator] = []
+        self._requests: dict[int, set[VerticalDirection]] = {floor: set() for floor in range(self._min_floor, self._max_floor + 1)}
         pass
     
     @property
     def building(self) -> Building:
-        return self.__building
+        return self._building
     
     @property
     def min_floor(self) -> int:
-        return self.__min_floor
+        return self._min_floor
 
     @property
     def max_floor(self) -> int:
-        return self.__max_floor
+        return self._max_floor
     
     @property
     def horizontal_block(self) -> int:
-        return self.__horizontal_block
+        return self._horizontal_block
 
     @property
     def elevators(self) -> List[Elevator]:
-        return self.__elevators
+        return self._elevators
 
     @property
     def waiting_passengers(self) -> dict[int, deque[Person]]:
-        return self.__upward_waiting_passengers
+        return self._upward_waiting_passengers
 
     @property
     def requests(self) -> dict[int, set[VerticalDirection]]:
-        return self.__requests
+        return self._requests
     
     def add_elevator(self, elevator: Elevator) -> None:
         if elevator is None: # pyright: ignore
             raise ValueError("Elevator cannot be None") 
         
-        self.__elevators.append(elevator)
+        self._elevators.append(elevator)
 
         
     def request_elevator(self, floor: int, direction: VerticalDirection) -> bool:
-        floor_request: set[VerticalDirection] | None = self.__requests.get(floor)
+        floor_request: set[VerticalDirection] | None = self._requests.get(floor)
         if floor_request is None:
-            raise KeyError(f"Floor {floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")           
+            raise KeyError(f"Floor {floor} is not within the valid range of floors: {self._min_floor}:{self._max_floor}")           
         
         floor_request.add(direction)
         return True
@@ -121,14 +121,14 @@ class ElevatorBank:
         elif passenger.current_floor < passenger.destination_floor:
             logger.info("Adding Passenger to Going UP queue, Requesting UP")
             self.request_elevator(passenger.current_floor, VerticalDirection.DOWN)
-            current_queue = self.__upward_waiting_passengers.get(passenger.current_floor)
+            current_queue = self._upward_waiting_passengers.get(passenger.current_floor)
         else:
             logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
             self.request_elevator(passenger.current_floor, VerticalDirection.UP)
-            current_queue = self.__downward_waiting_passengers.get(passenger.current_floor)
+            current_queue = self._downward_waiting_passengers.get(passenger.current_floor)
         
         if current_queue is None:
-            raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors: {self.__min_floor}:{self.__max_floor}")  
+            raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors: {self._min_floor}:{self._max_floor}")  
         
         #TODO: Do we want a max queue length?
         current_queue.append(passenger)
@@ -157,8 +157,8 @@ class ElevatorBank:
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
-        up_pass: deque[Person] = self.__upward_waiting_passengers.get(floor, deque())
-        down_pass: deque[Person] = self.__downward_waiting_passengers.get(floor, deque())
+        up_pass: deque[Person] = self._upward_waiting_passengers.get(floor, deque())
+        down_pass: deque[Person] = self._downward_waiting_passengers.get(floor, deque())
         
         logger.debug(f"Upward passengers: {len(up_pass)}, Downward passengers: {len(down_pass)}")
         
@@ -238,7 +238,7 @@ class ElevatorBank:
         
         # Oh, and we need to clear the request on that floor
         if where_to.has_destination:
-            dest_requests = self.__requests.get(where_to.floor)
+            dest_requests = self._requests.get(where_to.floor)
             if dest_requests:
                 logger.debug(f"Clearing {where_to.direction} request for floor {where_to.floor}")
                 dest_requests.discard(where_to.direction)
@@ -366,7 +366,7 @@ class ElevatorBank:
         if search_direction == VerticalDirection.UP:
             search_range = range(start_floor + 1, self.max_floor + 1)
         elif search_direction == VerticalDirection.DOWN:
-            search_range = range(start_floor - 1, self.min_floor - 1, -1)
+            search_range = range(start_floor - 1, self._min_floor - 1, -1)
         else:
             logger.warning(f"Cannot get floor requests for STATIONARY direction from floor {start_floor}")
             return answer
@@ -388,15 +388,15 @@ class ElevatorBank:
         # logger.debug("I'm drawing an Elevator Bank")
         screen_height: int = surface.get_height()
         
-        shaft_left = self.__horizontal_block * BLOCK_WIDTH
+        shaft_left = self._horizontal_block * BLOCK_WIDTH
         width = BLOCK_WIDTH
         
         # Draw shaft from min to max floor
         #     420 = 480 - (3 * 20)
-        shaft_top = screen_height - (self.__max_floor * BLOCK_HEIGHT)
-        shaft_overhead = screen_height - ((self.__max_floor + 1) * BLOCK_HEIGHT)
+        shaft_top = screen_height - (self._max_floor * BLOCK_HEIGHT)
+        shaft_overhead = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
         #     480 = 480 - ((1 - 1) * 20)
-        shaft_bottom = screen_height - ((self.__min_floor - 1) * BLOCK_HEIGHT)
+        shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
         pygame.draw.rect(
             surface,
             ELEVATOR_SHAFT_COLOR,
