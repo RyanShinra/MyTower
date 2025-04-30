@@ -26,7 +26,7 @@ class Building:
         self._money: int = STARTING_MONEY # Starting money
         
         # Add ground floor by default
-        self.add_floor("LOBBY")
+        self.add_floor(FloorType.LOBBY)
     
     @property
     def num_floors(self) -> int:

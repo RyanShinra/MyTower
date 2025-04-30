@@ -1,5 +1,6 @@
 # game/floor.py
 from __future__ import annotations  # Defer type evaluation
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any, Dict, List, Optional
 import pygame
@@ -23,26 +24,25 @@ class Floor:
     """
     A floor in the building that can contain various room types
     """
+    @dataclass
     class FloorInfo:
         """
         Struct
         """
-        def __init__(self, color: Color, height: int) -> None:
-            self.color: Color = color
-            self.height: int = height
-            pass
+        color: Color 
+        height: int
 
 
     # Available floor types
     # We shall return one day to fix this Any (turns out, that day is today)
     lobby_info = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
     FLOOR_TYPES: Dict[FloorType, FloorInfo] = {
-        "LOBBY": FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT),
-        "OFFICE": FloorInfo(OFFICE_COLOR, OFFICE_HEIGHT),
-        "APARTMENT": FloorInfo(APARTMENT_COLOR, APARTMENT_HEIGHT),
-        "HOTEL": FloorInfo(HOTEL_COLOR, HOTEL_HEIGHT),
-        "RESTAURANT": FloorInfo(RESTAURANT_COLOR, RESTAURANT_HEIGHT),
-        "RETAIL": FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
+        FloorType.LOBBY: FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT),
+        FloorType.OFFICE: FloorInfo(OFFICE_COLOR, OFFICE_HEIGHT),
+        FloorType.APARTMENT: FloorInfo(APARTMENT_COLOR, APARTMENT_HEIGHT),
+        FloorType.HOTEL: FloorInfo(HOTEL_COLOR, HOTEL_HEIGHT),
+        FloorType.RESTAURANT: FloorInfo(RESTAURANT_COLOR, RESTAURANT_HEIGHT),
+        FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
     
     def __init__(self, building: Building, floor_num: int, floor_type: FloorType) -> None:

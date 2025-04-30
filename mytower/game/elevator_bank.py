@@ -23,7 +23,7 @@ from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT, ELEVATOR_IDLE_TIMEOUT,
     ELEVATOR_SHAFT_COLOR, UI_TEXT_COLOR
 )
-from game.types import VerticalDirection
+from game.types import ElevatorState, VerticalDirection
 from collections import deque
 from game.logger import get_logger
 
@@ -112,6 +112,9 @@ class ElevatorBank:
         if passenger is None: # pyright: ignore
             raise ValueError('Person cannot be None')
         
+        if passenger.current_floor < self.min_floor or passenger.current_floor > self.max_floor:
+            raise ValueError(f"Floor {passenger.current_floor} is not within the valid range of floors: {self._min_floor}:{self._max_floor}")  
+        
         logger.info(f"Adding passenger going from floor {passenger.current_floor} to floor {passenger.destination_floor}")
         
         current_queue: deque[Person] | None = None
@@ -120,16 +123,19 @@ class ElevatorBank:
         
         elif passenger.current_floor < passenger.destination_floor:
             logger.info("Adding Passenger to Going UP queue, Requesting UP")
+            if passenger.current_floor not in self._upward_waiting_passengers:
+                raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors for upward_waiting_passengers, {self._upward_waiting_passengers.keys}")
             self.request_elevator(passenger.current_floor, VerticalDirection.DOWN)
             current_queue = self._upward_waiting_passengers.get(passenger.current_floor)
         else:
             logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
+            if passenger.current_floor not in self._downward_waiting_passengers:
+                raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors for _downward_waiting_passengers, {self._downward_waiting_passengers.keys}")
             self.request_elevator(passenger.current_floor, VerticalDirection.UP)
             current_queue = self._downward_waiting_passengers.get(passenger.current_floor)
         
         if current_queue is None:
-            raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors: {self._min_floor}:{self._max_floor}")  
-        
+            raise KeyError(f"Why can't we get a current Queue on floor:  {passenger.current_floor}")
         #TODO: Do we want a max queue length?
         current_queue.append(passenger)
         return True 
@@ -195,9 +201,9 @@ class ElevatorBank:
         for el in self.elevators:
             # Need to actually update the thing
             el.update(dt)
-            if el.state == 'IDLE':
+            if el.state == ElevatorState.IDLE:
                 self._update_idle_elevator(el, dt)
-            elif el.state == "READY_TO_MOVE":
+            elif el.state == ElevatorState.READY_TO_MOVE:
                 self._update_ready_elevator(el)
         pass
     
@@ -233,6 +239,7 @@ class ElevatorBank:
         
         logger.debug(f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}")
         where_to: ElevatorBank.Destination = self._get_next_destination(elevator, floor, nom_direction)
+        
         logger.info(f'Setting destination to {where_to.floor} with direction {where_to.direction}, has_destination={where_to.has_destination}')
         elevator.set_destination_floor(where_to.floor)
         

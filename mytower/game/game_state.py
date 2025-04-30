@@ -7,6 +7,7 @@ from game.constants import ELEVATOR_DEFAULT_CAPACITY, ELEVATOR_MAX_SPEED, PERSON
 from game.person import Person
 from game.elevator_bank import ElevatorBank
 from game.logger import get_logger
+from game.floor import FloorType
 
 logger = get_logger("game_state")
 
@@ -20,24 +21,24 @@ class GameState:
         self._building = Building(width=20)
 
         # Initialize with some basic floors and an elevator
-        self._building.add_floor("RETAIL")
-        self._building.add_floor("RETAIL")
-        self._building.add_floor("RETAIL")
-        self._building.add_floor("RESTAURANT")
-        self._building.add_floor("RESTAURANT")
-        self._building.add_floor("OFFICE")
-        self._building.add_floor("OFFICE")
-        self._building.add_floor("OFFICE")
-        self._building.add_floor("OFFICE")
-        self._building.add_floor("OFFICE")
-        self._building.add_floor("HOTEL")
-        self._building.add_floor("HOTEL")
-        self._building.add_floor("HOTEL")
-        self._building.add_floor("HOTEL")
-        self._building.add_floor("APARTMENT")
-        self._building.add_floor("APARTMENT")
-        self._building.add_floor("APARTMENT")
-        self._building.add_floor("APARTMENT")
+        self._building.add_floor(FloorType.RETAIL)
+        self._building.add_floor(FloorType.RETAIL)
+        self._building.add_floor(FloorType.RETAIL)
+        self._building.add_floor(FloorType.RESTAURANT)
+        self._building.add_floor(FloorType.RESTAURANT)
+        self._building.add_floor(FloorType.OFFICE)
+        self._building.add_floor(FloorType.OFFICE)
+        self._building.add_floor(FloorType.OFFICE)
+        self._building.add_floor(FloorType.OFFICE)
+        self._building.add_floor(FloorType.OFFICE)
+        self._building.add_floor(FloorType.HOTEL)
+        self._building.add_floor(FloorType.HOTEL)
+        self._building.add_floor(FloorType.HOTEL)
+        self._building.add_floor(FloorType.HOTEL)
+        self._building.add_floor(FloorType.APARTMENT)
+        self._building.add_floor(FloorType.APARTMENT)
+        self._building.add_floor(FloorType.APARTMENT)
+        self._building.add_floor(FloorType.APARTMENT)
 
         # Add one elevator
         

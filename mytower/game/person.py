@@ -36,7 +36,7 @@ class Person:
         self._current_block: float = current_block
         self._dest_block: int = int(current_block)
         self._dest_floor: int = current_floor
-        self._state: PersonState = "IDLE"  # IDLE, WALKING, WAITING_FOR_ELEVATOR, IN_ELEVATOR
+        self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self._max_velocity: float = max_velocity
         self._next_elevator_bank: ElevatorBank | None = None
@@ -91,6 +91,13 @@ class Person:
         return self._max_velocity
     
     def set_destination(self, dest_floor: int, dest_block: int) -> None:
+        # Check if destination values are out of bounds and log warnings 
+        if dest_floor < 0 or dest_floor > self.building.num_floors:
+            logger.warning(f"Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
+
+        if dest_block < 0 or dest_block > self.building.floor_width:
+            logger.warning(f"Destination block {dest_block} is out of bounds (0-{self.building.floor_width})")
+        
         dest_floor = min(dest_floor, self.building.num_floors)
         dest_floor = max(dest_floor, 0)
         self._dest_floor = dest_floor
@@ -116,35 +123,38 @@ class Person:
     def board_elevator(self, elevator: Elevator) -> None:
         self._current_elevator = elevator
         self._waiting_time = 0.0
-        self.state = "IN_ELEVATOR"
+        self.state = PersonState.IN_ELEVATOR
     
     def disembark_elevator(self) -> None:
         if self._current_elevator is None:
             raise RuntimeError("Cannot disembark elevator: no elevator is currently boarded.")
+        
+        if self.state != PersonState.IN_ELEVATOR:
+            raise RuntimeError("Cannot disembark elevator: person must be in elevator state.")
         
         self._current_block = self._current_elevator.parent_elevator_bank.get_waiting_block()
         self._current_floor_float = float(self._current_elevator.current_floor_int)
         self._waiting_time = 0.0
         self._current_elevator = None
         self._next_elevator_bank = None
-        self.state = "IDLE"
+        self.state = PersonState.IDLE
     
     
     def update(self, dt: float) -> None:
         """Update person's state and position"""
         match self.state:
-            case "IDLE":
+            case PersonState.IDLE:
                 self.update_idle(dt)
 
-            case "WALKING":
+            case PersonState.WALKING:
                 self.update_walking(dt)
             
-            case "WAITING_FOR_ELEVATOR":
+            case PersonState.WAITING_FOR_ELEVATOR:
                 # Later on, we can do the staggered line appearance here
                 self._waiting_time += dt
                 # Eventually, we can handle "Storming off to another elevator / stairs / managers office" here
             
-            case "IN_ELEVATOR":
+            case PersonState.IN_ELEVATOR:
                 if self._current_elevator:
                     self._waiting_time += dt
                     self._current_floor_float = self._current_elevator.fractional_floor
@@ -170,24 +180,24 @@ class Person:
             if self._next_elevator_bank:
                 current_destination_block = float(self._next_elevator_bank.get_waiting_block())
                 logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> WALKING to Elevator block: {current_destination_block}')
-                self.state = "WALKING" # This is technically redundant (I think), I may remove it soon...
+                self.state = PersonState.WALKING
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
                 current_destination_block = self._current_block # why move? There's nowhere to go
                 logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
-                self.state = "IDLE" # This is also prob's redundant (Since we were already idle)
+                self.state = PersonState.IDLE
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
                 self._idle_timeout = 5.0
         
         if current_destination_block < self._current_block:
             # Already on the right floor (or walking to elevator?)
             logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING LEFT to block: {current_destination_block}')
-            self.state = "WALKING"
+            self.state = PersonState.WALKING
             self.direction = HorizontalDirection.LEFT    
         
         elif current_destination_block > self._current_block:
             logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING RIGHT to block: {current_destination_block}')
-            self.state = "WALKING"
+            self.state = PersonState.WALKING
             self.direction = HorizontalDirection.RIGHT
 
     def update_walking(self, dt: float) -> None:
@@ -218,9 +228,9 @@ class Person:
             next_block = waypoint_block
             if self._next_elevator_bank:
                 self._next_elevator_bank.add_waiting_passenger(self)
-                self.state = "WAITING_FOR_ELEVATOR"
+                self.state = PersonState.WAITING_FOR_ELEVATOR
             else:
-                self.state = "IDLE"    
+                self.state = PersonState.IDLE    
             logger.debug(f'WALKING Person: Arrived at destination (fl {self.current_floor}, bk {waypoint_block}) -> {self.state}')
         
         # TODO: Update these once we have building extents
