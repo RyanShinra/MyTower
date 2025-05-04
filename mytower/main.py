@@ -3,9 +3,10 @@ import sys
 from typing import NoReturn
 
 from game.game_state import GameState
+from game.logger import LoggerProvider
 
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BACKGROUND_COLOR
-from game.input import mouse
+from game.input import mouse, MouseState
 
 from pygame.surface import Surface
 from pygame.time import Clock
@@ -20,9 +21,15 @@ pygame.display.set_caption("MyTower")
 
 clock: Clock = pygame.time.Clock()
 def main() -> NoReturn:
-    # Create game state
-    game_state = GameState(SCREEN_WIDTH, SCREEN_HEIGHT)
+    # Make the Logger provider, if we need to use this outside main(), then we can promote it to file scope
+    logger_provider: LoggerProvider = LoggerProvider()
     
+    # Initialize the mouse with the logger provider
+    global mouse
+    mouse = MouseState(logger_provider)
+    
+    # Create game state
+    game_state = GameState(logger_provider, SCREEN_WIDTH, SCREEN_HEIGHT)
     running = True
     
     while running:
