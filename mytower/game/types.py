@@ -10,9 +10,11 @@
 from typing import Tuple, TypeAlias, Union, NewType
 import pygame
 from enum import Enum
-from game.logger import get_logger
+from game.logger import LoggerProvider
 
-logger = get_logger("types")
+# We'll initialize the logger properly in main.py
+logger_provider = LoggerProvider()
+logger = logger_provider.get_logger("types")
 
 # Type definitions for colors
 # RGB color type as a tuple of three integers

@@ -12,13 +12,12 @@ import pygame
 # from typing import Tuple, List, Dict, Any, Protocol, cast # type: ignore
 from typing import List 
 from game.types import MousePos, MouseButtons
-from game.logger import get_logger
-
-logger = get_logger("input")
+from game.logger import LoggerProvider
 
 class MouseState:
     """Class to store and manage mouse state"""
-    def __init__(self) -> None:
+    def __init__(self, logger_provider: LoggerProvider) -> None:
+        self._logger = logger_provider.get_logger("input")
         self._position: MousePos = (0, 0)
         self._buttons: MouseButtons = (False, False, False)
         # Store additional button states if needed
@@ -74,4 +73,5 @@ class MouseState:
         return False
 
 # Global mouse state instance
-mouse = MouseState()
+# This will be initialized properly in main.py
+mouse = MouseState(LoggerProvider())
