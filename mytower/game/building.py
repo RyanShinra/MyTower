@@ -16,6 +16,7 @@ class Building:
     The main building class that contains all floors, elevators, and people.
     """
     def __init__(self, logger_provider: LoggerProvider, width: int = 20, ) -> None:
+        self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger('Building')
         
         self._floor_width: int = width  # Width in grid cells
@@ -44,7 +45,7 @@ class Building:
     def add_floor(self, floor_type: FloorType) -> Floor:
         """Add a new floor to the building"""    
         next_floor = self.num_floors + 1
-        self._floors[next_floor] = Floor(self, next_floor, floor_type)
+        self._floors[next_floor] = Floor(self._logger_provider, self, next_floor, floor_type)
         return self._floors[next_floor]
     
     def add_elevator_bank(self, elevator_bank: ElevatorBank) -> None:

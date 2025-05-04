@@ -6,15 +6,14 @@ from game.constants import (
     UI_BACKGROUND_COLOR, UI_BORDER_COLOR
 )
 from game.types import RGB, MousePos, MouseButtons, PygameSurface
-from game.logger import get_logger
-
-logger = get_logger("ui")
+from game.logger import LoggerProvider
 
 class Button:
     """
     A simple button UI element
     """
-    def __init__(self, x: int, y: int, width: int, height: int, text: str, color:RGB=BUTTON_COLOR, hover_color:RGB=BUTTON_HOVER_COLOR, text_color:RGB=UI_TEXT_COLOR):
+    def __init__(self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, text: str, color:RGB=BUTTON_COLOR, hover_color:RGB=BUTTON_HOVER_COLOR, text_color:RGB=UI_TEXT_COLOR):
+        self._logger = logger_provider.get_logger("ui")
         self._rect = pygame.Rect(x, y, width, height)
         self._text = text
         self._color = color
@@ -61,7 +60,9 @@ class Toolbar:
     """
     A toolbar for building tools and controls
     """
-    def __init__(self, x: int, y: int, width: int, height: int):
+    def __init__(self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int):
+        self._logger_provider: LoggerProvider = logger_provider
+        self._logger = logger_provider.get_logger("ui")
         self._rect = pygame.Rect(x, y, width, height)
         self._buttons: List[Button] = []
         self._active_tool: Optional[str] = None
@@ -87,7 +88,7 @@ class Toolbar:
         x = self._rect.x + 10 + len(self._buttons) * (width + 10)
         y = self._rect.y + (self._rect.height - height) // 2
         
-        button = Button(x, y, width, height, text)
+        button = Button(self._logger_provider, x, y, width, height, text)
         self._buttons.append(button)
         return button
         

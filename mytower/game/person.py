@@ -16,21 +16,20 @@ import pygame
 from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT, PERSON_INIT_BLUE, PERSON_INIT_GREEN, PERSON_INIT_RED, PERSON_MAX_RED, PERSON_MAX_WAIT_TIME, PERSON_MIN_BLUE, PERSON_MIN_GREEN, PERSON_MIN_RED, PERSON_RADIUS
 from game.types import HorizontalDirection, PersonState
 from game.elevator import Elevator
-from game.logger import get_logger
-
-logger = get_logger("person")
 
 if TYPE_CHECKING:
     from pygame import Surface
     from game.building import Building
     from game.elevator_bank import ElevatorBank
+    from game.logger import LoggerProvider
     
 
 class Person:
     """
     A person in the building who moves between floors and has needs.
     """
-    def __init__(self, building: Building, current_floor: int, current_block: float, max_velocity: float) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, current_floor: int, current_block: float, max_velocity: float) -> None:
+        self._logger = logger_provider.get_logger("person")
         self._building: Building = building
         self._current_floor_float: float = float(current_floor)
         self._current_block: float = current_block
@@ -93,10 +92,10 @@ class Person:
     def set_destination(self, dest_floor: int, dest_block: int) -> None:
         # Check if destination values are out of bounds and log warnings 
         if dest_floor < 0 or dest_floor > self.building.num_floors:
-            logger.warning(f"Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
+            self._logger.warning(f"Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
 
         if dest_block < 0 or dest_block > self.building.floor_width:
-            logger.warning(f"Destination block {dest_block} is out of bounds (0-{self.building.floor_width})")
+            self._logger.warning(f"Destination block {dest_block} is out of bounds (0-{self.building.floor_width})")
         
         dest_floor = min(dest_floor, self.building.num_floors)
         dest_floor = max(dest_floor, 0)
@@ -162,7 +161,7 @@ class Person:
             
             case _:
                 # Handle unexpected states
-                logger.warning(f"Unknown state: {self.state}")
+                self._logger.warning(f"Unknown state: {self.state}")
              
             
     def update_idle(self, dt: float) -> None:
@@ -179,24 +178,24 @@ class Person:
             self._next_elevator_bank = self.find_nearest_elevator_bank()
             if self._next_elevator_bank:
                 current_destination_block = float(self._next_elevator_bank.get_waiting_block())
-                logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> WALKING to Elevator block: {current_destination_block}')
+                self._logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> WALKING to Elevator block: {current_destination_block}')
                 self.state = PersonState.WALKING
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
                 current_destination_block = self._current_block # why move? There's nowhere to go
-                logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
+                self._logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
                 self.state = PersonState.IDLE
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
                 self._idle_timeout = 5.0
         
         if current_destination_block < self._current_block:
             # Already on the right floor (or walking to elevator?)
-            logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING LEFT to block: {current_destination_block}')
+            self._logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING LEFT to block: {current_destination_block}')
             self.state = PersonState.WALKING
             self.direction = HorizontalDirection.LEFT    
         
         elif current_destination_block > self._current_block:
-            logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING RIGHT to block: {current_destination_block}')
+            self._logger.trace(f'IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING RIGHT to block: {current_destination_block}')
             self.state = PersonState.WALKING
             self.direction = HorizontalDirection.RIGHT
 
@@ -231,7 +230,7 @@ class Person:
                 self.state = PersonState.WAITING_FOR_ELEVATOR
             else:
                 self.state = PersonState.IDLE    
-            logger.debug(f'WALKING Person: Arrived at destination (fl {self.current_floor}, bk {waypoint_block}) -> {self.state}')
+            self._logger.debug(f'WALKING Person: Arrived at destination (fl {self.current_floor}, bk {waypoint_block}) -> {self.state}')
         
         # TODO: Update these once we have building extents
         next_block = min(next_block, self.building.floor_width)
@@ -268,7 +267,7 @@ class Person:
         draw_blue = max(0, min(254, draw_blue))
         
         draw_color = (draw_red, draw_green, draw_blue)
-        # logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
+        # self._logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
         
         pygame.draw.circle(
             surface,
