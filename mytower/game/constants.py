@@ -9,9 +9,11 @@
 
 from typing import Final
 from game.types import RGB, Money
-from game.logger import get_logger
+from game.logger import LoggerProvider
 
-logger = get_logger("constants")
+# We'll initialize this logger properly in main.py
+logger_provider = LoggerProvider()
+logger = logger_provider.get_logger("constants")
 
 # Display constants
 SCREEN_WIDTH: Final[int] = 1600
