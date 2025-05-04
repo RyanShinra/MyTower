@@ -8,7 +8,7 @@ from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT,
     LOBBY_COLOR,  OFFICE_COLOR,  APARTMENT_COLOR,  HOTEL_COLOR,  RESTAURANT_COLOR,  RETAIL_COLOR, 
     LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT, UI_TEXT_COLOR
 )
-from game.logger import get_logger
+from game.logger import LoggerProvider
 
 from game.types import Color
 from game.types import FloorType
@@ -16,8 +16,6 @@ from pygame import Surface
 
 if TYPE_CHECKING:
     from game.building import Building
-
-logger = get_logger("floor")
 
 # See FloorInfo below
 class Floor:
@@ -45,7 +43,8 @@ class Floor:
         FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
     
-    def __init__(self, building: Building, floor_num: int, floor_type: FloorType) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType) -> None:
+        self._logger = logger_provider.get_logger("floor")
         self._building: Building = building
         # Floors are 1 indexed
         self._floor_num: int = floor_num

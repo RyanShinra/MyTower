@@ -6,19 +6,19 @@ from game.elevator import Elevator
 from game.constants import ELEVATOR_DEFAULT_CAPACITY, ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
 from game.person import Person
 from game.elevator_bank import ElevatorBank
-from game.logger import get_logger
+from game.logger import LoggerProvider, MyTowerLogger
 from game.floor import FloorType
-
-logger = get_logger("game_state")
 
 class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
     """
-    def __init__(self, screen_width: int, screen_height: int) -> None:
+    def __init__(self, logger_provider: LoggerProvider, screen_width: int, screen_height: int) -> None:
+        self._logger: MyTowerLogger = logger_provider.get_logger('GameState')
+        
         self._screen_width: int = screen_width
         self._screen_height: int = screen_height
-        self._building = Building(width=20)
+        self._building = Building(logger_provider, width=20)
 
         # Initialize with some basic floors and an elevator
         self._building.add_floor(FloorType.RETAIL)
@@ -42,13 +42,16 @@ class GameState:
         # Add one elevator
         
         self._test_elevator_bank = ElevatorBank(
+            logger_provider,
             self._building, h_cell=14, min_floor=1,
             max_floor=self._building.num_floors
         )
         
         self._test_elevator = Elevator(
+            logger_provider,
             self._test_elevator_bank, h_cell=14, min_floor=1,
-            max_floor=self._building.num_floors, max_velocity=ELEVATOR_MAX_SPEED,
+            max_floor=self._building.num_floors, 
+            max_velocity=ELEVATOR_MAX_SPEED,
             max_capacity=ELEVATOR_DEFAULT_CAPACITY
         )
         
@@ -56,13 +59,13 @@ class GameState:
         self._building.add_elevator_bank(self._test_elevator_bank)
 
         # Add a sample person
-        self._test_person = Person(building = self._building, current_floor = 1, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self._test_person = Person(logger_provider, building = self._building, current_floor = 1, current_block = 1, max_velocity=PERSON_MAX_SPEED)
         self._test_person.set_destination(dest_floor = 9, dest_block = 7)
-        self._test_person2 = Person(building = self._building, current_floor = 1, current_block = 3, max_velocity=PERSON_MAX_SPEED)
+        self._test_person2 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 3, max_velocity=PERSON_MAX_SPEED)
         self._test_person2.set_destination(dest_floor = 3, dest_block = 7)
-        self._test_person3 = Person(building = self._building, current_floor = 1, current_block = 6, max_velocity=PERSON_MAX_SPEED)
+        self._test_person3 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 6, max_velocity=PERSON_MAX_SPEED)
         self._test_person3.set_destination(dest_floor = 7, dest_block = 7)
-        self._test_person4 = Person(building = self._building, current_floor = 12, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self._test_person4 = Person(logger_provider, building = self._building, current_floor = 12, current_block = 1, max_velocity=PERSON_MAX_SPEED)
         self._test_person4.set_destination(dest_floor = 1, dest_block = 1)
         self._building.add_person(self._test_person)
         self._building.add_person(self._test_person2)
@@ -120,7 +123,7 @@ class GameState:
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         # Draw building
-        # logger.debug("I want to draw a building")
+        # self._logger.debug("I want to draw a building")
         self._building.draw(surface)
 
         # Draw UI elements
