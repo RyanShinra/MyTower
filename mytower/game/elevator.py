@@ -16,11 +16,11 @@
 
 from __future__ import annotations  # Defer type evaluation
 from typing import List, TYPE_CHECKING, Optional as Opt
-# At the top of the file, replace 
-# the logging import with:
+from typing import Protocol
+import pygame
+
 from game.logger import LoggerProvider
 
-import pygame
 from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT,
     ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, PASSENGER_LOADING_TIME
@@ -32,6 +32,15 @@ if TYPE_CHECKING:
     from game.elevator_bank import ElevatorBank
     from game.person import Person
     from game.logger import MyTowerLogger
+
+
+class ElevatorConfigProtocol(Protocol):
+    """Config requirements for Elevator class"""
+    max_speed: float
+    max_capacity: int 
+    passenger_loading_time: float
+    idle_log_timeout: float
+    moving_log_timeout: float
 
 class Elevator:
     """

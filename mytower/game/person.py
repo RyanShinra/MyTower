@@ -8,7 +8,7 @@
 # (at your option) any later version.
 
 from __future__ import annotations  # Defer type evaluation
-from typing import TYPE_CHECKING, Final, List
+from typing import TYPE_CHECKING, Final, List, Protocol
 
 import random
 import pygame
@@ -23,6 +23,11 @@ if TYPE_CHECKING:
     from game.elevator_bank import ElevatorBank
     from game.logger import LoggerProvider
     
+class PersonConfigProtocol(Protocol):
+    max_speed: float
+    max_wait_time: float
+    idle_timeout: float
+    radius: int
 
 class Person:
     """
