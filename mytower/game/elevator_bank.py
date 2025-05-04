@@ -25,9 +25,7 @@ from game.constants import (
 )
 from game.types import ElevatorState, VerticalDirection
 from collections import deque
-from game.logger import get_logger
-
-logger = get_logger("elevator_bank")
+from game.logger import LoggerProvider, MyTowerLogger
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -52,7 +50,9 @@ class ElevatorBank:
     # Define a reusable empty deque as a class-level constant
     EMPTY_DEQUE: Final[deque[Person]] = deque()
     
-    def __init__(self, building: Building, h_cell: int, min_floor: int, max_floor: int) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, h_cell: int, min_floor: int, max_floor: int) -> None:
+        self._logger: MyTowerLogger = logger_provider.get_logger('ElevatorBank')
+        
          # Passengers waiting for the elevator on each floor
         self._building: Building = building
         self._horizontal_block: int = h_cell
@@ -115,20 +115,20 @@ class ElevatorBank:
         if passenger.current_floor < self.min_floor or passenger.current_floor > self.max_floor:
             raise ValueError(f"Floor {passenger.current_floor} is not within the valid range of floors: {self._min_floor}:{self._max_floor}")  
         
-        logger.info(f"Adding passenger going from floor {passenger.current_floor} to floor {passenger.destination_floor}")
+        self._logger.info(f"Adding passenger going from floor {passenger.current_floor} to floor {passenger.destination_floor}")
         
         current_queue: deque[Person] | None = None
         if passenger.current_floor == passenger.destination_floor:
             raise ValueError(f"Person cannot go to the same floor: current floor {passenger.current_floor} = destination floor {passenger.destination_floor}")
         
         elif passenger.current_floor < passenger.destination_floor:
-            logger.info("Adding Passenger to Going UP queue, Requesting UP")
+            self._logger.info("Adding Passenger to Going UP queue, Requesting UP")
             if passenger.current_floor not in self._upward_waiting_passengers:
                 raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors for upward_waiting_passengers, {self._upward_waiting_passengers.keys}")
             self.request_elevator(passenger.current_floor, VerticalDirection.DOWN)
             current_queue = self._upward_waiting_passengers.get(passenger.current_floor)
         else:
-            logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
+            self._logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
             if passenger.current_floor not in self._downward_waiting_passengers:
                 raise KeyError(f"Floor {passenger.current_floor} is not within the valid range of floors for _downward_waiting_passengers, {self._downward_waiting_passengers.keys}")
             self.request_elevator(passenger.current_floor, VerticalDirection.UP)
@@ -142,53 +142,53 @@ class ElevatorBank:
     
     
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[Person]: 
-        logger.debug(f"Attempting to dequeue a waiting passenger on floor {floor} in direction {direction}")
+        self._logger.debug(f"Attempting to dequeue a waiting passenger on floor {floor} in direction {direction}")
         
         if direction == VerticalDirection.STATIONARY:
-            logger.error(f"Invalid direction 'STATIONARY' for dequeue operation on floor {floor}")
+            self._logger.error(f"Invalid direction 'STATIONARY' for dequeue operation on floor {floor}")
             raise ValueError(f"Trying to get 'STATIONARY' Queue on floor {floor}")
         
         result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, direction)
         current_queue: Opt[deque[Person]] = result[0]
         
         if len(current_queue) == 0:
-            logger.info(f"No passengers waiting on floor {floor} in direction {direction}")
+            self._logger.info(f"No passengers waiting on floor {floor} in direction {direction}")
             return None
         
         passenger = current_queue.popleft()
-        logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
+        self._logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
         return passenger
     
         
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
-        logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
+        self._logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
         up_pass: deque[Person] = self._upward_waiting_passengers.get(floor, deque())
         down_pass: deque[Person] = self._downward_waiting_passengers.get(floor, deque())
         
-        logger.debug(f"Upward passengers: {len(up_pass)}, Downward passengers: {len(down_pass)}")
+        self._logger.debug(f"Upward passengers: {len(up_pass)}, Downward passengers: {len(down_pass)}")
         
         UP = VerticalDirection.UP
         DOWN = VerticalDirection.DOWN
         
         if nom_direction == UP:
-            logger.debug(f"Returning upward passengers queue for floor {floor}")
+            self._logger.debug(f"Returning upward passengers queue for floor {floor}")
             return ElevatorBank.DirQueue(up_pass, UP)
         
         elif nom_direction == VerticalDirection.DOWN:
-            logger.debug(f"Returning downward passengers queue for floor {floor}")
+            self._logger.debug(f"Returning downward passengers queue for floor {floor}")
             return ElevatorBank.DirQueue(down_pass, DOWN)
         
         elif nom_direction == VerticalDirection.STATIONARY:
-            logger.debug(f"Checking both directions for stationary elevator on floor {floor}")
+            self._logger.debug(f"Checking both directions for stationary elevator on floor {floor}")
             if up_pass:
-                logger.debug(f"Returning upward passengers queue for floor {floor}")
+                self._logger.debug(f"Returning upward passengers queue for floor {floor}")
                 return ElevatorBank.DirQueue(up_pass, UP)
             if down_pass:
-                logger.debug(f"Returning downward passengers queue for floor {floor}")
+                self._logger.debug(f"Returning downward passengers queue for floor {floor}")
                 return ElevatorBank.DirQueue(down_pass, DOWN)
         
-        logger.debug(f"No passengers waiting on floor {floor} in any direction")
+        self._logger.debug(f"No passengers waiting on floor {floor} in any direction")
         return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, VerticalDirection.STATIONARY)
 
 
@@ -237,20 +237,20 @@ class ElevatorBank:
         floor: int = elevator.current_floor_int
         nom_direction: VerticalDirection = elevator.nominal_direction
         
-        logger.debug(f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}")
+        self._logger.debug(f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}")
         where_to: ElevatorBank.Destination = self._get_next_destination(elevator, floor, nom_direction)
         
-        logger.info(f'Setting destination to {where_to.floor} with direction {where_to.direction}, has_destination={where_to.has_destination}')
+        self._logger.info(f'Setting destination to {where_to.floor} with direction {where_to.direction}, has_destination={where_to.has_destination}')
         elevator.set_destination_floor(where_to.floor)
         
         # Oh, and we need to clear the request on that floor
         if where_to.has_destination:
             dest_requests = self._requests.get(where_to.floor)
             if dest_requests:
-                logger.debug(f"Clearing {where_to.direction} request for floor {where_to.floor}")
+                self._logger.debug(f"Clearing {where_to.direction} request for floor {where_to.floor}")
                 dest_requests.discard(where_to.direction)
         else:
-            logger.debug(f"No new destination - staying at floor {where_to.floor}")
+            self._logger.debug(f"No new destination - staying at floor {where_to.floor}")
         
         return
     
@@ -263,20 +263,20 @@ class ElevatorBank:
     #     dest_floor: int = current_floor
     #     # If it's currently stationary, search UP first
     #     dest_direction: VerticalDirection = init_nom_direction if init_nom_direction != STATIONARY else UP
-    #     logger.trace(f"First searching for destination in {dest_direction} direction from floor {current_floor}")
+    #     self._logger.trace(f"First searching for destination in {dest_direction} direction from floor {current_floor}")
     #     dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
         
     #     if dest_floor == current_floor:
     #         new_direction = UP if init_nom_direction == DOWN else DOWN
-    #         logger.debug(f"No destination found in {dest_direction} direction, now searching in {new_direction} direction")
+    #         self._logger.debug(f"No destination found in {dest_direction} direction, now searching in {new_direction} direction")
     #         dest_direction = new_direction
     #         dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
 
     #     if dest_floor != current_floor:
-    #         logger.debug(f"Found destination floor {dest_floor} in {dest_direction} direction")
+    #         self._logger.debug(f"Found destination floor {dest_floor} in {dest_direction} direction")
     #         return ElevatorBank.Destination(True, dest_floor, dest_direction)
     #     else:
-    #         logger.debug(f"No destination found in any direction, staying at floor {current_floor}")
+    #         self._logger.debug(f"No destination found in any direction, staying at floor {current_floor}")
     #         return ElevatorBank.Destination(False, current_floor, STATIONARY)
 
                 
@@ -335,38 +335,38 @@ class ElevatorBank:
     #     passenger_requests_keep_going: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction)
     #     passenger_requests_turn_around: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction.invert())
         
-    #     logger.trace(f"Searching for destination in {dest_direction} direction from floor {floor}")
-    #     logger.trace(f"Elevator call requests: {call_requests_keep_going}")
-    #     logger.trace(f"Passenger destination requests: {passenger_requests_keep_going}")
+    #     self._logger.trace(f"Searching for destination in {dest_direction} direction from floor {floor}")
+    #     self._logger.trace(f"Elevator call requests: {call_requests_keep_going}")
+    #     self._logger.trace(f"Passenger destination requests: {passenger_requests_keep_going}")
         
     #     if call_requests_keep_going and passenger_requests_keep_going:
     #         if isUp:
     #             result = min(passenger_requests_keep_going[0], call_requests_keep_going[0])
-    #             logger.debug(f"Going UP: Both passenger and call requests exist, selecting minimum: {result}")
+    #             self._logger.debug(f"Going UP: Both passenger and call requests exist, selecting minimum: {result}")
     #             return result
     #         elif isDown:
     #             result = max(passenger_requests_keep_going[0], call_requests_keep_going[0])
-    #             logger.debug(f"Going DOWN: Both passenger and call requests exist, selecting maximum: {result}")
+    #             self._logger.debug(f"Going DOWN: Both passenger and call requests exist, selecting maximum: {result}")
     #             return result
     #     elif passenger_requests_keep_going:
-    #         logger.debug(f"Only passenger keep going requests exist, selecting: {passenger_requests_keep_going[0]}")
+    #         self._logger.debug(f"Only passenger keep going requests exist, selecting: {passenger_requests_keep_going[0]}")
     #         return passenger_requests_keep_going[0]
     #     elif passenger_requests_turn_around:
     #         # We want to satisfy passengers on board, first
-    #         logger.debug(f"No Passengers want to keep going, first request to turn around: {passenger_requests_turn_around[0]}")
+    #         self._logger.debug(f"No Passengers want to keep going, first request to turn around: {passenger_requests_turn_around[0]}")
     #         return passenger_requests_turn_around[0]
     #     elif call_requests_keep_going: # no passenger requests, just answering a call
-    #         logger.debug(f"Only call requests exist, selecting: {call_requests_keep_going[0]}")
+    #         self._logger.debug(f"Only call requests exist, selecting: {call_requests_keep_going[0]}")
     #         return call_requests_keep_going[0]
     #     elif call_requests_turn_around:
-    #         logger.debug(f)
+    #         self._logger.debug(f)
     #     # else there's no requests, so stay here
-    #     logger.debug(f"No requests found, staying at floor {floor}")
+    #     self._logger.debug(f"No requests found, staying at floor {floor}")
     #     return floor
     
     def _get_floor_requests_in_dir_from_floor(self, start_floor: int, search_direction: VerticalDirection, req_direction: VerticalDirection) -> List[int]:
         """The requests are where the 'call buttons' are pressed - this may need updating for programmable elevators"""
-        logger.debug(f"Getting floor requests from floor {start_floor} in direction {search_direction}")
+        self._logger.debug(f"Getting floor requests from floor {start_floor} in direction {search_direction}")
         answer: List[int] = []
         search_range: Opt[range] = None
         
@@ -375,24 +375,24 @@ class ElevatorBank:
         elif search_direction == VerticalDirection.DOWN:
             search_range = range(start_floor - 1, self._min_floor - 1, -1)
         else:
-            logger.warning(f"Cannot get floor requests for STATIONARY direction from floor {start_floor}")
+            self._logger.warning(f"Cannot get floor requests for STATIONARY direction from floor {start_floor}")
             return answer
 
         if search_range:
             for floor in search_range:
                 floor_requests = self.requests.get(floor)
-                logger.trace(f"Checking floor {floor}: Requests = {floor_requests}")
+                self._logger.trace(f"Checking floor {floor}: Requests = {floor_requests}")
                 if floor_requests is not None and req_direction in floor_requests:
-                    logger.debug(f"Adding floor {floor} to answer list")
+                    self._logger.debug(f"Adding floor {floor} to answer list")
                     answer.append(floor)
 
-        logger.debug(f"Final list of floor requests in Search direction {search_direction} from floor {start_floor} going {req_direction}: {answer}")
+        self._logger.debug(f"Final list of floor requests in Search direction {search_direction} from floor {start_floor} going {req_direction}: {answer}")
         return answer
     
     
     def draw(self, surface: Surface) -> None:
         """Draw the elevator Bank on the given surface"""
-        # logger.debug("I'm drawing an Elevator Bank")
+        # self._logger.debug("I'm drawing an Elevator Bank")
         screen_height: int = surface.get_height()
         
         shaft_left = self._horizontal_block * BLOCK_WIDTH
@@ -418,5 +418,5 @@ class ElevatorBank:
     
         # now draw the elevators
         for el in self.elevators:
-            # logger.debug("I want to draw an elevator")
+            # self._logger.debug("I want to draw an elevator")
             el.draw(surface)
