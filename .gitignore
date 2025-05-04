@@ -160,3 +160,9 @@ cython_debug/
 #.idea/
 .vscode/
 output1.txt
+mytower/interview-sample.py
+mytower/interview-sample3.py
+mytower/interview-sample2.py
+interview-sample.py
+interview-sample2.py
+interview-sample3.py

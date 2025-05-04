@@ -109,3 +109,15 @@ def get_logger(module_name: str) -> MyTowerLogger:
     """Get a logger for a specific module."""
     # Prepend mytower to create a hierarchy
     return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
+
+# Create a LoggerProvider:
+class LoggerProvider:
+    def __init__(self, root_logger: Optional[MyTowerLogger]=None):
+        self._root_logger = root_logger or setup_logger(name="mytower")
+        self._loggers:dict[str, MyTowerLogger] = {}
+        
+    def get_logger(self, module_name: str) -> MyTowerLogger:
+        if module_name not in self._loggers:
+            self._loggers[module_name] = cast(MyTowerLogger, 
+                                             logging.getLogger(f"mytower.{module_name}"))
+        return self._loggers[module_name]
