@@ -23,7 +23,7 @@ from game.logger import LoggerProvider
 
 from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT,
-    ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR, PASSENGER_LOADING_TIME
+    ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR
 )
 from game.types import ElevatorState, VerticalDirection
 from pygame import Surface
@@ -32,15 +32,17 @@ if TYPE_CHECKING:
     from game.elevator_bank import ElevatorBank
     from game.person import Person
     from game.logger import MyTowerLogger
+from typing import Final
 
 
 class ElevatorConfigProtocol(Protocol):
     """Config requirements for Elevator class"""
-    max_speed: float
-    max_capacity: int 
-    passenger_loading_time: float
-    idle_log_timeout: float
-    moving_log_timeout: float
+    max_speed: Final[float]
+    max_capacity: Final[int] 
+    passenger_loading_time: Final[float]
+    idle_log_timeout: Final[float]
+    moving_log_timeout: Final[float]
+    idle_wait_timeout: Final[float] # Added idle_wait_timeout
 
 class Elevator:
     """
@@ -53,8 +55,7 @@ class Elevator:
         h_cell: int,
         min_floor: int,
         max_floor: int,
-        max_velocity: float,
-        max_capacity: int,
+        config: ElevatorConfigProtocol,
     ) -> None:
         """
         Initialize a new elevator
@@ -64,8 +65,7 @@ class Elevator:
             x_pos: X position in grid cells
             min_floor: Lowest floor this elevator serves
             max_floor: Highest floor this elevator serves
-            max_velocity: Speed in floors per second
-            max_capacity: Number of people
+            config: Configuration object for the elevator.
             logger_provider: Initializes self._logger.
         """
         self._logger: MyTowerLogger = logger_provider.get_logger('Elevator')
@@ -73,8 +73,7 @@ class Elevator:
         self._horizontal_block: int = h_cell
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
-        self._max_velocity: float = max_velocity
-        self._max_capacity: int = max_capacity
+        self._config = config
         
         # Current state
         self._current_floor_float: float = float(min_floor)  # Floor number (can be fractional when moving)
@@ -101,7 +100,7 @@ class Elevator:
     
     @property
     def avail_capacity(self) -> int:
-        return self._max_capacity - len(self._passengers)
+        return self._config.max_capacity - len(self._passengers)
     
     @property
     def is_empty(self) -> bool:
@@ -149,14 +148,15 @@ class Elevator:
         
     @property
     def max_velocity(self) -> float:
-        return self._max_velocity
+        return self._config.max_speed
+        
+    @property
+    def idle_wait_timeout(self) -> float: # Added public property for idle_wait_timeout
+        return self._config.idle_wait_timeout
         
     @property
     def destination_floor(self) -> int:
         return self._destination_floor
-        
-    # def set_destination_floor(self, value: int) -> None:
-    #     self._destination_floor = value
         
     @property
     def idle_time(self) -> float:
@@ -175,12 +175,10 @@ class Elevator:
             self._logger.info(f'{self.state} Elevator: Going UP')
             self._motion_direction = VerticalDirection.UP
             self._nominal_direction = VerticalDirection.UP
-            # self._state = "MOVING"
         elif self.current_floor_int > dest_floor:
             self._logger.info(f'{self.state} Elevator: Going DOWN')
             self._motion_direction = VerticalDirection.DOWN
             self._nominal_direction = VerticalDirection.DOWN
-            # self._state = "MOVING"
         else:
             self._logger.info(f'{self.state} Elevator: Going NOWHERE')
             self._motion_direction = VerticalDirection.STATIONARY
@@ -211,7 +209,6 @@ class Elevator:
         if direction == VerticalDirection.STATIONARY:
             self._logger.error(f"{self.state} Elevator: Invalid direction STATIONARY for floor {floor}")
             return []
-            # raise ValueError(f"Cannot get passenger requests for STATIONARY direction from floor {floor}")
         
         floors_set: set[int] = set()
         for p in self._passengers:
@@ -247,6 +244,7 @@ class Elevator:
                 self._update_moving(dt)
             
             case ElevatorState.ARRIVED:
+                # Arrived at a floor, check if anyone wants to get off
                 self._update_arrived(dt)
             
             case ElevatorState.UNLOADING:
@@ -260,9 +258,8 @@ class Elevator:
                 self._update_loading(dt)
                 
             case ElevatorState.READY_TO_MOVE:
-                # Just finished loading
+                # Just finished loading, decide where to go next
                 self.door_open = False
-                # TODO: Do we need a helper function?
                 self._update_ready_to_move(dt) 
                     
             case _:
@@ -271,7 +268,7 @@ class Elevator:
         
     def _update_idle(self, dt: float) -> None:
         self._idle_log_timer += dt
-        if self._idle_log_timer >= 1.0:
+        if self._idle_log_timer >= self._config.idle_log_timeout:
             self._logger.trace(f"{self.state} Elevator: Elevator is idle on floor {self.current_floor_int}")
             self._idle_log_timer = 0.0
         self._motion_direction = VerticalDirection.STATIONARY
@@ -279,7 +276,7 @@ class Elevator:
     def _update_moving(self, dt: float) -> None:
         dy: float = dt * self.max_velocity * self.motion_direction.value
         cur_floor: float = self._current_floor_float + dy
-        if self._moving_log_timer >= 1.0:
+        if self._moving_log_timer >= self._config.moving_log_timeout:
             self._logger.trace(f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_float} to {cur_floor}")
             self._moving_log_timer = 0.0
         
@@ -313,7 +310,7 @@ class Elevator:
     
     def _update_unloading(self, dt: float) -> None:
         self._unloading_timeout += dt
-        if self._unloading_timeout < PASSENGER_LOADING_TIME:
+        if self._unloading_timeout < self._config.passenger_loading_time:
             return
         
         self._unloading_timeout = 0.0
@@ -331,7 +328,7 @@ class Elevator:
     
     def _update_loading(self, dt: float) -> None:
         self._loading_timeout += dt
-        if self._loading_timeout < PASSENGER_LOADING_TIME:
+        if self._loading_timeout < self._config.passenger_loading_time:
             return
         
         self._loading_timeout = 0.0

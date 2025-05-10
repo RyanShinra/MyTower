@@ -20,7 +20,7 @@ from typing import Final, List, TYPE_CHECKING, NamedTuple, Optional as Opt
 
 import pygame
 from game.constants import (
-    BLOCK_WIDTH, BLOCK_HEIGHT, ELEVATOR_IDLE_TIMEOUT,
+    BLOCK_WIDTH, BLOCK_HEIGHT, 
     ELEVATOR_SHAFT_COLOR, UI_TEXT_COLOR
 )
 from game.types import ElevatorState, VerticalDirection
@@ -210,7 +210,8 @@ class ElevatorBank:
     def _update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
         """Idle means it arrived at this floor with nobody who wanted to disembark on this floor"""
         elevator.idle_time += dt
-        if elevator.idle_time < ELEVATOR_IDLE_TIMEOUT:
+        # Access idle_wait_timeout from the elevator's public property
+        if elevator.idle_time < elevator.idle_wait_timeout: # Use public property
             return
         
         elevator.idle_time = 0.0
@@ -255,35 +256,8 @@ class ElevatorBank:
         return
     
     # Returns true if we're going to move
-    # def _get_next_destination(self, elevator: Elevator, current_floor: int, init_nom_direction: VerticalDirection) -> ElevatorBank.Destination:
-    #     UP = VerticalDirection.UP
-    #     DOWN = VerticalDirection.DOWN
-    #     STATIONARY = VerticalDirection.STATIONARY
-        
-    #     dest_floor: int = current_floor
-    #     # If it's currently stationary, search UP first
-    #     dest_direction: VerticalDirection = init_nom_direction if init_nom_direction != STATIONARY else UP
-    #     self._logger.trace(f"First searching for destination in {dest_direction} direction from floor {current_floor}")
-    #     dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
-        
-    #     if dest_floor == current_floor:
-    #         new_direction = UP if init_nom_direction == DOWN else DOWN
-    #         self._logger.debug(f"No destination found in {dest_direction} direction, now searching in {new_direction} direction")
-    #         dest_direction = new_direction
-    #         dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
-
-    #     if dest_floor != current_floor:
-    #         self._logger.debug(f"Found destination floor {dest_floor} in {dest_direction} direction")
-    #         return ElevatorBank.Destination(True, dest_floor, dest_direction)
-    #     else:
-    #         self._logger.debug(f"No destination found in any direction, staying at floor {current_floor}")
-    #         return ElevatorBank.Destination(False, current_floor, STATIONARY)
-
-                
-                    # Returns true if we're going to move
     def _get_next_destination(self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection) -> ElevatorBank.Destination:
         UP = VerticalDirection.UP
-        # DOWN = VerticalDirection.DOWN
         STATIONARY = VerticalDirection.STATIONARY
         
         # Shall we keep going this way?
@@ -325,44 +299,6 @@ class ElevatorBank:
         else: 
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
-    
-    # def _get_destination_floor_in_dir(self, elevator: Elevator, floor: int, dest_direction: VerticalDirection) -> int:
-    #     isUp: Final[bool] = dest_direction == VerticalDirection.UP
-    #     isDown: Final[bool] = dest_direction == VerticalDirection.DOWN
-        
-    #     call_requests_keep_going: List[int] = self._get_floor_requests_in_dir_from_floor(floor, dest_direction, dest_direction)
-    #     call_requests_turn_around: List[int] = self._get_floor_requests_in_dir_from_floor(floor, dest_direction, dest_direction.invert())
-    #     passenger_requests_keep_going: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction)
-    #     passenger_requests_turn_around: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction.invert())
-        
-    #     self._logger.trace(f"Searching for destination in {dest_direction} direction from floor {floor}")
-    #     self._logger.trace(f"Elevator call requests: {call_requests_keep_going}")
-    #     self._logger.trace(f"Passenger destination requests: {passenger_requests_keep_going}")
-        
-    #     if call_requests_keep_going and passenger_requests_keep_going:
-    #         if isUp:
-    #             result = min(passenger_requests_keep_going[0], call_requests_keep_going[0])
-    #             self._logger.debug(f"Going UP: Both passenger and call requests exist, selecting minimum: {result}")
-    #             return result
-    #         elif isDown:
-    #             result = max(passenger_requests_keep_going[0], call_requests_keep_going[0])
-    #             self._logger.debug(f"Going DOWN: Both passenger and call requests exist, selecting maximum: {result}")
-    #             return result
-    #     elif passenger_requests_keep_going:
-    #         self._logger.debug(f"Only passenger keep going requests exist, selecting: {passenger_requests_keep_going[0]}")
-    #         return passenger_requests_keep_going[0]
-    #     elif passenger_requests_turn_around:
-    #         # We want to satisfy passengers on board, first
-    #         self._logger.debug(f"No Passengers want to keep going, first request to turn around: {passenger_requests_turn_around[0]}")
-    #         return passenger_requests_turn_around[0]
-    #     elif call_requests_keep_going: # no passenger requests, just answering a call
-    #         self._logger.debug(f"Only call requests exist, selecting: {call_requests_keep_going[0]}")
-    #         return call_requests_keep_going[0]
-    #     elif call_requests_turn_around:
-    #         self._logger.debug(f)
-    #     # else there's no requests, so stay here
-    #     self._logger.debug(f"No requests found, staying at floor {floor}")
-    #     return floor
     
     def _get_floor_requests_in_dir_from_floor(self, start_floor: int, search_direction: VerticalDirection, req_direction: VerticalDirection) -> List[int]:
         """The requests are where the 'call buttons' are pressed - this may need updating for programmable elevators"""
