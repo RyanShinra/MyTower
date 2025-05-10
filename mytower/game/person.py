@@ -13,9 +13,10 @@ from typing import TYPE_CHECKING, Final, List, Protocol
 import random
 import pygame
 
-from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT, PERSON_INIT_BLUE, PERSON_INIT_GREEN, PERSON_INIT_RED, PERSON_MAX_RED, PERSON_MIN_BLUE, PERSON_MIN_GREEN, PERSON_MIN_RED
+from game.constants import BLOCK_WIDTH, BLOCK_HEIGHT
 from game.types import HorizontalDirection, PersonState
 from game.elevator import Elevator
+from mytower.game.config import GameConfig
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -28,12 +29,21 @@ class PersonConfigProtocol(Protocol):
     max_wait_time: Final[float]
     idle_timeout: Final[float]
     radius: Final[int]
+    
+class PersonCosmeticsProtocol(Protocol):
+    angry_max_red: Final[int]
+    initial_max_red: Final[int]
+    initial_max_green: Final[int]
+    initial_max_blue: Final[int]
+    initial_min_red: Final[int]
+    initial_min_green: Final[int]
+    initial_min_blue: Final[int]
 
 class Person:
     """
     A person in the building who moves between floors and has needs.
     """
-    def __init__(self, logger_provider: LoggerProvider, building: Building, current_floor: int, current_block: float, config: PersonConfigProtocol) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, current_floor: int, current_block: float, config: GameConfig) -> None:
         self._logger = logger_provider.get_logger("person")
         self._building: Building = building
         self._current_floor_float: float = float(current_floor)
@@ -42,16 +52,18 @@ class Person:
         self._dest_floor: int = current_floor
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
-        self._config = config
+        self._config: Final[GameConfig] = config
+        self._cosmetics_config: Final[PersonCosmeticsProtocol] = config.person_cosmetics
         self._next_elevator_bank: ElevatorBank | None = None
         self._idle_timeout: float = 0
         self._current_elevator: Elevator | None = None
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
                 
         # Appearance (for visualization)
-        self._original_red: Final[int] = random.randint(PERSON_MIN_RED, PERSON_INIT_RED) # let's save some red for being mad at the elevator
-        self._original_green: Final[int] = random.randint(PERSON_MIN_GREEN, PERSON_INIT_GREEN)
-        self._original_blue: Final[int] = random.randint(PERSON_MIN_BLUE, PERSON_INIT_BLUE)
+        # Use cosmetics_config for initial color ranges
+        self._original_red: Final[int] = random.randint(self._cosmetics_config.initial_min_red, self._cosmetics_config.initial_max_red) 
+        self._original_green: Final[int] = random.randint(self._cosmetics_config.initial_min_green, self._cosmetics_config.initial_max_green)
+        self._original_blue: Final[int] = random.randint(self._cosmetics_config.initial_min_blue, self._cosmetics_config.initial_max_blue)
 
         
     @property
@@ -92,7 +104,7 @@ class Person:
         
     @property
     def max_velocity(self) -> float:
-        return self._config.max_speed
+        return self._config.person.max_speed
     
     def set_destination(self, dest_floor: int, dest_block: int) -> None:
         # Check if destination values are out of bounds and log warnings 
@@ -191,7 +203,7 @@ class Person:
                 self._logger.trace(f'IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor')
                 self.state = PersonState.IDLE
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
-                self._idle_timeout = self._config.idle_timeout
+                self._idle_timeout = self._config.person.idle_timeout
         
         if current_destination_block < self._current_block:
             # Already on the right floor (or walking to elevator?)
@@ -219,7 +231,7 @@ class Person:
         elif waypoint_block > self._current_block:
             self.direction = HorizontalDirection.RIGHT
 
-        next_block: float = self._current_block + dt * self._config.max_speed * self.direction.value
+        next_block: float = self._current_block + dt * self._config.person.max_speed * self.direction.value
         if self.direction == HorizontalDirection.RIGHT:
             if next_block >= waypoint_block:
                 done = True
@@ -261,10 +273,11 @@ class Person:
         x_pos: int = x_centered
         
         # How mad ARE we??
-        mad_fraction: float = self._waiting_time / self._config.max_wait_time
-        draw_red: int = self._original_red + int(abs(PERSON_MAX_RED - self._original_red) * mad_fraction)
-        draw_green: int = self._original_green - int(abs(self._original_green - PERSON_MIN_GREEN) * mad_fraction)
-        draw_blue: int = self._original_blue - int(abs(self._original_blue - PERSON_MIN_BLUE) * mad_fraction)
+        mad_fraction: float = self._waiting_time / self._config.person.max_wait_time # Use _config.person for max_wait_time
+        # Use cosmetics_config for color changes when mad
+        draw_red: int = self._original_red + int(abs(self._cosmetics_config.angry_max_red - self._original_red) * mad_fraction)
+        draw_green: int = self._original_green - int(abs(self._original_green - self._cosmetics_config.initial_min_green) * mad_fraction) # Assuming original_min_green for consistency with old code
+        draw_blue: int = self._original_blue - int(abs(self._original_blue - self._cosmetics_config.initial_min_blue) * mad_fraction) # Assuming original_min_blue for consistency
         
         # Clamp the draw colors to the range 0 to 254
         draw_red = max(0, min(254, draw_red))
@@ -278,5 +291,5 @@ class Person:
             surface,
             draw_color,
             (int(x_pos), int(y_pos)),
-            self._config.radius  # radius  
+            self._config.person.radius  # radius  
         )

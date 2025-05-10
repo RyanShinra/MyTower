@@ -60,17 +60,17 @@ class GameState:
         self._building.add_elevator_bank(self._test_elevator_bank)
 
         # Add a sample person
-        self._test_person = Person(logger_provider, building = self._building, current_floor = 1, current_block = 1, 
-                                   config=self._config.person)
+        self._test_person = Person(logger_provider, building = self._building, current_floor = 1, current_block = 1,
+                                   config=self._config) # Pass the whole GameConfig object
         self._test_person.set_destination(dest_floor = 9, dest_block = 7)
-        self._test_person2 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 3, 
-                                    config=self._config.person)
+        self._test_person2 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 3,
+                                    config=self._config) # Pass the whole GameConfig object
         self._test_person2.set_destination(dest_floor = 3, dest_block = 7)
-        self._test_person3 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 6, 
-                                    config=self._config.person)
+        self._test_person3 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 6,
+                                    config=self._config) # Pass the whole GameConfig object
         self._test_person3.set_destination(dest_floor = 7, dest_block = 7)
-        self._test_person4 = Person(logger_provider, building = self._building, current_floor = 12, current_block = 1, 
-                                     config=self._config.person)
+        self._test_person4 = Person(logger_provider, building = self._building, current_floor = 12, current_block = 1,
+                                     config=self._config) # Pass the whole GameConfig object
         self._test_person4.set_destination(dest_floor = 1, dest_block = 1)
         self._building.add_person(self._test_person)
         self._building.add_person(self._test_person2)
