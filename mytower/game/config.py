@@ -3,6 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final
 from dataclasses import dataclass
 
+from mytower.game.types import RGB
+from mytower.game.ui import UIConfigProtocol
+
 if TYPE_CHECKING:
     from game.elevator import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
     from game.person import PersonConfigProtocol, PersonCosmeticsProtocol
@@ -20,9 +23,10 @@ class ElevatorConfig:
 @dataclass
 class ElevatorCosmetics:
     """Implements Elevator Cosmetics Protocol"""
-    shaft_color: Final[tuple[int, int, int]] = (100, 100, 100)
-    closed_color: Final[tuple[int, int, int]] = (50, 50, 200)
-    open_color: Final[tuple[int, int, int]] = (200, 200, 50)
+    shaft_color: Final[RGB] = (100, 100, 100)
+    shaft_overhead: Final[RGB] = (24, 24, 24)
+    closed_color: Final[RGB] = (50, 50, 200)
+    open_color: Final[RGB] = (200, 200, 50)
 
 @dataclass
 class PersonConfig:
@@ -42,6 +46,15 @@ class PersonCosmetics:
     initial_min_red: Final[int] = 0
     initial_min_green: Final[int] = 0
     initial_min_blue: Final[int] = 0
+    
+@dataclass
+class UIConfig:
+    """Default UI configuration implementation"""
+    background_color: Final[RGB] = (220, 220, 220)
+    border_color: Final[RGB] = (150, 150, 150)
+    text_color: Final[RGB] = (0, 0, 0)
+    button_color: Final[RGB] = (200, 200, 200)
+    button_hover_color: Final[RGB] = (180, 180, 180)
 
 class GameConfig:
     def __init__(self) -> None:
@@ -49,4 +62,5 @@ class GameConfig:
         self.person: PersonConfigProtocol = PersonConfig()
         self.person_cosmetics: PersonCosmeticsProtocol = PersonCosmetics()
         self.elevator_cosmetics: ElevatorCosmeticsProtocol = ElevatorCosmetics()
+        self.ui_config: UIConfigProtocol = UIConfig()
         # etc.

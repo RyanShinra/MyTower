@@ -1,24 +1,27 @@
 # game/ui.py
 import pygame
-from typing import List, Optional
-from game.constants import (
-    BUTTON_COLOR, BUTTON_HOVER_COLOR, UI_TEXT_COLOR,
-    UI_BACKGROUND_COLOR, UI_BORDER_COLOR
-)
+from typing import List, Optional, Protocol, Final
 from game.types import RGB, MousePos, MouseButtons, PygameSurface
 from game.logger import LoggerProvider
+
+class UIConfigProtocol(Protocol):
+    """Config requirements for UI elements"""
+    background_color: Final[RGB]
+    border_color: Final[RGB]
+    text_color: Final[RGB]
+    button_color: Final[RGB]
+    button_hover_color: Final[RGB]
 
 class Button:
     """
     A simple button UI element
     """
-    def __init__(self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, text: str, color:RGB=BUTTON_COLOR, hover_color:RGB=BUTTON_HOVER_COLOR, text_color:RGB=UI_TEXT_COLOR):
+    def __init__(self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, text: str, 
+                ui_config: UIConfigProtocol) -> None:
         self._logger = logger_provider.get_logger("ui")
         self._rect = pygame.Rect(x, y, width, height)
         self._text = text
-        self._color = color
-        self._hover_color = hover_color
-        self._text_color = text_color
+        self._ui_config = ui_config
         self._is_hovered = False
         self._is_clicked = False
         
@@ -46,13 +49,13 @@ class Button:
     def draw(self, surface: PygameSurface) -> None:
         """Draw the button on the given surface"""
         # Draw button background
-        color = self._hover_color if self._is_hovered else self._color
+        color = self._ui_config.button_hover_color if self._is_hovered else self._ui_config.button_color
         pygame.draw.rect(surface, color, self._rect)
-        pygame.draw.rect(surface, self._text_color, self._rect, 2)  # Border
+        pygame.draw.rect(surface, self._ui_config.text_color, self._rect, 2)  # Border
         
         # Draw text
         font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(self._text, True, self._text_color)
+        text_surface = font.render(self._text, True, self._ui_config.text_color)
         text_rect = text_surface.get_rect(center=self._rect.center)
         surface.blit(text_surface, text_rect)
 
@@ -60,13 +63,14 @@ class Toolbar:
     """
     A toolbar for building tools and controls
     """
-    def __init__(self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int):
+    def __init__(self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int,
+                ui_config: UIConfigProtocol) -> None:
         self._logger_provider: LoggerProvider = logger_provider
         self._logger = logger_provider.get_logger("ui")
         self._rect = pygame.Rect(x, y, width, height)
         self._buttons: List[Button] = []
         self._active_tool: Optional[str] = None
-        self._bg_color = UI_BACKGROUND_COLOR
+        self._ui_config = ui_config
         
     @property
     def rect(self) -> pygame.Rect:
@@ -88,7 +92,7 @@ class Toolbar:
         x = self._rect.x + 10 + len(self._buttons) * (width + 10)
         y = self._rect.y + (self._rect.height - height) // 2
         
-        button = Button(self._logger_provider, x, y, width, height, text)
+        button = Button(self._logger_provider, x, y, width, height, text, self._ui_config)
         self._buttons.append(button)
         return button
         
@@ -100,8 +104,8 @@ class Toolbar:
     def draw(self, surface: PygameSurface) -> None:
         """Draw the toolbar and its buttons"""
         # Draw toolbar background
-        pygame.draw.rect(surface, self._bg_color, self._rect)
-        pygame.draw.rect(surface, UI_BORDER_COLOR, self._rect, 2)  # Border
+        pygame.draw.rect(surface, self._ui_config.background_color, self._rect)
+        pygame.draw.rect(surface, self._ui_config.border_color, self._rect, 2)  # Border
         
         # Draw buttons
         for button in self._buttons:

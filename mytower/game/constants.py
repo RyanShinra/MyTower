@@ -25,13 +25,7 @@ BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels, 3.0m
 BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels, 3.0m
 
-# Color constants
-UI_BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)
-UI_BORDER_COLOR: Final[RGB] = (150, 150, 150)
-UI_TEXT_COLOR: Final[RGB] = (0, 0, 0)
-BUTTON_COLOR: Final[RGB] = (200, 200, 200)
-BUTTON_HOVER_COLOR: Final[RGB] = (180, 180, 180)
-
+# TODO: We should definitely re-imagine how the colors and heights are organized. 
 # Floor colors
 LOBBY_COLOR: Final[RGB] = (200, 200, 200)
 OFFICE_COLOR: Final[RGB] = (150, 200, 250)

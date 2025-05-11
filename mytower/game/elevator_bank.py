@@ -20,8 +20,7 @@ from typing import Final, List, TYPE_CHECKING, NamedTuple, Optional as Opt
 
 import pygame
 from game.constants import (
-    BLOCK_WIDTH, BLOCK_HEIGHT, 
-    UI_TEXT_COLOR
+    BLOCK_WIDTH, BLOCK_HEIGHT
 )
 from game.types import ElevatorState, VerticalDirection
 from collections import deque
@@ -349,7 +348,7 @@ class ElevatorBank:
         
         pygame.draw.rect(
             surface,
-            UI_TEXT_COLOR,
+            self._cosmetics_config.shaft_overhead,
             (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
         )
     

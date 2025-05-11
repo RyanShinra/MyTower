@@ -6,9 +6,10 @@ from typing import Any, Dict, List, Optional
 import pygame
 from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT, 
     LOBBY_COLOR,  OFFICE_COLOR,  APARTMENT_COLOR,  HOTEL_COLOR,  RESTAURANT_COLOR,  RETAIL_COLOR, 
-    LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT, UI_TEXT_COLOR
+    LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT
 )
 from game.logger import LoggerProvider
+from game.ui import UIConfigProtocol
 
 from game.types import Color
 from game.types import FloorType
@@ -43,7 +44,7 @@ class Floor:
         FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
     
-    def __init__(self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType, ui_config: UIConfigProtocol) -> None:
         self._logger = logger_provider.get_logger("floor")
         self._building: Building = building
         # Floors are 1 indexed
@@ -58,6 +59,7 @@ class Floor:
         
         # Grid of rooms/spaces on this floor
         self._grid: List[Optional[Any]] = [None] * building.floor_width
+        self._ui_config = ui_config
     
     @property
     def building(self) -> Building:
@@ -106,7 +108,7 @@ class Floor:
         )
         pygame.draw.rect(
             surface, 
-            UI_TEXT_COLOR, 
+            self._ui_config.text_color, 
             (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, 2)
         )
         

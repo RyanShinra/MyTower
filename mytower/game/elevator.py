@@ -24,7 +24,7 @@ from game.logger import LoggerProvider
 from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT,
 )
-from game.types import ElevatorState, VerticalDirection
+from game.types import ElevatorState, VerticalDirection, RGB
 from pygame import Surface
 
 if TYPE_CHECKING:
@@ -45,9 +45,10 @@ class ElevatorConfigProtocol(Protocol):
 
 class ElevatorCosmeticsProtocol(Protocol):
     """Visual appearance settings for Elevator class"""
-    shaft_color: Final[tuple[int, int, int]]
-    closed_color: Final[tuple[int, int, int]]
-    open_color: Final[tuple[int, int, int]]
+    shaft_color: Final[RGB]
+    shaft_overhead: Final[RGB]
+    closed_color: Final[RGB]
+    open_color: Final[RGB]
 
 class Elevator:
     """
