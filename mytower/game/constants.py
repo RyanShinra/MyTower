@@ -52,24 +52,6 @@ RETAIL_HEIGHT: Final[int] = 1
 ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
 ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
 ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
-ELEVATOR_MAX_SPEED: Final[float] = 0.75  # floors per second
-ELEVATOR_DEFAULT_CAPACITY: Final[int] = 15
-PASSENGER_LOADING_TIME: Final[float] = 1.0
-ELEVATOR_IDLE_TIMEOUT: Final[float] = 0.5
-
-# Person attributes (we'll add colors here later)
-PERSON_MAX_SPEED: Final[float] = 0.5 # Blocks per second 1.5 m/s -> 3.3 MPH
-PERSON_MAX_WAIT_TIME: Final[float] = 90.0 # seconds, before they storm off somewhere
-
-PERSON_MAX_RED: Final[int] = 192
-PERSON_INIT_RED: Final[int] = 32
-PERSON_INIT_GREEN: Final[int] = 128
-PERSON_INIT_BLUE: Final[int] = 128
-PERSON_MIN_RED: Final[int] = 0
-PERSON_MIN_GREEN: Final[int] = 0
-PERSON_MIN_BLUE: Final[int] = 0
-
-PERSON_RADIUS: Final[int] = 5
 
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)
