@@ -399,7 +399,7 @@ class Elevator:
         # )
         
         # Draw elevator car
-        color = self._cosmetics_config.open_color if self._door_open else self._cosmetics_config.closed_color
+        color = self._cosmetics_config.open_color if self.door_open else self._cosmetics_config.closed_color
         pygame.draw.rect(
             surface,
             color,
