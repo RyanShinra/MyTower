@@ -48,10 +48,5 @@ HOTEL_HEIGHT: Final[int] = 1
 RESTAURANT_HEIGHT: Final[int] = 1
 RETAIL_HEIGHT: Final[int] = 1
 
-# Elevator constants
-ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
-ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
-ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
-
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)

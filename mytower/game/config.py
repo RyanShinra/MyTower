@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Final
 from dataclasses import dataclass
 
 if TYPE_CHECKING:
-    from game.elevator import ElevatorConfigProtocol
+    from game.elevator import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
     from game.person import PersonConfigProtocol, PersonCosmeticsProtocol
 
 @dataclass
@@ -16,6 +16,13 @@ class ElevatorConfig:
     idle_wait_timeout: Final[float] = 0.5  # Seconds: how often an idle elevator checks for passengers
     idle_log_timeout: Final[float] = 0.5  # Seconds: how often to log status while Idle
     moving_log_timeout: Final[float] = 0.5  # Seconds: how often to log status while Moving
+
+@dataclass
+class ElevatorCosmetics:
+    """Implements Elevator Cosmetics Protocol"""
+    shaft_color: Final[tuple[int, int, int]] = (100, 100, 100)
+    closed_color: Final[tuple[int, int, int]] = (50, 50, 200)
+    open_color: Final[tuple[int, int, int]] = (200, 200, 50)
 
 @dataclass
 class PersonConfig:
@@ -41,4 +48,5 @@ class GameConfig:
         self.elevator: ElevatorConfigProtocol = ElevatorConfig()
         self.person: PersonConfigProtocol = PersonConfig()
         self.person_cosmetics: PersonCosmeticsProtocol = PersonCosmetics()
+        self.elevator_cosmetics: ElevatorCosmeticsProtocol = ElevatorCosmetics()
         # etc.

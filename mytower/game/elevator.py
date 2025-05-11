@@ -23,7 +23,6 @@ from game.logger import LoggerProvider
 
 from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT,
-    ELEVATOR_CLOSED_COLOR, ELEVATOR_OPEN_COLOR
 )
 from game.types import ElevatorState, VerticalDirection
 from pygame import Surface
@@ -44,6 +43,12 @@ class ElevatorConfigProtocol(Protocol):
     moving_log_timeout: Final[float]
     idle_wait_timeout: Final[float] # Added idle_wait_timeout
 
+class ElevatorCosmeticsProtocol(Protocol):
+    """Visual appearance settings for Elevator class"""
+    shaft_color: Final[tuple[int, int, int]]
+    closed_color: Final[tuple[int, int, int]]
+    open_color: Final[tuple[int, int, int]]
+
 class Elevator:
     """
     An elevator in the building that transports people between floors.
@@ -56,6 +61,7 @@ class Elevator:
         min_floor: int,
         max_floor: int,
         config: ElevatorConfigProtocol,
+        cosmetics_config: ElevatorCosmeticsProtocol,
     ) -> None:
         """
         Initialize a new elevator
@@ -66,6 +72,7 @@ class Elevator:
             min_floor: Lowest floor this elevator serves
             max_floor: Highest floor this elevator serves
             config: Configuration object for the elevator.
+            cosmetics_config: Visual appearance configuration for the elevator.
             logger_provider: Initializes self._logger.
         """
         self._logger: MyTowerLogger = logger_provider.get_logger('Elevator')
@@ -74,6 +81,7 @@ class Elevator:
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._config = config
+        self._cosmetics_config = cosmetics_config
         
         # Current state
         self._current_floor_float: float = float(min_floor)  # Floor number (can be fractional when moving)
@@ -360,7 +368,7 @@ class Elevator:
         else:
             self._logger.info(f'{self.state} Elevator: No Destination -> IDLE')
             self._state = ElevatorState.IDLE
-    
+
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""
         # Calculate positions
@@ -368,18 +376,18 @@ class Elevator:
         #   450 = 480 - (1.5 * 20) 
         # We want the private member here since it's a float and we're computing pixels
         car_top = screen_height - int(self._current_floor_float * BLOCK_HEIGHT)
-        shaft_left = self.horizontal_block * BLOCK_WIDTH
+        shaft_left = self._horizontal_block * BLOCK_WIDTH
         width = BLOCK_WIDTH
         
         # Draw shaft from min to max floor
         #     420 = 480 - (3 * 20)
-        # shaft_top = screen_height - (self.max_floor * BLOCK_HEIGHT)
-        # shaft_overhead = screen_height - ((self.max_floor + 1) * BLOCK_HEIGHT)
+        # shaft_top = screen_height - (self._max_floor * BLOCK_HEIGHT)
+        # shaft_overhead = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
         #     480 = 480 - ((1 - 1) * 20)
-        # shaft_bottom = screen_height - ((self.min_floor - 1) * BLOCK_HEIGHT)
+        # shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
         # pygame.draw.rect(
         #     surface,
-        #     ELEVATOR_SHAFT_COLOR,
+        #     self._cosmetics_config.shaft_color,
         #     (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
         # )
         
@@ -390,7 +398,7 @@ class Elevator:
         # )
         
         # Draw elevator car
-        color = ELEVATOR_OPEN_COLOR if self.door_open else ELEVATOR_CLOSED_COLOR
+        color = self._cosmetics_config.open_color if self._door_open else self._cosmetics_config.closed_color
         pygame.draw.rect(
             surface,
             color,

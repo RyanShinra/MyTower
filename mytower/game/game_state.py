@@ -46,14 +46,16 @@ class GameState:
         self._test_elevator_bank = ElevatorBank(
             logger_provider,
             self._building, h_cell=14, min_floor=1,
-            max_floor=self._building.num_floors
+            max_floor=self._building.num_floors,
+            cosmetics_config=self._config.elevator_cosmetics
         )
         
         self._test_elevator = Elevator(
             logger_provider,
             self._test_elevator_bank, h_cell=14, min_floor=1,
             max_floor=self._building.num_floors, 
-            config=self._config.elevator
+            config=self._config.elevator,
+            cosmetics_config=self._config.elevator_cosmetics
         )
         
         self._test_elevator_bank.add_elevator(self._test_elevator)

@@ -21,7 +21,7 @@ from typing import Final, List, TYPE_CHECKING, NamedTuple, Optional as Opt
 import pygame
 from game.constants import (
     BLOCK_WIDTH, BLOCK_HEIGHT, 
-    ELEVATOR_SHAFT_COLOR, UI_TEXT_COLOR
+    UI_TEXT_COLOR
 )
 from game.types import ElevatorState, VerticalDirection
 from collections import deque
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from pygame import Surface
     from game.building import Building
     from game.person import Person
-    from game.elevator import Elevator
+    from game.elevator import Elevator, ElevatorCosmeticsProtocol
 
 class ElevatorBank:
     # Used in deciding if to move or not
@@ -50,7 +50,7 @@ class ElevatorBank:
     # Define a reusable empty deque as a class-level constant
     EMPTY_DEQUE: Final[deque[Person]] = deque()
     
-    def __init__(self, logger_provider: LoggerProvider, building: Building, h_cell: int, min_floor: int, max_floor: int) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, h_cell: int, min_floor: int, max_floor: int, cosmetics_config: ElevatorCosmeticsProtocol) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger('ElevatorBank')
         
          # Passengers waiting for the elevator on each floor
@@ -58,6 +58,7 @@ class ElevatorBank:
         self._horizontal_block: int = h_cell
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
+        self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
         self._upward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self._min_floor, self._max_floor + 1)}
         self._downward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self._min_floor, self._max_floor + 1)}
         self._elevators: List[Elevator] = []
@@ -292,7 +293,7 @@ class ElevatorBank:
         
         return destinations
         
-    def _select_next_floor(self, destinations: List[int], direction: VerticalDirection):
+    def _select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
         if direction == VerticalDirection.UP:
             # Go to the lowest floor above us
             return min(destinations)
@@ -342,7 +343,7 @@ class ElevatorBank:
         shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
         pygame.draw.rect(
             surface,
-            ELEVATOR_SHAFT_COLOR,
+            self._cosmetics_config.shaft_color,
             (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
         )
         
