@@ -20,8 +20,7 @@ from typing import Final, List, TYPE_CHECKING, NamedTuple, Optional as Opt
 
 import pygame
 from game.constants import (
-    BLOCK_WIDTH, BLOCK_HEIGHT, ELEVATOR_IDLE_TIMEOUT,
-    ELEVATOR_SHAFT_COLOR, UI_TEXT_COLOR
+    BLOCK_WIDTH, BLOCK_HEIGHT
 )
 from game.types import ElevatorState, VerticalDirection
 from collections import deque
@@ -31,7 +30,7 @@ if TYPE_CHECKING:
     from pygame import Surface
     from game.building import Building
     from game.person import Person
-    from game.elevator import Elevator
+    from game.elevator import Elevator, ElevatorCosmeticsProtocol
 
 class ElevatorBank:
     # Used in deciding if to move or not
@@ -50,7 +49,7 @@ class ElevatorBank:
     # Define a reusable empty deque as a class-level constant
     EMPTY_DEQUE: Final[deque[Person]] = deque()
     
-    def __init__(self, logger_provider: LoggerProvider, building: Building, h_cell: int, min_floor: int, max_floor: int) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, h_cell: int, min_floor: int, max_floor: int, cosmetics_config: ElevatorCosmeticsProtocol) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger('ElevatorBank')
         
          # Passengers waiting for the elevator on each floor
@@ -58,6 +57,7 @@ class ElevatorBank:
         self._horizontal_block: int = h_cell
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
+        self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
         self._upward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self._min_floor, self._max_floor + 1)}
         self._downward_waiting_passengers: dict[int, deque[Person]] = {floor: deque() for floor in range(self._min_floor, self._max_floor + 1)}
         self._elevators: List[Elevator] = []
@@ -210,7 +210,8 @@ class ElevatorBank:
     def _update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
         """Idle means it arrived at this floor with nobody who wanted to disembark on this floor"""
         elevator.idle_time += dt
-        if elevator.idle_time < ELEVATOR_IDLE_TIMEOUT:
+        # Access idle_wait_timeout from the elevator's public property
+        if elevator.idle_time < elevator.idle_wait_timeout: # Use public property
             return
         
         elevator.idle_time = 0.0
@@ -255,35 +256,8 @@ class ElevatorBank:
         return
     
     # Returns true if we're going to move
-    # def _get_next_destination(self, elevator: Elevator, current_floor: int, init_nom_direction: VerticalDirection) -> ElevatorBank.Destination:
-    #     UP = VerticalDirection.UP
-    #     DOWN = VerticalDirection.DOWN
-    #     STATIONARY = VerticalDirection.STATIONARY
-        
-    #     dest_floor: int = current_floor
-    #     # If it's currently stationary, search UP first
-    #     dest_direction: VerticalDirection = init_nom_direction if init_nom_direction != STATIONARY else UP
-    #     self._logger.trace(f"First searching for destination in {dest_direction} direction from floor {current_floor}")
-    #     dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
-        
-    #     if dest_floor == current_floor:
-    #         new_direction = UP if init_nom_direction == DOWN else DOWN
-    #         self._logger.debug(f"No destination found in {dest_direction} direction, now searching in {new_direction} direction")
-    #         dest_direction = new_direction
-    #         dest_floor = self._get_destination_floor_in_dir(elevator, current_floor, dest_direction)
-
-    #     if dest_floor != current_floor:
-    #         self._logger.debug(f"Found destination floor {dest_floor} in {dest_direction} direction")
-    #         return ElevatorBank.Destination(True, dest_floor, dest_direction)
-    #     else:
-    #         self._logger.debug(f"No destination found in any direction, staying at floor {current_floor}")
-    #         return ElevatorBank.Destination(False, current_floor, STATIONARY)
-
-                
-                    # Returns true if we're going to move
     def _get_next_destination(self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection) -> ElevatorBank.Destination:
         UP = VerticalDirection.UP
-        # DOWN = VerticalDirection.DOWN
         STATIONARY = VerticalDirection.STATIONARY
         
         # Shall we keep going this way?
@@ -318,51 +292,13 @@ class ElevatorBank:
         
         return destinations
         
-    def _select_next_floor(self, destinations: List[int], direction: VerticalDirection):
+    def _select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
         if direction == VerticalDirection.UP:
             # Go to the lowest floor above us
             return min(destinations)
         else: 
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
-    
-    # def _get_destination_floor_in_dir(self, elevator: Elevator, floor: int, dest_direction: VerticalDirection) -> int:
-    #     isUp: Final[bool] = dest_direction == VerticalDirection.UP
-    #     isDown: Final[bool] = dest_direction == VerticalDirection.DOWN
-        
-    #     call_requests_keep_going: List[int] = self._get_floor_requests_in_dir_from_floor(floor, dest_direction, dest_direction)
-    #     call_requests_turn_around: List[int] = self._get_floor_requests_in_dir_from_floor(floor, dest_direction, dest_direction.invert())
-    #     passenger_requests_keep_going: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction)
-    #     passenger_requests_turn_around: List[int] = elevator.get_passenger_destinations_in_direction(floor, dest_direction.invert())
-        
-    #     self._logger.trace(f"Searching for destination in {dest_direction} direction from floor {floor}")
-    #     self._logger.trace(f"Elevator call requests: {call_requests_keep_going}")
-    #     self._logger.trace(f"Passenger destination requests: {passenger_requests_keep_going}")
-        
-    #     if call_requests_keep_going and passenger_requests_keep_going:
-    #         if isUp:
-    #             result = min(passenger_requests_keep_going[0], call_requests_keep_going[0])
-    #             self._logger.debug(f"Going UP: Both passenger and call requests exist, selecting minimum: {result}")
-    #             return result
-    #         elif isDown:
-    #             result = max(passenger_requests_keep_going[0], call_requests_keep_going[0])
-    #             self._logger.debug(f"Going DOWN: Both passenger and call requests exist, selecting maximum: {result}")
-    #             return result
-    #     elif passenger_requests_keep_going:
-    #         self._logger.debug(f"Only passenger keep going requests exist, selecting: {passenger_requests_keep_going[0]}")
-    #         return passenger_requests_keep_going[0]
-    #     elif passenger_requests_turn_around:
-    #         # We want to satisfy passengers on board, first
-    #         self._logger.debug(f"No Passengers want to keep going, first request to turn around: {passenger_requests_turn_around[0]}")
-    #         return passenger_requests_turn_around[0]
-    #     elif call_requests_keep_going: # no passenger requests, just answering a call
-    #         self._logger.debug(f"Only call requests exist, selecting: {call_requests_keep_going[0]}")
-    #         return call_requests_keep_going[0]
-    #     elif call_requests_turn_around:
-    #         self._logger.debug(f)
-    #     # else there's no requests, so stay here
-    #     self._logger.debug(f"No requests found, staying at floor {floor}")
-    #     return floor
     
     def _get_floor_requests_in_dir_from_floor(self, start_floor: int, search_direction: VerticalDirection, req_direction: VerticalDirection) -> List[int]:
         """The requests are where the 'call buttons' are pressed - this may need updating for programmable elevators"""
@@ -406,13 +342,13 @@ class ElevatorBank:
         shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
         pygame.draw.rect(
             surface,
-            ELEVATOR_SHAFT_COLOR,
+            self._cosmetics_config.shaft_color,
             (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
         )
         
         pygame.draw.rect(
             surface,
-            UI_TEXT_COLOR,
+            self._cosmetics_config.shaft_overhead,
             (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
         )
     

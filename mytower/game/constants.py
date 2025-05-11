@@ -25,13 +25,7 @@ BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels, 3.0m
 BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels, 3.0m
 
-# Color constants
-UI_BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)
-UI_BORDER_COLOR: Final[RGB] = (150, 150, 150)
-UI_TEXT_COLOR: Final[RGB] = (0, 0, 0)
-BUTTON_COLOR: Final[RGB] = (200, 200, 200)
-BUTTON_HOVER_COLOR: Final[RGB] = (180, 180, 180)
-
+# TODO: We should definitely re-imagine how the colors and heights are organized. 
 # Floor colors
 LOBBY_COLOR: Final[RGB] = (200, 200, 200)
 OFFICE_COLOR: Final[RGB] = (150, 200, 250)
@@ -39,6 +33,7 @@ APARTMENT_COLOR: Final[RGB] = (250, 200, 150)
 HOTEL_COLOR: Final[RGB] = (200, 150, 250)
 RESTAURANT_COLOR: Final[RGB] = (250, 150, 200)
 RETAIL_COLOR: Final[RGB] = (150, 250, 200)
+FLOORBOARD_COLOR: Final[RGB] = (10, 10, 10)
 
 # Floor heights
 LOBBY_HEIGHT: Final[int] = 1
@@ -47,29 +42,6 @@ APARTMENT_HEIGHT: Final[int] = 1
 HOTEL_HEIGHT: Final[int] = 1
 RESTAURANT_HEIGHT: Final[int] = 1
 RETAIL_HEIGHT: Final[int] = 1
-
-# Elevator constants
-ELEVATOR_SHAFT_COLOR: Final[RGB] = (100, 100, 100)
-ELEVATOR_CLOSED_COLOR: Final[RGB] = (50, 50, 200)
-ELEVATOR_OPEN_COLOR: Final[RGB] = (200, 200, 50)
-ELEVATOR_MAX_SPEED: Final[float] = 0.75  # floors per second
-ELEVATOR_DEFAULT_CAPACITY: Final[int] = 15
-PASSENGER_LOADING_TIME: Final[float] = 1.0
-ELEVATOR_IDLE_TIMEOUT: Final[float] = 0.5
-
-# Person attributes (we'll add colors here later)
-PERSON_MAX_SPEED: Final[float] = 0.5 # Blocks per second 1.5 m/s -> 3.3 MPH
-PERSON_MAX_WAIT_TIME: Final[float] = 90.0 # seconds, before they storm off somewhere
-
-PERSON_MAX_RED: Final[int] = 192
-PERSON_INIT_RED: Final[int] = 32
-PERSON_INIT_GREEN: Final[int] = 128
-PERSON_INIT_BLUE: Final[int] = 128
-PERSON_MIN_RED: Final[int] = 0
-PERSON_MIN_GREEN: Final[int] = 0
-PERSON_MIN_BLUE: Final[int] = 0
-
-PERSON_RADIUS: Final[int] = 5
 
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)

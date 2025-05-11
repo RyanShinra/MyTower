@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any, Dict, List, Optional
 import pygame
-from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT, 
+from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT, FLOORBOARD_COLOR, 
     LOBBY_COLOR,  OFFICE_COLOR,  APARTMENT_COLOR,  HOTEL_COLOR,  RESTAURANT_COLOR,  RETAIL_COLOR, 
-    LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT, UI_TEXT_COLOR
+    LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT
 )
 from game.logger import LoggerProvider
+from game.ui import UIConfigProtocol
 
 from game.types import Color
 from game.types import FloorType
@@ -58,6 +59,7 @@ class Floor:
         
         # Grid of rooms/spaces on this floor
         self._grid: List[Optional[Any]] = [None] * building.floor_width
+
     
     @property
     def building(self) -> Building:
@@ -106,7 +108,7 @@ class Floor:
         )
         pygame.draw.rect(
             surface, 
-            UI_TEXT_COLOR, 
+            FLOORBOARD_COLOR,
             (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, 2)
         )
         

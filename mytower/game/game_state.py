@@ -3,11 +3,11 @@ import pygame
 from pygame import Surface
 from game.building import Building
 from game.elevator import Elevator
-from game.constants import ELEVATOR_DEFAULT_CAPACITY, ELEVATOR_MAX_SPEED, PERSON_MAX_SPEED
 from game.person import Person
 from game.elevator_bank import ElevatorBank
 from game.logger import LoggerProvider, MyTowerLogger
 from game.floor import FloorType
+from game.config import GameConfig
 
 class GameState:
     """
@@ -19,6 +19,8 @@ class GameState:
         self._screen_width: int = screen_width
         self._screen_height: int = screen_height
         self._building = Building(logger_provider, width=20)
+        
+        self._config = GameConfig()
 
         # Initialize with some basic floors and an elevator
         self._building.add_floor(FloorType.RETAIL)
@@ -44,28 +46,33 @@ class GameState:
         self._test_elevator_bank = ElevatorBank(
             logger_provider,
             self._building, h_cell=14, min_floor=1,
-            max_floor=self._building.num_floors
+            max_floor=self._building.num_floors,
+            cosmetics_config=self._config.elevator_cosmetics
         )
         
         self._test_elevator = Elevator(
             logger_provider,
             self._test_elevator_bank, h_cell=14, min_floor=1,
             max_floor=self._building.num_floors, 
-            max_velocity=ELEVATOR_MAX_SPEED,
-            max_capacity=ELEVATOR_DEFAULT_CAPACITY
+            config=self._config.elevator,
+            cosmetics_config=self._config.elevator_cosmetics
         )
         
         self._test_elevator_bank.add_elevator(self._test_elevator)
         self._building.add_elevator_bank(self._test_elevator_bank)
 
         # Add a sample person
-        self._test_person = Person(logger_provider, building = self._building, current_floor = 1, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self._test_person = Person(logger_provider, building = self._building, current_floor = 1, current_block = 1,
+                                   config=self._config) # Pass the whole GameConfig object
         self._test_person.set_destination(dest_floor = 9, dest_block = 7)
-        self._test_person2 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 3, max_velocity=PERSON_MAX_SPEED)
+        self._test_person2 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 3,
+                                    config=self._config) # Pass the whole GameConfig object
         self._test_person2.set_destination(dest_floor = 3, dest_block = 7)
-        self._test_person3 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 6, max_velocity=PERSON_MAX_SPEED)
+        self._test_person3 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 6,
+                                    config=self._config) # Pass the whole GameConfig object
         self._test_person3.set_destination(dest_floor = 7, dest_block = 7)
-        self._test_person4 = Person(logger_provider, building = self._building, current_floor = 12, current_block = 1, max_velocity=PERSON_MAX_SPEED)
+        self._test_person4 = Person(logger_provider, building = self._building, current_floor = 12, current_block = 1,
+                                     config=self._config) # Pass the whole GameConfig object
         self._test_person4.set_destination(dest_floor = 1, dest_block = 1)
         self._building.add_person(self._test_person)
         self._building.add_person(self._test_person2)
