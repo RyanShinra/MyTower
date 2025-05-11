@@ -276,8 +276,9 @@ class Person:
         mad_fraction: float = self._waiting_time / self._config.person.max_wait_time # Use _config.person for max_wait_time
         # Use cosmetics_config for color changes when mad
         draw_red: int = self._original_red + int(abs(self._cosmetics_config.angry_max_red - self._original_red) * mad_fraction)
-        draw_green: int = self._original_green - int(abs(self._original_green - self._cosmetics_config.initial_min_green) * mad_fraction) # Assuming original_min_green for consistency with old code
-        draw_blue: int = self._original_blue - int(abs(self._original_blue - self._cosmetics_config.initial_min_blue) * mad_fraction) # Assuming original_min_blue for consistency
+        # Adjust green and blue values based on how "angry" the person is, using the configured minimum values for angry states.
+        draw_green: int = self._original_green - int(abs(self._original_green - self._cosmetics_config.angry_min_green) * mad_fraction)
+        draw_blue: int = self._original_blue - int(abs(self._original_blue - self._cosmetics_config.angry_min_blue) * mad_fraction)
         
         # Clamp the draw colors to the range 0 to 254
         draw_red = max(0, min(254, draw_red))
