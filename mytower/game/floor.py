@@ -44,7 +44,7 @@ class Floor:
         FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
     
-    def __init__(self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType, ui_config: Optional[UIConfigProtocol] = None) -> None:
+    def __init__(self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType) -> None:
         self._logger = logger_provider.get_logger("floor")
         self._building: Building = building
         # Floors are 1 indexed
