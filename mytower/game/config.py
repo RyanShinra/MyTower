@@ -40,6 +40,8 @@ class PersonConfig:
 class PersonCosmetics:
     """Implements Person Cosmetics Proto."""
     angry_max_red: Final[int] = 192
+    angry_min_green: Final[int] = 0
+    angry_min_blue: Final[int] = 0
     initial_max_red: Final[int] = 32
     initial_max_green: Final[int] = 128
     initial_max_blue: Final[int] = 128

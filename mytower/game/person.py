@@ -32,6 +32,8 @@ class PersonConfigProtocol(Protocol):
     
 class PersonCosmeticsProtocol(Protocol):
     angry_max_red: Final[int]
+    angry_min_green: Final[int]
+    angry_min_blue: Final[int]
     initial_max_red: Final[int]
     initial_max_green: Final[int]
     initial_max_blue: Final[int]
