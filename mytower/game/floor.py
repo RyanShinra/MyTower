@@ -9,7 +9,7 @@ from game.constants import ( BLOCK_WIDTH, BLOCK_HEIGHT, FLOORBOARD_COLOR,
     LOBBY_HEIGHT, OFFICE_HEIGHT, APARTMENT_HEIGHT, HOTEL_HEIGHT, RESTAURANT_HEIGHT, RETAIL_HEIGHT
 )
 from game.logger import LoggerProvider
-from game.ui import UIConfigProtocol
+# from game.ui import UIConfigProtocol
 
 from game.types import Color
 from game.types import FloorType
