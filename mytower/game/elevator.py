@@ -127,6 +127,11 @@ class Elevator:
     def current_floor_int(self) -> int:
         return int(self._current_floor_float)
     
+    def testing_set_current_floor(self, floor: int) -> None:
+        if not (self.min_floor <= floor <= self.max_floor):
+            raise ValueError(f"Testing floor {floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}.") 
+        self._current_floor_float = float(floor)
+    
     @property
     def fractional_floor(self) -> float:
         return self._current_floor_float

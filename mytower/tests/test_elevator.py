@@ -59,17 +59,26 @@ class TestElevator:
         assert elevator.avail_capacity == 15
         assert elevator.is_empty == True
         
-    def test_set_destination_floor(self, elevator: Elevator) -> None:
+    def test_set_destination_floor_up(self, elevator: Elevator) -> None:
         """Test setting destination floor and direction updates"""
+        # The elevator defaults to floor 1
         elevator.set_destination_floor(5)
         assert elevator.destination_floor == 5
         assert elevator.nominal_direction == VerticalDirection.UP
         
+    def test_set_destination_floor_down(self, elevator: Elevator) -> None:
+        elevator.testing_set_current_floor(4)
         elevator.set_destination_floor(2)
         assert elevator.destination_floor == 2
         assert elevator.nominal_direction == VerticalDirection.DOWN
         
+    def test_set_destination_floor_same_floor(self, elevator: Elevator) -> None:
+        # Setup: The elevator defaults to floor 1, this will change the state of nominal_direction
+        elevator.set_destination_floor(3)
+        assert elevator.nominal_direction == VerticalDirection.UP
+        
         # Test destination on same floor
+        elevator.testing_set_current_floor(2)
         elevator.set_destination_floor(2)  # Already on floor 2
         assert elevator.nominal_direction == VerticalDirection.STATIONARY
         
@@ -80,3 +89,29 @@ class TestElevator:
             
         with pytest.raises(ValueError):
             elevator.set_destination_floor(0)   # Below min floor
+            
+    # def test_update_idle_to_moving(self, elevator: Elevator) -> None:
+    #     """Test transition from IDLE to MOVING state"""
+    #     # Set up conditions for transition
+    #     elevator._state = ElevatorState.IDLE
+    #     elevator.set_destination_floor(5)  # Set a destination above current floor
+        
+    #     # Update the elevator
+    #     elevator.update(1.0)
+        
+    #     # Check if state transitioned correctly
+    #     assert elevator.state == ElevatorState.MOVING
+
+    # def test_update_moving_to_arrived(self, elevator: Elevator) -> None:
+    #     """Test transition from MOVING to ARRIVED state when reaching destination"""
+    #     # Set up conditions for transition
+    #     elevator._state = ElevatorState.MOVING
+    #     elevator.set_destination_floor(2)  # Set a destination
+    #     elevator._current_floor_float = 1.9  # Almost at destination
+    #     elevator._motion_direction = VerticalDirection.UP
+        
+    #     # Update the elevator - should reach destination
+    #     elevator.update(0.2)
+        
+    #     # Check if state transitioned correctly
+    #     assert elevator.state == ElevatorState.ARRIVED
