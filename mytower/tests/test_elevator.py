@@ -1,8 +1,11 @@
+from unittest.mock import MagicMock  # , # patch
+
 import pytest
-from unittest.mock import MagicMock # , # patch
-from game.elevator import Elevator, ElevatorState
-from game.types import VerticalDirection
-from game.logger import LoggerProvider
+
+from mytower.game.elevator import Elevator, ElevatorState
+from mytower.game.logger import LoggerProvider
+from mytower.game.types import VerticalDirection
+
 
 class TestElevator:
     @pytest.fixture
@@ -11,13 +14,13 @@ class TestElevator:
         mock_logger = MagicMock()
         provider.get_logger.return_value = mock_logger
         return provider
-        
+
     @pytest.fixture
     def mock_elevator_bank(self) -> MagicMock:
         mock_bank = MagicMock()
         mock_bank.horizontal_block = 5
         return mock_bank
-        
+
     @pytest.fixture
     def mock_config(self) -> MagicMock:
         config = MagicMock()
@@ -28,7 +31,7 @@ class TestElevator:
         config.moving_log_timeout = 0.5
         config.idle_wait_timeout = 0.5
         return config
-        
+
     @pytest.fixture
     def mock_cosmetics_config(self) -> MagicMock:
         config = MagicMock()
@@ -37,9 +40,15 @@ class TestElevator:
         config.closed_color = (50, 50, 200)
         config.open_color = (200, 200, 50)
         return config
-        
+
     @pytest.fixture
-    def elevator(self, mock_logger_provider: MagicMock, mock_elevator_bank: MagicMock, mock_config: MagicMock, mock_cosmetics_config: MagicMock) -> Elevator:
+    def elevator(
+        self,
+        mock_logger_provider: MagicMock,
+        mock_elevator_bank: MagicMock,
+        mock_config: MagicMock,
+        mock_cosmetics_config: MagicMock,
+    ) -> Elevator:
         return Elevator(
             mock_logger_provider,
             mock_elevator_bank,
@@ -47,9 +56,9 @@ class TestElevator:
             min_floor=1,
             max_floor=10,
             config=mock_config,
-            cosmetics_config=mock_cosmetics_config
+            cosmetics_config=mock_cosmetics_config,
         )
-    
+
     def test_initial_state(self, elevator: Elevator) -> None:
         """Test that elevator initializes with correct values"""
         assert elevator.state == ElevatorState.IDLE
@@ -58,47 +67,47 @@ class TestElevator:
         assert elevator.max_floor == 10
         assert elevator.avail_capacity == 15
         assert elevator.is_empty == True
-        
+
     def test_set_destination_floor_up(self, elevator: Elevator) -> None:
         """Test setting destination floor and direction updates"""
         # The elevator defaults to floor 1
         elevator.set_destination_floor(5)
         assert elevator.destination_floor == 5
         assert elevator.nominal_direction == VerticalDirection.UP
-        
+
     def test_set_destination_floor_down(self, elevator: Elevator) -> None:
         elevator.testing_set_current_floor(4)
         elevator.set_destination_floor(2)
         assert elevator.destination_floor == 2
         assert elevator.nominal_direction == VerticalDirection.DOWN
-        
+
     def test_set_destination_floor_same_floor(self, elevator: Elevator) -> None:
         # Setup: The elevator defaults to floor 1, this will change the state of nominal_direction
         elevator.set_destination_floor(3)
         assert elevator.nominal_direction == VerticalDirection.UP
-        
+
         # Test destination on same floor
         elevator.testing_set_current_floor(2)
         elevator.set_destination_floor(2)  # Already on floor 2
         assert elevator.nominal_direction == VerticalDirection.STATIONARY
-        
+
     def test_set_invalid_destination_floor(self, elevator: Elevator) -> None:
         """Test that setting invalid destination floor raises ValueError"""
         with pytest.raises(ValueError):
             elevator.set_destination_floor(15)  # Above max floor
-            
+
         with pytest.raises(ValueError):
-            elevator.set_destination_floor(0)   # Below min floor
-            
+            elevator.set_destination_floor(0)  # Below min floor
+
     # def test_update_idle_to_moving(self, elevator: Elevator) -> None:
     #     """Test transition from IDLE to MOVING state"""
     #     # Set up conditions for transition
     #     elevator._state = ElevatorState.IDLE
     #     elevator.set_destination_floor(5)  # Set a destination above current floor
-        
+
     #     # Update the elevator
     #     elevator.update(1.0)
-        
+
     #     # Check if state transitioned correctly
     #     assert elevator.state == ElevatorState.MOVING
 
@@ -109,9 +118,9 @@ class TestElevator:
     #     elevator.set_destination_floor(2)  # Set a destination
     #     elevator._current_floor_float = 1.9  # Almost at destination
     #     elevator._motion_direction = VerticalDirection.UP
-        
+
     #     # Update the elevator - should reach destination
     #     elevator.update(0.2)
-        
+
     #     # Check if state transitioned correctly
     #     assert elevator.state == ElevatorState.ARRIVED

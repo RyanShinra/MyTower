@@ -7,10 +7,12 @@
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
-from typing import Tuple, TypeAlias, Union, NewType
-import pygame
 from enum import Enum
-from game.logger import LoggerProvider
+from typing import NewType, Tuple, TypeAlias, Union
+
+import pygame
+
+from mytower.game.logger import LoggerProvider
 
 # We'll initialize the logger properly in main.py
 logger_provider = LoggerProvider()
@@ -29,20 +31,23 @@ MousePos: TypeAlias = Tuple[int, int]
 MouseButtons: TypeAlias = Tuple[bool, bool, bool]
 PygameSurface: TypeAlias = pygame.Surface
 
+
 # Floor types as an Enum
 class FloorType(Enum):
     LOBBY = "LOBBY"
     OFFICE = "OFFICE"
-    APARTMENT = "APARTMENT" 
+    APARTMENT = "APARTMENT"
     HOTEL = "HOTEL"
     RESTAURANT = "RESTAURANT"
     RETAIL = "RETAIL"
+
 
 # Direction types using Enum
 class VerticalDirection(Enum):
     DOWN = -1
     STATIONARY = 0
     UP = 1
+
     def invert(self) -> "VerticalDirection":  # More compatible type annotation
         if self == VerticalDirection.UP:
             return VerticalDirection.DOWN
@@ -51,18 +56,21 @@ class VerticalDirection(Enum):
         else:
             return VerticalDirection.STATIONARY
 
+
 # HorizontalDirection can also be defined similarly if needed
 class HorizontalDirection(Enum):
     LEFT = -1
     STATIONARY = 0
     RIGHT = 1
-    
+
+
 # Person state as an Enum
 class PersonState(Enum):
     IDLE = "IDLE"
     WALKING = "WALKING"
     WAITING_FOR_ELEVATOR = "WAITING_FOR_ELEVATOR"
     IN_ELEVATOR = "IN_ELEVATOR"
+
 
 # Elevator state as an Enum
 class ElevatorState(Enum):
@@ -73,8 +81,9 @@ class ElevatorState(Enum):
     UNLOADING = "UNLOADING"
     READY_TO_MOVE = "READY_TO_MOVE"
 
+
 # Money type (for stronger typing)
-Money = NewType('Money', int)
+Money = NewType("Money", int)
 
 # Grid position
 GridPosition: TypeAlias = Tuple[int, int]  # (x, y) coordinates in grid cells

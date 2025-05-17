@@ -1,25 +1,28 @@
 # game/game_state.py
 import pygame
 from pygame import Surface
-from game.building import Building
-from game.elevator import Elevator
-from game.person import Person
-from game.elevator_bank import ElevatorBank
-from game.logger import LoggerProvider, MyTowerLogger
-from game.floor import FloorType
-from game.config import GameConfig
+
+from mytower.game.building import Building
+from mytower.game.config import GameConfig
+from mytower.game.elevator import Elevator
+from mytower.game.elevator_bank import ElevatorBank
+from mytower.game.floor import FloorType
+from mytower.game.logger import LoggerProvider, MyTowerLogger
+from mytower.game.person import Person
+
 
 class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
     """
+
     def __init__(self, logger_provider: LoggerProvider, screen_width: int, screen_height: int) -> None:
-        self._logger: MyTowerLogger = logger_provider.get_logger('GameState')
-        
+        self._logger: MyTowerLogger = logger_provider.get_logger("GameState")
+
         self._screen_width: int = screen_width
         self._screen_height: int = screen_height
         self._building = Building(logger_provider, width=20)
-        
+
         self._config = GameConfig()
 
         # Initialize with some basic floors and an elevator
@@ -30,7 +33,7 @@ class GameState:
         self._building.add_floor(FloorType.RESTAURANT)
         self._building.add_floor(FloorType.OFFICE)
         self._building.add_floor(FloorType.OFFICE)
-        self._building.add_floor(FloorType.OFFICE) 
+        self._building.add_floor(FloorType.OFFICE)
         self._building.add_floor(FloorType.OFFICE)
         self._building.add_floor(FloorType.HOTEL)
         self._building.add_floor(FloorType.HOTEL)
@@ -42,38 +45,46 @@ class GameState:
         self._building.add_floor(FloorType.APARTMENT)
 
         # Add one elevator
-        
+
         self._test_elevator_bank = ElevatorBank(
             logger_provider,
-            self._building, h_cell=14, min_floor=1,
+            self._building,
+            h_cell=14,
+            min_floor=1,
             max_floor=self._building.num_floors,
-            cosmetics_config=self._config.elevator_cosmetics
+            cosmetics_config=self._config.elevator_cosmetics,
         )
-        
+
         self._test_elevator = Elevator(
             logger_provider,
-            self._test_elevator_bank, h_cell=14, min_floor=1,
-            max_floor=self._building.num_floors, 
+            self._test_elevator_bank,
+            h_cell=14,
+            min_floor=1,
+            max_floor=self._building.num_floors,
             config=self._config.elevator,
-            cosmetics_config=self._config.elevator_cosmetics
+            cosmetics_config=self._config.elevator_cosmetics,
         )
-        
+
         self._test_elevator_bank.add_elevator(self._test_elevator)
         self._building.add_elevator_bank(self._test_elevator_bank)
 
         # Add a sample person
-        self._test_person = Person(logger_provider, building = self._building, current_floor = 1, current_block = 1,
-                                   config=self._config) # Pass the whole GameConfig object
-        self._test_person.set_destination(dest_floor = 9, dest_block = 7)
-        self._test_person2 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 3,
-                                    config=self._config) # Pass the whole GameConfig object
-        self._test_person2.set_destination(dest_floor = 3, dest_block = 7)
-        self._test_person3 = Person(logger_provider, building = self._building, current_floor = 1, current_block = 6,
-                                    config=self._config) # Pass the whole GameConfig object
-        self._test_person3.set_destination(dest_floor = 7, dest_block = 7)
-        self._test_person4 = Person(logger_provider, building = self._building, current_floor = 12, current_block = 1,
-                                     config=self._config) # Pass the whole GameConfig object
-        self._test_person4.set_destination(dest_floor = 1, dest_block = 1)
+        self._test_person = Person(
+            logger_provider, building=self._building, current_floor=1, current_block=1, config=self._config
+        )  # Pass the whole GameConfig object
+        self._test_person.set_destination(dest_floor=9, dest_block=7)
+        self._test_person2 = Person(
+            logger_provider, building=self._building, current_floor=1, current_block=3, config=self._config
+        )  # Pass the whole GameConfig object
+        self._test_person2.set_destination(dest_floor=3, dest_block=7)
+        self._test_person3 = Person(
+            logger_provider, building=self._building, current_floor=1, current_block=6, config=self._config
+        )  # Pass the whole GameConfig object
+        self._test_person3.set_destination(dest_floor=7, dest_block=7)
+        self._test_person4 = Person(
+            logger_provider, building=self._building, current_floor=12, current_block=1, config=self._config
+        )  # Pass the whole GameConfig object
+        self._test_person4.set_destination(dest_floor=1, dest_block=1)
         self._building.add_person(self._test_person)
         self._building.add_person(self._test_person2)
         self._building.add_person(self._test_person3)
@@ -85,34 +96,34 @@ class GameState:
 
         # UI state
         self._paused = False
-        
+
     @property
     def building(self) -> Building:
         return self._building
-    
+
     @property
     def screen_width(self) -> int:
         return self._screen_width
-    
+
     @property
     def screen_height(self) -> int:
         return self._screen_height
-    
+
     @property
     def time(self) -> float:
         return self._time
-    
+
     @property
     def speed(self) -> float:
         return self._speed
-    
+
     def set_speed(self, value: float) -> None:
         self._speed = value
-    
+
     @property
     def paused(self) -> bool:
         return self._paused
-    
+
     @paused.setter
     def paused(self, value: bool) -> None:
         self._paused = value
