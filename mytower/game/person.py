@@ -13,37 +13,66 @@ import random
 from typing import TYPE_CHECKING, Final, List, Protocol
 
 import pygame
-from mytower.game.
-from mytower.game.er.game.config import GameConfig
-from mytower.game.er.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
+
+from mytower.game.config import GameConfig
+from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.elevator import Elevator
+from mytower.game.logger import MyTowerLogger
 from mytower.game.types import HorizontalDirection, PersonState
 
 if TYPE_CHECKING:
-    from mytower.game.e import Surface
-from mytower.game.
-    from mytower.game.er.game.building import Building
+    from pygame import Surface
+
+    from mytower.game.building import Building
     from mytower.game.elevator_bank import ElevatorBank
     from mytower.game.logger import LoggerProvider
 
 
 class PersonConfigProtocol(Protocol):
-    max_speed: Final[float]
-    max_wait_time: Final[float]
-    idle_timeout: Final[float]
-    radius: Final[int]
+    """Config requirements for Person class"""
+
+    @property
+    def max_speed(self) -> float: ...  # noqa E701
+
+    @property
+    def max_wait_time(self) -> float: ...  # noqa E701
+
+    @property
+    def idle_timeout(self) -> float: ...  # noqa E701
+
+    @property
+    def radius(self) -> int: ...  # noqa E701
 
 
 class PersonCosmeticsProtocol(Protocol):
-    angry_max_red: Final[int]
-    angry_min_green: Final[int]
-    angry_min_blue: Final[int]
-    initial_max_red: Final[int]
-    initial_max_green: Final[int]
-    initial_max_blue: Final[int]
-    initial_min_red: Final[int]
-    initial_min_green: Final[int]
-    initial_min_blue: Final[int]
+    """Visual appearance settings for Person class"""
+
+    @property
+    def angry_max_red(self) -> int: ...  # noqa E701
+
+    @property
+    def angry_min_green(self) -> int: ...  # noqa E701
+
+    @property
+    def angry_min_blue(self) -> int: ...  # noqa E701
+
+    @property
+    def initial_max_red(self) -> int: ...  # noqa E701
+
+    @property
+    def initial_max_green(self) -> int: ...  # noqa E701
+
+    @property
+    def initial_max_blue(self) -> int: ...  # noqa E701
+
+    @property
+    def initial_min_red(self) -> int: ...  # noqa E701
+
+    @property
+    def initial_min_green(self) -> int: ...  # noqa E701
+
+    @property
+    def initial_min_blue(self) -> int: ...  # noqa E701
 
 
 class Person:
@@ -59,7 +88,7 @@ class Person:
         current_block: float,
         config: GameConfig,
     ) -> None:
-        self._logger = logger_provider.get_logger("person")
+        self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: Building = building
         self._current_floor_float: float = float(current_floor)
         self._current_block: float = current_block
@@ -197,7 +226,8 @@ class Person:
 
             case _:
                 # Handle unexpected states
-                self._logger.warning(f"Unknown state: {self.state}")
+                self._logger.warning(f"Unknown state: {self.state}")  # type: ignore[unreachable]
+                raise ValueError(f"Unknown state: {self.state}")
 
     def update_idle(self, dt: float) -> None:
         self.direction = HorizontalDirection.STATIONARY
@@ -296,7 +326,7 @@ class Person:
         y_pos: int = screen_height - y_centered
 
         x_left: float = self._current_block * BLOCK_WIDTH
-        x_centered: float = int(x_left + (BLOCK_WIDTH / 2))
+        x_centered: int = int(x_left + (BLOCK_WIDTH / 2))
         x_pos: int = x_centered
 
         # How mad ARE we??

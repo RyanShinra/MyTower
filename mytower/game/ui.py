@@ -1,20 +1,29 @@
 # game/ui.py
-from typing import Final, List, Optional, Protocol
+from typing import List, Optional, Protocol
 
 import pygame
 
-from mytower.game.logger import LoggerProvider
+from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.types import RGB, MouseButtons, MousePos, PygameSurface
 
 
 class UIConfigProtocol(Protocol):
     """Config requirements for UI elements"""
 
-    background_color: Final[RGB]
-    border_color: Final[RGB]
-    text_color: Final[RGB]
-    button_color: Final[RGB]
-    button_hover_color: Final[RGB]
+    @property
+    def background_color(self) -> RGB: ...  # noqa E701
+
+    @property
+    def border_color(self) -> RGB: ...  # noqa E701
+
+    @property
+    def text_color(self) -> RGB: ...  # noqa E701
+
+    @property
+    def button_color(self) -> RGB: ...  # noqa E701
+
+    @property
+    def button_hover_color(self) -> RGB: ...  # noqa E701
 
 
 class Button:
@@ -83,11 +92,11 @@ class Toolbar:
         self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, ui_config: UIConfigProtocol
     ) -> None:
         self._logger_provider: LoggerProvider = logger_provider
-        self._logger = logger_provider.get_logger("ui")
+        self._logger: MyTowerLogger = logger_provider.get_logger("ui")
         self._rect = pygame.Rect(x, y, width, height)
         self._buttons: List[Button] = []
         self._active_tool: Optional[str] = None
-        self._ui_config = ui_config
+        self._ui_config: UIConfigProtocol = ui_config
 
     @property
     def rect(self) -> pygame.Rect:
@@ -106,8 +115,8 @@ class Toolbar:
 
     def add_button(self, text: str, width: int = 100, height: int = 30) -> Button:
         """Add a button to the toolbar"""
-        x = self._rect.x + 10 + len(self._buttons) * (width + 10)
-        y = self._rect.y + (self._rect.height - height) // 2
+        x: int = self._rect.x + 10 + len(self._buttons) * (width + 10)
+        y: int = self._rect.y + (self._rect.height - height) // 2
 
         button = Button(self._logger_provider, x, y, width, height, text, self._ui_config)
         self._buttons.append(button)
