@@ -176,7 +176,7 @@ class ElevatorBank:
             raise ValueError(f"Trying to get 'STATIONARY' Queue on floor {floor}")
 
         result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, direction)
-        current_queue: Opt[deque[Person]] = result[0]
+        current_queue: deque[Person] = result[0]
 
         if len(current_queue) == 0:
             self._logger.info(f"No passengers waiting on floor {floor} in direction {direction}")
@@ -247,8 +247,8 @@ class ElevatorBank:
         nom_direction: VerticalDirection = elevator.nominal_direction
 
         result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, nom_direction)
-        who_wants_to_get_on = result[0]
-        new_direction = result[1]
+        who_wants_to_get_on: deque[Person] = result[0]
+        new_direction: VerticalDirection = result[1]
 
         if who_wants_to_get_on:
             elevator.request_load_passengers(new_direction)
@@ -266,7 +266,7 @@ class ElevatorBank:
         self._logger.debug(
             f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}"
         )
-        where_to: ElevatorBank.Destination = self._get_next_destination(elevator, floor, nom_direction)
+        where_to: ElevatorBank.ElevatorDestination = self._get_next_destination(elevator, floor, nom_direction)
 
         self._logger.info(
             f"Setting destination to {where_to.floor} with direction {where_to.direction}, has_destination={where_to.has_destination}"
@@ -275,7 +275,7 @@ class ElevatorBank:
 
         # Oh, and we need to clear the request on that floor
         if where_to.has_destination:
-            dest_requests = self._requests.get(where_to.floor)
+            dest_requests: set[VerticalDirection] | None = self._requests.get(where_to.floor)
             if dest_requests:
                 self._logger.debug(f"Clearing {where_to.direction} request for floor {where_to.floor}")
                 dest_requests.discard(where_to.direction)
@@ -287,7 +287,7 @@ class ElevatorBank:
     # Returns true if we're going to move
     def _get_next_destination(
         self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection
-    ) -> ElevatorBank.Destination:
+    ) -> ElevatorBank.ElevatorDestination:
         UP = VerticalDirection.UP
         STATIONARY = VerticalDirection.STATIONARY
 
@@ -298,14 +298,14 @@ class ElevatorBank:
             return ElevatorBank.Destination(True, next_floor, current_direction)
 
         # No? Shall we turn around?
-        opposite_dir = current_direction.invert()
+        opposite_dir: VerticalDirection = current_direction.invert()
         if opposite_dir == STATIONARY:
             # Bias to search up
             opposite_dir = UP
 
         destinations = self._collect_destinations(elevator, floor=current_floor, direction=opposite_dir)
         if destinations:
-            next_floor: int = self._select_next_floor(destinations, opposite_dir)
+            next_floor = self._select_next_floor(destinations, opposite_dir)
             return ElevatorBank.Destination(True, next_floor, opposite_dir)
 
         # Well, nobody seems to want to go anywhere, let's stay put
@@ -348,7 +348,7 @@ class ElevatorBank:
 
         if search_range:
             for floor in search_range:
-                floor_requests = self.requests.get(floor)
+                floor_requests: set[VerticalDirection] | None = self.requests.get(floor)
                 self._logger.trace(f"Checking floor {floor}: Requests = {floor_requests}")
                 if floor_requests is not None and req_direction in floor_requests:
                     self._logger.debug(f"Adding floor {floor} to answer list")
@@ -364,13 +364,13 @@ class ElevatorBank:
         # self._logger.debug("I'm drawing an Elevator Bank")
         screen_height: int = surface.get_height()
 
-        shaft_left = self._horizontal_block * BLOCK_WIDTH
-        width = BLOCK_WIDTH
+        shaft_left: int = self._horizontal_block * BLOCK_WIDTH
+        width: int = BLOCK_WIDTH
 
         # Draw shaft from min to max floor
         #     420 = 480 - (3 * 20)
-        shaft_top = screen_height - (self._max_floor * BLOCK_HEIGHT)
-        shaft_overhead = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
+        shaft_top: int = screen_height - (self._max_floor * BLOCK_HEIGHT)
+        shaft_overhead: int = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
         #     480 = 480 - ((1 - 1) * 20)
         shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
         pygame.draw.rect(
