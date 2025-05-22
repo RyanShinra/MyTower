@@ -29,30 +29,46 @@ from mytower.game.types import RGB, ElevatorState, VerticalDirection
 
 if TYPE_CHECKING:
     from mytower.game.elevator_bank import ElevatorBank
-    from mytower.game.person import Person
     from mytower.game.logger import MyTowerLogger
-
-from typing import Final
+    from mytower.game.person import Person
 
 
 class ElevatorConfigProtocol(Protocol):
     """Config requirements for Elevator class"""
 
-    max_speed: Final[float]
-    max_capacity: Final[int]
-    passenger_loading_time: Final[float]
-    idle_log_timeout: Final[float]
-    moving_log_timeout: Final[float]
-    idle_wait_timeout: Final[float]  # Added idle_wait_timeout
+    @property
+    def max_speed(self) -> float: ...  # noqa E701
+
+    @property
+    def max_capacity(self) -> int: ...  # noqa E701
+
+    @property
+    def passenger_loading_time(self) -> float: ...  # noqa E701
+
+    @property
+    def idle_log_timeout(self) -> float: ...  # noqa E701
+
+    @property
+    def moving_log_timeout(self) -> float: ...  # noqa E701
+
+    @property
+    def idle_wait_timeout(self) -> float: ...  # noqa E701
 
 
 class ElevatorCosmeticsProtocol(Protocol):
     """Visual appearance settings for Elevator class"""
 
-    shaft_color: Final[RGB]
-    shaft_overhead: Final[RGB]
-    closed_color: Final[RGB]
-    open_color: Final[RGB]
+    @property
+    def shaft_color(self) -> RGB: ...  # noqa E701
+
+    @property
+    def shaft_overhead(self) -> RGB: ...  # noqa E701
+
+    @property
+    def closed_color(self) -> RGB: ...  # noqa E701
+
+    @property
+    def open_color(self) -> RGB: ...  # noqa E701
 
 
 class Elevator:
@@ -87,8 +103,8 @@ class Elevator:
         self._horizontal_block: int = h_cell
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
-        self._config = config
-        self._cosmetics_config = cosmetics_config
+        self._config: ElevatorConfigProtocol = config
+        self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
 
         # Current state
         self._current_floor_float: float = float(min_floor)  # Floor number (can be fractional when moving)
@@ -291,7 +307,9 @@ class Elevator:
                 self._update_ready_to_move(dt)
 
             case _:
-                self._logger.error(f"Unknown elevator state: {self._state}")
+                # pragma: no cover
+                self._logger.error(f"Unknown elevator state: {self._state}")  # type: ignore[unreachable]
+
                 raise ValueError(f"Unknown elevator state: {self._state}")
 
     def _update_idle(self, dt: float) -> None:

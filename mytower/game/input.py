@@ -12,7 +12,7 @@ from typing import List
 
 import pygame
 
-from mytower.game.logger import LoggerProvider
+from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.types import MouseButtons, MousePos
 
 
@@ -20,7 +20,7 @@ class MouseState:
     """Class to store and manage mouse state"""
 
     def __init__(self, logger_provider: LoggerProvider) -> None:
-        self._logger = logger_provider.get_logger("input")
+        self._logger: MyTowerLogger = logger_provider.get_logger("input")
         self._position: MousePos = (0, 0)
         self._buttons: MouseButtons = (False, False, False)
         # Store additional button states if needed

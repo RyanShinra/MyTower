@@ -182,7 +182,7 @@ class ElevatorBank:
             self._logger.info(f"No passengers waiting on floor {floor} in direction {direction}")
             return None
 
-        passenger = current_queue.popleft()
+        passenger: Person = current_queue.popleft()
         self._logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
         return passenger
 
