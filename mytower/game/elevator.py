@@ -129,6 +129,9 @@ class Elevator:
     def state(self) -> ElevatorState:
         return self._state
 
+    def testing_set_state(self, state: ElevatorState) -> None:
+        self._state = state
+
     @property
     def avail_capacity(self) -> int:
         return self._config.max_capacity - len(self._passengers)
@@ -141,6 +144,9 @@ class Elevator:
     def motion_direction(self) -> VerticalDirection:
         return self._motion_direction
 
+    def testing_set_motion_direction(self, direction: VerticalDirection) -> None:
+        self._motion_direction = direction
+
     @property
     def nominal_direction(self) -> VerticalDirection:
         return self._nominal_direction
@@ -149,7 +155,7 @@ class Elevator:
     def current_floor_int(self) -> int:
         return int(self._current_floor_float)
 
-    def testing_set_current_floor(self, floor: int) -> None:
+    def testing_set_current_floor(self, floor: float) -> None:
         if not (self.min_floor <= floor <= self.max_floor):
             raise ValueError(
                 f"Testing floor {floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}."
