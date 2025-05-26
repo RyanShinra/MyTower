@@ -231,8 +231,13 @@ class Elevator:
             self._logger.info(f"{self.state} Elevator: Going NOWHERE")
             self._motion_direction = VerticalDirection.STATIONARY
             self._nominal_direction = VerticalDirection.STATIONARY
-
         self._destination_floor = dest_floor
+
+    def testing_set_passengers(self, passengers: List[Person]) -> None:
+        """Set passengers directly for testing purposes."""
+        if len(passengers) > self._config.max_capacity:
+            raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.max_capacity}")
+        self._passengers = passengers.copy()  # Defensive copy
 
     def request_load_passengers(self, direction: VerticalDirection) -> None:
         if self.state == ElevatorState.IDLE:

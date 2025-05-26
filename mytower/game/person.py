@@ -312,10 +312,17 @@ class Person:
         next_block = max(next_block, 0)
         self._current_block = next_block
 
+    # TESTING ONLY: Set the destination floor directly (for unit tests)
+    def testing_set_dest_floor(self, dest_floor: int) -> None:
+        if dest_floor < 0 or dest_floor > self.building.num_floors:
+            self._logger.warning(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
+            raise ValueError(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
+        self._dest_floor = min(max(dest_floor, 0), self.building.num_floors)
+
     def draw(self, surface: Surface) -> None:
         """Draw the person on the given surface"""
         # Calculate position and draw a simple circle for now
-        screen_height = surface.get_height()
+        screen_height: int = surface.get_height()
 
         # Note: this needs to be the private, float _current_floor
         apparent_floor: float = self._current_floor_float - 1.0

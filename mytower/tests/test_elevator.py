@@ -1,9 +1,11 @@
+from typing import Callable, List, cast
 from unittest.mock import MagicMock  # , # patch
 
 import pytest
 
 from mytower.game.elevator import Elevator, ElevatorState
 from mytower.game.logger import LoggerProvider
+from mytower.game.person import Person
 from mytower.game.types import VerticalDirection
 
 
@@ -40,6 +42,26 @@ class TestElevator:
         config.closed_color = (50, 50, 200)
         config.open_color = (200, 200, 50)
         return config
+
+    # @pytest.fixture
+    # def mock_person_floor_2(self) -> MagicMock:
+    #     person = MagicMock()
+    #     person.destination_floor = 2
+    #     return person
+
+    # @pytest.fixture
+    # def mock_person_floor_5(self) -> MagicMock:
+    #     person = MagicMock()
+    #     person.destination_floor = 5
+    #     return person
+
+    @pytest.fixture
+    def mock_person_factory(self) -> Callable[[int], MagicMock]:
+        def _person_gen(destination_floor: int) -> MagicMock:
+            person: MagicMock = MagicMock(spec=Person)
+            cast(Person, person)._dest_floor = destination_floor  # pylint: disable=protected-access # type: ignore[attr-defined]
+            return person
+        return _person_gen
 
     @pytest.fixture
     def elevator(
@@ -124,3 +146,47 @@ class TestElevator:
 
         # Check if state transitioned correctly
         assert elevator.state == ElevatorState.ARRIVED
+
+    def test_passengers_who_want_off_current_floor(self, elevator: Elevator) -> None:
+        """Test filtering passengers by destination floor"""
+        # Elevator starts on floor one (see test_initial_state above)
+        passenger_current_floor: Person = cast(Person, MagicMock(spec=Person))
+        passenger_current_floor._dest_floor = 1  # pylint: disable=protected-access # type: ignore[attr-defined]
+
+        passenger_another_floor: Person = cast(Person, MagicMock(spec=Person))
+        passenger_another_floor._dest_floor = 5  # pylint: disable=protected-access # type: ignore[attr-defined]
+
+        elevator.testing_set_passengers([passenger_another_floor, passenger_current_floor])
+        who_wants_off: List[Person] = elevator.passengers_who_want_off()
+
+        assert len(who_wants_off) == 1
+        assert who_wants_off[0] == passenger_current_floor
+
+    @pytest.mark.parametrize(
+        "current_floor,direction,expected_floors",
+        [
+            (3, VerticalDirection.UP, [5, 7]),
+            (5, VerticalDirection.DOWN, [3, 1]),
+            (2, VerticalDirection.STATIONARY, []),
+            (1, VerticalDirection.DOWN, []),  # At min floor going down
+            (7, VerticalDirection.UP, []),  # At max floor going up
+            (4, VerticalDirection.UP, [5, 7]),  # From middle floor
+        ],
+    )
+    def test_get_passenger_destinations_by_direction(
+        self,
+        elevator: Elevator,
+        mock_person_factory: Callable[[int], MagicMock],
+        current_floor: int,
+        direction: VerticalDirection,
+        expected_floors: List[int],
+    ) -> None:
+        """Test getting sorted destinations in the direction of 'direction' """
+        elevator.testing_set_current_floor(current_floor)
+        dest_floors: List[int] = [1, 3, 5, 7]
+
+        passengers: List[Person] = [mock_person_factory(floor) for floor in dest_floors]
+        elevator.testing_set_passengers(passengers)
+
+        actual_floors: List[int] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
+        assert expected_floors == actual_floors
