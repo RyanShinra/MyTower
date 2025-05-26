@@ -1,5 +1,5 @@
-from typing import Callable, List, cast
-from unittest.mock import MagicMock  # , # patch
+from typing import Callable, List
+from unittest.mock import MagicMock, PropertyMock  # , # patch
 
 import pytest
 
@@ -59,7 +59,7 @@ class TestElevator:
     def mock_person_factory(self) -> Callable[[int], MagicMock]:
         def _person_gen(destination_floor: int) -> MagicMock:
             person: MagicMock = MagicMock(spec=Person)
-            cast(Person, person)._dest_floor = destination_floor  # pylint: disable=protected-access # type: ignore[attr-defined]
+            person.destination_floor = PropertyMock(return_value=destination_floor)
             return person
         return _person_gen
 
@@ -147,14 +147,13 @@ class TestElevator:
         # Check if state transitioned correctly
         assert elevator.state == ElevatorState.ARRIVED
 
-    def test_passengers_who_want_off_current_floor(self, elevator: Elevator) -> None:
+    def test_passengers_who_want_off_current_floor(
+        self, elevator: Elevator, mock_person_factory: Callable[[int], MagicMock]
+    ) -> None:
         """Test filtering passengers by destination floor"""
         # Elevator starts on floor one (see test_initial_state above)
-        passenger_current_floor: Person = cast(Person, MagicMock(spec=Person))
-        passenger_current_floor._dest_floor = 1  # pylint: disable=protected-access # type: ignore[attr-defined]
-
-        passenger_another_floor: Person = cast(Person, MagicMock(spec=Person))
-        passenger_another_floor._dest_floor = 5  # pylint: disable=protected-access # type: ignore[attr-defined]
+        passenger_current_floor: Person = mock_person_factory(1)
+        passenger_another_floor: Person = mock_person_factory(5)
 
         elevator.testing_set_passengers([passenger_another_floor, passenger_current_floor])
         who_wants_off: List[Person] = elevator.passengers_who_want_off()
