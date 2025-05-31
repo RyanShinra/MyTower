@@ -2,6 +2,9 @@
 # Maximum line length (changed to 120)
 max-line-length = 120
 
+# ...other settings...
+extend-select = X303
+
 # Ignore specific errors/warnings:
 ignore = 
     # Line too long
@@ -13,7 +16,9 @@ ignore =
     # Whitespace before ':' 
     E203,
     # Too many local variables
-    R101
+    R101,
+    # Built-in too many blank lines (use our custom X303 instead)
+    E303,
 
 # Exclude specific directories/files
 exclude =

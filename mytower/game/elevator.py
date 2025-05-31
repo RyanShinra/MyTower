@@ -210,6 +210,7 @@ class Elevator:
     def idle_time(self, value: float) -> None:
         self._idle_time = value
 
+
     def set_destination_floor(self, dest_floor: int) -> None:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(
@@ -238,6 +239,9 @@ class Elevator:
         if len(passengers) > self._config.max_capacity:
             raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.max_capacity}")
         self._passengers = passengers.copy()  # Defensive copy
+        
+    def testing_get_passengers(self) -> List[Person]:
+        return self._passengers.copy()
 
     def request_load_passengers(self, direction: VerticalDirection) -> None:
         if self.state == ElevatorState.IDLE:

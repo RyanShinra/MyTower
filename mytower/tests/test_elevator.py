@@ -134,6 +134,7 @@ class TestElevator:
         # Check if state transitioned correctly
         assert elevator.state == ElevatorState.MOVING
 
+
     def test_update_moving_to_arrived(self, elevator: Elevator) -> None:
         """Test transition from MOVING to ARRIVED state when reaching destination"""
         # Set up conditions for transition
@@ -191,28 +192,26 @@ class TestElevator:
         actual_floors: List[int] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
         assert expected_floors == actual_floors
 
-        
     def test_passengers_boarding(self, elevator: Elevator, mock_elevator_bank: MagicMock) -> None:
         """Test passengers boarding the elevator"""
         # Create a mock person
         mock_person = MagicMock()
         mock_person.destination_floor = 5
-        
+
         # Setup elevator bank to return our mock person
         mock_elevator_bank.try_dequeue_waiting_passenger.return_value = mock_person
-        
+
         # Set elevator to loading state and update
         elevator.testing_set_state(ElevatorState.LOADING)
         elevator.testing_set_direction(VerticalDirection.UP)
         elevator.update(1.1)  # Time > passenger_loading_time
-        
+
         # Check that the passenger was added
         current_passengers: Final[tuple[Person, ...]] = elevator.testing_get_passengers()
         assert len(current_passengers) == 1
         assert current_passengers[0] == mock_person
-        
+
         # Check that elevator asked bank for passenger with correct params
         mock_elevator_bank.try_dequeue_waiting_passenger.assert_called_with(
             elevator.current_floor_int, VerticalDirection.UP
         )
-        
