@@ -151,6 +151,9 @@ class Elevator:
     def nominal_direction(self) -> VerticalDirection:
         return self._nominal_direction
 
+    def testing_set_nominal_direction(self, direction: VerticalDirection) -> None:
+        self._nominal_direction = direction
+    
     @property
     def current_floor_int(self) -> int:
         return int(self._current_floor_float)
