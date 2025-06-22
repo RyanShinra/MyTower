@@ -28,9 +28,9 @@ from mytower.game.logger import LoggerProvider
 from mytower.game.types import RGB, ElevatorState, VerticalDirection
 
 if TYPE_CHECKING:
-    from mytower.game.elevator_bank import ElevatorBank
-    from mytower.game.logger import MyTowerLogger
-    from mytower.game.person import Person
+    from mytower.game.elevator_bank import ElevatorBank # noqa E701
+    from mytower.game.logger import MyTowerLogger # noqa E701
+    from mytower.game.person import Person # noqa E701
 
 
 class ElevatorConfigProtocol(Protocol):
