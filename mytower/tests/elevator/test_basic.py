@@ -1,9 +1,9 @@
 
 import pytest
-from typing import Callable, List, Final
+from typing import Callable, Final, Sequence
 from unittest.mock import MagicMock
 from mytower.game.elevator import Elevator, ElevatorState
-from mytower.game.person import Person
+from mytower.game.person import PersonProtocol
 from mytower.game.types import VerticalDirection
 
 # from mytower.tests.elevator.conftest import mock_person_factory
@@ -30,15 +30,15 @@ class TestElevatorBasics:
         max_cap: int = mock_config.max_capacity
         assert elevator.avail_capacity == max_cap
         
-        passengers: List[Person] = [mock_person_factory(floor) for floor in range (1, 11)]
+        passengers: Sequence[PersonProtocol] = [mock_person_factory(floor) for floor in range (1, 11)]
         elevator.testing_set_passengers(passengers)
         assert elevator.avail_capacity == max_cap - len(passengers)
         
-        full_passengers: List[Person] = [mock_person_factory(floor) for floor in range(1, max_cap + 1)]  # 15 passengers
+        full_passengers: Sequence[PersonProtocol] = [mock_person_factory(floor) for floor in range(1, max_cap + 1)]  # 15 passengers
         elevator.testing_set_passengers(full_passengers)
         assert elevator.avail_capacity == 0
         
-        oh_no_too_many: List[Person] = [mock_person_factory(floor) for floor in range(1, max_cap + 2)] # 15 passengers
+        oh_no_too_many: Sequence[PersonProtocol] = [mock_person_factory(floor) for floor in range(1, max_cap + 2)] # 15 passengers
         with pytest.raises(ValueError):
             elevator.testing_set_passengers(oh_no_too_many)
         

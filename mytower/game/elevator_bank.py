@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
     from mytower.game.building import Building
     from mytower.game.elevator import Elevator, ElevatorCosmeticsProtocol
-    from mytower.game.person import Person
+    from mytower.game.person import PersonProtocol
 
 
 class ElevatorBank:
@@ -46,11 +46,11 @@ class ElevatorBank:
     Destination = ElevatorDestination
 
     class DirQueue(NamedTuple):
-        queue: deque[Person]
+        queue: deque[PersonProtocol]
         direction: VerticalDirection
 
     # Define a reusable empty deque as a class-level constant
-    EMPTY_DEQUE: Final[deque[Person]] = deque()
+    EMPTY_DEQUE: Final[deque[PersonProtocol]] = deque()
 
     def __init__(
         self,
@@ -69,10 +69,10 @@ class ElevatorBank:
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
-        self._upward_waiting_passengers: dict[int, deque[Person]] = {
+        self._upward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
             floor: deque() for floor in range(self._min_floor, self._max_floor + 1)
         }
-        self._downward_waiting_passengers: dict[int, deque[Person]] = {
+        self._downward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
             floor: deque() for floor in range(self._min_floor, self._max_floor + 1)
         }
         self._elevators: List[Elevator] = []
@@ -102,7 +102,7 @@ class ElevatorBank:
         return self._elevators
 
     @property
-    def waiting_passengers(self) -> dict[int, deque[Person]]:
+    def waiting_passengers(self) -> dict[int, deque[PersonProtocol]]:
         return self._upward_waiting_passengers
 
     @property
@@ -126,9 +126,9 @@ class ElevatorBank:
         return True
 
     # TODO: We may want to pass in the direction here, or target floor as an argument
-    def add_waiting_passenger(self, passenger: Person) -> bool:
+    def add_waiting_passenger(self, passenger: PersonProtocol) -> bool:
         if passenger is None:  # pyright: ignore
-            raise ValueError("Person cannot be None")
+            raise ValueError("PersonProtocol cannot be None")
 
         if passenger.current_floor < self.min_floor or passenger.current_floor > self.max_floor:
             raise ValueError(
@@ -139,10 +139,10 @@ class ElevatorBank:
             f"Adding passenger going from floor {passenger.current_floor} to floor {passenger.destination_floor}"
         )
 
-        current_queue: deque[Person] | None = None
+        current_queue: deque[PersonProtocol] | None = None
         if passenger.current_floor == passenger.destination_floor:
             raise ValueError(
-                f"Person cannot go to the same floor: current floor {passenger.current_floor} = destination floor {passenger.destination_floor}"
+                f"PersonProtocol cannot go to the same floor: current floor {passenger.current_floor} = destination floor {passenger.destination_floor}"
             )
 
         elif passenger.current_floor < passenger.destination_floor:
@@ -168,7 +168,7 @@ class ElevatorBank:
         current_queue.append(passenger)
         return True
 
-    def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[Person]:
+    def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[PersonProtocol]:
         self._logger.debug(f"Attempting to dequeue a waiting passenger on floor {floor} in direction {direction}")
 
         if direction == VerticalDirection.STATIONARY:
@@ -176,21 +176,21 @@ class ElevatorBank:
             raise ValueError(f"Trying to get 'STATIONARY' Queue on floor {floor}")
 
         result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, direction)
-        current_queue: deque[Person] = result[0]
+        current_queue: deque[PersonProtocol] = result[0]
 
         if len(current_queue) == 0:
             self._logger.info(f"No passengers waiting on floor {floor} in direction {direction}")
             return None
 
-        passenger: Person = current_queue.popleft()
+        passenger: PersonProtocol = current_queue.popleft()
         self._logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
         return passenger
 
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         self._logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
-        up_pass: deque[Person] = self._upward_waiting_passengers.get(floor, deque())
-        down_pass: deque[Person] = self._downward_waiting_passengers.get(floor, deque())
+        up_pass: deque[PersonProtocol] = self._upward_waiting_passengers.get(floor, deque())
+        down_pass: deque[PersonProtocol] = self._downward_waiting_passengers.get(floor, deque())
 
         self._logger.debug(f"Upward passengers: {len(up_pass)}, Downward passengers: {len(down_pass)}")
 
@@ -247,7 +247,7 @@ class ElevatorBank:
         nom_direction: VerticalDirection = elevator.nominal_direction
 
         result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, nom_direction)
-        who_wants_to_get_on: deque[Person] = result[0]
+        who_wants_to_get_on: deque[PersonProtocol] = result[0]
         new_direction: VerticalDirection = result[1]
 
         if who_wants_to_get_on:

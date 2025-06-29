@@ -1,14 +1,18 @@
 # conftest.py
+from __future__ import annotations  # Defer type evaluation
 import sys
 from pathlib import Path
-from typing import Callable
+from typing import Callable #, TYPE_CHECKING
 from unittest.mock import MagicMock, PropertyMock  # , # patch
 
 import pytest
 
-from mytower.game.elevator import Elevator
 from mytower.game.logger import LoggerProvider
-from mytower.game.person import Person
+from mytower.game.elevator import Elevator
+from mytower.game.person import PersonProtocol
+
+# if TYPE_CHECKING:
+    
 # Add the project root to Python path
 project_root: Path = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
@@ -58,11 +62,14 @@ def mock_cosmetics_config() -> MagicMock:
 #     person.destination_floor = 5
 #     return person
 
+
 @pytest.fixture
-def mock_person_factory() -> Callable[[int], MagicMock]:
-    def _person_gen(destination_floor: int) -> MagicMock:
-        person: MagicMock = MagicMock(spec=Person)
+def mock_person_factory() -> Callable[[int], PersonProtocol]:
+    def _person_gen(destination_floor: int) -> PersonProtocol:
+        person: MagicMock = MagicMock(spec=PersonProtocol)
         type(person).destination_floor = PropertyMock(return_value=destination_floor)
+        person.board_elevator = MagicMock()
+        person.disembark_elevator = MagicMock()
         return person
     return _person_gen
 

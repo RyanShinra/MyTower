@@ -8,10 +8,10 @@ from pygame import Surface
 from mytower.game.constants import STARTING_MONEY
 from mytower.game.floor import Floor
 from mytower.game.logger import LoggerProvider, MyTowerLogger
-from mytower.game.person import Person
 from mytower.game.types import FloorType
 
 if TYPE_CHECKING:
+    from mytower.game.person import PersonProtocol
     from mytower.game.elevator_bank import ElevatorBank
 
 
@@ -31,7 +31,7 @@ class Building:
         self._floor_width: int = width  # Width in grid cells
         self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
         self._elevator_banks: List[ElevatorBank] = []  # List of elevator objects
-        self._people: List[Person] = []  # List of people in the building
+        self._people: List[PersonProtocol] = []  # List of people in the building
         self._time: float = 0.0  # Game time in minutes
         self._money: int = STARTING_MONEY  # Starting money
 
@@ -61,7 +61,7 @@ class Building:
         """Add a new elevator to the building"""
         self._elevator_banks.append(elevator_bank)
 
-    def add_person(self, person: Person) -> None:
+    def add_person(self, person: PersonProtocol) -> None:
         self._people.append(person)
 
     def get_elevator_banks_on_floor(self, floor_num: int) -> List[ElevatorBank]:

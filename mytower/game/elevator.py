@@ -16,7 +16,7 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Sequence
 from typing import Optional as Opt
 from typing import Protocol
 
@@ -28,9 +28,9 @@ from mytower.game.logger import LoggerProvider
 from mytower.game.types import RGB, ElevatorState, VerticalDirection
 
 if TYPE_CHECKING:
+    from mytower.game.person import PersonProtocol
     from mytower.game.elevator_bank import ElevatorBank # noqa E701
     from mytower.game.logger import MyTowerLogger # noqa E701
-    from mytower.game.person import Person # noqa E701
 
 
 class ElevatorConfigProtocol(Protocol):
@@ -71,6 +71,7 @@ class ElevatorCosmeticsProtocol(Protocol):
     def open_color(self) -> RGB: ...  # noqa E701
 
 
+    
 class Elevator:
     """
     An elevator in the building that transports people between floors.
@@ -116,7 +117,7 @@ class Elevator:
         # Used for assignments; What people say: "is this elevator going up or down?"
         # It's only updated when a new destination is assigned
         self._nominal_direction: VerticalDirection = VerticalDirection.STATIONARY
-        self._passengers: List[Person] = []  # People inside the elevator
+        self._passengers: List[PersonProtocol] = []  # People inside the elevator
 
         self._unloading_timeout: float = 0.0
         self._loading_timeout: float = 0.0
@@ -237,28 +238,31 @@ class Elevator:
             self._nominal_direction = VerticalDirection.STATIONARY
         self._destination_floor = dest_floor
 
-    def testing_set_passengers(self, passengers: List[Person]) -> None:
+    def testing_set_passengers(self, passengers: Sequence[PersonProtocol]) -> None:
         """Set passengers directly for testing purposes."""
         if len(passengers) > self._config.max_capacity:
             raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.max_capacity}")
-        self._passengers = passengers.copy()  # Defensive copy
+        self._passengers = list(passengers)  # Defensive copy
         
-    def testing_get_passengers(self) -> List[Person]:
+    def testing_get_passengers(self) -> List[PersonProtocol]:
         return self._passengers.copy()
 
     def request_load_passengers(self, direction: VerticalDirection) -> None:
+        """Instructs an idle elevator to begin loading and sets it to nominally go in `direction`.
+           The actual loading will happen on the next time step, after evaluating the state machine.
+           Other valid loading states may become possible in the future.
+        """
         if self.state == ElevatorState.IDLE:
             self._state = ElevatorState.LOADING
             self._nominal_direction = direction
             self._logger.info(f"{self.state} Elevator: Loading: {direction}")
         else:
-            self._logger.warning(
-                f"{self.state} Elevator: Cannot load passengers while elevator is in {self.state} state"
-            )
-            raise RuntimeError(f"{self.state} Elevator: Cannot load passengers while elevator is in {self.state} state")
+            err_str: str = f"{self.state} Elevator: Cannot load passengers while elevator is in {self.state} state"
+            self._logger.warning(err_str)
+            raise RuntimeError(err_str)
 
-    def passengers_who_want_off(self) -> List[Person]:
-        answer: List[Person] = []
+    def passengers_who_want_off(self) -> List[PersonProtocol]:
+        answer: List[PersonProtocol] = []
         for p in self._passengers:
             if p.destination_floor == self.current_floor_int:
                 answer.append(p)
@@ -368,7 +372,7 @@ class Elevator:
         self._current_floor_float = cur_floor
 
     def _update_arrived(self, dt: float) -> None:
-        who_wants_off: List[Person] = self.passengers_who_want_off()
+        who_wants_off: List[PersonProtocol] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
             self._state = ElevatorState.UNLOADING
@@ -384,11 +388,11 @@ class Elevator:
             return
 
         self._unloading_timeout = 0.0
-        who_wants_off: List[Person] = self.passengers_who_want_off()
+        who_wants_off: List[PersonProtocol] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
             self._logger.debug(f"{self.state} Elevator: Unloading Passenger")
-            disembarking_passenger: Person = who_wants_off.pop()
+            disembarking_passenger: PersonProtocol = who_wants_off.pop()
             self._passengers.remove(disembarking_passenger)
             disembarking_passenger.disembark_elevator()
         else:
@@ -414,7 +418,7 @@ class Elevator:
         self._logger.debug(
             f"{self.state} Elevator: Trying to dequeue a passenger going {self.nominal_direction} from {self.current_floor_int}"
         )
-        who_wants_on: Person | None = self.parent_elevator_bank.try_dequeue_waiting_passenger(
+        who_wants_on: PersonProtocol | None = self.parent_elevator_bank.try_dequeue_waiting_passenger(
             self.current_floor_int, self.nominal_direction
         )
         if who_wants_on is not None:
