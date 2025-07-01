@@ -8,12 +8,13 @@
 # (at your option) any later version.
 
 from typing import Final
-from game.types import RGB, Money
-from game.logger import LoggerProvider
+
+from mytower.game.logger import LoggerProvider, MyTowerLogger
+from mytower.game.types import RGB, Money
 
 # We'll initialize this logger properly in main.py
 logger_provider = LoggerProvider()
-logger = logger_provider.get_logger("constants")
+logger: MyTowerLogger = logger_provider.get_logger("constants")
 
 # Display constants
 SCREEN_WIDTH: Final[int] = 1600
@@ -25,7 +26,7 @@ BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels, 3.0m
 BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels, 3.0m
 
-# TODO: We should definitely re-imagine how the colors and heights are organized. 
+# TODO: We should definitely re-imagine how the colors and heights are organized.
 # Floor colors
 LOBBY_COLOR: Final[RGB] = (200, 200, 200)
 OFFICE_COLOR: Final[RGB] = (150, 200, 250)

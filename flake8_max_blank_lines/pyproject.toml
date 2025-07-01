@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flake8-max-blank-lines"
+version = "0.1.0"
+description = "A flake8 plugin to check maximum blank lines between functions"
+dependencies = ["flake8>=3.0.0"]
+requires-python = ">=3.8"
+
+[project.entry-points."flake8.extension"]
+X303 = "flake8_max_blank_lines:MaxBlankLinesChecker"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["flake8_max_blank_lines*"]

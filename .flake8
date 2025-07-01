@@ -1,0 +1,39 @@
+[flake8]
+# Maximum line length (changed to 120)
+max-line-length = 120
+
+# ...other settings...
+extend-select = X303
+
+# Ignore specific errors/warnings:
+ignore = 
+    # Line too long
+    E501,
+    # Line break before binary operator
+    W503,
+    # Missing docstring
+    D100, D101, D102, D103, D104,
+    # Whitespace before ':' 
+    E203,
+    # Too many local variables
+    R101,
+    # Built-in too many blank lines (use our custom X303 instead)
+    E303,
+
+# Exclude specific directories/files
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    .venv
+
+# Plugins:
+# Uncomment to enable docstring checker
+# enable-extensions = G
+
+# Per-file-ignores
+# You can ignore specific errors for specific files:
+# per-file-ignores =
+#    mytower/main.py:E302
