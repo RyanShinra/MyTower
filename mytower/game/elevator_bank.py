@@ -69,9 +69,15 @@ class ElevatorBank:
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
+        
+        # Passengers waiting on each floor who want to go UP
+        # Key: floor number, Value: queue of people waiting to go upward from that floor
         self._upward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
             floor: deque() for floor in range(self._min_floor, self._max_floor + 1)
         }
+        
+        # Passengers waiting on each floor who want to go DOWN  
+        # Key: floor number, Value: queue of people waiting to go downward from that floor
         self._downward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
             floor: deque() for floor in range(self._min_floor, self._max_floor + 1)
         }
@@ -105,9 +111,17 @@ class ElevatorBank:
     def waiting_passengers(self) -> dict[int, deque[PersonProtocol]]:
         return self._upward_waiting_passengers
 
-    @property
-    def requests(self) -> dict[int, set[VerticalDirection]]:
-        return self._requests
+    # I'm deprecating this, we should use a better accessor below.
+    # @property
+    # def requests(self) -> dict[int, set[VerticalDirection]]:
+    #     return self._requests
+
+    def get_requests_for_floor(self, floor: int) -> set[VerticalDirection]:
+        """Testing method to check what elevator requests exist for a floor"""
+        return self._requests[floor].copy()  # Return a copy to prevent modification
+    
+    def get_requests_for_floors(self, floors: List[int]) -> set[VerticalDirection]:
+        return self._requests[floors[0]].copy()  # Return a copy to prevent modification
 
     def add_elevator(self, elevator: Elevator) -> None:
         if elevator is None:  # pyright: ignore
@@ -115,12 +129,19 @@ class ElevatorBank:
 
         self._elevators.append(elevator)
 
+    def _validate_floor(self, floor: int) -> None:
+        """Validate that floor is within the valid range for this elevator bank"""
+        if floor < self._min_floor or floor > self._max_floor:
+            raise ValueError(f"Floor {floor} out of range {self._min_floor}-{self._max_floor}")
+            
     def request_elevator(self, floor: int, direction: VerticalDirection) -> bool:
+        self._validate_floor(floor)
+        
         floor_request: set[VerticalDirection] | None = self._requests.get(floor)
         if floor_request is None:
-            raise KeyError(
-                f"Floor {floor} is not within the valid range of floors: {self._min_floor}:{self._max_floor}"
-            )
+            # This indicates a serious internal consistency bug
+            raise RuntimeError(f"Internal error: Floor {floor} missing from requests dict. "
+                            f"This should never happen after validation.")
 
         floor_request.add(direction)
         return True
@@ -151,7 +172,7 @@ class ElevatorBank:
                 raise KeyError(
                     f"Floor {passenger.current_floor} is not within the valid range of floors for upward_waiting_passengers, {self._upward_waiting_passengers.keys}"
                 )
-            self.request_elevator(passenger.current_floor, VerticalDirection.DOWN)
+            self.request_elevator(passenger.current_floor, VerticalDirection.UP)
             current_queue = self._upward_waiting_passengers.get(passenger.current_floor)
         else:
             self._logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
@@ -159,7 +180,7 @@ class ElevatorBank:
                 raise KeyError(
                     f"Floor {passenger.current_floor} is not within the valid range of floors for _downward_waiting_passengers, {self._downward_waiting_passengers.keys}"
                 )
-            self.request_elevator(passenger.current_floor, VerticalDirection.UP)
+            self.request_elevator(passenger.current_floor, VerticalDirection.DOWN)
             current_queue = self._downward_waiting_passengers.get(passenger.current_floor)
 
         if current_queue is None:
@@ -185,6 +206,31 @@ class ElevatorBank:
         passenger: PersonProtocol = current_queue.popleft()
         self._logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
         return passenger
+
+        # In ElevatorBank class
+    def testing_get_upward_queue(self, floor: int) -> deque[PersonProtocol]:
+        """
+        Testing method to access the queue of passengers waiting on a specific floor
+        who want to travel upward.
+        
+        Args:
+            floor: The floor number (1-based) to get the upward queue for
+            
+        Returns:
+            Queue of people on that floor waiting to go up
+        """
+        return self._upward_waiting_passengers[floor]
+
+    def testing_get_downward_queue(self, floor: int) -> deque[PersonProtocol]:
+        """
+        Testing method to access downward waiting passengers queue
+        Args:
+            floor: The floor number (1-based) to get the downward queue for
+            
+        Returns:
+            Queue of people on that floor waiting to go up
+        """
+        return self._downward_waiting_passengers[floor]
 
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
@@ -348,8 +394,10 @@ class ElevatorBank:
 
         if search_range:
             for floor in search_range:
-                floor_requests: set[VerticalDirection] | None = self.requests.get(floor)
+                # floor_requests: set[VerticalDirection] | None = self.requests.get(floor)
+                floor_requests: set[VerticalDirection] | None = self._requests.get(floor)
                 self._logger.trace(f"Checking floor {floor}: Requests = {floor_requests}")
+                
                 if floor_requests is not None and req_direction in floor_requests:
                     self._logger.debug(f"Adding floor {floor} to answer list")
                     answer.append(floor)
