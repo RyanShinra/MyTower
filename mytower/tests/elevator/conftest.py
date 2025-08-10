@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, PropertyMock  # , # patch
 import pytest
 
 from mytower.game.logger import LoggerProvider
-from mytower.game.elevator import Elevator
+from mytower.game.elevator import Elevator, ElevatorCosmeticsProtocol
 from mytower.game.person import PersonProtocol
 
 # if TYPE_CHECKING:
@@ -43,7 +43,7 @@ def mock_config() -> MagicMock:
 
 @pytest.fixture
 def mock_cosmetics_config() -> MagicMock:
-    config = MagicMock()
+    config = MagicMock(spec=ElevatorCosmeticsProtocol)
     config.shaft_color = (100, 100, 100)
     config.shaft_overhead = (24, 24, 24)
     config.closed_color = (50, 50, 200)
