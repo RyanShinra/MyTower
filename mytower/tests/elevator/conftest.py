@@ -2,14 +2,15 @@
 from __future__ import annotations  # Defer type evaluation
 import sys
 from pathlib import Path
-from typing import Callable #, TYPE_CHECKING
-from unittest.mock import MagicMock, PropertyMock  # , # patch
+# from typing import Callable #, TYPE_CHECKING
+from unittest.mock import MagicMock #, PropertyMock  # , # patch
 
 import pytest
 
-from mytower.game.logger import LoggerProvider
-from mytower.game.elevator import Elevator, ElevatorCosmeticsProtocol
-from mytower.game.person import PersonProtocol
+# from mytower.game.logger import LoggerProvider
+# from mytower.game.elevator import Elevator, ElevatorCosmeticsProtocol
+from mytower.game.elevator import Elevator
+# from mytower.game.person import PersonProtocol
 
 # if TYPE_CHECKING:
     
@@ -17,12 +18,12 @@ from mytower.game.person import PersonProtocol
 project_root: Path = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-@pytest.fixture
-def mock_logger_provider() -> MagicMock:
-    provider = MagicMock(spec=LoggerProvider)
-    mock_logger = MagicMock()
-    provider.get_logger.return_value = mock_logger
-    return provider
+# @pytest.fixture
+# def mock_logger_provider() -> MagicMock:
+#     provider = MagicMock(spec=LoggerProvider)
+#     mock_logger = MagicMock()
+#     provider.get_logger.return_value = mock_logger
+#     return provider
 
 @pytest.fixture
 def mock_elevator_bank() -> MagicMock:
@@ -41,37 +42,24 @@ def mock_config() -> MagicMock:
     config.idle_wait_timeout = 0.5
     return config
 
-@pytest.fixture
-def mock_cosmetics_config() -> MagicMock:
-    config = MagicMock(spec=ElevatorCosmeticsProtocol)
-    config.shaft_color = (100, 100, 100)
-    config.shaft_overhead = (24, 24, 24)
-    config.closed_color = (50, 50, 200)
-    config.open_color = (200, 200, 50)
-    return config
+# @pytest.fixture
+# def mock_cosmetics_config() -> MagicMock:
+#     config = MagicMock(spec=ElevatorCosmeticsProtocol)
+#     config.shaft_color = (100, 100, 100)
+#     config.shaft_overhead = (24, 24, 24)
+#     config.closed_color = (50, 50, 200)
+#     config.open_color = (200, 200, 50)
+#     return config
 
 # @pytest.fixture
-# def mock_person_floor_2() -> MagicMock:
-#     person = MagicMock()
-#     person.destination_floor = 2
-#     return person
-
-# @pytest.fixture
-# def mock_person_floor_5() -> MagicMock:
-#     person = MagicMock()
-#     person.destination_floor = 5
-#     return person
-
-
-@pytest.fixture
-def mock_person_factory() -> Callable[[int], PersonProtocol]:
-    def _person_gen(destination_floor: int) -> PersonProtocol:
-        person: MagicMock = MagicMock(spec=PersonProtocol)
-        type(person).destination_floor = PropertyMock(return_value=destination_floor)
-        person.board_elevator = MagicMock()
-        person.disembark_elevator = MagicMock()
-        return person
-    return _person_gen
+# def mock_person_factory() -> Callable[[int], PersonProtocol]:
+#     def _person_gen(destination_floor: int) -> PersonProtocol:
+#         person: MagicMock = MagicMock(spec=PersonProtocol)
+#         type(person).destination_floor = PropertyMock(return_value=destination_floor)
+#         person.board_elevator = MagicMock()
+#         person.disembark_elevator = MagicMock()
+#         return person
+#     return _person_gen
 
 @pytest.fixture
 def elevator(
