@@ -232,6 +232,15 @@ class ElevatorBank:
         """
         return self._downward_waiting_passengers[floor]
 
+    def testing_update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
+        """Testing method to access idle elevator update logic"""
+        self._update_idle_elevator(elevator, dt)
+
+    def testing_update_ready_elevator(self, elevator: Elevator) -> None:
+        """Testing method to access ready elevator update logic"""
+        self._update_ready_elevator(elevator)
+    
+    
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         self._logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
@@ -313,18 +322,20 @@ class ElevatorBank:
             f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}"
         )
         where_to: ElevatorBank.ElevatorDestination = self._get_next_destination(elevator, floor, nom_direction)
-
-        self._logger.info(
-            f"Setting destination to {where_to.floor} with direction {where_to.direction}, has_destination={where_to.has_destination}"
-        )
-        elevator.set_destination_floor(where_to.floor)
-
-        # Oh, and we need to clear the request on that floor
+        
         if where_to.has_destination:
+            self._logger.info(
+                f"Setting destination to {where_to.floor} with direction {where_to.direction}, has_destination={where_to.has_destination}"
+            )
+            elevator.set_destination_floor(where_to.floor)
+
+            # Oh, and we need to clear the request on that floor
             dest_requests: set[VerticalDirection] | None = self._requests.get(where_to.floor)
+            
             if dest_requests:
                 self._logger.debug(f"Clearing {where_to.direction} request for floor {where_to.floor}")
                 dest_requests.discard(where_to.direction)
+        
         else:
             self._logger.debug(f"No new destination - staying at floor {where_to.floor}")
 
