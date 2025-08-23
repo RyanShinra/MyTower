@@ -358,11 +358,10 @@ class ElevatorBank:
         # Now search in the normalized direction
         destinations: List[int] = self._collect_destinations(elevator, floor=current_floor, direction=search_direction)
         if destinations:
-        # No? Shall we turn around?
             next_floor: int = self._select_next_floor(destinations, search_direction)
             return ElevatorBank.Destination(True, next_floor, search_direction)
 
-        # No destinations in that direction, try the opposite
+        # No? Shall we turn around?
         opposite_dir: VerticalDirection = search_direction.invert()
         destinations = self._collect_destinations(elevator, floor=current_floor, direction=opposite_dir)
         if destinations:
