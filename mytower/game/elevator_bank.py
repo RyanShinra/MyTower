@@ -354,8 +354,8 @@ class ElevatorBank:
         
         # Normalize STATIONARY direction before doing any searches
         search_direction: VerticalDirection = current_direction
-        if search_direction == STATIONARY:
-            search_direction = UP  # Bias to search up when stationary
+        if search_direction == VerticalDirection.STATIONARY:
+            search_direction = VerticalDirection.UP  # Bias to search up when stationary
         
         # Now search in the normalized direction
         destinations: List[int] = self._collect_destinations(elevator, floor=current_floor, direction=search_direction)
@@ -372,7 +372,7 @@ class ElevatorBank:
             return ElevatorBank.Destination(True, next_floor, opposite_dir)
 
         # Well, nobody seems to want to go anywhere, let's stay put
-        return ElevatorBank.Destination(False, current_floor, STATIONARY)
+        return ElevatorBank.Destination(False, current_floor, VerticalDirection.STATIONARY)
 
 
     def testing_collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
@@ -450,13 +450,13 @@ class ElevatorBank:
         shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
         pygame.draw.rect(
             surface, self._cosmetics_config.shaft_color, (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
-        )
+        ) # pyright: ignore[reportUnusedCallResult]
 
         pygame.draw.rect(
             surface,
             self._cosmetics_config.shaft_overhead,
             (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead),
-        )
+        ) # pyright: ignore[reportUnusedCallResult]
 
         # now draw the elevators
         for el in self.elevators:
