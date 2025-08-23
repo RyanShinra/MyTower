@@ -10,13 +10,15 @@
 from __future__ import annotations  # Defer type evaluation
 
 import random
-from typing import TYPE_CHECKING, Final, List, Protocol
+from typing import TYPE_CHECKING, Final, List, Protocol, override
+# from typing_extensions import override
 
 import pygame
 
 from mytower.game.config import GameConfig
 from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.elevator import Elevator
+from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.logger import MyTowerLogger
 from mytower.game.types import HorizontalDirection, PersonState
 
@@ -177,14 +179,17 @@ class Person(PersonProtocol):
         )
 
     @property
+    @override
     def building(self) -> Building:
         return self._building
 
     @property
+    @override
     def current_floor(self) -> int:
         return int(self._current_floor_float)
 
     @property
+    @override
     def current_block(self) -> float:
         return self._current_block
 
@@ -193,10 +198,12 @@ class Person(PersonProtocol):
         self._current_block = value
 
     @property
+    @override
     def destination_floor(self) -> int:
         return self._dest_floor
 
     @property
+    @override
     def state(self) -> PersonState:
         return self._state
 
@@ -205,6 +212,7 @@ class Person(PersonProtocol):
         self._state = value
 
     @property
+    @override
     def direction(self) -> HorizontalDirection:
         return self._direction
 
@@ -213,9 +221,11 @@ class Person(PersonProtocol):
         self._direction = value
 
     @property
+    @override
     def max_velocity(self) -> float:
         return self._config.person.max_speed
 
+    @override
     def set_destination(self, dest_floor: int, dest_block: int) -> None:
         # Check if destination values are out of bounds and log warnings
         if dest_floor < 0 or dest_floor > self.building.num_floors:
@@ -232,9 +242,10 @@ class Person(PersonProtocol):
         dest_block = max(dest_block, 0)
         self._dest_block = dest_block
 
+    @override
     def find_nearest_elevator_bank(self) -> None | ElevatorBank:
         elevator_list: List[ElevatorBank] = self.building.get_elevator_banks_on_floor(self.current_floor)
-        closest_el = None
+        closest_el: ElevatorBank | None = None
         closest_dist: float = float(self.building.floor_width + 5)
 
         for elevator in elevator_list:
@@ -246,11 +257,13 @@ class Person(PersonProtocol):
 
         return closest_el
 
+    @override
     def board_elevator(self, elevator: Elevator) -> None:
         self._current_elevator = elevator
         self._waiting_time = 0.0
         self.state = PersonState.IN_ELEVATOR
 
+    @override
     def disembark_elevator(self) -> None:
         if self._current_elevator is None:
             raise RuntimeError("Cannot disembark elevator: no elevator is currently boarded.")
@@ -265,6 +278,7 @@ class Person(PersonProtocol):
         self._next_elevator_bank = None
         self.state = PersonState.IDLE
 
+    @override
     def update(self, dt: float) -> None:
         """Update person's state and position"""
         match self.state:
@@ -290,6 +304,7 @@ class Person(PersonProtocol):
                 self._logger.warning(f"Unknown state: {self.state}")  # type: ignore[unreachable]
                 raise ValueError(f"Unknown state: {self.state}")
 
+    @override
     def update_idle(self, dt: float) -> None:
         self.direction = HorizontalDirection.STATIONARY
 
@@ -333,6 +348,7 @@ class Person(PersonProtocol):
             self.state = PersonState.WALKING
             self.direction = HorizontalDirection.RIGHT
 
+    @override
     def update_walking(self, dt: float) -> None:
         done: bool = False
 
@@ -374,12 +390,14 @@ class Person(PersonProtocol):
         self._current_block = next_block
 
     # TESTING ONLY: Set the destination floor directly (for unit tests)
+    @override
     def testing_set_dest_floor(self, dest_floor: int) -> None:
         if dest_floor < 0 or dest_floor > self.building.num_floors:
             self._logger.warning(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
             raise ValueError(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
         self._dest_floor = min(max(dest_floor, 0), self.building.num_floors)
 
+    @override
     def draw(self, surface: Surface) -> None:
         """Draw the person on the given surface"""
         # Calculate position and draw a simple circle for now
@@ -421,4 +439,4 @@ class Person(PersonProtocol):
         draw_color = (draw_red, draw_green, draw_blue)
         # self._logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
 
-        pygame.draw.circle(surface, draw_color, (int(x_pos), int(y_pos)), self._config.person.radius)  # radius
+        _ = pygame.draw.circle(surface, draw_color, (int(x_pos), int(y_pos)), self._config.person.radius)  # radius
