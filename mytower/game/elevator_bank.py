@@ -189,6 +189,7 @@ class ElevatorBank:
         current_queue.append(passenger)
         return True
 
+
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[PersonProtocol]:
         self._logger.debug(f"Attempting to dequeue a waiting passenger on floor {floor} in direction {direction}")
 
@@ -272,9 +273,11 @@ class ElevatorBank:
         self._logger.debug(f"No passengers waiting on floor {floor} in any direction")
         return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, VerticalDirection.STATIONARY)
 
+
     def get_waiting_block(self) -> int:
         # TODO: Update this once we add building extents
         return max(1, self.horizontal_block - 1)
+
 
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
@@ -286,6 +289,7 @@ class ElevatorBank:
             elif el.state == ElevatorState.READY_TO_MOVE:
                 self._update_ready_elevator(el)
         pass
+
 
     def _update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
         """Idle means it arrived at this floor with nobody who wanted to disembark on this floor"""
@@ -313,6 +317,7 @@ class ElevatorBank:
         self._update_ready_elevator(elevator)
 
         return
+
 
     def _update_ready_elevator(self, elevator: Elevator) -> None:
         floor: int = elevator.current_floor_int
@@ -368,6 +373,10 @@ class ElevatorBank:
         # Well, nobody seems to want to go anywhere, let's stay put
         return ElevatorBank.Destination(False, current_floor, STATIONARY)
 
+
+    def testing_collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
+        return self._collect_destinations(elevator, floor, direction)
+
     def _collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
         destinations: List[int] = []
 
@@ -379,6 +388,10 @@ class ElevatorBank:
 
         return destinations
 
+
+    def testing_select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
+        return self._select_next_floor(destinations, direction)
+
     def _select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
         if direction == VerticalDirection.UP:
             # Go to the lowest floor above us
@@ -386,6 +399,7 @@ class ElevatorBank:
         else:
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
+
 
     def _get_floor_requests_in_dir_from_floor(
         self, start_floor: int, search_direction: VerticalDirection, req_direction: VerticalDirection
@@ -417,6 +431,7 @@ class ElevatorBank:
             f"Final list of floor requests in Search direction {search_direction} from floor {start_floor} going {req_direction}: {answer}"
         )
         return answer
+
 
     def draw(self, surface: Surface) -> None:
         """Draw the elevator Bank on the given surface"""
