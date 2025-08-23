@@ -445,7 +445,8 @@ class ElevatorBank:
         shaft_top: int = screen_height - (self._max_floor * BLOCK_HEIGHT)
         shaft_overhead: int = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
         #     480 = 480 - ((1 - 1) * 20)
-        shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
+        shaft_bottom: int = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
+        
         pygame.draw.rect(
             surface, self._cosmetics_config.shaft_color, (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
         ) # pyright: ignore[reportUnusedCallResult]
