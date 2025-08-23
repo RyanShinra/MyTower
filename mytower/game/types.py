@@ -12,12 +12,13 @@ from typing import NewType, Tuple, TypeAlias, Union
 
 import pygame
 
-from mytower.game.logger import LoggerProvider
+from mytower.game.logger import LoggerProvider, MyTowerLogger
 
 # We'll initialize the logger properly in main.py
 logger_provider = LoggerProvider()
-logger = logger_provider.get_logger("types")
+logger: MyTowerLogger = logger_provider.get_logger("types")
 
+# pylint: disable=c0103
 # Type definitions for colors
 # RGB color type as a tuple of three integers
 RGB: TypeAlias = Tuple[int, int, int]

@@ -397,6 +397,9 @@ class Person(PersonProtocol):
             raise ValueError(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
         self._dest_floor = min(max(dest_floor, 0), self.building.num_floors)
 
+    def testing_confirm_dest_block_is(self, block: int) -> bool:
+        return self._dest_block == block
+
     @override
     def draw(self, surface: Surface) -> None:
         """Draw the person on the given surface"""
