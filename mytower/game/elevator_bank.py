@@ -326,23 +326,23 @@ class ElevatorBank:
         self._logger.debug(
             f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}"
         )
-        where_to: ElevatorBank.ElevatorDestination = self._get_next_destination(elevator, floor, nom_direction)
+        next_destination: ElevatorBank.ElevatorDestination = self._get_next_destination(elevator, floor, nom_direction)
         
-        if where_to.has_destination:
+        if next_destination.has_destination:
             self._logger.info(
-                f"Setting destination to {where_to.floor} with direction {where_to.direction}, has_destination={where_to.has_destination}"
+                f"Setting destination to {next_destination.floor} with direction {next_destination.direction}, has_destination={next_destination.has_destination}"
             )
-            elevator.set_destination_floor(where_to.floor)
+            elevator.set_destination_floor(next_destination.floor)
 
             # Oh, and we need to clear the request on that floor
-            dest_requests: set[VerticalDirection] | None = self._requests.get(where_to.floor)
+            requests_at_destination: set[VerticalDirection] | None = self._requests.get(next_destination.floor)
             
-            if dest_requests:
-                self._logger.debug(f"Clearing {where_to.direction} request for floor {where_to.floor}")
-                dest_requests.discard(where_to.direction)
+            if requests_at_destination:
+                self._logger.debug(f"Clearing {next_destination.direction} request for floor {next_destination.floor}")
+                requests_at_destination.discard(next_destination.direction)
         
         else:
-            self._logger.debug(f"No new destination - staying at floor {where_to.floor}")
+            self._logger.debug(f"No new destination - staying at floor {next_destination.floor}")
 
         return
 
