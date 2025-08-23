@@ -15,6 +15,7 @@
 # along with MyTower. If not, see <https://www.gnu.org/licenses/>.
 
 
+
 from __future__ import annotations  # Defer type evaluation
 
 from collections import deque
@@ -147,7 +148,7 @@ class ElevatorBank:
 
 
     # TODO: We may want to pass in the direction here, or target floor as an argument
-    def add_waiting_passenger(self, passenger: PersonProtocol) -> bool:
+    def add_waiting_passenger(self, passenger: PersonProtocol) -> None:
         if passenger is None:  # pyright: ignore
             raise ValueError("PersonProtocol cannot be None") # pyright: ignore[reportUnreachable]
 
@@ -187,7 +188,7 @@ class ElevatorBank:
             raise KeyError(f"Why can't we get a current Queue on floor:  {passenger.current_floor}")
         # TODO: Do we want a max queue length?
         current_queue.append(passenger)
-        return True
+
 
 
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[PersonProtocol]:
@@ -249,19 +250,22 @@ class ElevatorBank:
         down_pass: deque[PersonProtocol] = self._downward_waiting_passengers.get(floor, deque())
 
         self._logger.debug(f"Upward passengers: {len(up_pass)}, Downward passengers: {len(down_pass)}")
-
-        UP = VerticalDirection.UP
-        DOWN = VerticalDirection.DOWN
-
+        
+        # Disable pylint invalid-name (c0103) - Used as constants only here
+        # pylint: disable=c0103
+        UP: Final = VerticalDirection.UP
+        DOWN: Final = VerticalDirection.DOWN
+        STATIONARY: Final = VerticalDirection.STATIONARY
+        
         if nom_direction == UP:
             self._logger.debug(f"Returning upward passengers queue for floor {floor}")
             return ElevatorBank.DirQueue(up_pass, UP)
 
-        elif nom_direction == VerticalDirection.DOWN:
+        elif nom_direction == DOWN:
             self._logger.debug(f"Returning downward passengers queue for floor {floor}")
             return ElevatorBank.DirQueue(down_pass, DOWN)
 
-        elif nom_direction == VerticalDirection.STATIONARY:
+        elif nom_direction == STATIONARY:
             self._logger.debug(f"Checking both directions for stationary elevator on floor {floor}")
             if up_pass:
                 self._logger.debug(f"Returning upward passengers queue for floor {floor}")
@@ -271,7 +275,7 @@ class ElevatorBank:
                 return ElevatorBank.DirQueue(down_pass, DOWN)
 
         self._logger.debug(f"No passengers waiting on floor {floor} in any direction")
-        return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, VerticalDirection.STATIONARY)
+        return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, STATIONARY)
 
 
     def get_waiting_block(self) -> int:
