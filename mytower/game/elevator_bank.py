@@ -349,8 +349,6 @@ class ElevatorBank:
     def _get_next_destination(
         self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection
     ) -> ElevatorBank.ElevatorDestination:
-        UP = VerticalDirection.UP
-        STATIONARY = VerticalDirection.STATIONARY
         
         # Normalize STATIONARY direction before doing any searches
         search_direction: VerticalDirection = current_direction
