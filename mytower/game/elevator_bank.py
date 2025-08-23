@@ -125,7 +125,7 @@ class ElevatorBank:
 
     def add_elevator(self, elevator: Elevator) -> None:
         if elevator is None:  # pyright: ignore
-            raise ValueError("Elevator cannot be None")
+            raise ValueError("Elevator cannot be None")  # pyright: ignore[reportUnreachable]
 
         self._elevators.append(elevator)
 
@@ -134,22 +134,22 @@ class ElevatorBank:
         if floor < self._min_floor or floor > self._max_floor:
             raise ValueError(f"Floor {floor} out of range {self._min_floor}-{self._max_floor}")
             
-    def request_elevator(self, floor: int, direction: VerticalDirection) -> bool:
+    def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
         
         floor_request: set[VerticalDirection] | None = self._requests.get(floor)
         if floor_request is None:
             # This indicates a serious internal consistency bug
-            raise RuntimeError(f"Internal error: Floor {floor} missing from requests dict. "
+            raise RuntimeError(f"Internal error: Floor {floor} missing from requests dict. " +\
                             f"This should never happen after validation.")
 
         floor_request.add(direction)
-        return True
+
 
     # TODO: We may want to pass in the direction here, or target floor as an argument
     def add_waiting_passenger(self, passenger: PersonProtocol) -> bool:
         if passenger is None:  # pyright: ignore
-            raise ValueError("PersonProtocol cannot be None")
+            raise ValueError("PersonProtocol cannot be None") # pyright: ignore[reportUnreachable]
 
         if passenger.current_floor < self.min_floor or passenger.current_floor > self.max_floor:
             raise ValueError(
