@@ -346,25 +346,25 @@ class ElevatorBank:
 
         return
 
-    # Returns true if we're going to move
     def _get_next_destination(
         self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection
     ) -> ElevatorBank.ElevatorDestination:
         UP = VerticalDirection.UP
         STATIONARY = VerticalDirection.STATIONARY
-
-        # Shall we keep going this way?
-        destinations: List[int] = self._collect_destinations(elevator, floor=current_floor, direction=current_direction)
+        
+        # Normalize STATIONARY direction before doing any searches
+        search_direction: VerticalDirection = current_direction
+        if search_direction == STATIONARY:
+            search_direction = UP  # Bias to search up when stationary
+        
+        # Now search in the normalized direction
+        destinations: List[int] = self._collect_destinations(elevator, floor=current_floor, direction=search_direction)
         if destinations:
-            next_floor: int = self._select_next_floor(destinations, current_direction)
-            return ElevatorBank.Destination(True, next_floor, current_direction)
-
         # No? Shall we turn around?
-        opposite_dir: VerticalDirection = current_direction.invert()
-        if opposite_dir == STATIONARY:
-            # Bias to search up
-            opposite_dir = UP
+            next_floor: int = self._select_next_floor(destinations, search_direction)
+            return ElevatorBank.Destination(True, next_floor, search_direction)
 
+        opposite_dir: VerticalDirection = search_direction.invert()
         destinations = self._collect_destinations(elevator, floor=current_floor, direction=opposite_dir)
         if destinations:
             next_floor = self._select_next_floor(destinations, opposite_dir)
