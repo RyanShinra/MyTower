@@ -17,7 +17,6 @@ class TestPersonBasics:
         person.set_destination(dest_floor=8, dest_block=15)
         
         assert person.destination_floor == 8
-        # dest_block is private, but we can test behavior change
         assert person.testing_confirm_dest_block_is(15)
         
     def test_set_destination_out_of_bounds_clamped(self, person: Person, mock_building: MagicMock) -> None:
