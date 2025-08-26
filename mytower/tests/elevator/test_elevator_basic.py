@@ -1,10 +1,13 @@
 
+# pylint: disable=C0103 # Overrides snake case for `TESTING_H_CELL_VALUE` at the bottom
+
 import pytest
-from typing import Callable, Final, Sequence
+from typing import Final, Sequence
 from unittest.mock import MagicMock
 from mytower.game.elevator import Elevator, ElevatorState
 from mytower.game.person import PersonProtocol
 from mytower.game.types import VerticalDirection
+from mytower.tests.conftest import PersonFactory
 
 # from mytower.tests.elevator.conftest import mock_person_factory
 
@@ -26,19 +29,20 @@ class TestElevatorBasics:
         assert elevator.destination_floor == 5
         assert elevator.nominal_direction == VerticalDirection.UP
         
-    def test_avail_capacity(self, elevator: Elevator, mock_person_factory: Callable[[int], MagicMock], mock_config: MagicMock) -> None:
+    def test_avail_capacity(self, elevator: Elevator, mock_person_factory: PersonFactory, mock_config: MagicMock) -> None:
         max_cap: int = mock_config.max_capacity
         assert elevator.avail_capacity == max_cap
         
-        passengers: Sequence[PersonProtocol] = [mock_person_factory(floor) for floor in range (1, 11)]
+        # The destination floor for these people does not matter (we're only loading them into the elevator)
+        passengers: Sequence[PersonProtocol] = [mock_person_factory(floor, 1) for floor in range (1, 11)]
         elevator.testing_set_passengers(passengers)
         assert elevator.avail_capacity == max_cap - len(passengers)
         
-        full_passengers: Sequence[PersonProtocol] = [mock_person_factory(floor) for floor in range(1, max_cap + 1)]  # 15 passengers
+        full_passengers: Sequence[PersonProtocol] = [mock_person_factory(floor, 1) for floor in range(1, max_cap + 1)]  # 15 passengers
         elevator.testing_set_passengers(full_passengers)
         assert elevator.avail_capacity == 0
         
-        oh_no_too_many: Sequence[PersonProtocol] = [mock_person_factory(floor) for floor in range(1, max_cap + 2)] # 15 passengers
+        oh_no_too_many: Sequence[PersonProtocol] = [mock_person_factory(floor, 1) for floor in range(1, max_cap + 2)] # 15 passengers
         with pytest.raises(ValueError):
             elevator.testing_set_passengers(oh_no_too_many)
         
@@ -85,5 +89,6 @@ class TestElevatorBasics:
 
     def test_horizontal_block_property(self, elevator: Elevator) -> None:
         """Test that horizontal_block property returns the value encoded in Elevator c'tor in conftest.py"""
+        
         TESTING_H_CELL_VALUE: Final[int] = 5 # Go look in conftest.py for this in the c'tor param list
         assert elevator.horizontal_block == TESTING_H_CELL_VALUE
