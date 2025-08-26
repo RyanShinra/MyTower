@@ -404,7 +404,7 @@ class Person(PersonProtocol):
     def testing_set_next_elevator_bank(self, next_bank: ElevatorBank) -> None:
         self._next_elevator_bank = next_bank
 
-    def testing_set_wait_time(self, time:int) -> None:
+    def testing_set_wait_time(self, time: int) -> None:
         self._waiting_time = time
         
     def testing_get_wait_time(self) -> float:
