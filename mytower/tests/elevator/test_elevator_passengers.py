@@ -24,7 +24,9 @@ class TestPassengers:
         who_wants_off: List[PersonProtocol] = elevator.passengers_who_want_off()
 
         assert len(who_wants_off) == 1
-        assert who_wants_off[0] == passenger_current_floor
+        # assert who_wants_off[0] == passenger_current_floor # This made the type checker mad
+        disembarking_passenger: PersonProtocol = who_wants_off[0]
+        assert disembarking_passenger == passenger_current_floor
 
     @pytest.mark.parametrize(
         "current_floor,direction,expected_floors",
@@ -40,7 +42,7 @@ class TestPassengers:
     def test_get_passenger_destinations_by_direction(
         self,
         elevator: Elevator,
-        mock_person_factory: Callable[[int], MagicMock],
+        mock_person_factory: PersonFactory,
         current_floor: int,
         direction: VerticalDirection,
         expected_floors: List[int],
@@ -49,7 +51,7 @@ class TestPassengers:
         elevator.testing_set_current_floor(current_floor)
         dest_floors: List[int] = [1, 3, 5, 7]
 
-        passengers: Sequence[PersonProtocol] = [mock_person_factory(floor) for floor in dest_floors]
+        passengers: Sequence[PersonProtocol] = [mock_person_factory(current_floor, destination_floor) for destination_floor in dest_floors]
         elevator.testing_set_passengers(passengers)
 
         actual_floors: List[int] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
@@ -95,14 +97,14 @@ class TestPassengers:
         with pytest.raises(RuntimeError, match=".*Cannot load passengers while elevator is in .* state"):
             elevator.request_load_passengers(VerticalDirection.UP)
             
-    def test_update_arrived_with_passengers_wanting_off(self, elevator: Elevator, mock_person_factory: Callable[[int], PersonProtocol]) -> None:
+    def test_update_arrived_with_passengers_wanting_off(self, elevator: Elevator, mock_person_factory: PersonFactory) -> None:
         # Setup: elevator arrives at floor 3 with passengers going to floor 3
         elevator.testing_set_state(ElevatorState.ARRIVED)
         elevator.testing_set_current_floor(3.0)
         
-        passengers = [
-            mock_person_factory(3),  # Wants off here
-            mock_person_factory(5),  # Doesn't want off
+        passengers: List[PersonProtocol] = [
+            mock_person_factory(1,3),  # Wants off here
+            mock_person_factory(1,5),  # Doesn't want off
         ]
         elevator.testing_set_passengers(passengers)
         
