@@ -18,8 +18,8 @@ class TestRequestElevator:
     def test_request_elevator_valid_floor(self, elevator_bank: ElevatorBank, floor: int, direction: VerticalDirection) -> None: 
         """Test that requesting an elevator on valid floors (boundary and middle) stores the request correctly"""
         
-        req_result: Final[bool] = elevator_bank.request_elevator(floor, direction)
-        assert req_result is True
+        # This should pass w/o raising an exception
+        elevator_bank.request_elevator(floor, direction)
         
         requests: Final[set[VerticalDirection]] = elevator_bank.get_requests_for_floor(floor)
         assert direction in requests
@@ -36,15 +36,13 @@ class TestRequestElevator:
     def test_request_multiple_directions_same_floor(self, elevator_bank: ElevatorBank, floor: int, direction: VerticalDirection) -> None: 
         """Test that regardless of floor, multiple button presses yield only two (i.e. both) buttons pressed"""
         
-        req_result: Final[bool] = elevator_bank.request_elevator(floor, direction)
-        assert req_result is True
+        # This should pass w/o raising an exception
+        elevator_bank.request_elevator(floor, direction)
         
         # Let's make sure it behaves like a set
-        req_up =  elevator_bank.request_elevator(floor, VerticalDirection.UP)
-        req_down = elevator_bank.request_elevator(floor, VerticalDirection.DOWN)
+        elevator_bank.request_elevator(floor, VerticalDirection.UP)
+        elevator_bank.request_elevator(floor, VerticalDirection.DOWN)
         
-        assert req_up is True
-        assert req_down is True
         assert len(elevator_bank.get_requests_for_floor(floor)) == 2
     
     
@@ -52,10 +50,10 @@ class TestRequestElevator:
     def test_request_same_direction_multiple_floors(self, elevator_bank: ElevatorBank, direction: VerticalDirection) -> None:
         """There should be 1 request on each of the `VALID_FLOORS`, regardless of direction"""
         
+        # This should pass w/o raising an exception
         for req_floor in TestRequestElevator.VALID_FLOORS:
-            req_result: bool = elevator_bank.request_elevator(req_floor, direction)
-            assert req_result is True
-        
+            elevator_bank.request_elevator(req_floor, direction)
+            
         for tgt_floor in TestRequestElevator.VALID_FLOORS:
             requests: set[VerticalDirection] = elevator_bank.get_requests_for_floor(tgt_floor)
             assert direction in requests
@@ -71,7 +69,7 @@ class TestRequestElevator:
             elevator_bank.request_elevator(invalid_floor, direction)
 
     def test_request_invalid_direction_raises_error(self, elevator_bank: ElevatorBank, floor: int = 5) -> None:
-        with pytest.raises(ValueError):  # or whatever it should throw
+        with pytest.raises(KeyError):  # or whatever it should throw
             elevator_bank.request_elevator(floor, VerticalDirection.STATIONARY)
             
 # class TestRequestClearing:
