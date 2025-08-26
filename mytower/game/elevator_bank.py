@@ -138,7 +138,11 @@ class ElevatorBank:
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
         
+        if not (direction == VerticalDirection.UP or direction == VerticalDirection.DOWN):
+            raise KeyError(f"Passenger cannot request_elevator to go in direction {direction}")
+        
         floor_request: set[VerticalDirection] | None = self._requests.get(floor)
+        
         if floor_request is None:
             # This indicates a serious internal consistency bug
             raise RuntimeError(f"Internal error: Floor {floor} missing from requests dict. " +\
@@ -175,6 +179,7 @@ class ElevatorBank:
                 )
             self.request_elevator(passenger.current_floor, VerticalDirection.UP)
             current_queue = self._upward_waiting_passengers.get(passenger.current_floor)
+        
         else:
             self._logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
             if passenger.current_floor not in self._downward_waiting_passengers:
@@ -193,6 +198,7 @@ class ElevatorBank:
 
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[PersonProtocol]:
         self._logger.debug(f"Attempting to dequeue a waiting passenger on floor {floor} in direction {direction}")
+        self._validate_floor(floor)
 
         if direction == VerticalDirection.STATIONARY:
             self._logger.error(f"Invalid direction 'STATIONARY' for dequeue operation on floor {floor}")
