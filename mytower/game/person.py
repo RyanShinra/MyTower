@@ -91,6 +91,7 @@ class PersonProtocol(Protocol):
     @current_block.setter
     def current_block(self, value: float) -> None: ...
     
+    # TODO: I'm not sure this should be externally mutable
     @property
     def state(self) -> PersonState: ...
     
@@ -224,7 +225,7 @@ class Person(PersonProtocol):
     @override
     def max_velocity(self) -> float:
         return self._config.person.max_speed
-
+       
     @override
     def set_destination(self, dest_floor: int, dest_block: int) -> None:
         # Check if destination values are out of bounds and log warnings
@@ -352,10 +353,10 @@ class Person(PersonProtocol):
     def update_walking(self, dt: float) -> None:
         done: bool = False
 
-        waypoint_block = self._dest_block
+        waypoint_block: int  = self._dest_block
         if self._next_elevator_bank:
             # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-            waypoint_block = self._next_elevator_bank.get_waiting_block()
+            waypoint_block= self._next_elevator_bank.get_waiting_block()
             pass
 
         if waypoint_block < self._current_block:
@@ -400,6 +401,34 @@ class Person(PersonProtocol):
     def testing_confirm_dest_block_is(self, block: int) -> bool:
         return self._dest_block == block
 
+    def testing_set_next_elevator_bank(self, next_bank: ElevatorBank) -> None:
+        self._next_elevator_bank = next_bank
+
+    def testing_set_wait_time(self, time:int) -> None:
+        self._waiting_time = time
+        
+    def testing_get_wait_time(self) -> float:
+        return self._waiting_time
+        
+    def testing_set_current_elevator(self, elevator: Elevator) -> None:
+        self._current_elevator = elevator
+
+    def testing_get_current_elevator(self) -> Elevator | None:
+        return self._current_elevator
+    
+    def testing_get_next_elevator_bank(self) -> ElevatorBank | None:
+        return self._next_elevator_bank
+    
+    def testing_set_current_floor_float(self, cur_floor: float) -> None:
+        self._current_floor_float = cur_floor
+        
+    def testing_get_current_floor_float(self) -> float:
+        return self._current_floor_float
+    
+    def testing_set_current_state(self, state: PersonState) -> None:
+        self._state = state
+    
+
     @override
     def draw(self, surface: Surface) -> None:
         """Draw the person on the given surface"""
@@ -442,4 +471,4 @@ class Person(PersonProtocol):
         draw_color = (draw_red, draw_green, draw_blue)
         # self._logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
 
-        _ = pygame.draw.circle(surface, draw_color, (int(x_pos), int(y_pos)), self._config.person.radius)  # radius
+        _: pygame.Rect = pygame.draw.circle(surface, draw_color, (int(x_pos), int(y_pos)), self._config.person.radius)  # radius
