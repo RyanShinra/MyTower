@@ -1,4 +1,3 @@
-# game/building.py
 from __future__ import annotations  # Defer type evaluation
 
 from typing import TYPE_CHECKING, Dict, List
@@ -6,6 +5,7 @@ from typing import TYPE_CHECKING, Dict, List
 from pygame import Surface
 
 from mytower.game.constants import STARTING_MONEY
+# pyright: ignore[reportImportCycles] 
 from mytower.game.floor import Floor
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.types import FloorType
