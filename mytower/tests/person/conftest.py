@@ -6,7 +6,6 @@ import pytest
 
 from mytower.game.building import Building
 from mytower.game.person import Person
-# from mytower.game.types import PersonState, HorizontalDirection
 
 # Add the project root to Python path
 project_root: Path = Path(__file__).parent.parent
