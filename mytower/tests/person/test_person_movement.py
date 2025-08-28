@@ -1,11 +1,6 @@
 from __future__ import annotations
-# import sys
-# from pathlib import Path
 from typing import Final
 from unittest.mock import MagicMock
-# import pytest
-
-# from mytower.game.building import Building
 
 from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.person import Person
