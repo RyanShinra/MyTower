@@ -8,7 +8,7 @@ class TestPersonPhysics:
     """Test Person movement calculations and boundary enforcement"""
     
     def test_left_is_negative(self) -> None:
-        assert HorizontalDirection.LEFT == -1
+        assert 1 * HorizontalDirection.LEFT.value == -1
     
     @pytest.mark.parametrize("direction,initial_block,dt,expected_block", [
         (HorizontalDirection.RIGHT, 5, 2.0, 6),  # 5 + (2.0 * 0.5 * 1) = 6
