@@ -24,7 +24,7 @@ class TestPersonElevatorInteraction:
         mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
         
         # Set up person as if they're in elevator
-        person.state = PersonState.IN_ELEVATOR
+        person.testing_set_current_state(PersonState.IN_ELEVATOR)
         person.testing_set_current_elevator(mock_elevator)
         
         person.disembark_elevator()
@@ -42,14 +42,14 @@ class TestPersonElevatorInteraction:
         mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
         
         person.testing_set_current_elevator(mock_elevator)
-        person.state = PersonState.WALKING  # Wrong state
+        person.testing_set_current_state(PersonState.WALKING)  # Wrong state
     
         with pytest.raises(RuntimeError, match="Cannot disembark elevator: person must be in elevator state"):
             person.disembark_elevator()
             
     def test_disembark_elevator_no_current_elevator_raises_error(self, person: Person) -> None:
         """Test that an error is raised when a person is in IN_ELEVATOR state but has no current elevator assigned."""
-        person.state = PersonState.IN_ELEVATOR
+        person.testing_set_current_state(PersonState.IN_ELEVATOR)
         # No need to set _current_elevator = None as it's None by default
         
         with pytest.raises(RuntimeError, match="Cannot disembark elevator: no elevator is currently boarded"):

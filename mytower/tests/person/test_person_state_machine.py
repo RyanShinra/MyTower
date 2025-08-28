@@ -9,18 +9,18 @@ class TestPersonStateMachine:
     def test_update_routes_to_correct_state_method(self, person: Person) -> None:
         """Test that update() calls the correct state-specific method"""
         with patch.object(person, 'update_idle') as mock_idle:
-            person.state = PersonState.IDLE
+            person.testing_set_current_state(PersonState.IDLE)
             person.update(1.0)
             mock_idle.assert_called_once_with(1.0)
             
         with patch.object(person, 'update_walking') as mock_walking:
-            person.state = PersonState.WALKING  
+            person.testing_set_current_state(PersonState.WALKING)  
             person.update(1.0)
             mock_walking.assert_called_once_with(1.0)
             
     def test_update_waiting_for_elevator_increments_time(self, person: Person) -> None:
         """Test that waiting state increments waiting time"""
-        person.state = PersonState.WAITING_FOR_ELEVATOR
+        person.testing_set_current_state(PersonState.WAITING_FOR_ELEVATOR)
         person.testing_set_wait_time(5.0)
         initial_wait_time: float = person.testing_get_wait_time()
         
@@ -34,7 +34,7 @@ class TestPersonStateMachine:
         mock_elevator.fractional_floor = 6.7
         mock_elevator.parent_elevator_bank.horizontal_block = 12
         
-        person.state = PersonState.IN_ELEVATOR
+        person.testing_set_current_state(PersonState.IN_ELEVATOR)
         person.testing_set_current_elevator(mock_elevator)
         
         person.update(1.0)
