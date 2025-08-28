@@ -126,7 +126,7 @@ class TestPersonMovement:
         mock_elevator_bank.get_waiting_block.return_value = elevator_waiting_block
         mock_building.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
         
-        person.update_idle(6.0) # default idle timeout is 5.0 (double check conftest)
+        person.update_idle(6.0) # default idle timeout is 5.0 (verify conftest configuration)
         assert person.state == PersonState.WALKING
         assert person.direction == HorizontalDirection.LEFT
 
