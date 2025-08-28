@@ -127,7 +127,7 @@ class TestPersonMovement:
         person.update_idle(6.0) # default idle timeout is 5.0 (double check conftest)
         assert person.state == PersonState.WALKING
         assert person.direction == HorizontalDirection.LEFT
-        # if we really wanted to be pedantic, we could assert the location based on physics, but that's way more complex for this test 
+
         
         person.update_walking(2.0) # Person has to walk 8 blocks in total, should be 1.5 closer now
         assert person.state == PersonState.WALKING # Definitely shouldn't be there yet (unless you create super sprinters)
