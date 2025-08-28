@@ -427,6 +427,9 @@ class Person(PersonProtocol):
     
     def testing_set_current_state(self, state: PersonState) -> None:
         self._state = state
+        
+    def testing_get_max_wait_time(self) -> float:
+        return self._config.person.max_wait_time
     
 
     @override
