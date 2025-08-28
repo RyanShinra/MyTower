@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock, patch
-# import pytest
 from mytower.game.person import Person
 from mytower.game.types import PersonState
 
@@ -42,14 +41,4 @@ class TestPersonStateMachine:
         
         assert person.testing_get_current_floor_float() == 6.7
         assert person.current_block == 12
-
-    # There's already strict type checking in the project.
-    # def test_update_unknown_state_raises_error(self, person: Person) -> None:
-    #     """Test that invalid state raises appropriate error"""
-    #     # Bypass type checking to test runtime error handling
-    #     person._state = "INVALID_STATE"  # type: ignore[assignment]
-        
-    #     with pytest.raises(ValueError, match="Unknown state"):
-    #         person.update(1.0)
-
 
