@@ -44,7 +44,7 @@ class TestPersonBasics:
         
     def test_state_property(self, person: Person) -> None:
         """Test state getter and setter"""
-        person.state = PersonState.WALKING
+        person.testing_set_current_state(PersonState.WALKING)
         assert person.state == PersonState.WALKING
         
     def test_direction_property(self, person: Person) -> None:

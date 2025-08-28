@@ -18,7 +18,7 @@ class TestPersonPhysics:
         """Test that walking movement calculations are correct"""
         person.current_block = initial_block
         person.direction = direction
-        person.state = PersonState.WALKING
+        person.testing_set_current_state(PersonState.WALKING)
         person.set_destination(dest_floor=5, dest_block=int(expected_block))
         
         person.update_walking(dt)
@@ -32,7 +32,7 @@ class TestPersonPhysics:
         # Test right boundary
         person.current_block = 19.5
         person.direction = HorizontalDirection.RIGHT
-        person.state = PersonState.WALKING
+        person.testing_set_current_state(PersonState.WALKING)
         person.set_destination(dest_floor=5, dest_block=25)  # Beyond building width
         
         person.update_walking(10.0)  # Large dt

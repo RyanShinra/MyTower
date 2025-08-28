@@ -60,7 +60,7 @@ class TestPersonMovement:
         
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
         person.set_destination(dest_floor=5, dest_block=15)  # Same floor, different block
-        person.state = PersonState.WALKING
+        person.testing_set_current_state(PersonState.WALKING)
         person.direction = HorizontalDirection.RIGHT
         
         # Large dt to ensure we reach destination
@@ -81,7 +81,7 @@ class TestPersonMovement:
         # Set up person walking toward elevator
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
         person.set_destination(dest_floor=8, dest_block=15)
-        person.state = PersonState.WALKING
+        person.testing_set_current_state(PersonState.WALKING)
         person.direction = HorizontalDirection.LEFT
         person.current_block = 6.0  # Close to elevator waiting block
         person.testing_set_next_elevator_bank(mock_elevator_bank)  # Simulate finding elevator
@@ -115,7 +115,7 @@ class TestPersonMovement:
         
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
         person.set_destination(dest_floor=8, dest_block=15)
-        person.state = PersonState.WALKING
+        person.testing_set_current_state(PersonState.WALKING)
         person.direction = HorizontalDirection.RIGHT # Facing away from the elevator
         
         mock_elevator_bank = MagicMock()
