@@ -137,8 +137,8 @@ class TestPersonMovement:
 
         # Calculate time needed to walk to elevator: distance / speed (+ small buffer)
         blocks_to_walk = abs(person.current_block - elevator_waiting_block)  # Should be 8.0
-        walking_speed = getattr(person, "walking_speed", 0.5)  # blocks per second, default to 0.5 if not set
-        walking_time = blocks_to_walk / walking_speed + 2.0  # Add 2s buffer
+        
+        walking_time: float = blocks_to_walk / person.max_velocity + 2.0  # Add 2s buffer
         person.update_walking(walking_time)
         mock_elevator_bank.add_waiting_passenger.assert_called_once_with(person)
         assert person.current_block == elevator_waiting_block

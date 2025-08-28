@@ -69,7 +69,7 @@ class TestRequestElevator:
             elevator_bank.request_elevator(invalid_floor, direction)
 
     def test_request_invalid_direction_raises_error(self, elevator_bank: ElevatorBank, floor: int = 5) -> None:
-        with pytest.raises(KeyError):  # or whatever it should throw
+        with pytest.raises(KeyError):
             elevator_bank.request_elevator(floor, VerticalDirection.STATIONARY)
             
 # class TestRequestClearing:
