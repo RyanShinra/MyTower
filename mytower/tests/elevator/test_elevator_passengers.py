@@ -1,5 +1,5 @@
-from typing import Callable, List, Sequence
-from unittest.mock import MagicMock  # , # patch
+from typing import List, Sequence
+from unittest.mock import MagicMock
 
 from typing import Final
 import pytest

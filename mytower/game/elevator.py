@@ -473,7 +473,7 @@ class Elevator:
 
         # Draw elevator car
         color = self._cosmetics_config.open_color if self.door_open else self._cosmetics_config.closed_color
-        pygame.draw.rect(surface, color, (shaft_left, car_top, width, BLOCK_HEIGHT))
+        _ = pygame.draw.rect(surface, color, (shaft_left, car_top, width, BLOCK_HEIGHT))
 
         # Draw any passengers or other elements after the elevator
         # to make them appear on top of the elevator
