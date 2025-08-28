@@ -36,7 +36,7 @@ class Building:
         self._money: int = STARTING_MONEY  # Starting money
 
         # Add ground floor by default
-        self.add_floor(FloorType.LOBBY)
+        _ =self.add_floor(FloorType.LOBBY)
 
     @property
     def num_floors(self) -> int:
@@ -53,7 +53,7 @@ class Building:
 
     def add_floor(self, floor_type: FloorType) -> Floor:
         """Add a new floor to the building"""
-        next_floor = self.num_floors + 1
+        next_floor: int = self.num_floors + 1
         self._floors[next_floor] = Floor(self._logger_provider, self, next_floor, floor_type)
         return self._floors[next_floor]
 
