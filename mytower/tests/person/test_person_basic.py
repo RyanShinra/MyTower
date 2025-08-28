@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 from mytower.game.person import Person
 from mytower.game.types import PersonState, HorizontalDirection
+
 class TestPersonBasics:
     """Test basic Person properties and initialization"""
     
