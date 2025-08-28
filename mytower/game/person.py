@@ -354,11 +354,8 @@ class Person(PersonProtocol):
     def update_walking(self, dt: float) -> None:
         done: bool = False
 
-        waypoint_block: int = self._dest_block
-        if self._next_elevator_bank:
-            # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-            waypoint_block= self._next_elevator_bank.get_waiting_block()
-            pass
+        # TODO: Probably need a next_block_this_floor or some such for all these walking directions
+        waypoint_block: Final[int] = self._next_elevator_bank.get_waiting_block() if self._next_elevator_bank else self._dest_block 
 
         if waypoint_block < self._current_block:
             self.direction = HorizontalDirection.LEFT

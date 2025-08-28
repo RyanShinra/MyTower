@@ -40,19 +40,21 @@ class TestPersonMovement:
         
     def test_update_idle_finds_elevator_starts_walking(self, person: Person, mock_building: MagicMock) -> None:
         """Test that person starts walking toward elevator when one is available"""
+        # Person defaults to block 10, floor 5 - be sure to double check conftest 
+        
+        elevator_waiting_block = 5
         mock_elevator_bank = MagicMock()
-        mock_elevator_bank.get_waiting_block.return_value = 5
-        mock_elevator_bank.horizontal_block = 5 # Person starts at block 10
+        mock_elevator_bank.get_waiting_block.return_value = elevator_waiting_block
+        mock_elevator_bank.horizontal_block = elevator_waiting_block  # Person starts at initial_block
         mock_building.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
         
-        # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
         person.set_destination(dest_floor=8, dest_block=15)
         person.update_idle(6.0)  # Past idle timeout
         
         # Be sure to check the `config.person.max_speed = 0.5` in conftest
-        # It's currently 0.5 blocks / second (the destination is -5 blocks away)
+        # It's currently 0.5 blocks / second (the destination is elevator_waiting_block - initial_block blocks away)
         assert person.state == PersonState.WALKING
-        assert person.direction == HorizontalDirection.LEFT  # Moving from block 10 to 5
+        assert person.direction == HorizontalDirection.LEFT  # Moving from block {initial_block} to {elevator_waiting_block}
         
         
     def test_update_walking_same_floor_reaches_destination_block(self, person: Person) -> None:
