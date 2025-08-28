@@ -28,7 +28,7 @@ class TestPersonWaitingBehavior:
         mock_surface.get_height.return_value = 600
         
         # Test calm state (no waiting)
-        person.testing_set_wait_time(0)
+        person.testing_set_wait_time(0.0)
         with patch('pygame.draw.circle') as mock_draw:
             person.draw(mock_surface)
             # Color should be close to original (low red values)
@@ -36,7 +36,7 @@ class TestPersonWaitingBehavior:
             assert color[0] <= 32  # Red component should be low
             
         # Test angry state (long waiting)  
-        person.testing_set_wait_time(90)  # Max wait time
+        person.testing_set_wait_time(90.0)  # Max wait time
         with patch('pygame.draw.circle') as mock_draw:
             person.draw(mock_surface)
             color = mock_draw.call_args[0][1]

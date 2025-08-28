@@ -22,8 +22,8 @@ class TestPersonStateMachine:
     def test_update_waiting_for_elevator_increments_time(self, person: Person) -> None:
         """Test that waiting state increments waiting time"""
         person.state = PersonState.WAITING_FOR_ELEVATOR
-        person.testing_set_wait_time(5)
-        initial_wait_time = person.testing_get_wait_time()
+        person.testing_set_wait_time(5.0)
+        initial_wait_time: float = person.testing_get_wait_time()
         
         person.update(2.5)
         
