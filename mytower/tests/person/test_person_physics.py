@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from mytower.game.person import Person
 from mytower.game.types import HorizontalDirection, PersonState
-
+from mytower.game.constants import BLOCK_FLOAT_TOLERANCE
 
 class TestPersonPhysics:
     """Test Person movement calculations and boundary enforcement"""
@@ -23,7 +23,7 @@ class TestPersonPhysics:
         
         person.update_walking(dt)
         
-        assert abs(person.current_block - expected_block) < 0.1  # Allow for floating point precision
+        assert abs(person.current_block - expected_block) < BLOCK_FLOAT_TOLERANCE # Allow for floating point precision
         
     def test_walking_respects_building_boundaries(self, person: Person, mock_building: MagicMock) -> None:
         """Test that person movement is constrained by building boundaries"""

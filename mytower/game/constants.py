@@ -25,6 +25,7 @@ BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 # Game grid constants
 BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels, 3.0m
 BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels, 3.0m
+BLOCK_FLOAT_TOLERANCE: Final[float] = 0.1  # We comparing two positions to be in the same block
 
 # TODO: We should definitely re-imagine how the colors and heights are organized.
 # Floor colors
