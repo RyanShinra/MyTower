@@ -12,7 +12,7 @@ class TestPersonMovement:
     
     def test_no_movement_when_already_at_destination(self, person: Person) -> None:
         """Test that person stays idle when already at destination"""
-        # Use the person's current location as their destination (Exhilarating, no?)
+        # Use the person's current location as their destination 
         original_floor: Final[int] = person.current_floor
         original_block: Final[int] = math.floor(person.current_block)
         
