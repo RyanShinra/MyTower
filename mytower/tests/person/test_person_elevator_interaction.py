@@ -36,7 +36,7 @@ class TestPersonElevatorInteraction:
         assert person.testing_get_next_elevator_bank() is None
         
     def test_disembark_elevator_not_in_elevator_raises_error(self, person: Person) -> None:
-        """Test the /serious/ error that the character is in an elevator, but also not IN_ELEVATOR"""                
+        """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""                
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 8
         mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
@@ -48,7 +48,7 @@ class TestPersonElevatorInteraction:
             person.disembark_elevator()
             
     def test_disembark_elevator_no_current_elevator_raises_error(self, person: Person) -> None:
-        """Test the /serious/ error that the character thinks they are IN_ELEVATOR, but are in-fact, not (current elevator is NONE)"""
+        """Test that an error is raised when a person is in IN_ELEVATOR state but has no current elevator assigned."""
         person.state = PersonState.IN_ELEVATOR
         # No need to set _current_elevator = None as it's None by default
         
