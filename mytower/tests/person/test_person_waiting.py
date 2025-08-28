@@ -13,7 +13,8 @@ class TestPersonWaitingBehavior:
         person.set_destination(dest_floor=8, dest_block=15)
         
         # First call should set timeout
-        person.update_idle(6.0)  # Past initial timeout
+        # The default idle timeout is 5.0 seconds (see Person.IDLE_TIMEOUT). 6.0 is used to ensure we are past the initial timeout.
+        person.update_idle(6.0)
         assert person.state == PersonState.IDLE
         
         # Subsequent calls within timeout should not search again
