@@ -91,12 +91,13 @@ class PersonProtocol(Protocol):
     @current_block.setter
     def current_block(self, value: float) -> None: ...
     
-    # TODO: I'm not sure this should be externally mutable
+    
     @property
     def state(self) -> PersonState: ...
     
-    @state.setter
-    def state(self, value: PersonState) -> None: ...
+    # Let's keep this read-only for now
+    # @state.setter
+    # def state(self, value: PersonState) -> None: ...
     
     @property
     def direction(self) -> HorizontalDirection: ...
@@ -208,9 +209,9 @@ class Person(PersonProtocol):
     def state(self) -> PersonState:
         return self._state
 
-    @state.setter
-    def state(self, value: PersonState) -> None:
-        self._state = value
+    # @state.setter
+    # def state(self, value: PersonState) -> None:
+    #     self._state = value
 
     @property
     @override
@@ -262,7 +263,7 @@ class Person(PersonProtocol):
     def board_elevator(self, elevator: Elevator) -> None:
         self._current_elevator = elevator
         self._waiting_time = 0.0
-        self.state = PersonState.IN_ELEVATOR
+        self._state = PersonState.IN_ELEVATOR
 
     @override
     def disembark_elevator(self) -> None:
@@ -277,7 +278,7 @@ class Person(PersonProtocol):
         self._waiting_time = 0.0
         self._current_elevator = None
         self._next_elevator_bank = None
-        self.state = PersonState.IDLE
+        self._state = PersonState.IDLE
 
     @override
     def update(self, dt: float) -> None:
@@ -323,14 +324,14 @@ class Person(PersonProtocol):
                 self._logger.trace(
                     f"IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> WALKING to Elevator block: {current_destination_block}"
                 )
-                self.state = PersonState.WALKING
+                self._state = PersonState.WALKING
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
                 current_destination_block = self._current_block  # why move? There's nowhere to go
                 self._logger.trace(
                     f"IDLE Person: Destination fl. {self.destination_floor} != current fl. {self.current_floor} -> IDLE b/c no Elevator on this floor"
                 )
-                self.state = PersonState.IDLE
+                self._state = PersonState.IDLE
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
                 self._idle_timeout = self._config.person.idle_timeout
 
@@ -339,14 +340,14 @@ class Person(PersonProtocol):
             self._logger.trace(
                 f"IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING LEFT to block: {current_destination_block}"
             )
-            self.state = PersonState.WALKING
+            self._state = PersonState.WALKING
             self.direction = HorizontalDirection.LEFT
 
         elif current_destination_block > self._current_block:
             self._logger.trace(
                 f"IDLE Person: Destination is on this floor: {self.destination_floor}, WALKING RIGHT to block: {current_destination_block}"
             )
-            self.state = PersonState.WALKING
+            self._state = PersonState.WALKING
             self.direction = HorizontalDirection.RIGHT
 
     @override
@@ -378,9 +379,9 @@ class Person(PersonProtocol):
             next_block = waypoint_block
             if self._next_elevator_bank:
                 self._next_elevator_bank.add_waiting_passenger(self)
-                self.state = PersonState.WAITING_FOR_ELEVATOR
+                self._state = PersonState.WAITING_FOR_ELEVATOR
             else:
-                self.state = PersonState.IDLE
+                self._state = PersonState.IDLE
             self._logger.debug(
                 f"WALKING Person: Arrived at destination (fl {self.current_floor}, bk {waypoint_block}) -> {self.state}"
             )
