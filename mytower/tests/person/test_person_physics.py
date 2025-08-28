@@ -7,19 +7,22 @@ from mytower.game.constants import BLOCK_FLOAT_TOLERANCE
 class TestPersonPhysics:
     """Test Person movement calculations and boundary enforcement"""
     
+    def test_left_is_negative(self) -> None:
+        assert HorizontalDirection.LEFT == -1
+    
     @pytest.mark.parametrize("direction,initial_block,dt,expected_block", [
-        (HorizontalDirection.RIGHT, 5.0, 2.0, 6.0),  # 5 + (2 * 0.5 * 1) = 6
-        (HorizontalDirection.LEFT, 10.0, 4.0, 8.0),  # 10 + (4 * 0.5 * -1) = 8  
-        (HorizontalDirection.STATIONARY, 7.0, 3.0, 7.0),  # No movement
+        (HorizontalDirection.RIGHT, 5, 2.0, 6),  # 5 + (2.0 * 0.5 * 1) = 6
+        (HorizontalDirection.LEFT, 10, 4.0, 8),  # 10 + (4.0 * 0.5 * -1) = 8  
+        (HorizontalDirection.STATIONARY, 7, 3.0, 7),  # No movement
     ])
     def test_walking_movement_calculation(
-        self, person: Person, direction: HorizontalDirection, initial_block: float, dt: float, expected_block: float
+        self, person: Person, direction: HorizontalDirection, initial_block: int, dt: float, expected_block: int
     ) -> None:
         """Test that walking movement calculations are correct"""
         person.current_block = initial_block
         person.direction = direction
         person.testing_set_current_state(PersonState.WALKING)
-        person.set_destination(dest_floor=5, dest_block=int(expected_block))
+        person.set_destination(dest_floor=5, dest_block=expected_block)
         
         person.update_walking(dt)
         
