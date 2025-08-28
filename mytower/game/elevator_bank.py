@@ -138,7 +138,8 @@ class ElevatorBank:
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
         
-            raise ValueError(f"Invalid direction: only UP or DOWN are allowed for elevator requests, got {direction!r}")
+        if not (direction == VerticalDirection.UP or direction == VerticalDirection.DOWN):
+            raise KeyError(f"Passenger cannot request_elevator to go in direction {direction}")
         
         floor_request: set[VerticalDirection] | None = self._requests.get(floor)
         
