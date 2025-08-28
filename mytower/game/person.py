@@ -355,7 +355,9 @@ class Person(PersonProtocol):
         done: bool = False
 
         # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-        waypoint_block: Final[int] = self._next_elevator_bank.get_waiting_block() if self._next_elevator_bank else self._dest_block 
+        waypoint_block: Final[int] = (
+            int(self._next_elevator_bank.get_waiting_block()) if self._next_elevator_bank else self._dest_block
+        )
 
         if waypoint_block < self._current_block:
             self.direction = HorizontalDirection.LEFT
