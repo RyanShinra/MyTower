@@ -51,11 +51,11 @@ class Building:
     def floor_width(self) -> int:
         return self._floor_width
 
-    def add_floor(self, floor_type: FloorType) -> Floor:
+    def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
-        next_floor: int = self.num_floors + 1
-        self._floors[next_floor] = Floor(self._logger_provider, self, next_floor, floor_type)
-        return self._floors[next_floor]
+        next_floor_num: int = self.num_floors + 1
+        self._floors[next_floor_num] = Floor(self._logger_provider, self, next_floor_num, floor_type)
+        return next_floor_num
 
     def add_elevator_bank(self, elevator_bank: ElevatorBank) -> None:
         """Add a new elevator to the building"""
