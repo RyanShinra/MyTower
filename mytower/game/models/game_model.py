@@ -79,9 +79,9 @@ class GameModel:
         # TODO: Move initialization logic from GameState here
         # self._initialize_building()
     
-    @property
-    def logger(self) -> MyTowerLogger:
-        return self._logger
+    # @property
+    # def logger(self) -> MyTowerLogger:
+    #     return self._logger
     
     @property
     def is_paused(self) -> bool:
