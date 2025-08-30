@@ -49,11 +49,11 @@ class GameModel:
         return self._time
     
     # Command Methods (for GraphQL mutations)
-    def add_floor(self, floor_type: FloorType) -> bool:
+    def add_floor(self, floor_type: FloorType) -> Optional[int]:
         """Add a new floor to the building"""
         try:
-            _: Floor = self._building.add_floor(floor_type)
-            return True
+            new_floor_num: int = self._building.add_floor(floor_type)
+            return new_floor_num
         except Exception as e:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e

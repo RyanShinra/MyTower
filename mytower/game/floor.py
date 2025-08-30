@@ -4,6 +4,7 @@ from __future__ import annotations  # Defer type evaluation
 from dataclasses import dataclass
 # from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from typing import TYPE_CHECKING, Dict
+from typing_extensions import Final
 
 import pygame
 from pygame import Surface
@@ -53,7 +54,7 @@ class Floor:
 
     # Available floor types
     # We shall return one day to fix this Any (turns out, that day is today)
-    lobby_info = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
+    LOBBY_INFO: Final = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
     FLOOR_TYPES: Dict[FloorType, FloorInfo] = {
         FloorType.LOBBY: FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT),
         FloorType.OFFICE: FloorInfo(OFFICE_COLOR, OFFICE_HEIGHT),
