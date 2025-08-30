@@ -49,7 +49,7 @@ class GameModel:
         return self._time
     
     # Command Methods (for GraphQL mutations)
-    def add_floor(self, floor_type: FloorType) -> Optional[int]:
+    def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         try:
             new_floor_num: int = self._building.add_floor(floor_type)

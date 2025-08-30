@@ -29,10 +29,10 @@ class Command(ABC, Generic[T]):
 
 
 @dataclass
-class AddFloorCommand(Command[bool]):
+class AddFloorCommand(Command[int]):
     floor_type: FloorType
     
     @override
-    def execute(self, model: GameModel) -> CommandResult[bool]:
-        success: bool = model.add_floor(self.floor_type)
-        return CommandResult(success=success)
+    def execute(self, model: GameModel) -> CommandResult[int]:
+        new_floor_num: int = model.add_floor(self.floor_type)
+        return CommandResult(success=True, data=new_floor_num)
