@@ -2,8 +2,14 @@
 Controller layer: Coordinates between model and external interfaces
 Handles commands, manages update cycles
 """
-# from typing import Any, Dict, List, Optional
-from typing import Optional
+# mypy: allow-any-explicit
+
+# We don't care what type T the Command[T] is, we're just passing it through. 
+# The abstract base class provides the protection we need for what we do 
+# (execute and get_description, Also, log errors from the result)
+
+from typing import Any, List, Optional
+from mytower.game.controllers.controller_commands import Command, CommandResult
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
 
@@ -12,9 +18,28 @@ class GameController:
     Coordinates game logic, handles commands from various sources
     Acts as the interface between external systems (pygame, GraphQL) and the model
     """
-    def __init__(self, model: GameModel, logger_provider: LoggerProvider) -> None:
+    def __init__(self, model: GameModel, logger_provider: LoggerProvider, fail_fast: bool = False) -> None:
         self._model: GameModel = model
         self._logger: MyTowerLogger = logger_provider.get_logger("GameController")
+        self._command_history: List[Command[Any]] = []  # For potential undo functionality
+    
+    # Command execution
+    def execute_command(self, command: Command[Any]) -> CommandResult[Any]:
+        """Execute a command and optionally store for history"""
+        try:
+            result: CommandResult[Any] = command.execute(self._model)
+            
+            if result.success:
+                self._command_history.append(command)
+                self._logger.info(f"Executed: {command.get_description()}")
+            else:
+                self._logger.warning(f"Failed: {command.get_description()} - {result.error}")
+            
+            return result
+        
+        except Exception as e:
+            self._logger.error(f"Command execution crashed: {command.get_description()} - {str(e)}")
+            return CommandResult(success=False, error=f"Command crashed: {str(e)}")
     
     # Query interface
     def get_building_state(self) -> BuildingSnapshot:
@@ -29,46 +54,6 @@ class GameController:
         """Get specific elevator state"""
         return self._model.get_elevator_by_id(elevator_id)
     
-    
-    # # Command interface
-    # def execute_command(self, command: str, **kwargs: Any) -> Dict[str, Any]:
-    #     """
-    #     Execute a command and return result
-    #     Returns: {"success": bool, "data": Any, "error": Optional[str]}
-    #     """
-    #     try:
-    #         match command:
-    #             case "add_floor":
-    #                 floor_type = kwargs.get("floor_type")
-    #                 success = self._model.add_floor(floor_type)
-    #                 return {"success": success, "data": None, "error": None}
-                
-    #             case "add_person":
-    #                 person_id = self._model.add_person(
-    #                     kwargs["floor"], kwargs["block"], 
-    #                     kwargs["dest_floor"], kwargs["dest_block"]
-    #                 )
-    #                 return {
-    #                     "success": person_id is not None, 
-    #                     "data": {"person_id": person_id}, 
-    #                     "error": None
-    #                 }
-                
-    #             case "set_speed":
-    #                 success = self._model.set_game_speed(kwargs["speed"])
-    #                 return {"success": success, "data": {"speed": kwargs["speed"]}, "error": None}
-                
-    #             case "toggle_pause":
-    #                 paused = self._model.toggle_pause()
-    #                 return {"success": True, "data": {"paused": paused}, "error": None}
-                
-    #             case _:
-    #                 return {"success": False, "data": None, "error": f"Unknown command: {command}"}
-        
-    #     except Exception as e:
-    #         self._logger.error(f"Command execution failed: {command}, error: {e}")
-    #         return {"success": False, "data": None, "error": str(e)}
-    
     # Simulation management
     def update(self, dt: float) -> None:
         """Update the game simulation"""
@@ -81,3 +66,7 @@ class GameController:
     def get_game_time(self) -> float:
         """Get current game time"""
         return self._model.current_time
+    
+    def get_command_history(self) -> List[str]:
+        """Get history of executed commands (for debugging/undo)"""
+        return [cmd.get_description() for cmd in self._command_history]

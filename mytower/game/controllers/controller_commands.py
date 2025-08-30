@@ -1,10 +1,11 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Optional, TYPE_CHECKING, TypeVar, Generic, override
 
-from mytower.game.models.game_model import GameModel
-from typing import Optional, TypeVar, Generic, override
-
-from mytower.game.types import FloorType
+if TYPE_CHECKING:
+    from mytower.game.models.game_model import GameModel
+    from mytower.game.types import FloorType
 
 T = TypeVar('T')
 
@@ -33,5 +34,5 @@ class AddFloorCommand(Command[bool]):
     
     @override
     def execute(self, model: GameModel) -> CommandResult[bool]:
-        success = model.add_floor(self.floor_type)
+        success: bool = model.add_floor(self.floor_type)
         return CommandResult(success=success)
