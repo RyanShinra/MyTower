@@ -2,8 +2,9 @@
 Controller layer: Coordinates between model and external interfaces
 Handles commands, manages update cycles
 """
-from typing import Any, Dict, List, Optional
-from mytower.game.logger import MyTowerLogger
+# from typing import Any, Dict, List, Optional
+from typing import Optional
+from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
 
 class GameController:
@@ -11,9 +12,9 @@ class GameController:
     Coordinates game logic, handles commands from various sources
     Acts as the interface between external systems (pygame, GraphQL) and the model
     """
-    def __init__(self, model: GameModel) -> None:
+    def __init__(self, model: GameModel, logger_provider: LoggerProvider) -> None:
         self._model: GameModel = model
-        self._logger: MyTowerLogger = model.logger  # Share logger with model
+        self._logger: MyTowerLogger = logger_provider.get_logger("GameController")
     
     # Query interface
     def get_building_state(self) -> BuildingSnapshot:
@@ -28,44 +29,45 @@ class GameController:
         """Get specific elevator state"""
         return self._model.get_elevator_by_id(elevator_id)
     
-    # Command interface
-    def execute_command(self, command: str, **kwargs: Any) -> Dict[str, Any]:
-        """
-        Execute a command and return result
-        Returns: {"success": bool, "data": Any, "error": Optional[str]}
-        """
-        try:
-            match command:
-                case "add_floor":
-                    floor_type = kwargs.get("floor_type")
-                    success = self._model.add_floor(floor_type)
-                    return {"success": success, "data": None, "error": None}
+    
+    # # Command interface
+    # def execute_command(self, command: str, **kwargs: Any) -> Dict[str, Any]:
+    #     """
+    #     Execute a command and return result
+    #     Returns: {"success": bool, "data": Any, "error": Optional[str]}
+    #     """
+    #     try:
+    #         match command:
+    #             case "add_floor":
+    #                 floor_type = kwargs.get("floor_type")
+    #                 success = self._model.add_floor(floor_type)
+    #                 return {"success": success, "data": None, "error": None}
                 
-                case "add_person":
-                    person_id = self._model.add_person(
-                        kwargs["floor"], kwargs["block"], 
-                        kwargs["dest_floor"], kwargs["dest_block"]
-                    )
-                    return {
-                        "success": person_id is not None, 
-                        "data": {"person_id": person_id}, 
-                        "error": None
-                    }
+    #             case "add_person":
+    #                 person_id = self._model.add_person(
+    #                     kwargs["floor"], kwargs["block"], 
+    #                     kwargs["dest_floor"], kwargs["dest_block"]
+    #                 )
+    #                 return {
+    #                     "success": person_id is not None, 
+    #                     "data": {"person_id": person_id}, 
+    #                     "error": None
+    #                 }
                 
-                case "set_speed":
-                    success = self._model.set_game_speed(kwargs["speed"])
-                    return {"success": success, "data": {"speed": kwargs["speed"]}, "error": None}
+    #             case "set_speed":
+    #                 success = self._model.set_game_speed(kwargs["speed"])
+    #                 return {"success": success, "data": {"speed": kwargs["speed"]}, "error": None}
                 
-                case "toggle_pause":
-                    paused = self._model.toggle_pause()
-                    return {"success": True, "data": {"paused": paused}, "error": None}
+    #             case "toggle_pause":
+    #                 paused = self._model.toggle_pause()
+    #                 return {"success": True, "data": {"paused": paused}, "error": None}
                 
-                case _:
-                    return {"success": False, "data": None, "error": f"Unknown command: {command}"}
+    #             case _:
+    #                 return {"success": False, "data": None, "error": f"Unknown command: {command}"}
         
-        except Exception as e:
-            self._logger.error(f"Command execution failed: {command}, error: {e}")
-            return {"success": False, "data": None, "error": str(e)}
+    #     except Exception as e:
+    #         self._logger.error(f"Command execution failed: {command}, error: {e}")
+    #         return {"success": False, "data": None, "error": str(e)}
     
     # Simulation management
     def update(self, dt: float) -> None:
