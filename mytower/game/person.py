@@ -10,6 +10,7 @@
 from __future__ import annotations  # Defer type evaluation
 
 import random
+import threading
 from typing import TYPE_CHECKING, Final, List, Protocol, override
 # from typing_extensions import override
 
@@ -144,6 +145,10 @@ class Person(PersonProtocol):
     """
     A person in the building who moves between floors and has needs.
     """
+    NULL_PERSON_ID:Final[int] = 0
+    _NEXT_PERSON_RADIX:Final[int] = 4
+    _next_person_id = 1  # please don't modify this directly 
+    _next_id_lock: threading.Lock = threading.Lock()
 
     def __init__(
         self,
@@ -153,6 +158,11 @@ class Person(PersonProtocol):
         current_block: float,
         config: GameConfig,
     ) -> None:
+        # Assign unique ID and increment counter
+        with Person._next_id_lock:
+            self._person_id: str = f"person_{Person.get_next_person_id()}"
+            Person.increment_next_person_id()
+        
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: Building = building
         self._current_floor_float: float = float(current_floor)
@@ -179,6 +189,26 @@ class Person(PersonProtocol):
         self._original_blue: Final[int] = random.randint(
             self._cosmetics_config.initial_min_blue, self._cosmetics_config.initial_max_blue
         )
+
+    @property
+    def person_id(self) -> str:
+        """Get the unique person ID"""
+        return self._person_id
+    
+    @classmethod
+    def get_next_person_id(cls) -> int:
+        """Get the next person ID that will be assigned"""
+        return cls._next_person_id
+    
+    @classmethod
+    def increment_next_person_id(cls) -> None:
+        """Increments the next ID by the radix"""
+        cls._next_person_id += cls._NEXT_PERSON_RADIX
+    
+    @classmethod
+    def reset_person_counter(cls) -> None:
+        """Reset the person ID counter (useful for testing)"""
+        cls._next_person_id = 1
 
     @property
     @override
