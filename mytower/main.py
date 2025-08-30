@@ -12,7 +12,7 @@ from mytower.game.logger import LoggerProvider
 
 # Initialize pygame
 # pylint: disable=no-member
-pygame.init()
+_ = pygame.init()
 
 # Set up the display
 screen: Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
@@ -55,14 +55,14 @@ def main() -> NoReturn:
         game_state.update(dt)
 
         # Draw everything
-        screen.fill(BACKGROUND_COLOR)
+        _ =screen.fill(BACKGROUND_COLOR)
         game_state.draw(screen)
 
         # Update the display
         pygame.display.flip()
 
         # Cap the framerate
-        clock.tick(FPS)
+        _ = clock.tick(FPS)
 
     pygame.quit()
     sys.exit()

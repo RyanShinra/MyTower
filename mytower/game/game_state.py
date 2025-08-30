@@ -136,7 +136,7 @@ class GameState:
         """Update game state by time increment dt (in seconds)"""
         if not self._paused:
             # Scale dt by game speed
-            game_dt = dt * self._speed
+            game_dt: float = dt * self._speed
             self._time += game_dt
 
             # Update building and all its components
