@@ -7,10 +7,10 @@ from __future__ import annotations
 from typing import Optional
 
 
-from mytower.game.floor import Floor
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 # from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+from mytower.game.person import Person
 from mytower.game.types import FloorType
 from mytower.game.building import Building
 from mytower.game.config import GameConfig
@@ -22,6 +22,7 @@ class GameModel:
     Provides clean interfaces for external consumption
     """
     def __init__(self, logger_provider: LoggerProvider) -> None:
+        self._logger_provider: LoggerProvider =logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger('GameModel')
         
         
@@ -57,13 +58,22 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
-    
-    def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> Optional[str]:
+
+    def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
-            # TODO: Create person and add to building
-            # TODO: Generate and return unique person ID
-            return f"person_placeholder"
+            new_person: Person = Person(
+                logger_provider=self._logger_provider,
+                building=self._building,
+                current_floor=floor,
+                current_block=block,
+                config=self._config
+            )
+            
+            new_person.set_destination(dest_floor=dest_floor, dest_block=dest_block)
+            self._building.add_person(new_person)
+            return new_person.person_id
+
         except Exception as e:
             self._logger.exception(f"Failed to add person: {e}")
             raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
@@ -74,16 +84,19 @@ class GameModel:
             if 0.0 <= speed <= 10.0:  # Reasonable bounds
                 self._speed = speed
                 return True
+
+            self._logger.warning(f"Attempted to set invalid game speed: {speed}")
             return False
         except Exception as e:
             self._logger.exception(f"Failed to set game speed to {speed}: {e}")
             raise RuntimeError(f"Failed to set game speed to {speed}: {str(e)}") from e
     
-    def set_pause_state(self, paused: bool) -> bool:
+    def set_pause_state(self, paused: bool) -> None:
         """Set game pause state"""
         try:
             self._paused = paused
-            return True
+            self._logger.info(f"Set pause state to {paused}")
+
         except Exception as e:
             self._logger.exception(f"Failed to set pause state to {paused}: {e}")
             raise RuntimeError(f"Failed to set pause state to {paused}: {str(e)}") from e
@@ -91,7 +104,7 @@ class GameModel:
     def toggle_pause(self) -> bool:
         """Toggle game pause state, returns new state"""
         try:
-            self._paused = not self._paused
+            self.set_pause_state(not self._paused)
             return self._paused
         except Exception as e:
             self._logger.exception(f"Failed to toggle pause state: {e}")

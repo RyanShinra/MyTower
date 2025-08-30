@@ -36,3 +36,20 @@ class AddFloorCommand(Command[int]):
     def execute(self, model: GameModel) -> CommandResult[int]:
         new_floor_num: int = model.add_floor(self.floor_type)
         return CommandResult(success=True, data=new_floor_num)
+    
+@dataclass
+class AddPersonCommand(Command[str]):
+    floor: int
+    block: float
+    dest_floor: int
+    dest_block: int
+
+    @override
+    def execute(self, model: GameModel) -> CommandResult[str]:
+        person_id: str = model.add_person(
+            floor=self.floor,
+            block=self.block,
+            dest_floor=self.dest_floor,
+            dest_block=self.dest_block
+        )
+        return CommandResult(success=True, data=person_id)
