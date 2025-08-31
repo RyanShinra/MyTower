@@ -6,6 +6,7 @@ from pygame import Surface
 
 from mytower.game.constants import STARTING_MONEY
 # pyright: ignore[reportImportCycles] 
+from mytower.game.elevator import Elevator
 from mytower.game.floor import Floor
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.types import FloorType
@@ -50,6 +51,10 @@ class Building:
     @property
     def floor_width(self) -> int:
         return self._floor_width
+    
+    @property
+    def people(self) -> List[PersonProtocol]:
+        return self._people
 
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
@@ -75,6 +80,22 @@ class Building:
                 and (bank.min_floor <= floor_num <= bank.max_floor)
             )
         ]
+        
+    def get_floors(self) -> List[Floor]:
+        return [
+            self._floors[floor_num]
+            for floor_num in range(1, self.num_floors + 1)
+        ]
+
+    def get_elevator_banks(self) -> List[ElevatorBank]:
+        return self._elevator_banks
+
+    def get_elevators(self) -> List[Elevator]:
+        """Get all elevators from all banks"""
+        elevators: List[Elevator] = []
+        for bank in self._elevator_banks:
+            elevators.extend(bank.elevators)
+        return elevators
 
     def update(self, dt: float) -> None:
         """Update the building simulation by dt time"""

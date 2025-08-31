@@ -10,6 +10,7 @@ from typing import Optional
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 # from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+from mytower.game.models.snapshot_builders import build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
 from mytower.game.person import Person
 from mytower.game.types import FloorType
 from mytower.game.building import Building
@@ -121,7 +122,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
-    
+
     def get_building_snapshot(self) -> BuildingSnapshot:
         """Get complete building state as immutable snapshot"""
         try:
@@ -129,14 +130,47 @@ class GameModel:
             return BuildingSnapshot(
                 time=self._time,
                 money=0,  # self._building.money,
-                floors=[],  # self._get_floor_snapshots(),
-                elevators=[],  # self._get_elevator_snapshots(),
+                floors=self._get_floor_snapshots(),
+                elevators=self._get_elevator_snapshots(),
                 people=[]   # self._get_person_snapshots()
             )
         except Exception as e:
             self._logger.exception(f"Failed to get building snapshot: {e}")
             raise RuntimeError(f"Failed to get building snapshot: {str(e)}") from e
     
+    def _get_floor_snapshots(self) -> list[FloorSnapshot]:
+        """Helper to get snapshots of all floors"""
+        try:
+            return [
+                build_floor_snapshot(floor) for floor in self._building.get_floors()
+            ]
+            
+        except Exception as e:
+            self._logger.exception(f"Failed to get floor snapshots: {e}")
+            raise RuntimeError(f"Failed to get floor snapshots: {str(e)}") from e
+
+    def _get_elevator_snapshots(self) -> list[ElevatorSnapshot]:
+        """Helper to get snapshots of all elevators"""
+        try:
+            return [
+                build_elevator_snapshot(elevator) for elevator in self._building.get_elevators()
+            ]
+
+        except Exception as e:
+            self._logger.exception(f"Failed to get elevator snapshots: {e}")
+            raise RuntimeError(f"Failed to get elevator snapshots: {str(e)}") from e
+
+    def _get_person_snapshots(self) -> list[PersonSnapshot]:
+        """Helper to get snapshots of all people"""
+        try:
+            return [
+                build_person_snapshot(person) for person in self._building.people
+            ]
+
+        except Exception as e:
+            self._logger.exception(f"Failed to get person snapshots: {e}")
+            raise RuntimeError(f"Failed to get person snapshots: {str(e)}") from e
+
     def get_person_by_id(self, person_id: str) -> Optional[PersonSnapshot]:
         """Get specific person state by ID"""
         try:
