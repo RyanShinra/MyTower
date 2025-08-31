@@ -16,7 +16,8 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, List, Sequence
+import threading
+from typing import TYPE_CHECKING, Final, List, Sequence
 from typing import Optional as Opt
 from typing import Protocol
 
@@ -77,6 +78,11 @@ class Elevator:
     An elevator in the building that transports people between floors.
     """
 
+    NULL_ELEVATOR_ID: Final[int] = 0
+    _NEXT_ELEVATOR_RADIX: Final[int] = 4
+    _next_elevator_id = 1  # please don't modify this directly
+    _next_id_lock: threading.Lock = threading.Lock()
+
     def __init__(
         self,
         logger_provider: LoggerProvider,
@@ -99,6 +105,11 @@ class Elevator:
             cosmetics_config: Visual appearance configuration for the elevator.
             logger_provider: Initializes self._logger.
         """
+        # Assign unique ID and increment counter
+        with Elevator._next_id_lock:
+            self._elevator_id: str = Elevator.get_next_elevator_id()
+            Elevator.increment_next_elevator_id()
+
         self._logger: MyTowerLogger = logger_provider.get_logger("Elevator")
         self._parent_elevator_bank: ElevatorBank = elevator_bank
         self._horizontal_block: int = h_cell
@@ -126,6 +137,26 @@ class Elevator:
         self._idle_log_timer: float = 0.0
         self._moving_log_timer: float = 0.0
 
+    @classmethod
+    def get_next_elevator_id(cls) -> str:
+        """Get the next elevator ID that will be assigned"""
+        return f"elevator_{cls._next_elevator_id}"
+
+    @classmethod
+    def increment_next_elevator_id(cls) -> None:
+        """Increments the next ID by the radix"""
+        cls._next_elevator_id += cls._NEXT_ELEVATOR_RADIX
+
+    @classmethod
+    def reset_elevator_counter(cls) -> None:
+        """Reset the elevator ID counter (useful for testing)"""
+        cls._next_elevator_id = 1
+
+    @property
+    def elevator_id(self) -> str:
+        """Get the unique elevator ID"""
+        return self._elevator_id
+
     @property
     def state(self) -> ElevatorState:
         return self._state
@@ -136,6 +167,14 @@ class Elevator:
     @property
     def avail_capacity(self) -> int:
         return self._config.max_capacity - len(self._passengers)
+
+    @property
+    def max_capacity(self) -> int:
+        return self._config.max_capacity
+    
+    @property
+    def passenger_count(self) -> int:
+        return len(self._passengers)
 
     @property
     def is_empty(self) -> bool:

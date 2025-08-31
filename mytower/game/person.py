@@ -80,11 +80,12 @@ class PersonCosmeticsProtocol(Protocol):
 
 class PersonProtocol(Protocol):
     """This is currently only for some of the elevator tests, expand it as needed"""
-    @property
-    def destination_floor(self) -> int: ...
     
     @property
     def current_floor(self) -> int: ...
+    
+    @property
+    def destination_floor(self) -> int: ...
     
     @property
     def current_block(self) -> float: ...
@@ -92,6 +93,11 @@ class PersonProtocol(Protocol):
     @current_block.setter
     def current_block(self, value: float) -> None: ...
     
+    @property
+    def destination_block(self) -> int: ...
+    
+    @property
+    def person_id(self) -> str: ...
     
     @property
     def state(self) -> PersonState: ...
@@ -112,6 +118,9 @@ class PersonProtocol(Protocol):
     @property
     def building(self) -> Building: ...
     
+    @property
+    def waiting_time(self) -> float: ...        
+
     def set_destination(self, dest_floor: int, dest_block: int) -> None: ...
     
     def find_nearest_elevator_bank(self) -> None | ElevatorBank: ...
@@ -160,7 +169,7 @@ class Person(PersonProtocol):
     ) -> None:
         # Assign unique ID and increment counter
         with Person._next_id_lock:
-            self._person_id: str = f"person_{Person.get_next_person_id()}"
+            self._person_id: str = Person.get_next_person_id()
             Person.increment_next_person_id()
         
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
@@ -191,15 +200,16 @@ class Person(PersonProtocol):
         )
 
     @property
+    @override
     def person_id(self) -> str:
         """Get the unique person ID"""
         return self._person_id
     
     @classmethod
-    def get_next_person_id(cls) -> int:
+    def get_next_person_id(cls) -> str:
         """Get the next person ID that will be assigned"""
-        return cls._next_person_id
-    
+        return f"person_{Person._next_person_id}"
+
     @classmethod
     def increment_next_person_id(cls) -> None:
         """Increments the next ID by the radix"""
@@ -219,6 +229,11 @@ class Person(PersonProtocol):
     @override
     def current_floor(self) -> int:
         return int(self._current_floor_float)
+
+    @property
+    @override
+    def destination_block(self) -> int:
+        return self._dest_block
 
     @property
     @override
@@ -257,6 +272,11 @@ class Person(PersonProtocol):
     def max_velocity(self) -> float:
         return self._config.person.max_speed
        
+    @property
+    @override
+    def waiting_time(self) -> float:
+        return self._waiting_time
+
     @override
     def set_destination(self, dest_floor: int, dest_block: int) -> None:
         # Check if destination values are out of bounds and log warnings

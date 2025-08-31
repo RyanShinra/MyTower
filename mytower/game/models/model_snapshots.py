@@ -25,6 +25,7 @@ class ElevatorSnapshot:
     door_open: bool
     passenger_count: int
     available_capacity: int
+    max_capacity: int
 
 
 @dataclass
@@ -32,7 +33,7 @@ class FloorSnapshot:
     """Immutable snapshot of floor state for API consumption"""
     floor_number: int
     floor_type: FloorType
-    person_count: int
+    person_count: int  # Not yet implemented    
 
 
 @dataclass
