@@ -19,7 +19,7 @@ class TestPersonPhysics:
         self, person: Person, direction: HorizontalDirection, initial_block: int, dt: float, expected_block: int
     ) -> None:
         """Test that walking movement calculations are correct"""
-        person.current_block_float = initial_block
+        person.testing_set_current_block_float(initial_block)
         person.direction = direction
         person.testing_set_current_state(PersonState.WALKING)
         person.set_destination(dest_floor_num=5, dest_block_num=expected_block)
@@ -33,7 +33,7 @@ class TestPersonPhysics:
         mock_building.floor_width = 20
         
         # Test right boundary
-        person.current_block_float = 19.5
+        person.testing_set_current_block_float(19.5)
         person.direction = HorizontalDirection.RIGHT
         person.testing_set_current_state(PersonState.WALKING)
         person.set_destination(dest_floor_num=5, dest_block_num=25)  # Beyond building width
@@ -41,9 +41,9 @@ class TestPersonPhysics:
         person.update_walking(10.0)  # Large dt
         
         assert person.current_block_float <= 20  # Clamped to building width
-        
-        # Test left boundary  
-        person.current_block_float = 0.5
+
+        # Test left boundary
+        person.testing_set_current_block_float(0.5)
         person.direction = HorizontalDirection.LEFT
         person.set_destination(dest_floor_num=5, dest_block_num=-5)  # Below 0
         

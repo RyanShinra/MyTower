@@ -38,8 +38,8 @@ class TestPersonBasics:
     def test_current_block_property(self, person: Person) -> None:
         """Test current_block getter and setter"""
         assert person.current_block_float == 10.0
-        
-        person.current_block_float = 15.5
+
+        person.testing_set_current_block_float(15.5)
         assert person.current_block_float == 15.5
         
     def test_state_property(self, person: Person) -> None:
