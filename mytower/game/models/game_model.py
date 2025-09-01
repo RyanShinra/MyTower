@@ -137,14 +137,15 @@ class GameModel:
             # TODO: Implement snapshot creation from self._building
             return BuildingSnapshot(
                 time=self._time,
-                money=0,  # self._building.money,
+                money=self._building.money, # Consider, do we want the building or the model to manage this?
                 floors=self._get_floor_snapshots(),
                 elevators=self._get_elevator_snapshots(),
-                people=[]   # self._get_person_snapshots()
+                people=self._get_person_snapshots()
             )
         except Exception as e:
             self._logger.exception(f"Failed to get building snapshot: {e}")
             raise RuntimeError(f"Failed to get building snapshot: {str(e)}") from e
+
     
     def _get_floor_snapshots(self) -> list[FloorSnapshot]:
         """Helper to get snapshots of all floors"""
