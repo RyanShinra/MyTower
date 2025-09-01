@@ -32,6 +32,8 @@ class Building:
         self._floor_width: int = width  # Width in grid cells
         self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
         self._elevator_banks: List[ElevatorBank] = []  # List of elevator objects
+        
+        # TODO: Remove this when fully migrating to GameModel and Floor ownership
         self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the building with their id as the key
         self._time: float = 0.0  # Game time in minutes
         self._money: int = STARTING_MONEY  # Starting money
@@ -53,6 +55,7 @@ class Building:
     def floor_width(self) -> int:
         return self._floor_width
     
+    # TODO: Remove this when fully migrating to GameModel and Floor ownership
     @property
     def people(self) -> List[PersonProtocol]:
         return list(self._people.values())
@@ -67,11 +70,9 @@ class Building:
         """Add a new elevator to the building"""
         self._elevator_banks.append(elevator_bank)
 
+    # TODO: Remove this when fully migrating to GameModel and Floor ownership
     def add_person(self, person: PersonProtocol) -> None:
         self._people[person.person_id] = person
-        
-    def get_person_by_id(self, person_id: str) -> PersonProtocol | None:
-        return self._people.get(person_id)
 
     def get_elevator_banks_on_floor(self, floor_num: int) -> List[ElevatorBank]:
         """Returns a list of all elevators that are currently on the specified floor"""
@@ -112,6 +113,7 @@ class Building:
             if hasattr(elevator, "update"):
                 elevator.update(dt)
 
+        # TODO: Remove this when fully migrating to GameModel and Floor ownership
         for person in self.people:
             if hasattr(person, "update"):
                 person.update(dt)
