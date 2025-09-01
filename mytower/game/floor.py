@@ -123,7 +123,7 @@ class Floor:
         floor_x_left = 0
 
         # Draw the main floor rectangle
-        _ =pygame.draw.rect(
+        _ = pygame.draw.rect(
             surface, self._color, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, floor_height)
         )
         _ = pygame.draw.rect(
