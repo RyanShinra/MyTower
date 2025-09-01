@@ -19,35 +19,35 @@ class TestPersonPhysics:
         self, person: Person, direction: HorizontalDirection, initial_block: int, dt: float, expected_block: int
     ) -> None:
         """Test that walking movement calculations are correct"""
-        person.current_block = initial_block
+        person.current_block_float = initial_block
         person.direction = direction
         person.testing_set_current_state(PersonState.WALKING)
-        person.set_destination(dest_floor=5, dest_block=expected_block)
+        person.set_destination(dest_floor_num=5, dest_block_num=expected_block)
         
         person.update_walking(dt)
         
-        assert abs(person.current_block - expected_block) < BLOCK_FLOAT_TOLERANCE  # Allow for floating point precision
+        assert abs(person.current_block_float - expected_block) < BLOCK_FLOAT_TOLERANCE  # Allow for floating point precision
         
     def test_walking_respects_building_boundaries(self, person: Person, mock_building: MagicMock) -> None:
         """Test that person movement is constrained by building boundaries"""
         mock_building.floor_width = 20
         
         # Test right boundary
-        person.current_block = 19.5
+        person.current_block_float = 19.5
         person.direction = HorizontalDirection.RIGHT
         person.testing_set_current_state(PersonState.WALKING)
-        person.set_destination(dest_floor=5, dest_block=25)  # Beyond building width
+        person.set_destination(dest_floor_num=5, dest_block_num=25)  # Beyond building width
         
         person.update_walking(10.0)  # Large dt
         
-        assert person.current_block <= 20  # Clamped to building width
+        assert person.current_block_float <= 20  # Clamped to building width
         
         # Test left boundary  
-        person.current_block = 0.5
+        person.current_block_float = 0.5
         person.direction = HorizontalDirection.LEFT
-        person.set_destination(dest_floor=5, dest_block=-5)  # Below 0
+        person.set_destination(dest_floor_num=5, dest_block_num=-5)  # Below 0
         
         person.update_walking(10.0)
         
-        assert person.current_block >= 0  # Clamped to 0
+        assert person.current_block_float >= 0  # Clamped to 0
 

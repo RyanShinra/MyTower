@@ -47,7 +47,7 @@ def person(mock_logger_provider: MagicMock, mock_building: MagicMock, mock_game_
     return Person(
         logger_provider=mock_logger_provider,
         building=mock_building,
-        current_floor=5,
-        current_block=10.0,
+        current_floor_num=5,
+        current_block_float=10.0,
         config=mock_game_config
     )
