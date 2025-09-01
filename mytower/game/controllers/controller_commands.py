@@ -37,6 +37,10 @@ class AddFloorCommand(Command[int]):
         new_floor_num: int = model.add_floor(self.floor_type)
         return CommandResult(success=True, data=new_floor_num)
     
+    @override
+    def get_description(self) -> str:
+        return f"Add a floor of type {self.floor_type}"
+    
 @dataclass
 class AddPersonCommand(Command[str]):
     floor: int
@@ -53,3 +57,10 @@ class AddPersonCommand(Command[str]):
             dest_block=self.dest_block
         )
         return CommandResult(success=True, data=person_id)
+    
+    @override
+    def get_description(self) -> str:
+        return (
+            f"Add person at floor {self.floor}, block {self.block} "
+            f"with destination floor {self.dest_floor}, block {self.dest_block}"
+        )
