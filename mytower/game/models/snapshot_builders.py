@@ -14,7 +14,7 @@ def build_floor_snapshot(floor: Floor) -> FloorSnapshot:
     return FloorSnapshot(
         floor_number=floor.floor_num,
         floor_type=floor.floor_type,
-        person_count=0 # TODO: Implement once we have floors contain people
+        person_count=0  # TODO: Implement once we have floors contain people
     )
     
 def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
