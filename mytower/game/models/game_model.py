@@ -4,7 +4,7 @@ No pygame dependencies, no rendering logic
 """
 from __future__ import annotations
 # from typing import List, Dict, Optional
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 
 from mytower.game.elevator import Elevator
@@ -28,7 +28,7 @@ class GameModel:
         self._logger_provider: LoggerProvider =logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger('GameModel')
         
-        
+        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the game with their id as the key
         self._building = Building(logger_provider, width=20)
         self._config = GameConfig()
         
@@ -36,6 +36,7 @@ class GameModel:
         self._time: float = 0.0
         self._speed: float = 1.0
         self._paused: bool = False
+        
         
         # TODO: Move initialization logic from GameState here
         # self._initialize_building()
@@ -76,6 +77,8 @@ class GameModel:
             )
             
             new_person.set_destination(dest_floor=dest_floor, dest_block=dest_block)
+            
+            self._people[new_person.person_id] = new_person
             self._building.add_person(new_person)
             return new_person.person_id
 
@@ -182,7 +185,7 @@ class GameModel:
     def get_person_by_id(self, person_id: str) -> Optional[PersonSnapshot]:
         """Get specific person state by ID"""
         try:
-            person: PersonProtocol | None = self._building.get_person_by_id(person_id)
+            person: PersonProtocol | None = self._people.get(person_id)
             if person:
                 return build_person_snapshot(person)
             
