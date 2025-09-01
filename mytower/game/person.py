@@ -25,7 +25,7 @@ from mytower.game.types import HorizontalDirection, PersonState
 
 if TYPE_CHECKING:
     from pygame import Surface
-
+    from mytower.game.floor import Floor
     from mytower.game.building import Building
     from mytower.game.elevator_bank import ElevatorBank
     from mytower.game.logger import LoggerProvider
@@ -90,6 +90,9 @@ class PersonProtocol(Protocol):
     @property
     def current_block_float(self) -> float: ...
     
+    @property
+    def current_floor(self) -> Floor | None: ...
+
     # @current_block_float.setter
     # def current_block_float(self, value: float) -> None: ...
     
@@ -186,6 +189,7 @@ class Person(PersonProtocol):
         self._idle_timeout: float = 0
         self._current_elevator: Elevator | None = None
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
+        self._current_floor: Floor | None = None
 
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
@@ -239,6 +243,11 @@ class Person(PersonProtocol):
     @override
     def current_block_float(self) -> float:
         return self._current_block_float
+
+    @property
+    @override
+    def current_floor(self) -> Floor | None:
+        return self._current_floor
 
     # @current_block_float.setter
     # def current_block_float(self, value: float) -> None:
