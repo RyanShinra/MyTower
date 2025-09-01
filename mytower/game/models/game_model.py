@@ -4,9 +4,10 @@ No pygame dependencies, no rendering logic
 """
 from __future__ import annotations
 # from typing import List, Dict, Optional
-from typing import Optional
+from typing import List, Optional
 
 
+from mytower.game.elevator import Elevator
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 # from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
@@ -194,7 +195,10 @@ class GameModel:
     def get_elevator_by_id(self, elevator_id: str) -> Optional[ElevatorSnapshot]:
         """Get specific elevator state by ID"""
         try:
-            # TODO: Implement elevator lookup and snapshot creation
+            elevators: List[Elevator] = self._building.get_elevators()
+            for elevator in elevators:
+                if elevator.elevator_id == elevator_id:
+                    return build_elevator_snapshot(elevator)
             return None
         except Exception as e:
             self._logger.exception(f"Failed to get elevator by id {elevator_id}: {e}")
