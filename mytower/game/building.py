@@ -32,11 +32,12 @@ class Building:
         self._floor_width: int = width  # Width in grid cells
         self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
         self._elevator_banks: List[ElevatorBank] = []  # List of elevator objects
-        self._people: List[PersonProtocol] = []  # List of people in the building
+        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the building with their id as the key
         self._time: float = 0.0  # Game time in minutes
         self._money: int = STARTING_MONEY  # Starting money
 
         # Add ground floor by default
+        # It might be helpful to hold onto this reference in the future
         _ = self.add_floor(FloorType.LOBBY)
 
     @property
@@ -54,7 +55,7 @@ class Building:
     
     @property
     def people(self) -> List[PersonProtocol]:
-        return self._people
+        return list(self._people.values())
 
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
@@ -67,7 +68,10 @@ class Building:
         self._elevator_banks.append(elevator_bank)
 
     def add_person(self, person: PersonProtocol) -> None:
-        self._people.append(person)
+        self._people[person.person_id] = person
+        
+    def get_person_by_id(self, person_id: str) -> PersonProtocol | None:
+        return self._people.get(person_id)
 
     def get_elevator_banks_on_floor(self, floor_num: int) -> List[ElevatorBank]:
         """Returns a list of all elevators that are currently on the specified floor"""
@@ -105,7 +109,7 @@ class Building:
             if hasattr(elevator, "update"):
                 elevator.update(dt)
 
-        for person in self._people:
+        for person in self.people:
             if hasattr(person, "update"):
                 person.update(dt)
 
@@ -120,7 +124,7 @@ class Building:
             if hasattr(elevator, "draw"):
                 elevator.draw(surface)
 
-        for person in self._people:
+        for person in self.people:
             # self._logger.debug("I want to draw a person")
             if hasattr(person, "draw") and callable(person.draw):
                 person.draw(surface)

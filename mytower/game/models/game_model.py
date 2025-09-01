@@ -11,7 +11,7 @@ from mytower.game.logger import LoggerProvider, MyTowerLogger
 # from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from mytower.game.models.snapshot_builders import build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
-from mytower.game.person import Person
+from mytower.game.person import Person, PersonProtocol
 from mytower.game.types import FloorType
 from mytower.game.building import Building
 from mytower.game.config import GameConfig
@@ -38,6 +38,7 @@ class GameModel:
         # TODO: Move initialization logic from GameState here
         # self._initialize_building()
     
+
     # @property
     # def logger(self) -> MyTowerLogger:
     #     return self._logger
@@ -60,6 +61,7 @@ class GameModel:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
 
+    
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
@@ -123,6 +125,7 @@ class GameModel:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
 
+    
     def get_building_snapshot(self) -> BuildingSnapshot:
         """Get complete building state as immutable snapshot"""
         try:
@@ -149,6 +152,7 @@ class GameModel:
             self._logger.exception(f"Failed to get floor snapshots: {e}")
             raise RuntimeError(f"Failed to get floor snapshots: {str(e)}") from e
 
+    
     def _get_elevator_snapshots(self) -> list[ElevatorSnapshot]:
         """Helper to get snapshots of all elevators"""
         try:
@@ -160,6 +164,7 @@ class GameModel:
             self._logger.exception(f"Failed to get elevator snapshots: {e}")
             raise RuntimeError(f"Failed to get elevator snapshots: {str(e)}") from e
 
+    
     def _get_person_snapshots(self) -> list[PersonSnapshot]:
         """Helper to get snapshots of all people"""
         try:
@@ -171,14 +176,20 @@ class GameModel:
             self._logger.exception(f"Failed to get person snapshots: {e}")
             raise RuntimeError(f"Failed to get person snapshots: {str(e)}") from e
 
+    
     def get_person_by_id(self, person_id: str) -> Optional[PersonSnapshot]:
         """Get specific person state by ID"""
         try:
-            # TODO: Implement person lookup and snapshot creation
+            person: PersonProtocol | None = self._building.get_person_by_id(person_id)
+            if person:
+                return build_person_snapshot(person)
+            
             return None
+        
         except Exception as e:
             self._logger.exception(f"Failed to get person by id {person_id}: {e}")
             raise RuntimeError(f"Failed to get person by id {person_id}: {str(e)}") from e
+
     
     def get_elevator_by_id(self, elevator_id: str) -> Optional[ElevatorSnapshot]:
         """Get specific elevator state by ID"""
