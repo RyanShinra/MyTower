@@ -91,6 +91,9 @@ class Building:
             for floor_num in range(1, self.num_floors + 1)
         ]
 
+    def get_floor_by_number(self, floor_num: int) -> Floor | None:
+        return self._floors.get(floor_num)
+
     def get_elevator_banks(self) -> List[ElevatorBank]:
         return self._elevator_banks
 

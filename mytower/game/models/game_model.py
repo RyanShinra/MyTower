@@ -8,6 +8,7 @@ from typing import List, Optional
 
 
 from mytower.game.elevator import Elevator
+from mytower.game.floor import Floor
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 # from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
@@ -207,7 +208,9 @@ class GameModel:
     def get_floor_info(self, floor_number: int) -> Optional[FloorSnapshot]:
         """Get specific floor information"""
         try:
-            # TODO: Implement floor lookup and snapshot creation
+            floor: Floor | None = self._building.get_floor_by_number(floor_number)
+            if floor:
+                return build_floor_snapshot(floor)
             return None
         except Exception as e:
             self._logger.exception(f"Failed to get floor info for floor {floor_number}: {e}")
