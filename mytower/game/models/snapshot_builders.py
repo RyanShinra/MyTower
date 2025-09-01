@@ -40,5 +40,5 @@ def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
         destination_floor=person.destination_floor,
         destination_block=person.destination_block,
         state=person.state,
-        waiting_time=0 #person.waiting_time
+        waiting_time=person.waiting_time
     )
