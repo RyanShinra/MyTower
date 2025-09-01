@@ -70,24 +70,24 @@ class GameState:
 
         # Add a sample person
         self._test_person = Person(
-            logger_provider, building=self._building, current_floor=1, current_block=1, config=self._config
+            logger_provider, building=self._building, current_floor_num=1, current_block_float=1, config=self._config
         )  # Pass the whole GameConfig object
-        self._test_person.set_destination(dest_floor=9, dest_block=7)
+        self._test_person.set_destination(dest_floor_num=9, dest_block_num=7)
         
         self._test_person2 = Person(
-            logger_provider, building=self._building, current_floor=1, current_block=3, config=self._config
+            logger_provider, building=self._building, current_floor_num=1, current_block_float=3, config=self._config
         )  # Pass the whole GameConfig object
-        self._test_person2.set_destination(dest_floor=3, dest_block=7)
+        self._test_person2.set_destination(dest_floor_num=3, dest_block_num=7)
         
         self._test_person3 = Person(
-            logger_provider, building=self._building, current_floor=1, current_block=6, config=self._config
+            logger_provider, building=self._building, current_floor_num=1, current_block_float=6, config=self._config
         )  # Pass the whole GameConfig object
-        self._test_person3.set_destination(dest_floor=7, dest_block=7)
+        self._test_person3.set_destination(dest_floor_num=7, dest_block_num=7)
         
         self._test_person4 = Person(
-            logger_provider, building=self._building, current_floor=12, current_block=1, config=self._config
+            logger_provider, building=self._building, current_floor_num=12, current_block_float=1, config=self._config
         )  # Pass the whole GameConfig object
-        self._test_person4.set_destination(dest_floor=1, dest_block=1)
+        self._test_person4.set_destination(dest_floor_num=1, dest_block_num=1)
         
         self._building.add_person(self._test_person)
         self._building.add_person(self._test_person2)

@@ -156,41 +156,41 @@ class ElevatorBank:
         if passenger is None:  # pyright: ignore
             raise ValueError("PersonProtocol cannot be None") # pyright: ignore[reportUnreachable]
 
-        if passenger.current_floor < self.min_floor or passenger.current_floor > self.max_floor:
+        if passenger.current_floor_num < self.min_floor or passenger.current_floor_num > self.max_floor:
             raise ValueError(
-                f"Floor {passenger.current_floor} is not within the valid range of floors: {self._min_floor}:{self._max_floor}"
+                f"Floor {passenger.current_floor_num} is not within the valid range of floors: {self._min_floor}:{self._max_floor}"
             )
 
         self._logger.info(
-            f"Adding passenger going from floor {passenger.current_floor} to floor {passenger.destination_floor}"
+            f"Adding passenger going from floor {passenger.current_floor_num} to floor {passenger.destination_floor_num}"
         )
 
         current_queue: deque[PersonProtocol] | None = None
-        if passenger.current_floor == passenger.destination_floor:
+        if passenger.current_floor_num == passenger.destination_floor_num:
             raise ValueError(
-                f"PersonProtocol cannot go to the same floor: current floor {passenger.current_floor} = destination floor {passenger.destination_floor}"
+                f"PersonProtocol cannot go to the same floor: current floor {passenger.current_floor_num} = destination floor {passenger.destination_floor_num}"
             )
 
-        elif passenger.current_floor < passenger.destination_floor:
+        elif passenger.current_floor_num < passenger.destination_floor_num:
             self._logger.info("Adding Passenger to Going UP queue, Requesting UP")
-            if passenger.current_floor not in self._upward_waiting_passengers:
+            if passenger.current_floor_num not in self._upward_waiting_passengers:
                 raise KeyError(
-                    f"Floor {passenger.current_floor} is not within the valid range of floors for upward_waiting_passengers, {self._upward_waiting_passengers.keys}"
+                    f"Floor {passenger.current_floor_num} is not within the valid range of floors for upward_waiting_passengers, {self._upward_waiting_passengers.keys}"
                 )
-            self.request_elevator(passenger.current_floor, VerticalDirection.UP)
-            current_queue = self._upward_waiting_passengers.get(passenger.current_floor)
+            self.request_elevator(passenger.current_floor_num, VerticalDirection.UP)
+            current_queue = self._upward_waiting_passengers.get(passenger.current_floor_num)
         
         else:
             self._logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
-            if passenger.current_floor not in self._downward_waiting_passengers:
+            if passenger.current_floor_num not in self._downward_waiting_passengers:
                 raise KeyError(
-                    f"Floor {passenger.current_floor} is not within the valid range of floors for _downward_waiting_passengers, {self._downward_waiting_passengers.keys}"
+                    f"Floor {passenger.current_floor_num} is not within the valid range of floors for _downward_waiting_passengers, {self._downward_waiting_passengers.keys}"
                 )
-            self.request_elevator(passenger.current_floor, VerticalDirection.DOWN)
-            current_queue = self._downward_waiting_passengers.get(passenger.current_floor)
+            self.request_elevator(passenger.current_floor_num, VerticalDirection.DOWN)
+            current_queue = self._downward_waiting_passengers.get(passenger.current_floor_num)
 
         if current_queue is None:
-            raise KeyError(f"Why can't we get a current Queue on floor:  {passenger.current_floor}")
+            raise KeyError(f"Why can't we get a current Queue on floor:  {passenger.current_floor_num}")
         # TODO: Do we want a max queue length?
         current_queue.append(passenger)
 

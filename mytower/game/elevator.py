@@ -303,7 +303,7 @@ class Elevator:
     def passengers_who_want_off(self) -> List[PersonProtocol]:
         answer: List[PersonProtocol] = []
         for p in self._passengers:
-            if p.destination_floor == self.current_floor_int:
+            if p.destination_floor_num == self.current_floor_int:
                 answer.append(p)
 
         return answer
@@ -317,11 +317,11 @@ class Elevator:
 
         floors_set: set[int] = set()
         for p in self._passengers:
-            if direction == VerticalDirection.UP and p.destination_floor > floor:
-                floors_set.add(p.destination_floor)
+            if direction == VerticalDirection.UP and p.destination_floor_num > floor:
+                floors_set.add(p.destination_floor_num)
 
-            elif direction == VerticalDirection.DOWN and p.destination_floor < floor:
-                floors_set.add(p.destination_floor)
+            elif direction == VerticalDirection.DOWN and p.destination_floor_num < floor:
+                floors_set.add(p.destination_floor_num)
 
         sorted_floors: List[int] = list(floors_set)
         if direction == VerticalDirection.UP:

@@ -30,8 +30,8 @@ class TestPersonElevatorInteraction:
         person.disembark_elevator()
         
         assert person.state == PersonState.IDLE
-        assert person.current_floor == 8
-        assert person.current_block == 3
+        assert person.current_floor_num == 8
+        assert person.current_block_float == 3
         assert person.testing_get_current_elevator() is None
         assert person.testing_get_next_elevator_bank() is None
         

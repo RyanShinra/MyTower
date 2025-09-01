@@ -40,5 +40,5 @@ class TestPersonStateMachine:
         person.update(1.0)
         
         assert person.testing_get_current_floor_float() == 6.7
-        assert person.current_block == 12
+        assert person.current_block_float == 12
 
