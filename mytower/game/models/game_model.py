@@ -25,7 +25,7 @@ class GameModel:
     Provides clean interfaces for external consumption
     """
     def __init__(self, logger_provider: LoggerProvider) -> None:
-        self._logger_provider: LoggerProvider =logger_provider
+        self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger('GameModel')
         
         self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the game with their id as the key
