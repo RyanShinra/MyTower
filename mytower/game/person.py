@@ -90,8 +90,8 @@ class PersonProtocol(Protocol):
     @property
     def current_block_float(self) -> float: ...
     
-    @current_block_float.setter
-    def current_block_float(self, value: float) -> None: ...
+    # @current_block_float.setter
+    # def current_block_float(self, value: float) -> None: ...
     
     @property
     def destination_block_num(self) -> int: ...
@@ -240,9 +240,9 @@ class Person(PersonProtocol):
     def current_block_float(self) -> float:
         return self._current_block_float
 
-    @current_block_float.setter
-    def current_block_float(self, value: float) -> None:
-        self._current_block_float = value
+    # @current_block_float.setter
+    # def current_block_float(self, value: float) -> None:
+    #     self._current_block_float = value
 
     @property
     @override
@@ -472,7 +472,10 @@ class Person(PersonProtocol):
         
     def testing_get_current_floor_float(self) -> float:
         return self._current_floor_float
-    
+
+    def testing_set_current_block_float(self, cur_block: float) -> None:
+        self._current_block_float = cur_block
+
     def testing_set_current_state(self, state: PersonState) -> None:
         self._state = state
         

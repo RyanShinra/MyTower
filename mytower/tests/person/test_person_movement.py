@@ -85,7 +85,7 @@ class TestPersonMovement:
         person.set_destination(dest_floor_num=8, dest_block_num=15)
         person.testing_set_current_state(PersonState.WALKING)
         person.direction = HorizontalDirection.LEFT
-        person.current_block_float = 6.0  # Close to elevator waiting block
+        person.testing_set_current_block_float(6.0)  # Close to elevator waiting block
         person.testing_set_next_elevator_bank(mock_elevator_bank)  # Simulate finding elevator
         
         person.update_walking(5.0)  # Large dt to reach destination
