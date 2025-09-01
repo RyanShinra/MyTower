@@ -55,7 +55,7 @@ def main() -> NoReturn:
         game_state.update(dt)
 
         # Draw everything
-        _ =screen.fill(BACKGROUND_COLOR)
+        _ = screen.fill(BACKGROUND_COLOR)
         game_state.draw(screen)
 
         # Update the display
