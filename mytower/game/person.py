@@ -189,7 +189,7 @@ class Person(PersonProtocol):
         self._idle_timeout: float = 0
         self._current_elevator: Elevator | None = None
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
-        self._current_floor: Floor | None = None
+        self._current_floor: Floor | None = self._building.get_floor_by_number(current_floor_num)
 
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
@@ -323,6 +323,12 @@ class Person(PersonProtocol):
         self._current_elevator = elevator
         self._waiting_time = 0.0
         self._state = PersonState.IN_ELEVATOR
+        
+        if not self._current_floor:
+            raise RuntimeError(f"Person {self._person_id} is not on a floor but is trying to board an elevator.")
+        
+        _ = self._current_floor.remove_person(self._person_id)
+        self._current_floor = None
 
     @override
     def disembark_elevator(self) -> None:
@@ -334,6 +340,13 @@ class Person(PersonProtocol):
 
         self._current_block_float = self._current_elevator.parent_elevator_bank.get_waiting_block()
         self._current_floor_float = float(self._current_elevator.current_floor_int)
+        
+        self._current_floor = self.building.get_floor_by_number(self._current_elevator.current_floor_int)
+        if not self._current_floor:
+            raise RuntimeError(f"Cannot disembark elevator: floor {self._current_elevator.current_floor_int} does not exist.")  
+        
+        self._current_floor.add_person(self)
+        
         self._waiting_time = 0.0
         self._current_elevator = None
         self._next_elevator_bank = None
