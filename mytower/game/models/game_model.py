@@ -85,7 +85,16 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to add person: {e}")
             raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
-    
+
+    def remove_person(self, person_id: str) -> None:
+        """Remove a person from the building"""
+        try:
+            _ = self._people.pop(person_id, None)
+            
+        except Exception as e:
+            self._logger.exception(f"Failed to remove person {person_id}: {e}")
+            raise RuntimeError(f"Failed to remove person {person_id}: {str(e)}") from e
+
     def set_game_speed(self, speed: float) -> bool:
         """Set game simulation speed"""
         try:
