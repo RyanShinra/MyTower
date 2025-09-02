@@ -59,13 +59,15 @@ class TestFloorPeopleOwnership:
         with pytest.raises(KeyError):
             floor.remove_person("nonexistent_person")
     
+    
     def test_add_person_success(self, floor: Floor, mock_person: MagicMock) -> None:
         """Test successfully adding a person to the floor"""
         floor.add_person(mock_person)
         
         # Should be able to retrieve the person
-        retrieved_person = floor.remove_person("person_123")
+        retrieved_person: PersonProtocol = floor.remove_person("person_123")
         assert retrieved_person == mock_person
+    
     
     def test_add_multiple_people(self, floor: Floor) -> None:
         """Test adding multiple people to same floor"""
@@ -84,13 +86,14 @@ class TestFloorPeopleOwnership:
         floor.add_person(person3)
         
         # Should be able to retrieve all in any order
-        retrieved2 = floor.remove_person("person_002")
-        retrieved1 = floor.remove_person("person_001") 
-        retrieved3 = floor.remove_person("person_003")
+        retrieved2: PersonProtocol = floor.remove_person("person_002")
+        retrieved1: PersonProtocol = floor.remove_person("person_001") 
+        retrieved3: PersonProtocol = floor.remove_person("person_003")
         
         assert retrieved1 == person1
         assert retrieved2 == person2
         assert retrieved3 == person3
+    
     
     def test_add_person_overwrites_same_id(self, floor: Floor) -> None:
         """Test that adding person with same ID overwrites previous"""
@@ -104,15 +107,16 @@ class TestFloorPeopleOwnership:
         floor.add_person(person2)  # Should overwrite person1
         
         # Should get person2, not person1
-        retrieved = floor.remove_person("person_duplicate")
+        retrieved: PersonProtocol = floor.remove_person("person_duplicate")
         assert retrieved == person2
         assert retrieved != person1
+    
     
     def test_remove_person_success(self, floor: Floor, mock_person: MagicMock) -> None:
         """Test successfully removing a person from floor"""
         floor.add_person(mock_person)
         
-        removed_person = floor.remove_person("person_123")
+        removed_person: PersonProtocol = floor.remove_person("person_123")
         
         assert removed_person == mock_person
         
@@ -120,15 +124,18 @@ class TestFloorPeopleOwnership:
         with pytest.raises(KeyError):
             floor.remove_person("person_123")
     
+    
     def test_remove_person_not_found_raises_keyerror(self, floor: Floor) -> None:
         """Test that removing non-existent person raises KeyError with descriptive message"""
         with pytest.raises(KeyError, match="Person not found: nonexistent_person"):
             floor.remove_person("nonexistent_person")
     
+    
     def test_remove_person_from_empty_floor_raises_keyerror(self, floor: Floor) -> None:
         """Test removing person from empty floor raises appropriate error"""
         with pytest.raises(KeyError, match="Person not found: person_123"):
             floor.remove_person("person_123")
+    
     
     def test_person_removal_is_permanent(self, floor: Floor, mock_person: MagicMock) -> None:
         """Test that removed person cannot be removed again"""
