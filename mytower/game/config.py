@@ -70,6 +70,7 @@ class UIConfig:
     button_hover_color: Final[RGB] = (180, 180, 180)
 
 
+
 class GameConfig:
     def __init__(self) -> None:
         self.elevator: ElevatorConfigProtocol = ElevatorConfig()

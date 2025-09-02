@@ -5,6 +5,7 @@ from mytower.game.elevator import Elevator
 from mytower.game.types import VerticalDirection
 
 
+
 class TestMovement:
     
     def test_set_destination_floor_down(self, elevator: Elevator) -> None:
@@ -12,6 +13,8 @@ class TestMovement:
         elevator.set_destination_floor(2)
         assert elevator.destination_floor == 2
         assert elevator.nominal_direction == VerticalDirection.DOWN
+
+
 
     def test_set_destination_floor_same_floor(self, elevator: Elevator) -> None:
         # Setup: The elevator defaults to floor 1, this will change the state of nominal_direction
@@ -22,6 +25,8 @@ class TestMovement:
         elevator.testing_set_current_floor(2)
         elevator.set_destination_floor(2)  # Already on floor 2
         assert elevator.nominal_direction == VerticalDirection.STATIONARY
+
+
 
     def test_set_invalid_destination_floor(self, elevator: Elevator) -> None:
         """Test that setting invalid destination floor raises ValueError"""

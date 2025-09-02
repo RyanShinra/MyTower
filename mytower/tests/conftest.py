@@ -8,8 +8,11 @@ from mytower.game.person import PersonProtocol
 from mytower.game.elevator import ElevatorCosmeticsProtocol
 from mytower.game.logger import LoggerProvider
 
+
+
 class PersonFactory(Protocol):
     def __call__(self, cur_floor_num: int, dest_floor_num: int) -> PersonProtocol: ...
+
 
 @pytest.fixture
 # def mock_person_factory() -> Callable[[int, int], PersonProtocol]:
@@ -23,6 +26,7 @@ def mock_person_factory() -> PersonFactory:
         return person
     return _person_gen
 
+
 @pytest.fixture
 def mock_cosmetics_config() -> MagicMock:
     config = MagicMock(spec=ElevatorCosmeticsProtocol)
@@ -31,6 +35,7 @@ def mock_cosmetics_config() -> MagicMock:
     config.closed_color = (50, 50, 200)
     config.open_color = (200, 200, 50)
     return config
+
 
 @pytest.fixture
 def mock_logger_provider() -> MagicMock:

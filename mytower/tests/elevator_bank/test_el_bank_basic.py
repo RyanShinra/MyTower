@@ -14,6 +14,7 @@ from mytower.game.types import VerticalDirection
 # from mytower.game.types import VerticalDirection
 
 
+
 class TestPassengerQueueing:
     def test_add_passenger_going_up(self, elevator_bank: ElevatorBank) -> None:
         # Test the most basic case - person going up gets added to up queue
@@ -27,6 +28,7 @@ class TestPassengerQueueing:
         upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(3)
         assert len(upward_queue) == 1
         assert upward_queue[0] is mock_person
+
 
         
     def test_add_passenger_going_down(self, elevator_bank: ElevatorBank) -> None:
@@ -45,6 +47,7 @@ class TestPassengerQueueing:
         # Verify they're NOT in the upward queue (defensive check)
         upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(8)
         assert len(upward_queue) == 0
+
 
 
     def test_add_passengers_both_directions_same_floor(self, elevator_bank: ElevatorBank) -> None:
@@ -76,6 +79,8 @@ class TestPassengerQueueing:
     @pytest.mark.parametrize("current_floor,dest_floor,direction,queue_getter", [
         (4, 8, VerticalDirection.UP, "testing_get_upward_queue"),
         (8, 3, VerticalDirection.DOWN, "testing_get_downward_queue"),
+
+
     ])
     def test_dequeue_passenger_success(
         self, 
@@ -110,6 +115,7 @@ class TestPassengerQueueing:
         assert result is None
 
 
+
     def test_dequeue_wrong_direction_returns_none(self, elevator_bank: ElevatorBank) -> None:
         """Test dequeuing wrong direction from populated queue returns None"""
         # Add person going UP
@@ -125,6 +131,7 @@ class TestPassengerQueueing:
         # Original person should still be in UP queue
         upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(5)
         assert len(upward_queue) == 1
+
 
 
     def test_dequeue_fifo_ordering(self, elevator_bank: ElevatorBank) -> None:

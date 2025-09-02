@@ -4,8 +4,11 @@ from mytower.game.person import Person
 from mytower.game.types import PersonState
 
 
+
 class TestPersonElevatorInteraction:
     """Test Person interactions with elevators"""
+
+
     
     def test_board_elevator_changes_state(self, person: Person) -> None:
         """Test that boarding elevator updates person state correctly"""
@@ -16,6 +19,8 @@ class TestPersonElevatorInteraction:
         assert person.state == PersonState.IN_ELEVATOR
         assert person.testing_get_wait_time() == 0.0
         assert person.testing_get_current_elevator() == mock_elevator
+
+
         
     def test_disembark_elevator_success(self, person: Person) -> None:
         """Test successful elevator disembarking"""
@@ -34,6 +39,8 @@ class TestPersonElevatorInteraction:
         assert person.current_block_float == 3
         assert person.testing_get_current_elevator() is None
         assert person.testing_get_next_elevator_bank() is None
+
+
         
     def test_disembark_elevator_not_in_elevator_raises_error(self, person: Person) -> None:
         """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""                
@@ -46,6 +53,8 @@ class TestPersonElevatorInteraction:
     
         with pytest.raises(RuntimeError, match="Cannot disembark elevator: person must be in elevator state"):
             person.disembark_elevator()
+
+
             
     def test_disembark_elevator_no_current_elevator_raises_error(self, person: Person) -> None:
         """Test that an error is raised when a person is in IN_ELEVATOR state but has no current elevator assigned."""

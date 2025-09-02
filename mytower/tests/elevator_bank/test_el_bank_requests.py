@@ -7,11 +7,13 @@ import pytest
 from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.types import VerticalDirection
 
+
 # test_el_bank_requests.py
 class TestRequestElevator:
     VALID_FLOORS: Final = [1, 5, 10] # bottom, middle, top, keep in sync with the conftest.py
     DIRECTIONS: Final = [VerticalDirection.UP, VerticalDirection.DOWN]
     INVALID_FLOORS: Final =  [-1, 0, 11, 100]
+
     
     @pytest.mark.parametrize("floor", VALID_FLOORS)
     @pytest.mark.parametrize("direction", DIRECTIONS)

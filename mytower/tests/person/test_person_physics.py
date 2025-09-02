@@ -4,6 +4,8 @@ from mytower.game.person import Person
 from mytower.game.types import HorizontalDirection, PersonState
 from mytower.game.constants import BLOCK_FLOAT_TOLERANCE
 
+
+
 class TestPersonPhysics:
     """Test Person movement calculations and boundary enforcement"""
     
@@ -14,6 +16,8 @@ class TestPersonPhysics:
         (HorizontalDirection.RIGHT, 5, 2.0, 6),  # 5 + (2.0 * 0.5 * 1) = 6
         (HorizontalDirection.LEFT, 10, 4.0, 8),  # 10 + (4.0 * 0.5 * -1) = 8  
         (HorizontalDirection.STATIONARY, 7, 3.0, 7),  # No movement
+
+
     ])
     def test_walking_movement_calculation(
         self, person: Person, direction: HorizontalDirection, initial_block: int, dt: float, expected_block: int
@@ -27,6 +31,8 @@ class TestPersonPhysics:
         person.update_walking(dt)
         
         assert abs(person.current_block_float - expected_block) < BLOCK_FLOAT_TOLERANCE  # Allow for floating point precision
+
+
         
     def test_walking_respects_building_boundaries(self, person: Person, mock_building: MagicMock) -> None:
         """Test that person movement is constrained by building boundaries"""

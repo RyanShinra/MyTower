@@ -31,6 +31,7 @@ sys.path.insert(0, str(project_root))
 #     provider.get_logger.return_value = mock_logger
 #     return provider
 
+
 @pytest.fixture
 def mock_building() -> MagicMock:
     building = MagicMock(spec=Building)
@@ -44,6 +45,7 @@ def mock_building() -> MagicMock:
 #     config.closed_color = (50, 50, 200)
 #     config.open_color = (200, 200, 50)
 #     return config
+
 
 @pytest.fixture
 def mock_elevator(mock_logger_provider: MagicMock) -> MagicMock:
@@ -60,6 +62,7 @@ def mock_elevator(mock_logger_provider: MagicMock) -> MagicMock:
     elevator.get_passenger_destinations_in_direction.return_value = []
     
     return elevator
+
 
 @pytest.fixture
 def elevator_bank(  

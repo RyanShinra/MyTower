@@ -9,11 +9,13 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+
 @dataclass
 class CommandResult(Generic[T]):
     success: bool
     data: Optional[T] = None
     error: Optional[str] = None
+
     
 
 class Command(ABC, Generic[T]):
@@ -40,6 +42,7 @@ class AddFloorCommand(Command[int]):
     @override
     def get_description(self) -> str:
         return f"Add a floor of type {self.floor_type}"
+
     
 @dataclass
 class AddPersonCommand(Command[str]):
@@ -47,6 +50,7 @@ class AddPersonCommand(Command[str]):
     block: float
     dest_floor: int
     dest_block: int
+
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:

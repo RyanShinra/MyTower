@@ -7,6 +7,7 @@ from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.types import RGB, MouseButtons, MousePos, PygameSurface
 
 
+
 class UIConfigProtocol(Protocol):
     """Config requirements for UI elements"""
 
@@ -26,10 +27,13 @@ class UIConfigProtocol(Protocol):
     def button_hover_color(self) -> RGB: ...  # noqa E701
 
 
+
 class Button:
     """
     A simple button UI element
     """
+
+
 
     def __init__(
         self,
@@ -69,6 +73,8 @@ class Button:
         self._is_hovered = self._rect.collidepoint(mouse_pos)
         self._is_clicked = self._is_hovered and mouse_pressed[0]
 
+
+
     def draw(self, surface: PygameSurface) -> None:
         """Draw the button on the given surface"""
         # Draw button background
@@ -83,10 +89,13 @@ class Button:
         surface.blit(text_surface, text_rect)
 
 
+
 class Toolbar:
     """
     A toolbar for building tools and controls
     """
+
+
 
     def __init__(
         self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, ui_config: UIConfigProtocol
@@ -113,6 +122,8 @@ class Toolbar:
     def set_active_tool(self, value: Optional[str]) -> None:
         self._active_tool = value
 
+
+
     def add_button(self, text: str, width: int = 100, height: int = 30) -> Button:
         """Add a button to the toolbar"""
         x: int = self._rect.x + 10 + len(self._buttons) * (width + 10)
@@ -126,6 +137,8 @@ class Toolbar:
         """Update toolbar and its buttons"""
         for button in self._buttons:
             button.update(mouse_pos, mouse_pressed)
+
+
 
     def draw(self, surface: PygameSurface) -> None:
         """Draw the toolbar and its buttons"""

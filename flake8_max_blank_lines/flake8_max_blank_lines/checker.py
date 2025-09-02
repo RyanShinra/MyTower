@@ -2,6 +2,8 @@
 # pylint: skip-file
 # type: ignore
 
+
+
 class MaxBlankLinesChecker:
     name = "flake8-max-blank-lines"
     version = "0.1.0"
@@ -10,6 +12,8 @@ class MaxBlankLinesChecker:
     def __init__(self, tree, filename) -> None:
         self.filename = filename
         self.tree = tree
+
+
 
     def run(self):
         with open(self.filename, "r", encoding="utf-8", newline='') as f:

@@ -3,8 +3,11 @@ from mytower.game.person import Person
 from mytower.game.types import PersonState
 
 
+
 class TestPersonWaitingBehavior:
     """Test Person waiting and timeout behavior"""
+
+
     
     def test_idle_timeout_prevents_constant_checking(self, person: Person, mock_building: MagicMock) -> None:
         """Test that idle timeout prevents person from constantly searching for elevators"""
@@ -21,6 +24,8 @@ class TestPersonWaitingBehavior:
         person.update_idle(1.0)  # Still within new timeout period
         # get_elevator_banks_on_floor should only be called once from first update
         assert mock_building.get_elevator_banks_on_floor.call_count == 1
+
+
         
     def test_waiting_time_affects_anger_color(self, person: Person, mock_game_config: MagicMock) -> None:
         """Test that waiting time changes person's visual appearance"""

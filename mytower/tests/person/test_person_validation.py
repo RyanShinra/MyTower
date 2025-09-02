@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 from mytower.game.person import Person
 
 
+
 class TestPersonValidation:
     """Test Person input validation and error handling"""
     
@@ -10,6 +11,8 @@ class TestPersonValidation:
         """Test that setting valid destination floor works"""
         person.testing_set_dest_floor_num(7)
         assert person.destination_floor_num == 7
+
+
         
     def test_testing_set_dest_floor_out_of_bounds(self, person: Person, mock_building: MagicMock) -> None:
         """Test that setting invalid destination floor raises error"""

@@ -11,6 +11,7 @@ from mytower.game.person import Person
 project_root: Path = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+
 @pytest.fixture
 def mock_building() -> MagicMock:
     building = MagicMock(spec=Building)
@@ -18,6 +19,7 @@ def mock_building() -> MagicMock:
     building.floor_width = 20
     building.get_elevator_banks_on_floor.return_value = []
     return building
+
 
 @pytest.fixture
 def mock_game_config() -> MagicMock:
@@ -41,6 +43,7 @@ def mock_game_config() -> MagicMock:
     config.person_cosmetics.initial_min_blue = 0
     
     return config
+
 
 @pytest.fixture
 def person(mock_logger_provider: MagicMock, mock_building: MagicMock, mock_game_config: MagicMock) -> Person:
