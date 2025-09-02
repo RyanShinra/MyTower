@@ -2,8 +2,12 @@ from unittest.mock import MagicMock
 from mytower.game.person import Person
 from mytower.game.types import PersonState, HorizontalDirection
 
+
+
 class TestPersonBasics:
     """Test basic Person properties and initialization"""
+
+
     
     def test_initial_state(self, person: Person) -> None:
         """Test that person initializes with correct values"""
@@ -19,6 +23,8 @@ class TestPersonBasics:
         
         assert person.destination_floor_num == 8
         assert person.testing_confirm_dest_block_is(15)
+
+
         
     def test_set_destination_out_of_bounds_clamped(self, person: Person, mock_building: MagicMock) -> None:
         """Test that out-of-bounds destinations get clamped to valid range"""

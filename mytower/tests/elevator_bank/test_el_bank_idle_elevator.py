@@ -12,6 +12,8 @@ from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.types import VerticalDirection
 from mytower.tests.conftest import PersonFactory
 
+
+
 class TestIdleElevatorLogic:
     def test_idle_elevator_waits_when_timeout_not_reached(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that idle elevator doesn't do anything when idle_time < idle_wait_timeout"""
@@ -26,6 +28,7 @@ class TestIdleElevatorLogic:
         # Assert: idle_time increases but no other actions taken
         assert mock_elevator.idle_time == 0.4
         mock_elevator.request_load_passengers.assert_not_called()
+
     
     
     def test_idle_elevator_loads_waiting_passengers_same_floor(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock, mock_person_factory: PersonFactory) -> None:
@@ -42,6 +45,7 @@ class TestIdleElevatorLogic:
         
         # Only one passenger (or floor?) either way, it should only be called once
         mock_elevator.request_load_passengers.assert_called_once_with(VerticalDirection.UP)        
+
 
         
     def test_idle_elevator_moves_to_request_when_no_local_passengers(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
@@ -61,6 +65,7 @@ class TestIdleElevatorLogic:
         # Should set destination to floor 8
         mock_elevator.set_destination_floor.assert_called_once_with(8)
 
+
         
     def test_idle_elevator_stays_idle_when_no_passengers_or_requests(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that idle elevator does nothing when no passengers or requests exist"""
@@ -74,6 +79,8 @@ class TestIdleElevatorLogic:
         
         mock_elevator.request_load_passengers.assert_not_called()
         mock_elevator.set_destination_floor.assert_not_called()
+
+
         
     def test_idle_elevator_continues_checking_after_reset(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         # First cycle - past timeout, nothing to do
@@ -84,6 +91,8 @@ class TestIdleElevatorLogic:
         # Second cycle - accumulating time again
         elevator_bank.testing_update_idle_elevator(mock_elevator, 0.3)
         assert mock_elevator.idle_time == 0.3  # Should be accumulating again
+
+
         
     def test_idle_elevator_resets_timer_when_no_destinations(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         mock_elevator.idle_time = 0.6  # Past timeout

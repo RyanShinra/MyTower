@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from mytower.game.logger import LoggerProvider
 
 
+
 class PersonConfigProtocol(Protocol):
     """Config requirements for Person class"""
 
@@ -45,6 +46,7 @@ class PersonConfigProtocol(Protocol):
 
     @property
     def radius(self) -> int: ...  # noqa E701
+
 
 
 class PersonCosmeticsProtocol(Protocol):
@@ -76,6 +78,7 @@ class PersonCosmeticsProtocol(Protocol):
 
     @property
     def initial_min_blue(self) -> int: ...  # noqa E701
+
 
 
 class PersonProtocol(Protocol):
@@ -151,6 +154,7 @@ class PersonProtocol(Protocol):
     # def request_elevator(self, floor: int) -> None: ...
     
     # End PersonProtocol
+
     
 
 class Person(PersonProtocol):
@@ -161,6 +165,8 @@ class Person(PersonProtocol):
     _NEXT_PERSON_RADIX:Final[int] = 4
     _next_person_id = 1  # please don't modify this directly 
     _next_id_lock: threading.Lock = threading.Lock()
+
+
 
     def __init__(
         self,
@@ -286,6 +292,7 @@ class Person(PersonProtocol):
     def waiting_time(self) -> float:
         return self._waiting_time
 
+
     @override
     def set_destination(self, dest_floor_num: int, dest_block_num: int) -> None:
         # Check if destination values are out of bounds and log warnings
@@ -303,6 +310,7 @@ class Person(PersonProtocol):
         dest_block_num = max(dest_block_num, 0)
         self._dest_block_num = dest_block_num
 
+
     @override
     def find_nearest_elevator_bank(self) -> None | ElevatorBank:
         elevator_list: List[ElevatorBank] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
@@ -318,6 +326,7 @@ class Person(PersonProtocol):
 
         return closest_el
 
+
     @override
     def board_elevator(self, elevator: Elevator) -> None:
         self._current_elevator = elevator
@@ -329,6 +338,7 @@ class Person(PersonProtocol):
         
         _ = self._current_floor.remove_person(self._person_id)
         self._current_floor = None
+
 
     @override
     def disembark_elevator(self) -> None:
@@ -351,6 +361,7 @@ class Person(PersonProtocol):
         self._current_elevator = None
         self._next_elevator_bank = None
         self._state = PersonState.IDLE
+
 
     @override
     def update(self, dt: float) -> None:
@@ -377,6 +388,7 @@ class Person(PersonProtocol):
                 # Handle unexpected states
                 self._logger.warning(f"Unknown state: {self.state}")  # type: ignore[unreachable]
                 raise ValueError(f"Unknown state: {self.state}")
+
 
     @override
     def update_idle(self, dt: float) -> None:
@@ -421,6 +433,7 @@ class Person(PersonProtocol):
             )
             self._state = PersonState.WALKING
             self.direction = HorizontalDirection.RIGHT
+
 
     @override
     def update_walking(self, dt: float) -> None:

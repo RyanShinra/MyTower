@@ -2,6 +2,7 @@ from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDi
 from dataclasses import dataclass
 from typing import List
 
+
 @dataclass
 class PersonSnapshot:
     """Immutable snapshot of person state for API consumption"""

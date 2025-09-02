@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from mytower.game.person import PersonProtocol
 
 
+
 class ElevatorBank:
     # Used in deciding if to move or not
     class ElevatorDestination(NamedTuple):
@@ -52,6 +53,8 @@ class ElevatorBank:
 
     # Define a reusable empty deque as a class-level constant
     EMPTY_DEQUE: Final[deque[PersonProtocol]] = deque()
+
+
 
     def __init__(
         self,
@@ -134,6 +137,8 @@ class ElevatorBank:
         """Validate that floor is within the valid range for this elevator bank"""
         if floor < self._min_floor or floor > self._max_floor:
             raise ValueError(f"Floor {floor} out of range {self._min_floor}-{self._max_floor}")
+
+
             
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
@@ -215,6 +220,7 @@ class ElevatorBank:
         self._logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
         return passenger
 
+
         # In ElevatorBank class
     def testing_get_upward_queue(self, floor: int) -> deque[PersonProtocol]:
         """
@@ -228,6 +234,8 @@ class ElevatorBank:
             Queue of people on that floor waiting to go up
         """
         return self._upward_waiting_passengers[floor]
+
+
 
     def testing_get_downward_queue(self, floor: int) -> deque[PersonProtocol]:
         """
@@ -247,6 +255,7 @@ class ElevatorBank:
     def testing_update_ready_elevator(self, elevator: Elevator) -> None:
         """Testing method to access ready elevator update logic"""
         self._update_ready_elevator(elevator)
+
     
     
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
@@ -289,6 +298,7 @@ class ElevatorBank:
         return max(1, self.horizontal_block - 1)
 
 
+
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         for el in self.elevators:
@@ -299,6 +309,7 @@ class ElevatorBank:
             elif el.state == ElevatorState.READY_TO_MOVE:
                 self._update_ready_elevator(el)
         pass
+
 
 
     def _update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
@@ -329,6 +340,7 @@ class ElevatorBank:
         return
 
 
+
     def _update_ready_elevator(self, elevator: Elevator) -> None:
         floor: int = elevator.current_floor_int
         nom_direction: VerticalDirection = elevator.nominal_direction
@@ -355,6 +367,8 @@ class ElevatorBank:
             self._logger.debug(f"No new destination - staying at floor {next_destination.floor}")
 
         return
+
+
 
     def _get_next_destination(
         self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection
@@ -385,6 +399,8 @@ class ElevatorBank:
     def testing_collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
         return self._collect_destinations(elevator, floor, direction)
 
+
+
     def _collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
         destinations: List[int] = []
 
@@ -400,6 +416,8 @@ class ElevatorBank:
     def testing_select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
         return self._select_next_floor(destinations, direction)
 
+
+
     def _select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
         if direction == VerticalDirection.UP:
             # Go to the lowest floor above us
@@ -407,6 +425,7 @@ class ElevatorBank:
         else:
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
+
 
 
     def _get_floor_requests_in_dir_from_floor(
@@ -439,6 +458,7 @@ class ElevatorBank:
             f"Final list of floor requests in Search direction {search_direction} from floor {start_floor} going {req_direction}: {answer}"
         )
         return answer
+
 
 
     def draw(self, surface: Surface) -> None:

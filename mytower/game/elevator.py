@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from mytower.game.logger import MyTowerLogger # noqa E701
 
 
+
 class ElevatorConfigProtocol(Protocol):
     """Config requirements for Elevator class"""
 
@@ -54,6 +55,7 @@ class ElevatorConfigProtocol(Protocol):
 
     @property
     def idle_wait_timeout(self) -> float: ...  # noqa E701
+
 
 
 class ElevatorCosmeticsProtocol(Protocol):
@@ -82,6 +84,8 @@ class Elevator:
     _NEXT_ELEVATOR_RADIX: Final[int] = 4
     _next_elevator_id = 1  # please don't modify this directly
     _next_id_lock: threading.Lock = threading.Lock()
+
+
 
     def __init__(
         self,
@@ -254,6 +258,7 @@ class Elevator:
         self._idle_time = value
 
 
+
     def set_destination_floor(self, dest_floor: int) -> None:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(
@@ -286,6 +291,8 @@ class Elevator:
     def testing_get_passengers(self) -> List[PersonProtocol]:
         return self._passengers.copy()
 
+
+
     def request_load_passengers(self, direction: VerticalDirection) -> None:
         """Instructs an idle elevator to begin loading and sets it to nominally go in `direction`.
            The actual loading will happen on the next time step, after evaluating the state machine.
@@ -300,6 +307,8 @@ class Elevator:
             self._logger.warning(err_str)
             raise RuntimeError(err_str)
 
+
+
     def passengers_who_want_off(self) -> List[PersonProtocol]:
         answer: List[PersonProtocol] = []
         for p in self._passengers:
@@ -307,6 +316,8 @@ class Elevator:
                 answer.append(p)
 
         return answer
+
+
 
     def get_passenger_destinations_in_direction(self, floor: int, direction: VerticalDirection) -> List[int]:
         """Returns sorted list of floors in the direction of travel"""
@@ -330,6 +341,8 @@ class Elevator:
             sorted_floors.sort(reverse=True)
 
         return sorted_floors
+
+
 
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
@@ -380,6 +393,8 @@ class Elevator:
             self._idle_log_timer = 0.0
         self._motion_direction = VerticalDirection.STATIONARY
 
+
+
     def _update_moving(self, dt: float) -> None:
         dy: float = dt * self.max_velocity * self.motion_direction.value
         cur_floor: float = self._current_floor_float + dy
@@ -410,6 +425,8 @@ class Elevator:
         cur_floor = max(self.min_floor, cur_floor)
         self._current_floor_float = cur_floor
 
+
+
     def _update_arrived(self, dt: float) -> None:
         who_wants_off: List[PersonProtocol] = self.passengers_who_want_off()
 
@@ -420,6 +437,8 @@ class Elevator:
         self._logger.debug(
             f"{self.state} Elevator: Having arrived, elevator has {len(who_wants_off)} passengers to disembark -> {self._state}"
         )
+
+
 
     def _update_unloading(self, dt: float) -> None:
         self._unloading_timeout += dt
@@ -438,6 +457,8 @@ class Elevator:
             self._logger.debug(f"{self.state} Elevator: Unloading Complete -> LOADING")
             self._state = ElevatorState.LOADING
         return
+
+
 
     def _update_loading(self, dt: float) -> None:
         self._loading_timeout += dt
@@ -469,6 +490,8 @@ class Elevator:
             self.door_open = False
         return
 
+
+
     def _update_ready_to_move(self, dt: float) -> None:
         self._logger.debug(
             f"{self.state} Elevator: Elevator ready to move from floor {self.current_floor_int} to {self.destination_floor}"
@@ -481,6 +504,8 @@ class Elevator:
         else:
             self._logger.info(f"{self.state} Elevator: No Destination -> IDLE")
             self._state = ElevatorState.IDLE
+
+
 
     def draw(self, surface: Surface) -> None:
         """Draw the elevator on the given surface"""

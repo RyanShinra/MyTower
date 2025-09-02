@@ -21,6 +21,7 @@ pygame.display.set_caption("MyTower")
 clock: Clock = pygame.time.Clock()
 
 
+
 def main() -> NoReturn:
     # Make the Logger provider, if we need to use this outside main(), then we can promote it to file scope
     logger_provider: LoggerProvider = LoggerProvider()
