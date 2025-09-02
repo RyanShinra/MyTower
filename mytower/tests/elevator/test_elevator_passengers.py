@@ -10,7 +10,10 @@ from mytower.game.person import PersonProtocol
 from mytower.tests.conftest import PersonFactory
 
 
+
 class TestPassengers:
+
+
     
     def test_passengers_who_want_off_current_floor(
         self, elevator: Elevator, mock_person_factory: PersonFactory
@@ -38,6 +41,8 @@ class TestPassengers:
             (7, VerticalDirection.UP, []),  # At max floor going up
             (4, VerticalDirection.UP, [5, 7]),  # From middle floor
         ],
+
+
     )
     def test_get_passenger_destinations_by_direction(
         self,
@@ -56,6 +61,8 @@ class TestPassengers:
 
         actual_floors: List[int] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
         assert expected_floors == actual_floors
+
+
 
     def test_passengers_boarding(self, elevator: Elevator, mock_elevator_bank: MagicMock) -> None:
         """Test passengers boarding the elevator"""
@@ -81,6 +88,8 @@ class TestPassengers:
             elevator.current_floor_int, VerticalDirection.UP
         )
 
+
+
     def test_request_load_passengers_valid_state(self, elevator: Elevator) -> None:
         """Test request_load_passengers works from IDLE state"""
         elevator.testing_set_state(ElevatorState.IDLE)
@@ -96,6 +105,8 @@ class TestPassengers:
         
         with pytest.raises(RuntimeError, match=".*Cannot load passengers while elevator is in .* state"):
             elevator.request_load_passengers(VerticalDirection.UP)
+
+
             
     def test_update_arrived_with_passengers_wanting_off(self, elevator: Elevator, mock_person_factory: PersonFactory) -> None:
         # Setup: elevator arrives at floor 3 with passengers going to floor 3

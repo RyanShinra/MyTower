@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from mytower.game.floor import Floor
     from mytower.game.elevator import Elevator
 
+
+
 def build_floor_snapshot(floor: Floor) -> FloorSnapshot:
     """Build a snapshot for a single floor"""
     return FloorSnapshot(
@@ -16,6 +18,8 @@ def build_floor_snapshot(floor: Floor) -> FloorSnapshot:
         floor_type=floor.floor_type,
         person_count=0  # TODO: Implement once we have floors contain people
     )
+
+
     
 def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
     """Build a snapshot for a single elevator"""
@@ -30,6 +34,8 @@ def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
         available_capacity=elevator.avail_capacity,
         max_capacity=elevator.max_capacity,
     )
+
+
     
 def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
     """Build a snapshot for a single person"""

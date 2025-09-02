@@ -37,11 +37,13 @@ if TYPE_CHECKING:
     from mytower.game.building import Building
     from mytower.game.person import PersonProtocol
 
+
 # See FloorInfo below
 class Floor:
     """
     A floor in the building that can contain various room types
     """
+
 
     @dataclass
     class FloorInfo:
@@ -63,6 +65,8 @@ class Floor:
         FloorType.RESTAURANT: FloorInfo(RESTAURANT_COLOR, RESTAURANT_HEIGHT),
         FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
+
+
 
     def __init__(
         self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType
@@ -112,6 +116,8 @@ class Floor:
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
+
+
         
     def remove_person(self, person_id: str) -> PersonProtocol:
         """Remove a person from the floor, returns the person if found, throws if not"""
@@ -125,6 +131,8 @@ class Floor:
     def update(self, dt: float) -> None:
         """Update floor simulation"""
         pass  # To be implemented
+
+
 
     def draw(self, surface: Surface) -> None:
         """Draw the floor on the given surface"""

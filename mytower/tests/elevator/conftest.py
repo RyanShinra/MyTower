@@ -25,11 +25,13 @@ sys.path.insert(0, str(project_root))
 #     provider.get_logger.return_value = mock_logger
 #     return provider
 
+
 @pytest.fixture
 def mock_elevator_bank() -> MagicMock:
     mock_bank = MagicMock()
     mock_bank.horizontal_block = 5
     return mock_bank
+
 
 @pytest.fixture
 def mock_config() -> MagicMock:
@@ -60,6 +62,7 @@ def mock_config() -> MagicMock:
 #         person.disembark_elevator = MagicMock()
 #         return person
 #     return _person_gen
+
 
 @pytest.fixture
 def elevator(

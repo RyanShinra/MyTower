@@ -11,10 +11,13 @@ from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.person import Person
 
 
+
 class GameState:
     """
     Manages the overall game state including the building, UI, and game controls.
     """
+
+
 
     def __init__(self, logger_provider: LoggerProvider, screen_width: int, screen_height: int) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("GameState")
@@ -132,6 +135,8 @@ class GameState:
     def paused(self, value: bool) -> None:
         self._paused = value
 
+
+
     def update(self, dt: float) -> None:
         """Update game state by time increment dt (in seconds)"""
         if not self._paused:
@@ -142,6 +147,8 @@ class GameState:
             # Update building and all its components
             self._building.update(game_dt)
 
+
+
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         # Draw building
@@ -150,6 +157,8 @@ class GameState:
 
         # Draw UI elements
         self._draw_ui(surface)
+
+
 
     def _draw_ui(self, surface: Surface) -> None:
         """Draw UI elements like time, money, etc."""

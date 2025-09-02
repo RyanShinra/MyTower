@@ -13,6 +13,8 @@ from mytower.game.controllers.controller_commands import Command, CommandResult
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
 
+
+
 class GameController:
     """
     Coordinates game logic, handles commands from various sources
@@ -23,6 +25,7 @@ class GameController:
         self._model: GameModel = model
         self._logger: MyTowerLogger = logger_provider.get_logger("GameController")
         self._command_history: List[Command[Any]] = []  # For potential undo functionality
+
     
     # Command execution
     def execute_command(self, command: Command[Any]) -> CommandResult[Any]:

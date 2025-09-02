@@ -3,8 +3,11 @@ from mytower.game.person import Person
 from mytower.game.types import PersonState
 
 
+
 class TestPersonStateMachine:
     """Test Person state machine transitions and update logic"""
+
+
     
     def test_update_routes_to_correct_state_method(self, person: Person) -> None:
         """Test that update() calls the correct state-specific method"""
@@ -17,6 +20,8 @@ class TestPersonStateMachine:
             person.testing_set_current_state(PersonState.WALKING)  
             person.update(1.0)
             mock_walking.assert_called_once_with(1.0)
+
+
             
     def test_update_waiting_for_elevator_increments_time(self, person: Person) -> None:
         """Test that waiting state increments waiting time"""
@@ -27,6 +32,8 @@ class TestPersonStateMachine:
         person.update(2.5)
         
         assert person.testing_get_wait_time() == initial_wait_time + 2.5
+
+
         
     def test_update_in_elevator_follows_elevator_position(self, person: Person) -> None:
         """Test that person in elevator updates position based on elevator"""

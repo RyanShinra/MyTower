@@ -19,10 +19,13 @@ from mytower.game.building import Building
 from mytower.game.config import GameConfig
 
 
+
 class GameModel:
     """
     Pure business logic layer - manages game state
     Provides clean interfaces for external consumption
+
+
     """
     def __init__(self, logger_provider: LoggerProvider) -> None:
         self._logger_provider: LoggerProvider = logger_provider
@@ -53,6 +56,7 @@ class GameModel:
     @property
     def current_time(self) -> float:
         return self._time
+
     
     # Command Methods (for GraphQL mutations)
     def add_floor(self, floor_type: FloorType) -> int:
@@ -63,6 +67,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
+
 
 
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
@@ -87,6 +92,7 @@ class GameModel:
             raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
 
 
+
     def remove_person(self, person_id: str) -> None:
         """Remove a person from the building"""
         try:
@@ -95,6 +101,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to remove person {person_id}: {e}")
             raise RuntimeError(f"Failed to remove person {person_id}: {str(e)}") from e
+
 
 
     def set_game_speed(self, speed: float) -> bool:
@@ -111,6 +118,7 @@ class GameModel:
             raise RuntimeError(f"Failed to set game speed to {speed}: {str(e)}") from e
 
 
+
     def set_pause_state(self, paused: bool) -> None:
         """Set game pause state"""
         try:
@@ -120,6 +128,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to set pause state to {paused}: {e}")
             raise RuntimeError(f"Failed to set pause state to {paused}: {str(e)}") from e
+
 
 
     def toggle_pause(self) -> bool:
@@ -145,6 +154,7 @@ class GameModel:
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
 
 
+
     def get_building_snapshot(self) -> BuildingSnapshot:
         """Get complete building state as immutable snapshot"""
         try:
@@ -161,6 +171,7 @@ class GameModel:
             raise RuntimeError(f"Failed to get building snapshot: {str(e)}") from e
 
 
+
     def _get_floor_snapshots(self) -> list[FloorSnapshot]:
         """Helper to get snapshots of all floors"""
         try:
@@ -171,6 +182,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get floor snapshots: {e}")
             raise RuntimeError(f"Failed to get floor snapshots: {str(e)}") from e
+
 
 
     def _get_elevator_snapshots(self) -> list[ElevatorSnapshot]:
@@ -185,6 +197,7 @@ class GameModel:
             raise RuntimeError(f"Failed to get elevator snapshots: {str(e)}") from e
 
 
+
     def _get_person_snapshots(self) -> list[PersonSnapshot]:
         """Helper to get snapshots of all people"""
         try:
@@ -195,6 +208,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get person snapshots: {e}")
             raise RuntimeError(f"Failed to get person snapshots: {str(e)}") from e
+
 
 
     def get_person_by_id(self, person_id: str) -> Optional[PersonSnapshot]:
@@ -211,6 +225,7 @@ class GameModel:
             raise RuntimeError(f"Failed to get person by id {person_id}: {str(e)}") from e
 
 
+
     def get_elevator_by_id(self, elevator_id: str) -> Optional[ElevatorSnapshot]:
         """Get specific elevator state by ID"""
         try:
@@ -222,6 +237,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get elevator by id {elevator_id}: {e}")
             raise RuntimeError(f"Failed to get elevator by id {elevator_id}: {str(e)}") from e
+
 
 
     def get_floor_info(self, floor_number: int) -> Optional[FloorSnapshot]:
