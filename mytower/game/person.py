@@ -517,6 +517,8 @@ class Person(PersonProtocol):
     def testing_get_max_wait_time(self) -> float:
         return self._config.person.max_wait_time
     
+    def testing_set_current_floor(self, floor: Floor) -> None:
+        self._current_floor = floor
 
     @override
     def draw(self, surface: Surface) -> None:
