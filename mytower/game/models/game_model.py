@@ -64,7 +64,7 @@ class GameModel:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
 
-    
+
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
@@ -86,6 +86,7 @@ class GameModel:
             self._logger.exception(f"Failed to add person: {e}")
             raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
 
+
     def remove_person(self, person_id: str) -> None:
         """Remove a person from the building"""
         try:
@@ -94,6 +95,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to remove person {person_id}: {e}")
             raise RuntimeError(f"Failed to remove person {person_id}: {str(e)}") from e
+
 
     def set_game_speed(self, speed: float) -> bool:
         """Set game simulation speed"""
@@ -107,7 +109,8 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to set game speed to {speed}: {e}")
             raise RuntimeError(f"Failed to set game speed to {speed}: {str(e)}") from e
-    
+
+
     def set_pause_state(self, paused: bool) -> None:
         """Set game pause state"""
         try:
@@ -117,7 +120,8 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to set pause state to {paused}: {e}")
             raise RuntimeError(f"Failed to set pause state to {paused}: {str(e)}") from e
-    
+
+
     def toggle_pause(self) -> bool:
         """Toggle game pause state, returns new state"""
         try:
@@ -126,7 +130,8 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to toggle pause state: {e}")
             raise RuntimeError(f"Failed to toggle pause state: {str(e)}") from e
-    
+
+
     # Simulation Methods
     def update(self, dt: float) -> None:
         """Update game simulation"""
@@ -139,7 +144,7 @@ class GameModel:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
 
-    
+
     def get_building_snapshot(self) -> BuildingSnapshot:
         """Get complete building state as immutable snapshot"""
         try:
@@ -155,7 +160,7 @@ class GameModel:
             self._logger.exception(f"Failed to get building snapshot: {e}")
             raise RuntimeError(f"Failed to get building snapshot: {str(e)}") from e
 
-    
+
     def _get_floor_snapshots(self) -> list[FloorSnapshot]:
         """Helper to get snapshots of all floors"""
         try:
@@ -167,7 +172,7 @@ class GameModel:
             self._logger.exception(f"Failed to get floor snapshots: {e}")
             raise RuntimeError(f"Failed to get floor snapshots: {str(e)}") from e
 
-    
+
     def _get_elevator_snapshots(self) -> list[ElevatorSnapshot]:
         """Helper to get snapshots of all elevators"""
         try:
@@ -179,7 +184,7 @@ class GameModel:
             self._logger.exception(f"Failed to get elevator snapshots: {e}")
             raise RuntimeError(f"Failed to get elevator snapshots: {str(e)}") from e
 
-    
+
     def _get_person_snapshots(self) -> list[PersonSnapshot]:
         """Helper to get snapshots of all people"""
         try:
@@ -191,7 +196,7 @@ class GameModel:
             self._logger.exception(f"Failed to get person snapshots: {e}")
             raise RuntimeError(f"Failed to get person snapshots: {str(e)}") from e
 
-    
+
     def get_person_by_id(self, person_id: str) -> Optional[PersonSnapshot]:
         """Get specific person state by ID"""
         try:
@@ -205,7 +210,7 @@ class GameModel:
             self._logger.exception(f"Failed to get person by id {person_id}: {e}")
             raise RuntimeError(f"Failed to get person by id {person_id}: {str(e)}") from e
 
-    
+
     def get_elevator_by_id(self, elevator_id: str) -> Optional[ElevatorSnapshot]:
         """Get specific elevator state by ID"""
         try:
@@ -217,7 +222,8 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get elevator by id {elevator_id}: {e}")
             raise RuntimeError(f"Failed to get elevator by id {elevator_id}: {str(e)}") from e
-    
+
+
     def get_floor_info(self, floor_number: int) -> Optional[FloorSnapshot]:
         """Get specific floor information"""
         try:
