@@ -9,15 +9,15 @@ from mytower.game.elevator import ElevatorCosmeticsProtocol
 from mytower.game.logger import LoggerProvider
 
 class PersonFactory(Protocol):
-    def __call__(self, cur_floor: int, dest_floor: int) -> PersonProtocol: ...
-    
+    def __call__(self, cur_floor_num: int, dest_floor_num: int) -> PersonProtocol: ...
+
 @pytest.fixture
 # def mock_person_factory() -> Callable[[int, int], PersonProtocol]:
 def mock_person_factory() -> PersonFactory:
-    def _person_gen(cur_floor: int, dest_floor: int) -> PersonProtocol:
+    def _person_gen(cur_floor_num: int, dest_floor_num: int) -> PersonProtocol:
         person: MagicMock = MagicMock(spec=PersonProtocol)
-        type(person).current_floor = PropertyMock(return_value=cur_floor)
-        type(person).destination_floor = PropertyMock(return_value=dest_floor)
+        type(person).current_floor_num = PropertyMock(return_value=cur_floor_num)
+        type(person).destination_floor_num = PropertyMock(return_value=dest_floor_num)
         person.board_elevator = MagicMock()
         person.disembark_elevator = MagicMock()
         return person
