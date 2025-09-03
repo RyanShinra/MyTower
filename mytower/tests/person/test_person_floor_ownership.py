@@ -40,31 +40,6 @@ class TestPersonFloorOwnership:
     
     ## --> This seems identical to mytower/tests/person/test_person_elevator_interaction.py//test_disembark_elevator_success
     
-    # def test_disembark_elevator_adds_to_destination_floor(self, person: Person, mock_building: MagicMock) -> None:
-    #     """Test that disembarking elevator adds person to destination floor"""
-    #     mock_elevator = MagicMock()
-    #     mock_elevator.current_floor_int = 8
-    #     mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
-        
-    #     mock_destination_floor = MagicMock()
-    #     mock_building.get_floor_by_number.return_value = mock_destination_floor
-        
-    #     # Setup: person is in elevator
-    #     person.testing_set_current_state(PersonState.IN_ELEVATOR)
-    #     person.testing_set_current_elevator(mock_elevator)
-        
-    #     person.disembark_elevator()
-        
-    #     # Should get destination floor from building
-    #     mock_building.get_floor_by_number.assert_called_once_with(8)
-        
-    #     # Should add person to destination floor
-    #     mock_destination_floor.add_person.assert_called_once_with(person)
-        
-    #     # Person should now have destination floor as current floor
-    #     assert person.current_floor == mock_destination_floor
-    #     assert person.state == PersonState.IDLE
-    
     
     def test_disembark_elevator_nonexistent_floor_raises_error(self, person: Person, mock_building: MagicMock) -> None:
         """Test that disembarking onto non-existent floor raises RuntimeError"""
