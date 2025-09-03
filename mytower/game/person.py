@@ -336,7 +336,10 @@ class Person(PersonProtocol):
         if not self._current_floor:
             raise RuntimeError(f"Person {self._person_id} is not on a floor but is trying to board an elevator.")
         
-        _ = self._current_floor.remove_person(self._person_id)
+        removed_person = self._current_floor.remove_person(self._person_id)
+        # Optionally, log a warning if the person was not found on the floor
+        if removed_person is None:
+            self._logger.warning(f"Person {self._person_id} was not found on the current floor during board_elevator.")
         self._current_floor = None
 
 
