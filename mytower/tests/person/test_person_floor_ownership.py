@@ -86,10 +86,30 @@ class TestPersonFloorOwnership:
         assert person_without_floor.state == PersonState.IDLE
         
         # Verify no additional calls to origin floor
-        # For some reason, mypy thinks this is unreachable, but it totally is, thus the ignore comment
-        assert mock_origin_floor.remove_person.call_count == 1  # type: ignore[unreachable]
+        pass  # Assertion moved to a separate test to avoid mypy unreachable warning
 
+    def test_origin_floor_remove_person_called_once(self, person_without_floor: Person, mock_building_no_floor: MagicMock) -> None:
+        """Test that remove_person is called exactly once on origin floor during elevator journey"""
+        mock_elevator = MagicMock()
+        mock_elevator.current_floor_int = 7
+        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 5
 
+        mock_origin_floor = MagicMock()
+        mock_destination_floor = MagicMock()
+
+        # Setup: person starts on origin floor
+        person_without_floor.testing_set_current_floor(mock_origin_floor)
+
+        # Board elevator (should remove from origin floor)
+        person_without_floor.board_elevator(mock_elevator)
+
+        # Disembark elevator (should add to destination floor)
+        person_without_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
+        mock_building_no_floor.get_floor_by_number.return_value = mock_destination_floor
+        person_without_floor.disembark_elevator()
+
+        # Now check the call count
+        assert mock_origin_floor.remove_person.call_count == 1
 class TestPersonFloorOwnershipEdgeCases:
     """Test edge cases in floor ownership"""
     
