@@ -9,9 +9,9 @@ class TestPersonWaitingBehavior:
 
 
     
-    def test_idle_timeout_prevents_constant_checking(self, person: Person, mock_building: MagicMock) -> None:
+    def test_idle_timeout_prevents_constant_checking(self, person: Person, mock_building_no_floor: MagicMock) -> None:
         """Test that idle timeout prevents person from constantly searching for elevators"""
-        mock_building.get_elevator_banks_on_floor.return_value = []
+        mock_building_no_floor.get_elevator_banks_on_floor.return_value = []
         
         person.set_destination(dest_floor_num=8, dest_block_num=15)
         
@@ -23,7 +23,7 @@ class TestPersonWaitingBehavior:
         # Subsequent calls within timeout should not search again
         person.update_idle(1.0)  # Still within new timeout period
         # get_elevator_banks_on_floor should only be called once from first update
-        assert mock_building.get_elevator_banks_on_floor.call_count == 1
+        assert mock_building_no_floor.get_elevator_banks_on_floor.call_count == 1
 
 
         

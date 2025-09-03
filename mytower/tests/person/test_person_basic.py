@@ -26,14 +26,14 @@ class TestPersonBasics:
 
 
         
-    def test_set_destination_out_of_bounds_clamped(self, person: Person, mock_building: MagicMock) -> None:
+    def test_set_destination_out_of_bounds_clamped(self, person: Person, mock_building_no_floor: MagicMock) -> None:
         """Test that out-of-bounds destinations get clamped to valid range"""
         # Building has 10 floors, 20 width (from fixture)
         person.set_destination(dest_floor_num=15, dest_block_num=25)  # Both too high
-        assert person.destination_floor_num == mock_building.num_floors  # Clamped to max
+        assert person.destination_floor_num == mock_building_no_floor.num_floors  # Clamped to max
         
         assert not person.testing_confirm_dest_block_is(25) # At least it's not wrong
-        assert person.testing_confirm_dest_block_is(mock_building.floor_width) # At least it's not wrong
+        assert person.testing_confirm_dest_block_is(mock_building_no_floor.floor_width) # At least it's not wrong
         
         person.set_destination(dest_floor_num=-1, dest_block_num=-5)  # Both too low  
         assert person.destination_floor_num == 0   # Clamped to min
