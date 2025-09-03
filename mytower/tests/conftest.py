@@ -46,8 +46,8 @@ def mock_logger_provider() -> MagicMock:
 
 
 @pytest.fixture
-def mock_building() -> MagicMock:
-    """Standard building mock - by default returns None for floors (person starts with no floor)"""
+def mock_building_no_floor() -> MagicMock:
+    """Standard building mock - For tests where a person does not need to belong to a floor"""
     building = MagicMock(spec=Building)
     building.num_floors = 10
     building.floor_width = 20
@@ -94,11 +94,11 @@ def mock_game_config() -> MagicMock:
 
 
 @pytest.fixture
-def person(mock_logger_provider: MagicMock, mock_building: MagicMock, mock_game_config: MagicMock) -> Person:
+def person(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock, mock_game_config: MagicMock) -> Person:
     """Standard person fixture - created with no current floor by default"""
     return Person(
         logger_provider=mock_logger_provider,
-        building=mock_building,
+        building=mock_building_no_floor,
         current_floor_num=5,
         current_block_float=10.0,
         config=mock_game_config
@@ -151,12 +151,12 @@ def mock_elevator(mock_logger_provider: MagicMock) -> MagicMock:
 
 @pytest.fixture
 def elevator_bank(
-    mock_building: MagicMock, 
+    mock_building_no_floor: MagicMock, 
     mock_logger_provider: MagicMock, 
     mock_cosmetics_config: MagicMock
 ) -> ElevatorBank:
     return ElevatorBank(
-        building=mock_building,
+        building=mock_building_no_floor,
         logger_provider=mock_logger_provider,
         cosmetics_config=mock_cosmetics_config,
         h_cell=5,

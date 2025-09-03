@@ -14,7 +14,7 @@ class TestPersonValidation:
 
 
         
-    def test_testing_set_dest_floor_out_of_bounds(self, person: Person, mock_building: MagicMock) -> None:
+    def test_testing_set_dest_floor_out_of_bounds(self, person: Person, mock_building_no_floor: MagicMock) -> None:
         """Test that setting invalid destination floor raises error"""
         with pytest.raises(ValueError, match=".*out of bounds.*"):
             person.testing_set_dest_floor_num(15)  # Above building height

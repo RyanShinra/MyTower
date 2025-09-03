@@ -13,10 +13,10 @@ from mytower.game.person import PersonProtocol
 
 
 @pytest.fixture
-def floor(mock_logger_provider: MagicMock, mock_building: MagicMock) -> Floor:
+def floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock) -> Floor:
     return Floor(
         logger_provider=mock_logger_provider,
-        building=mock_building,
+        building=mock_building_no_floor,
         floor_num=3,
         floor_type=FloorType.OFFICE
     )

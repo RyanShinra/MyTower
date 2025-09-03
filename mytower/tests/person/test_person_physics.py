@@ -34,9 +34,9 @@ class TestPersonPhysics:
 
 
         
-    def test_walking_respects_building_boundaries(self, person: Person, mock_building: MagicMock) -> None:
+    def test_walking_respects_building_boundaries(self, person: Person, mock_building_no_floor: MagicMock) -> None:
         """Test that person movement is constrained by building boundaries"""
-        mock_building.floor_width = 20
+        mock_building_no_floor.floor_width = 20
         
         # Test right boundary
         person.testing_set_current_block_float(19.5)
