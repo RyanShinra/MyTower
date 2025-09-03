@@ -2,34 +2,14 @@
 # ruff: noqa: F401, F841
 # pyright: reportUnusedCallResult=false
 
+# tests/floor/test_floor_people.py 22
 from __future__ import annotations
-import sys
-from pathlib import Path
-from unittest.mock import MagicMock
 import pytest
+from unittest.mock import MagicMock
 
 from mytower.game.floor import Floor
 from mytower.game.types import FloorType
 from mytower.game.person import PersonProtocol
-
-# Add the project root to Python path
-project_root: Path = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-
-@pytest.fixture
-def mock_building() -> MagicMock:
-    building = MagicMock()
-    building.floor_width = 20
-    return building
-
-
-@pytest.fixture
-def mock_logger_provider() -> MagicMock:
-    provider = MagicMock()
-    mock_logger = MagicMock()
-    provider.get_logger.return_value = mock_logger
-    return provider
 
 
 @pytest.fixture

@@ -36,9 +36,9 @@ class TestIdleElevatorLogic:
         
         mock_elevator.current_floor_int = 5
         mock_elevator.idle_time = 0.6 # It's been waiting longer than the idle time-out
-        mock_elevator.idle_wait_timeout = 0.5 # A real elevator would probably sit idle for more than 500ms before trying to load passengers 
-        
-        elevator_bank.add_waiting_passenger(mock_person_factory(cur_floor=5, dest_floor=8))
+        mock_elevator.idle_wait_timeout = 0.5 # A real elevator would probably sit idle for more than 500ms before trying to load passengers
+
+        elevator_bank.add_waiting_passenger(mock_person_factory(cur_floor_num=5, dest_floor_num=8))
         assert len(elevator_bank.testing_get_upward_queue(5))  == 1 # Make sure this is set before we run the test
         
         elevator_bank.testing_update_idle_elevator(mock_elevator, 0.1) # 100 ms
