@@ -19,9 +19,9 @@ class TestPassengerQueueing:
     def test_add_passenger_going_up(self, elevator_bank: ElevatorBank) -> None:
         # Test the most basic case - person going up gets added to up queue
         mock_person = MagicMock()
-        mock_person.current_floor = 3
-        mock_person.destination_floor = 7
-        
+        mock_person.current_floor_num = 3
+        mock_person.destination_floor_num = 7
+
         # Test passes if no exception raised (e.g., ValueError for invalid floor/direction)
         elevator_bank.add_waiting_passenger(mock_person)
         
@@ -33,9 +33,9 @@ class TestPassengerQueueing:
         
     def test_add_passenger_going_down(self, elevator_bank: ElevatorBank) -> None:
         mock_person = MagicMock()
-        mock_person.current_floor = 8
-        mock_person.destination_floor = 2
-        
+        mock_person.current_floor_num = 8
+        mock_person.destination_floor_num = 2
+
         # Test passes if no exception raised
         elevator_bank.add_waiting_passenger(mock_person)
         
@@ -54,13 +54,13 @@ class TestPassengerQueueing:
         """Test that up/down passengers on same floor go to correct queues"""
         # Person going up from floor 5
         up_person = MagicMock()
-        up_person.current_floor = 5
-        up_person.destination_floor = 9
-        
-        # Person going down from floor 5  
+        up_person.current_floor_num = 5
+        up_person.destination_floor_num = 9
+
+        # Person going down from floor 5
         down_person = MagicMock()
-        down_person.current_floor = 5
-        down_person.destination_floor = 2
+        down_person.current_floor_num = 5
+        down_person.destination_floor_num = 2
         
         # Both operations should succeed without raising exceptions
         elevator_bank.add_waiting_passenger(up_person)
@@ -76,7 +76,7 @@ class TestPassengerQueueing:
         assert downward_queue[0] is down_person
         
 
-    @pytest.mark.parametrize("current_floor,dest_floor,direction,queue_getter", [
+    @pytest.mark.parametrize("current_floor_num,dest_floor_num,direction,queue_getter", [
         (4, 8, VerticalDirection.UP, "testing_get_upward_queue"),
         (8, 3, VerticalDirection.DOWN, "testing_get_downward_queue"),
 
@@ -85,27 +85,27 @@ class TestPassengerQueueing:
     def test_dequeue_passenger_success(
         self, 
         elevator_bank: ElevatorBank, 
-        current_floor: int, 
-        dest_floor: int, 
+        current_floor_num: int, 
+        dest_floor_num: int, 
         direction: VerticalDirection,
         queue_getter: str
     ) -> None:
         """Test successfully dequeuing passengers in both directions"""
         mock_person = MagicMock()
-        mock_person.current_floor = current_floor
-        mock_person.destination_floor = dest_floor
-        
+        mock_person.current_floor_num = current_floor_num
+        mock_person.destination_floor_num = dest_floor_num
+
         elevator_bank.add_waiting_passenger(mock_person)
         
         # Act
-        dequeued: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor, direction)
+        dequeued: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor_num, direction)
         
         # Assert
         assert dequeued is mock_person
         
         # Verify queue is now empty using the appropriate getter
-        # this is comparable to `upward_queue = elevator_bank.testing_get_upward_queue(current_floor)`
-        queue = getattr(elevator_bank, queue_getter)(current_floor)
+        # this is comparable to `upward_queue = elevator_bank.testing_get_upward_queue(current_floor_num)`
+        queue = getattr(elevator_bank, queue_getter)(current_floor_num)
         assert len(queue) == 0
 
 
@@ -120,8 +120,8 @@ class TestPassengerQueueing:
         """Test dequeuing wrong direction from populated queue returns None"""
         # Add person going UP
         mock_person = MagicMock()
-        mock_person.current_floor = 5
-        mock_person.destination_floor = 9
+        mock_person.current_floor_num = 5
+        mock_person.destination_floor_num = 9
         elevator_bank.add_waiting_passenger(mock_person)
         
         # Try to dequeue someone going DOWN from same floor
@@ -136,37 +136,37 @@ class TestPassengerQueueing:
 
     def test_dequeue_fifo_ordering(self, elevator_bank: ElevatorBank) -> None:
         """Test that passengers are dequeued in FIFO (first-in, first-out) order"""
-        current_floor: Final[int] = 5
+        current_floor_num: Final[int] = 5
         
         # Add three passengers to the same queue
         first_person = MagicMock()
-        first_person.current_floor = current_floor
-        first_person.destination_floor = 9
-        
+        first_person.current_floor_num = current_floor_num
+        first_person.destination_floor_num = 9
+
         second_person = MagicMock()
-        second_person.current_floor = current_floor
-        second_person.destination_floor = 8
-        
+        second_person.current_floor_num = current_floor_num
+        second_person.destination_floor_num = 8
+
         third_person = MagicMock()
-        third_person.current_floor = current_floor
-        third_person.destination_floor = 7
-        
+        third_person.current_floor_num = current_floor_num
+        third_person.destination_floor_num = 7
+
         # Add them in order
         elevator_bank.add_waiting_passenger(first_person)
         elevator_bank.add_waiting_passenger(second_person)
         elevator_bank.add_waiting_passenger(third_person)
         
         # Dequeue should return them in the same order
-        dequeued_1: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor, VerticalDirection.UP)
-        dequeued_2: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor, VerticalDirection.UP)
-        dequeued_3: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor, VerticalDirection.UP)
+        dequeued_1: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor_num, VerticalDirection.UP)
+        dequeued_2: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor_num, VerticalDirection.UP)
+        dequeued_3: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor_num, VerticalDirection.UP)
         
         assert dequeued_1 is first_person
         assert dequeued_2 is second_person
         assert dequeued_3 is third_person
         
         # Queue should now be empty
-        upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(current_floor)
+        upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(current_floor_num)
         assert len(upward_queue) == 0
 
 

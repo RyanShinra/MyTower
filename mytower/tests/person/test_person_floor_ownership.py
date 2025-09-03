@@ -38,31 +38,32 @@ class TestPersonFloorOwnership:
         with pytest.raises(RuntimeError, match="Person .* is not on a floor but is trying to board an elevator"):
             person.board_elevator(mock_elevator)
     
+    ## --> This seems identical to mytower/tests/person/test_person_elevator_interaction.py//test_disembark_elevator_success
     
-    def test_disembark_elevator_adds_to_destination_floor(self, person: Person, mock_building: MagicMock) -> None:
-        """Test that disembarking elevator adds person to destination floor"""
-        mock_elevator = MagicMock()
-        mock_elevator.current_floor_int = 8
-        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
+    # def test_disembark_elevator_adds_to_destination_floor(self, person: Person, mock_building: MagicMock) -> None:
+    #     """Test that disembarking elevator adds person to destination floor"""
+    #     mock_elevator = MagicMock()
+    #     mock_elevator.current_floor_int = 8
+    #     mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
         
-        mock_destination_floor = MagicMock()
-        mock_building.get_floor_by_number.return_value = mock_destination_floor
+    #     mock_destination_floor = MagicMock()
+    #     mock_building.get_floor_by_number.return_value = mock_destination_floor
         
-        # Setup: person is in elevator
-        person.testing_set_current_state(PersonState.IN_ELEVATOR)
-        person.testing_set_current_elevator(mock_elevator)
+    #     # Setup: person is in elevator
+    #     person.testing_set_current_state(PersonState.IN_ELEVATOR)
+    #     person.testing_set_current_elevator(mock_elevator)
         
-        person.disembark_elevator()
+    #     person.disembark_elevator()
         
-        # Should get destination floor from building
-        mock_building.get_floor_by_number.assert_called_once_with(8)
+    #     # Should get destination floor from building
+    #     mock_building.get_floor_by_number.assert_called_once_with(8)
         
-        # Should add person to destination floor
-        mock_destination_floor.add_person.assert_called_once_with(person)
+    #     # Should add person to destination floor
+    #     mock_destination_floor.add_person.assert_called_once_with(person)
         
-        # Person should now have destination floor as current floor
-        assert person.current_floor == mock_destination_floor
-        assert person.state == PersonState.IDLE
+    #     # Person should now have destination floor as current floor
+    #     assert person.current_floor == mock_destination_floor
+    #     assert person.state == PersonState.IDLE
     
     
     def test_disembark_elevator_nonexistent_floor_raises_error(self, person: Person, mock_building: MagicMock) -> None:
@@ -152,39 +153,39 @@ class TestPersonFloorOwnershipEdgeCases:
 
 class TestPersonCurrentFloorProperty:
     """Test the current_floor property behavior"""
-    
-    def test_current_floor_none_by_default(self, person: Person, mock_building: MagicMock) -> None:
+
+    def test_current_floor_none_by_default(self, mock_building: MagicMock, mock_game_config: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test that current_floor starts as None when person is created"""
-        # Based on your implementation, person gets current_floor from building.get_floor_by_number
         # If building returns None, current_floor should be None
         mock_building.get_floor_by_number.return_value = None
         
-        # Create new person to test initialization
-        from mytower.game.person import Person
+        # Create new person to test initialization        
         new_person = Person(
-            logger_provider=MagicMock(),
+            logger_provider=mock_logger_provider,
             building=mock_building,
             current_floor_num=5,
             current_block_float=10.0,
-            config=MagicMock()
+            config=mock_game_config
         )
-        
+
         assert new_person.current_floor is None
-    
-    
-    def test_current_floor_set_during_initialization_when_floor_exists(self, mock_building: MagicMock) -> None:
+
+
+    def test_current_floor_set_during_initialization_when_floor_exists(
+        self, 
+        mock_building_with_floor: MagicMock,
+        mock_game_config: MagicMock,
+        mock_logger_provider: MagicMock
+    ) -> None:
         """Test that current_floor gets set if building has the floor"""
-        mock_floor = MagicMock()
-        mock_building.get_floor_by_number.return_value = mock_floor
         
-        from mytower.game.person import Person
         new_person = Person(
-            logger_provider=MagicMock(),
-            building=mock_building,
+            logger_provider=mock_logger_provider,
+            building=mock_building_with_floor,
             current_floor_num=5,
             current_block_float=10.0,
-            config=MagicMock()
+            config=mock_game_config
         )
         
-        assert new_person.current_floor == mock_floor
-        mock_building.get_floor_by_number.assert_called_with(5)
+        assert new_person.current_floor == mock_building_with_floor.get_floor_by_number.return_value
+        mock_building_with_floor.get_floor_by_number.assert_called_with(5)
