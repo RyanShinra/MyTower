@@ -113,7 +113,7 @@ class TestPersonFloorOwnership:
         assert person.state == PersonState.IDLE
         
         # Verify no additional calls to origin floor
-        assert mock_origin_floor.remove_person.call_count == 1
+        assert mock_origin_floor.remove_person.call_count == 1  # type: ignore[unreachable]
 
 
 class TestPersonFloorOwnershipEdgeCases:
