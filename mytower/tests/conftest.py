@@ -181,3 +181,28 @@ def elevator(
         config=mock_config,
         cosmetics_config=mock_cosmetics_config,
     )
+    
+# TODO: Fix Person construction with building floor dependencies (#thisIsAProblemForFutureRyan)
+# PROBLEM: Real Person objects call building.get_floor_by_number() during __init__
+# - person_without_floor needs building mock to return None during construction
+# - person_with_floor needs building mock to return mock_floor during construction  
+# - Current approach requires separate building fixtures pre-configured for each case
+# - PersonFactory creates mock persons, but we need real Person objects for integration tests
+#
+# CURRENT WORKAROUND: Separate fixtures
+# - mock_building_no_floor: get_floor_by_number returns None
+# - mock_building_with_floor: get_floor_by_number returns mock_floor
+# - person_without_floor: uses mock_building_no_floor
+# - person_with_floor: uses mock_building_with_floor
+#
+# BETTER SOLUTION: PersonFactory that handles real Person construction
+# def real_person_factory(cur_floor_num, dest_floor_num, has_floor=False):
+#     # Create building mock with appropriate floor return value
+#     building = MagicMock(spec=Building)
+#     building.get_floor_by_number.return_value = mock_floor if has_floor else None
+#     # Create real Person with properly mocked building
+#     return Person(logger_provider, building, cur_floor_num, current_block_float, config)
+#
+# IMPACT: High - eliminates fixture duplication, makes test intent clearer
+# EFFORT: ~45 minutes to refactor fixtures and update all test files  
+# DEPENDENCIES: Complete MVC refactor first - this is test infrastructure cleanup
