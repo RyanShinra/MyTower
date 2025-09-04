@@ -20,8 +20,8 @@ max_width = int(display_info.current_w * 0.75)
 max_height = int(display_info.current_h * 0.75)
 
 # Use the minimum of 75% of display or the constants
-window_width = min(SCREEN_WIDTH, max_width)
-window_height = min(SCREEN_HEIGHT, max_height)
+window_width: int = min(SCREEN_WIDTH, max_width)
+window_height: int = min(SCREEN_HEIGHT, max_height)
 
 # Set up the display
 screen: Surface = pygame.display.set_mode((window_width, window_height), vsync=1)

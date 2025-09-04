@@ -26,7 +26,7 @@ class GameState:
         self._speed: float = 3.0  # Game speed multiplier
 
         # UI state
-        self._paused = False
+        self._paused: bool = False
 
     @property
     def building(self) -> Building:

@@ -60,6 +60,7 @@ class Building:
     def people(self) -> List[PersonProtocol]:
         return list(self._people.values())
 
+    # TODO: For dep-injection, we should pass in Floor objects, maybe, though we need to think about the next floor number
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         next_floor_num: int = self.num_floors + 1
