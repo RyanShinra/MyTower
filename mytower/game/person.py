@@ -201,9 +201,6 @@ class Person(PersonProtocol):
         self._current_elevator: Elevator | None = None
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
         # self._current_floor: Floor | None = self._building.get_floor_by_number(current_floor_num)
-        self._assign_floor(self.current_floor_num)
-        
-        
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
         self._original_red: Final[int] = random.randint(
@@ -357,8 +354,8 @@ class Person(PersonProtocol):
         
         try:
             self._clear_floor()
-        except RuntimeError:
-            raise RuntimeError(f"Person {self._person_id} is not on a floor but is trying to board an elevator.")
+        except RuntimeError as e:
+            raise RuntimeError(f"Person {self._person_id} is not on a floor but is trying to board an elevator.") from e
 
     @override
     def disembark_elevator(self) -> None:
@@ -373,8 +370,8 @@ class Person(PersonProtocol):
         
         try:
             self._assign_floor(self._current_elevator.current_floor_int)
-        except RuntimeError:
-            raise RuntimeError(f"Cannot disembark elevator: floor {self._current_elevator.current_floor_int} does not exist.")
+        except RuntimeError as e:
+            raise RuntimeError(f"Cannot disembark elevator: floor {self._current_elevator.current_floor_int} does not exist.") from e
 
         self._waiting_time = 0.0
         self._current_elevator = None

@@ -1,5 +1,5 @@
-#demo_builder.py
-# Creates demo instance of the game
+# demo_builder.py
+# Creates a demo instance of the game
 
 from mytower.game.building import Building
 from mytower.game.config import GameConfig
