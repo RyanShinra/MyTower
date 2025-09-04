@@ -146,14 +146,14 @@ class Floor:
         floor_x_left = 0
 
         # Draw the main floor rectangle
-        _ = pygame.draw.rect(
+        pygame.draw.rect(
             surface, self._color, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, floor_height)
         )
-        _ = pygame.draw.rect(
+        pygame.draw.rect(
             surface, FLOORBOARD_COLOR, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, 2)
         )
 
         # Draw floor number
         font: Font = pygame.font.SysFont(["Palatino Linotype", "Menlo", "Lucida Sans Typewriter"], 18)
         text: Surface = font.render(f"{self._floor_num}", True, (0, 0, 0))
-        _ = surface.blit(text, (floor_x_left + 8, floor_y_top + 12))
+        surface.blit(text, (floor_x_left + 8, floor_y_top + 12))
