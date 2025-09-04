@@ -14,12 +14,20 @@ from mytower.game.logger import LoggerProvider
 # pylint: disable=no-member
 _ = pygame.init()
 
+# Get display info and calculate 75% of display size
+display_info = pygame.display.Info()
+max_width = int(display_info.current_w * 0.75)
+max_height = int(display_info.current_h * 0.75)
+
+# Use the minimum of 75% of display or the constants
+window_width = min(SCREEN_WIDTH, max_width)
+window_height = min(SCREEN_HEIGHT, max_height)
+
 # Set up the display
-screen: Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
+screen: Surface = pygame.display.set_mode((window_width, window_height), vsync=1)
 pygame.display.set_caption("MyTower")
 
 clock: Clock = pygame.time.Clock()
-
 
 
 def main() -> NoReturn:
@@ -31,7 +39,7 @@ def main() -> NoReturn:
     mouse = MouseState(logger_provider)
 
     # Create game state
-    game_state = GameState(logger_provider, SCREEN_WIDTH, SCREEN_HEIGHT)
+    game_state = GameState(logger_provider, window_width, window_height)
     running = True
 
     while running:
