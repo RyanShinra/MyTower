@@ -335,7 +335,8 @@ class Person(PersonProtocol):
 
     def _assign_floor(self, floor_num: int) -> None:
         self._current_floor = self.building.get_floor_by_number(floor_num)
-            raise RuntimeError(f"Cannot assign person to floor {floor_num}, the floor does not exist.")
+        if not self._current_floor:
+            raise RuntimeError(f"Cannot assign person to floor {floor_num} , the floor does not exist.")
 
         self._current_floor.add_person(self)
 
