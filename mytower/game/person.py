@@ -18,7 +18,8 @@ import pygame
 from mytower.game.config import GameConfig
 from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.elevator import Elevator
-from mytower.game.elevator_bank import ElevatorBank
+
+# from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.logger import MyTowerLogger
 from mytower.game.types import HorizontalDirection, PersonState
 
