@@ -56,7 +56,6 @@ def build_model_building(logger_provider: LoggerProvider) -> Building:
         cosmetics_config=config.elevator_cosmetics,
     )
 
-
     test_elevator_bank.add_elevator(test_elevator)
     building.add_elevator_bank(test_elevator_bank)
 

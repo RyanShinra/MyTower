@@ -200,7 +200,10 @@ class Person(PersonProtocol):
         self._idle_timeout: float = 0
         self._current_elevator: Elevator | None = None
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
-        # self._current_floor: Floor | None = self._building.get_floor_by_number(current_floor_num)
+        
+        self._current_floor: Floor | None = None
+        self._assign_floor(current_floor_num)  # This does raise the question of spawning people inside elevators or otherwise not on floors (though, what would that mean?)
+
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
         self._original_red: Final[int] = random.randint(
@@ -331,7 +334,6 @@ class Person(PersonProtocol):
         return closest_el
 
     def _assign_floor(self, floor_num: int) -> None:
-        self._current_floor_float = float(floor_num)
         self._current_floor = self.building.get_floor_by_number(floor_num)
         if not self._current_floor:
             raise RuntimeError(f"Cannot assign person to floor {floor_num} , the floor does not exist.")
