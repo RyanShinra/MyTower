@@ -22,9 +22,8 @@ logging.addLevelName(TRACE, "TRACE")
 class MyTowerLogger(logging.Logger):
     """Custom logger class with TRACE level support."""
 
-
-
-    def trace(self, msg: object, *args: Any, **kwargs: Any) -> None:
+    
+    def trace(self, msg: object, *args: Any, **kwargs: Any) -> None:  # type: ignore[explicit-any]
         """
         Log a message with severity 'TRACE'.
 
