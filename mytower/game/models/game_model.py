@@ -40,10 +40,6 @@ class GameModel:
         self._speed: float = 1.0
         self._paused: bool = False
         
-        
-        # TODO: Move initialization logic from GameState here
-        # self._initialize_building()
-    
 
     # @property
     # def logger(self) -> MyTowerLogger:

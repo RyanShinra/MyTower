@@ -195,8 +195,10 @@ class Person(PersonProtocol):
         self._idle_timeout: float = 0
         self._current_elevator: Elevator | None = None
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
-        self._current_floor: Floor | None = self._building.get_floor_by_number(current_floor_num)
-
+        # self._current_floor: Floor | None = self._building.get_floor_by_number(current_floor_num)
+        self._assign_floor(self.current_floor_num)
+        
+        
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
         self._original_red: Final[int] = random.randint(
@@ -326,6 +328,18 @@ class Person(PersonProtocol):
 
         return closest_el
 
+    def _assign_floor(self, floor_num: int) -> None:
+        self._current_floor_float = float(floor_num)
+        self._current_floor = self.building.get_floor_by_number(floor_num)
+        if not self._current_floor:
+            raise RuntimeError(f"Cannot assign person to floor {floor_num} , the floor does not exist.")
+
+    def _clear_floor(self) -> None:
+        if not self._current_floor:
+            raise RuntimeError("Cannot clear floor: person is not currently on a floor.")
+
+        self._current_floor.remove_person(self._person_id)
+        self._current_floor = None
 
     @override
     def board_elevator(self, elevator: Elevator) -> None:
@@ -333,15 +347,10 @@ class Person(PersonProtocol):
         self._waiting_time = 0.0
         self._state = PersonState.IN_ELEVATOR
         
-        if not self._current_floor:
+        try:
+            self._clear_floor()
+        except RuntimeError:
             raise RuntimeError(f"Person {self._person_id} is not on a floor but is trying to board an elevator.")
-        
-        removed_person = self._current_floor.remove_person(self._person_id)
-        # Optionally, log a warning if the person was not found on the floor
-        if removed_person is None:
-            self._logger.warning(f"Person {self._person_id} was not found on the current floor during board_elevator.")
-        self._current_floor = None
-
 
     @override
     def disembark_elevator(self) -> None:
@@ -354,12 +363,11 @@ class Person(PersonProtocol):
         self._current_block_float = self._current_elevator.parent_elevator_bank.get_waiting_block()
         self._current_floor_float = float(self._current_elevator.current_floor_int)
         
-        self._current_floor = self.building.get_floor_by_number(self._current_elevator.current_floor_int)
-        if not self._current_floor:
-            raise RuntimeError(f"Cannot disembark elevator: floor {self._current_elevator.current_floor_int} does not exist.")  
-        
-        self._current_floor.add_person(self)
-        
+        try:
+            self._assign_floor(self._current_elevator.current_floor_int)
+        except RuntimeError:
+            raise RuntimeError(f"Cannot disembark elevator: floor {self._current_elevator.current_floor_int} does not exist.")
+
         self._waiting_time = 0.0
         self._current_elevator = None
         self._next_elevator_bank = None
