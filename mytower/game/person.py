@@ -12,7 +12,6 @@ from __future__ import annotations  # Defer type evaluation
 import random
 import threading
 from typing import TYPE_CHECKING, Final, List, Protocol, override
-# from typing_extensions import override
 
 import pygame
 
@@ -23,11 +22,16 @@ from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.logger import MyTowerLogger
 from mytower.game.types import HorizontalDirection, PersonState
 
+# from typing_extensions import override
+
+
+
 if TYPE_CHECKING:
     from pygame import Surface
-    from mytower.game.floor import Floor
+
     from mytower.game.building import Building
     from mytower.game.elevator_bank import ElevatorBank
+    from mytower.game.floor import Floor
     from mytower.game.logger import LoggerProvider
 
 
@@ -333,6 +337,9 @@ class Person(PersonProtocol):
         self._current_floor = self.building.get_floor_by_number(floor_num)
         if not self._current_floor:
             raise RuntimeError(f"Cannot assign person to floor {floor_num} , the floor does not exist.")
+
+        self._current_floor.add_person(self)
+
 
     def _clear_floor(self) -> None:
         if not self._current_floor:
