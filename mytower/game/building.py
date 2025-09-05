@@ -34,12 +34,7 @@ class Building:
         self._elevator_banks: List[ElevatorBank] = []  # List of elevator objects
         
         # TODO: Remove this when fully migrating to GameModel and Floor ownership
-        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the building with their id as the key
-        self._time: float = 0.0  # Game time in minutes
-
-        # Add ground floor by default
-        # It might be helpful to hold onto this reference in the future
-        _ = self.add_floor(FloorType.LOBBY)
+        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the building with their id as the key        
 
     @property
     def num_floors(self) -> int:
@@ -101,9 +96,7 @@ class Building:
         return elevators
 
     def update(self, dt: float) -> None:
-        """Update the building simulation by dt time"""
-        self._time += dt
-
+        """Update the building state by time increment dt (in seconds)"""
         for elevator in self._elevator_banks:
             if hasattr(elevator, "update"):
                 elevator.update(dt)
