@@ -84,7 +84,6 @@ class Elevator:
         self,
         logger_provider: LoggerProvider,
         elevator_bank: ElevatorBank,
-        h_cell: int,
         min_floor: int,
         max_floor: int,
         config: ElevatorConfigProtocol,
@@ -107,7 +106,7 @@ class Elevator:
 
         self._logger: MyTowerLogger = logger_provider.get_logger("Elevator")
         self._parent_elevator_bank: ElevatorBank = elevator_bank
-        self._horizontal_block: int = h_cell
+
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._config: ElevatorConfigProtocol = config
@@ -192,10 +191,6 @@ class Elevator:
     @property
     def parent_elevator_bank(self) -> ElevatorBank:
         return self._parent_elevator_bank
-
-    @property
-    def horizontal_block(self) -> int:
-        return self._horizontal_block
 
     @property
     def door_open(self) -> bool:
@@ -478,8 +473,9 @@ class Elevator:
         screen_height = surface.get_height()
         #   450 = 480 - (1.5 * 20)
         # We want the private member here since it's a float and we're computing pixels
+        
         car_top = screen_height - int(self._current_floor_float * BLOCK_HEIGHT)
-        shaft_left = self._horizontal_block * BLOCK_WIDTH
+        shaft_left = self._parent_elevator_bank.horizontal_block * BLOCK_WIDTH
         width = BLOCK_WIDTH
 
         # Draw shaft from min to max floor

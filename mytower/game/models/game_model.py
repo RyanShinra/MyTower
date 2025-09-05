@@ -4,7 +4,7 @@ No pygame dependencies, no rendering logic
 """
 from __future__ import annotations
 # from typing import List, Dict, Optional
-from typing import Dict, List, Optional
+from typing import Dict, Final, List, Optional
 
 
 from mytower.game.elevator import Elevator
@@ -18,7 +18,7 @@ from mytower.game.types import FloorType
 from mytower.game.building import Building
 from mytower.game.config import GameConfig
 from mytower.game.constants import STARTING_MONEY
-
+from mytower.game.elevator_bank import ElevatorBank
 
 class GameModel:
     """
@@ -32,6 +32,10 @@ class GameModel:
         self._logger: MyTowerLogger = logger_provider.get_logger('GameModel')
         
         self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the game with their id as the key
+        self._elevator_banks: Dict[str, ElevatorBank] = {}  # Dictionary of elevator banks in the game with their id as the key
+        self._elevators: Dict[str, Elevator] = {}  # Dictionary of elevators in the game with their id as the key
+        self._floors: Dict[int, Floor] = {}  # Dictionary of floors in the game with their floor number as the key
+        
         self._building = Building(logger_provider, width=20)
         self._config = GameConfig()
         
@@ -66,6 +70,55 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
+
+
+
+    def add_elevator_bank(self, h_cell: int, min_floor: int, max_floor: int) -> str:
+        """Add a new elevator bank to the building"""
+        try:
+            elevator_bank = ElevatorBank(
+                logger_provider=self._logger_provider,
+                cosmetics_config=self._config.elevator_cosmetics,
+                building=self._building,
+                h_cell=h_cell,
+                min_floor=min_floor,
+                max_floor=max_floor
+            )
+            self._building.add_elevator_bank(elevator_bank)
+            
+            el_bank_id: Final[str] = elevator_bank.elevator_bank_id
+            self._elevator_banks[el_bank_id] = elevator_bank
+            return el_bank_id
+
+        except Exception as e:
+            self._logger.exception(f"Failed to add elevator bank: {e}")
+            raise RuntimeError(f"Failed to add elevator bank: {str(e)}") from e
+
+
+
+    def add_elevator(self, el_bank_id: str) -> str:
+        """Add a new elevator to the specified elevator bank"""
+        try:
+            el_bank: ElevatorBank | None = self._elevator_banks.get(el_bank_id)
+            if el_bank is None:
+                raise ValueError(f"Elevator bank {el_bank_id} does not exist")
+
+            elevator = Elevator(
+                logger_provider=self._logger_provider,
+                elevator_bank=el_bank,
+                min_floor=el_bank.min_floor,
+                max_floor=el_bank.max_floor,
+                config=self._config.elevator,
+                cosmetics_config=self._config.elevator_cosmetics
+            )
+            el_bank.add_elevator(elevator)
+            
+            self._elevators[elevator.elevator_id] = elevator
+            return elevator.elevator_id
+
+        except Exception as e:
+            self._logger.exception(f"Failed to add elevator to bank {el_bank_id}: {e}")
+            raise RuntimeError(f"Failed to add elevator to bank {el_bank_id}: {str(e)}") from e
 
 
 
@@ -184,6 +237,7 @@ class GameModel:
 
 
 
+    # TODO: #15 Let's revisit this when the object type collections are in place (the model will have its own list of elevators)
     def _get_elevator_snapshots(self) -> list[ElevatorSnapshot]:
         """Helper to get snapshots of all elevators"""
         try:

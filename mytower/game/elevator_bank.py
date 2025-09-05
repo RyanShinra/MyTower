@@ -68,7 +68,7 @@ class ElevatorBank:
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("ElevatorBank")
 
-        self._elevator_bank_id: str = ElevatorBank._id_generator.get_next_id()
+        self._elevator_bank_id: Final[str] = ElevatorBank._id_generator.get_next_id()
 
         # Passengers waiting for the elevator on each floor
         self._building: Building = building

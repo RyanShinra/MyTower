@@ -2,7 +2,7 @@
 # pylint: disable=C0103 # Overrides snake case for `TESTING_H_CELL_VALUE` at the bottom
 
 import pytest
-from typing import Final, Sequence
+from typing import Sequence
 from unittest.mock import MagicMock
 from mytower.game.elevator import Elevator, ElevatorState
 from mytower.game.person import PersonProtocol
@@ -98,9 +98,3 @@ class TestElevatorBasics:
         # Test setting back to zero
         elevator.idle_time = 0.0
         assert elevator.idle_time == 0.0
-
-    def test_horizontal_block_property(self, elevator: Elevator) -> None:
-        """Test that horizontal_block property returns the value encoded in Elevator c'tor in conftest.py"""
-        
-        TESTING_H_CELL_VALUE: Final[int] = 5 # Go look in conftest.py for this in the c'tor param list
-        assert elevator.horizontal_block == TESTING_H_CELL_VALUE
