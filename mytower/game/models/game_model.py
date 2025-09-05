@@ -17,7 +17,7 @@ from mytower.game.person import Person, PersonProtocol
 from mytower.game.types import FloorType
 from mytower.game.building import Building
 from mytower.game.config import GameConfig
-
+from mytower.game.constants import STARTING_MONEY
 
 
 class GameModel:
@@ -35,7 +35,7 @@ class GameModel:
         self._building = Building(logger_provider, width=20)
         self._config = GameConfig()
         
-        # For now, placeholder attributes
+        self._money: int = STARTING_MONEY  # Starting money
         self._time: float = 0.0
         self._speed: float = 1.0
         self._paused: bool = False
@@ -53,6 +53,9 @@ class GameModel:
     def current_time(self) -> float:
         return self._time
 
+    @property
+    def money(self) -> int:
+        return self._money
     
     # Command Methods (for GraphQL mutations)
     def add_floor(self, floor_type: FloorType) -> int:
@@ -92,7 +95,7 @@ class GameModel:
     def remove_person(self, person_id: str) -> None:
         """Remove a person from the building"""
         try:
-            _ = self._people.pop(person_id, None)
+            self._people.pop(person_id, None)
             
         except Exception as e:
             self._logger.exception(f"Failed to remove person {person_id}: {e}")
@@ -157,7 +160,7 @@ class GameModel:
             # TODO: Implement snapshot creation from self._building
             return BuildingSnapshot(
                 time=self._time,
-                money=self._building.money, # Consider, do we want the building or the model to manage this?
+                money=self._money,
                 floors=self._get_floor_snapshots(),
                 elevators=self._get_elevator_snapshots(),
                 people=self._get_person_snapshots()
