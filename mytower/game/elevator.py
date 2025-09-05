@@ -16,8 +16,7 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-import threading
-from typing import TYPE_CHECKING, Final, List
+from typing import TYPE_CHECKING, List
 from typing import Optional as Opt
 from typing import Protocol, Sequence
 
@@ -27,6 +26,7 @@ from pygame import Surface
 from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.logger import LoggerProvider
 from mytower.game.types import RGB, ElevatorState, VerticalDirection
+from mytower.game.id_generator import IDGenerator
 
 if TYPE_CHECKING:
     from mytower.game.elevator_bank import ElevatorBank  # noqa E701
@@ -78,11 +78,7 @@ class Elevator:
     An elevator in the building that transports people between floors.
     """
 
-    NULL_ELEVATOR_ID: Final[int] = 0
-    _NEXT_ELEVATOR_RADIX: Final[int] = 4
-    _next_elevator_id = 1  # please don't modify this directly
-    _next_id_lock: threading.Lock = threading.Lock()
-
+    _id_generator: IDGenerator = IDGenerator("elevator")
 
     def __init__(
         self,
@@ -107,9 +103,7 @@ class Elevator:
             logger_provider: Initializes self._logger.
         """
         # Assign unique ID and increment counter
-        with Elevator._next_id_lock:
-            self._elevator_id: str = Elevator.get_next_elevator_id()
-            Elevator.increment_next_elevator_id()
+        self._elevator_id: str = Elevator._id_generator.get_next_id()
 
         self._logger: MyTowerLogger = logger_provider.get_logger("Elevator")
         self._parent_elevator_bank: ElevatorBank = elevator_bank
@@ -137,21 +131,6 @@ class Elevator:
         self._last_logged_state: Opt[ElevatorState] = None  # Track the last logged state
         self._idle_log_timer: float = 0.0
         self._moving_log_timer: float = 0.0
-
-    @classmethod
-    def get_next_elevator_id(cls) -> str:
-        """Get the next elevator ID that will be assigned"""
-        return f"elevator_{cls._next_elevator_id}"
-
-    @classmethod
-    def increment_next_elevator_id(cls) -> None:
-        """Increments the next ID by the radix"""
-        cls._next_elevator_id += cls._NEXT_ELEVATOR_RADIX
-
-    @classmethod
-    def reset_elevator_counter(cls) -> None:
-        """Reset the elevator ID counter (useful for testing)"""
-        cls._next_elevator_id = 1
 
     @property
     def elevator_id(self) -> str:

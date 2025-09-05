@@ -27,6 +27,7 @@ import pygame
 from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.logger import LoggerProvider, MyTowerLogger
 from mytower.game.types import ElevatorState, VerticalDirection
+from mytower.game.id_generator import IDGenerator
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -54,7 +55,7 @@ class ElevatorBank:
     # Define a reusable empty deque as a class-level constant
     EMPTY_DEQUE: Final[deque[PersonProtocol]] = deque()
 
-
+    _id_generator: IDGenerator = IDGenerator("elevator_bank")
 
     def __init__(
         self,
@@ -66,6 +67,8 @@ class ElevatorBank:
         cosmetics_config: ElevatorCosmeticsProtocol,
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("ElevatorBank")
+
+        self._elevator_bank_id: str = ElevatorBank._id_generator.get_next_id()
 
         # Passengers waiting for the elevator on each floor
         self._building: Building = building
@@ -90,6 +93,10 @@ class ElevatorBank:
             floor: set() for floor in range(self._min_floor, self._max_floor + 1)
         }
         pass
+
+    @property
+    def elevator_bank_id(self) -> str:
+        return self._elevator_bank_id
 
     @property
     def building(self) -> Building:
