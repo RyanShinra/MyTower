@@ -473,7 +473,6 @@ class Elevator:
         screen_height = surface.get_height()
         #   450 = 480 - (1.5 * 20)
         # We want the private member here since it's a float and we're computing pixels
-        
         car_top = screen_height - int(self._current_floor_float * BLOCK_HEIGHT)
         shaft_left = self._parent_elevator_bank.horizontal_block * BLOCK_WIDTH
         width = BLOCK_WIDTH
