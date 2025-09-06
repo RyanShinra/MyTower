@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Dict, List
 
 from pygame import Surface
 
-from mytower.game.constants import STARTING_MONEY
+
 # pyright: ignore[reportImportCycles] 
 from mytower.game.elevator import Elevator
 from mytower.game.floor import Floor
@@ -34,22 +34,12 @@ class Building:
         self._elevator_banks: List[ElevatorBank] = []  # List of elevator objects
         
         # TODO: Remove this when fully migrating to GameModel and Floor ownership
-        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the building with their id as the key
-        self._time: float = 0.0  # Game time in minutes
-        self._money: int = STARTING_MONEY  # Starting money
-
-        # Add ground floor by default
-        # It might be helpful to hold onto this reference in the future
-        _ = self.add_floor(FloorType.LOBBY)
+        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the building with their id as the key        
 
     @property
     def num_floors(self) -> int:
         """Return the number of floors in the building."""
         return len(self._floors)
-
-    @property
-    def money(self) -> int:
-        return self._money
 
     @property
     def floor_width(self) -> int:
@@ -60,7 +50,6 @@ class Building:
     def people(self) -> List[PersonProtocol]:
         return list(self._people.values())
 
-    # TODO: For dep-injection, we should pass in Floor objects, maybe, though we need to think about the next floor number
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         next_floor_num: int = self.num_floors + 1
@@ -107,9 +96,7 @@ class Building:
         return elevators
 
     def update(self, dt: float) -> None:
-        """Update the building simulation by dt time"""
-        self._time += dt
-
+        """Update the building state by time increment dt (in seconds)"""
         for elevator in self._elevator_banks:
             if hasattr(elevator, "update"):
                 elevator.update(dt)

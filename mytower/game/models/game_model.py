@@ -4,7 +4,9 @@ No pygame dependencies, no rendering logic
 """
 from __future__ import annotations
 # from typing import List, Dict, Optional
-from typing import Dict, List, Optional
+from typing import Dict, Final, List, Optional
+
+from pygame import Surface
 
 
 from mytower.game.elevator import Elevator
@@ -17,8 +19,8 @@ from mytower.game.person import Person, PersonProtocol
 from mytower.game.types import FloorType
 from mytower.game.building import Building
 from mytower.game.config import GameConfig
-
-
+from mytower.game.constants import STARTING_MONEY, MIN_TIME_MULTIPLIER, MAX_TIME_MULTIPLIER
+from mytower.game.elevator_bank import ElevatorBank
 
 class GameModel:
     """
@@ -32,10 +34,14 @@ class GameModel:
         self._logger: MyTowerLogger = logger_provider.get_logger('GameModel')
         
         self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the game with their id as the key
+        self._elevator_banks: Dict[str, ElevatorBank] = {}  # Dictionary of elevator banks in the game with their id as the key
+        self._elevators: Dict[str, Elevator] = {}  # Dictionary of elevators in the game with their id as the key
+        self._floors: Dict[int, Floor] = {}  # Dictionary of floors in the game with their floor number as the key
+        
         self._building = Building(logger_provider, width=20)
         self._config = GameConfig()
         
-        # For now, placeholder attributes
+        self._money: int = STARTING_MONEY  # Starting money
         self._time: float = 0.0
         self._speed: float = 1.0
         self._paused: bool = False
@@ -53,16 +59,86 @@ class GameModel:
     def current_time(self) -> float:
         return self._time
 
+    @property
+    def money(self) -> int:
+        return self._money
+    
+    @property
+    def speed(self) -> float:
+        return self._speed
+
+    def set_speed(self, value: float) -> None:
+        if MIN_TIME_MULTIPLIER <= value <= MAX_TIME_MULTIPLIER:
+            self._speed = value
+        else:
+            self._logger.warning(f"Attempted to set invalid speed: {value}")
     
     # Command Methods (for GraphQL mutations)
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         try:
+            # TODO: Add this new floor to the floors dictionary
             new_floor_num: int = self._building.add_floor(floor_type)
+            new_floor: Floor | None = self._building.get_floor_by_number(new_floor_num)
+            
+            if new_floor is None:
+                raise RuntimeError(f"Failed to retrieve newly added floor {new_floor_num}")
+            
+            self._floors[new_floor_num] = new_floor
             return new_floor_num
         except Exception as e:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
+
+
+
+    def add_elevator_bank(self, h_cell: int, min_floor: int, max_floor: int) -> str:
+        """Add a new elevator bank to the building"""
+        try:
+            elevator_bank = ElevatorBank(
+                logger_provider=self._logger_provider,
+                cosmetics_config=self._config.elevator_cosmetics,
+                building=self._building,
+                h_cell=h_cell,
+                min_floor=min_floor,
+                max_floor=max_floor
+            )
+            self._building.add_elevator_bank(elevator_bank)
+            
+            el_bank_id: Final[str] = elevator_bank.elevator_bank_id
+            self._elevator_banks[el_bank_id] = elevator_bank
+            return el_bank_id
+
+        except Exception as e:
+            self._logger.exception(f"Failed to add elevator bank: {e}")
+            raise RuntimeError(f"Failed to add elevator bank: {str(e)}") from e
+
+
+
+    def add_elevator(self, el_bank_id: str) -> str:
+        """Add a new elevator to the specified elevator bank"""
+        try:
+            el_bank: ElevatorBank | None = self._elevator_banks.get(el_bank_id)
+            if el_bank is None:
+                raise ValueError(f"Elevator bank {el_bank_id} does not exist")
+
+            # For now, we assume that the Elevator covers all floors in the bank, in the future we may elaborate on this
+            elevator = Elevator(
+                logger_provider=self._logger_provider,
+                elevator_bank=el_bank,
+                min_floor=el_bank.min_floor,
+                max_floor=el_bank.max_floor,
+                config=self._config.elevator,
+                cosmetics_config=self._config.elevator_cosmetics
+            )
+            el_bank.add_elevator(elevator)
+            
+            self._elevators[elevator.elevator_id] = elevator
+            return elevator.elevator_id
+
+        except Exception as e:
+            self._logger.exception(f"Failed to add elevator to bank {el_bank_id}: {e}")
+            raise RuntimeError(f"Failed to add elevator to bank {el_bank_id}: {str(e)}") from e
 
 
 
@@ -89,10 +165,11 @@ class GameModel:
 
 
 
+    # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.
     def remove_person(self, person_id: str) -> None:
         """Remove a person from the building"""
         try:
-            _ = self._people.pop(person_id, None)
+            self._people.pop(person_id, None)
             
         except Exception as e:
             self._logger.exception(f"Failed to remove person {person_id}: {e}")
@@ -144,7 +221,7 @@ class GameModel:
             if not self._paused:
                 game_dt: float = dt * self._speed
                 self._time += game_dt
-                # TODO: self._building.update(game_dt)
+                self._building.update(game_dt)
         except Exception as e:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
@@ -157,7 +234,7 @@ class GameModel:
             # TODO: Implement snapshot creation from self._building
             return BuildingSnapshot(
                 time=self._time,
-                money=self._building.money, # Consider, do we want the building or the model to manage this?
+                money=self._money,
                 floors=self._get_floor_snapshots(),
                 elevators=self._get_elevator_snapshots(),
                 people=self._get_person_snapshots()
@@ -172,7 +249,7 @@ class GameModel:
         """Helper to get snapshots of all floors"""
         try:
             return [
-                build_floor_snapshot(floor) for floor in self._building.get_floors()
+                build_floor_snapshot(floor) for floor in self._floors.values()
             ]
             
         except Exception as e:
@@ -185,7 +262,7 @@ class GameModel:
         """Helper to get snapshots of all elevators"""
         try:
             return [
-                build_elevator_snapshot(elevator) for elevator in self._building.get_elevators()
+                build_elevator_snapshot(elevator) for elevator in self._elevators.values()
             ]
 
         except Exception as e:
@@ -198,7 +275,7 @@ class GameModel:
         """Helper to get snapshots of all people"""
         try:
             return [
-                build_person_snapshot(person) for person in self._building.people
+                build_person_snapshot(person) for person in self._people.values()
             ]
 
         except Exception as e:
@@ -246,3 +323,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get floor info for floor {floor_number}: {e}")
             raise RuntimeError(f"Failed to get floor info for floor {floor_number}: {str(e)}") from e
+
+    def temp_draw_building(self, surface: Surface) -> None:
+        """Draw the building on the given surface"""
+        self._building.draw(surface)

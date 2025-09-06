@@ -16,8 +16,7 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-import threading
-from typing import TYPE_CHECKING, Final, List
+from typing import TYPE_CHECKING, List
 from typing import Optional as Opt
 from typing import Protocol, Sequence
 
@@ -27,6 +26,7 @@ from pygame import Surface
 from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.logger import LoggerProvider
 from mytower.game.types import RGB, ElevatorState, VerticalDirection
+from mytower.game.id_generator import IDGenerator
 
 if TYPE_CHECKING:
     from mytower.game.elevator_bank import ElevatorBank  # noqa E701
@@ -78,17 +78,12 @@ class Elevator:
     An elevator in the building that transports people between floors.
     """
 
-    NULL_ELEVATOR_ID: Final[int] = 0
-    _NEXT_ELEVATOR_RADIX: Final[int] = 4
-    _next_elevator_id = 1  # please don't modify this directly
-    _next_id_lock: threading.Lock = threading.Lock()
-
+    _id_generator: IDGenerator = IDGenerator("elevator")
 
     def __init__(
         self,
         logger_provider: LoggerProvider,
         elevator_bank: ElevatorBank,
-        h_cell: int,
         min_floor: int,
         max_floor: int,
         config: ElevatorConfigProtocol,
@@ -107,13 +102,11 @@ class Elevator:
             logger_provider: Initializes self._logger.
         """
         # Assign unique ID and increment counter
-        with Elevator._next_id_lock:
-            self._elevator_id: str = Elevator.get_next_elevator_id()
-            Elevator.increment_next_elevator_id()
+        self._elevator_id: str = Elevator._id_generator.get_next_id()
 
         self._logger: MyTowerLogger = logger_provider.get_logger("Elevator")
         self._parent_elevator_bank: ElevatorBank = elevator_bank
-        self._horizontal_block: int = h_cell
+
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._config: ElevatorConfigProtocol = config
@@ -137,21 +130,6 @@ class Elevator:
         self._last_logged_state: Opt[ElevatorState] = None  # Track the last logged state
         self._idle_log_timer: float = 0.0
         self._moving_log_timer: float = 0.0
-
-    @classmethod
-    def get_next_elevator_id(cls) -> str:
-        """Get the next elevator ID that will be assigned"""
-        return f"elevator_{cls._next_elevator_id}"
-
-    @classmethod
-    def increment_next_elevator_id(cls) -> None:
-        """Increments the next ID by the radix"""
-        cls._next_elevator_id += cls._NEXT_ELEVATOR_RADIX
-
-    @classmethod
-    def reset_elevator_counter(cls) -> None:
-        """Reset the elevator ID counter (useful for testing)"""
-        cls._next_elevator_id = 1
 
     @property
     def elevator_id(self) -> str:
@@ -213,10 +191,6 @@ class Elevator:
     @property
     def parent_elevator_bank(self) -> ElevatorBank:
         return self._parent_elevator_bank
-
-    @property
-    def horizontal_block(self) -> int:
-        return self._horizontal_block
 
     @property
     def door_open(self) -> bool:
@@ -500,7 +474,7 @@ class Elevator:
         #   450 = 480 - (1.5 * 20)
         # We want the private member here since it's a float and we're computing pixels
         car_top = screen_height - int(self._current_floor_float * BLOCK_HEIGHT)
-        shaft_left = self._horizontal_block * BLOCK_WIDTH
+        shaft_left = self._parent_elevator_bank.horizontal_block * BLOCK_WIDTH
         width = BLOCK_WIDTH
 
         # Draw shaft from min to max floor

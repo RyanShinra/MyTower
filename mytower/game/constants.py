@@ -19,7 +19,11 @@ logger: MyTowerLogger = logger_provider.get_logger("constants")
 # Display constants
 SCREEN_WIDTH: Final[int] = 1600
 SCREEN_HEIGHT: Final[int] = 1200
+
 FPS: Final[int] = 60
+MIN_TIME_MULTIPLIER: Final[float] = 0.1
+MAX_TIME_MULTIPLIER: Final[float] = 10.0
+
 BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants

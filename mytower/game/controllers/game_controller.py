@@ -69,6 +69,19 @@ class GameController:
         """Check if game is currently paused"""
         return self._model.is_paused
     
+    def set_paused(self, paused: bool) -> None:
+        """Set the paused state of the game"""
+        self._model.set_pause_state(paused)
+
+    def set_speed(self, speed: float) -> None:
+        """Set the game speed multiplier (0.0 to 10.0)"""
+        self._model.set_speed(speed)
+        
+    @property
+    def speed(self) -> float:
+        """Get current game speed"""
+        return self._model.speed
+
     def get_game_time(self) -> float:
         """Get current game time"""
         return self._model.current_time
