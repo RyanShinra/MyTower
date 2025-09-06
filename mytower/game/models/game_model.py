@@ -6,6 +6,8 @@ from __future__ import annotations
 # from typing import List, Dict, Optional
 from typing import Dict, Final, List, Optional
 
+from pygame import Surface
+
 
 from mytower.game.elevator import Elevator
 from mytower.game.floor import Floor
@@ -60,6 +62,16 @@ class GameModel:
     @property
     def money(self) -> int:
         return self._money
+    
+    @property
+    def speed(self) -> float:
+        return self._speed
+
+    def set_speed(self, value: float) -> None:
+        if 0.0 <= value <= 10.0:
+            self._speed = value
+        else:
+            self._logger.warning(f"Attempted to set invalid speed: {value}")
     
     # Command Methods (for GraphQL mutations)
     def add_floor(self, floor_type: FloorType) -> int:
@@ -200,7 +212,7 @@ class GameModel:
             if not self._paused:
                 game_dt: float = dt * self._speed
                 self._time += game_dt
-                # TODO: self._building.update(game_dt)
+                self._building.update(game_dt)
         except Exception as e:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
@@ -303,3 +315,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get floor info for floor {floor_number}: {e}")
             raise RuntimeError(f"Failed to get floor info for floor {floor_number}: {str(e)}") from e
+
+    def temp_draw_building(self, surface: Surface) -> None:
+        """Draw the building on the given surface"""
+        self._building.draw(surface)
