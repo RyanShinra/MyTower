@@ -19,7 +19,7 @@ from mytower.game.person import Person, PersonProtocol
 from mytower.game.types import FloorType
 from mytower.game.building import Building
 from mytower.game.config import GameConfig
-from mytower.game.constants import STARTING_MONEY
+from mytower.game.constants import STARTING_MONEY, MIN_TIME_MULTIPLIER, MAX_TIME_MULTIPLIER
 from mytower.game.elevator_bank import ElevatorBank
 
 class GameModel:
@@ -68,7 +68,7 @@ class GameModel:
         return self._speed
 
     def set_speed(self, value: float) -> None:
-        if 0.0 <= value <= 10.0:
+        if MIN_TIME_MULTIPLIER <= value <= MAX_TIME_MULTIPLIER:
             self._speed = value
         else:
             self._logger.warning(f"Attempted to set invalid speed: {value}")
@@ -115,6 +115,7 @@ class GameModel:
             if el_bank is None:
                 raise ValueError(f"Elevator bank {el_bank_id} does not exist")
 
+            # For now, we assume that the Elevator covers all floors in the bank, in the future we may elaborate on this
             elevator = Elevator(
                 logger_provider=self._logger_provider,
                 elevator_bank=el_bank,
