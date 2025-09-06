@@ -77,7 +77,14 @@ class GameModel:
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         try:
+            # TODO: Add this new floor to the floors dictionary
             new_floor_num: int = self._building.add_floor(floor_type)
+            new_floor: Floor | None = self._building.get_floor_by_number(new_floor_num)
+            
+            if new_floor is None:
+                raise RuntimeError(f"Failed to retrieve newly added floor {new_floor_num}")
+            
+            self._floors[new_floor_num] = new_floor
             return new_floor_num
         except Exception as e:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
@@ -242,7 +249,7 @@ class GameModel:
         """Helper to get snapshots of all floors"""
         try:
             return [
-                build_floor_snapshot(floor) for floor in self._building.get_floors()
+                build_floor_snapshot(floor) for floor in self._floors.values()
             ]
             
         except Exception as e:
@@ -251,12 +258,11 @@ class GameModel:
 
 
 
-    # TODO: #15 Let's revisit this when the object type collections are in place (the model will have its own list of elevators)
     def _get_elevator_snapshots(self) -> list[ElevatorSnapshot]:
         """Helper to get snapshots of all elevators"""
         try:
             return [
-                build_elevator_snapshot(elevator) for elevator in self._building.get_elevators()
+                build_elevator_snapshot(elevator) for elevator in self._elevators.values()
             ]
 
         except Exception as e:
@@ -269,7 +275,7 @@ class GameModel:
         """Helper to get snapshots of all people"""
         try:
             return [
-                build_person_snapshot(person) for person in self._building.people
+                build_person_snapshot(person) for person in self._people.values()
             ]
 
         except Exception as e:
