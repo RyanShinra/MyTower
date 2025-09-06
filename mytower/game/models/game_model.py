@@ -157,6 +157,7 @@ class GameModel:
 
 
 
+    # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.
     def remove_person(self, person_id: str) -> None:
         """Remove a person from the building"""
         try:
