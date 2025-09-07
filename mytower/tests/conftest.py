@@ -3,10 +3,12 @@
 import pytest
 from typing import Protocol
 from unittest.mock import MagicMock, PropertyMock
+from mytower.game.entities.floor import Floor
+from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol, Person
 from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
 from mytower.game.entities.elevator_bank import ElevatorBank
-from mytower.game.utilities.logger import LoggerProvider
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.entities.building import Building
 from mytower.game.core.types import ElevatorState, VerticalDirection
 
@@ -40,7 +42,7 @@ def mock_cosmetics_config() -> MagicMock:
 @pytest.fixture
 def mock_logger_provider() -> MagicMock:
     provider = MagicMock(spec=LoggerProvider)
-    mock_logger = MagicMock()
+    mock_logger = MagicMock(spec=MyTowerLogger)
     provider.get_logger.return_value = mock_logger
     return provider
 
@@ -63,7 +65,7 @@ def mock_building_with_floor() -> MagicMock:
     building.num_floors = 10
     building.floor_width = 20
     building.get_elevator_banks_on_floor.return_value = []
-    mock_floor = MagicMock()
+    mock_floor = MagicMock(spec=Floor)
     building.get_floor_by_number.return_value = mock_floor
     return building
 
@@ -99,7 +101,7 @@ def person_without_floor(mock_logger_provider: MagicMock, mock_building_no_floor
     return Person(
         logger_provider=mock_logger_provider,
         building=mock_building_no_floor,
-        current_floor_num=5,
+        current_floor_num=None,
         current_block_float=10.0,
         config=mock_game_config
     )

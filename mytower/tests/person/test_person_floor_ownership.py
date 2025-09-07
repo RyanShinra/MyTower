@@ -150,14 +150,11 @@ class TestPersonCurrentFloorProperty:
 
     def test_current_floor_none_by_default(self, mock_building_no_floor: MagicMock, mock_game_config: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test that current_floor starts as None when person is created"""
-        # If building returns None, current_floor should be None
-        mock_building_no_floor.get_floor_by_number.return_value = None
-        
-        # Create new person to test initialization        
+        # Create new person to test initialization
         new_person = Person(
             logger_provider=mock_logger_provider,
             building=mock_building_no_floor,
-            current_floor_num=5,
+            current_floor_num=None,
             current_block_float=10.0,
             config=mock_game_config
         )

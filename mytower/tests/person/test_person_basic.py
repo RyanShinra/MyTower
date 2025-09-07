@@ -12,9 +12,9 @@ class TestPersonBasics:
     def test_initial_state(self, person_without_floor: Person) -> None:
         """Test that person initializes with correct values"""
         assert person_without_floor.state == PersonState.IDLE
-        assert person_without_floor.current_floor_num == 5 # Look at Person factory in conftest.py
+        assert person_without_floor.current_floor_num == 0 # Look at Person factory in conftest.py / Person constructor
         assert person_without_floor.current_block_float == 10.0
-        assert person_without_floor.destination_floor_num == 5  # Same as current initially
+        assert person_without_floor.destination_floor_num == 0  # Same as current floor, initially
         assert person_without_floor.direction == HorizontalDirection.STATIONARY
         
     def test_set_destination_valid(self, person_without_floor: Person) -> None:

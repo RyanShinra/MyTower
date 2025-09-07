@@ -175,7 +175,7 @@ class Person(PersonProtocol):
         self,
         logger_provider: LoggerProvider,
         building: Building,
-        current_floor_num: int,
+        current_floor_num: int | None,
         current_block_float: float,
         config: GameConfig,
     ) -> None:
@@ -184,10 +184,10 @@ class Person(PersonProtocol):
         
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: Building = building
-        self._current_floor_float: float = float(current_floor_num)
+        self._current_floor_float: float = float(current_floor_num) if current_floor_num is not None else 0.0
         self._current_block_float: float = current_block_float
         self._dest_block_num: int = int(current_block_float)
-        self._dest_floor_num: int = current_floor_num
+        self._dest_floor_num: int = current_floor_num if current_floor_num is not None else 0
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self._config: Final[GameConfig] = config
@@ -198,7 +198,7 @@ class Person(PersonProtocol):
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
         
         self._current_floor: Floor | None = None
-        self._assign_floor(current_floor_num)  # This does raise the question of spawning people inside elevators or otherwise not on floors (though, what would that mean?)
+        self._assign_floor(current_floor_num) if current_floor_num is not None else None  # This does raise the question of spawning people inside elevators or otherwise not on floors (though, what would that mean?)
 
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
