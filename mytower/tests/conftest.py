@@ -4,7 +4,6 @@ import pytest
 from typing import Protocol
 from unittest.mock import MagicMock, PropertyMock
 from mytower.game.entities.floor import Floor
-from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol, Person
 from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
 from mytower.game.entities.elevator_bank import ElevatorBank
