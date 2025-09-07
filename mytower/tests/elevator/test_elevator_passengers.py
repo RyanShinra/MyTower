@@ -4,9 +4,9 @@ from unittest.mock import MagicMock
 from typing import Final
 import pytest
 
-from mytower.game.elevator import Elevator, ElevatorState
-from mytower.game.types import VerticalDirection
-from mytower.game.person import PersonProtocol
+from mytower.game.entities.elevator import Elevator, ElevatorState
+from mytower.game.core.types import VerticalDirection
+from mytower.game.entities.person import PersonProtocol
 from mytower.tests.conftest import PersonFactory
 
 

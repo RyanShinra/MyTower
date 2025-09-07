@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import MagicMock
-from mytower.game.person import Person
-from mytower.game.types import HorizontalDirection, PersonState
-from mytower.game.constants import BLOCK_FLOAT_TOLERANCE
+from mytower.game.entities.person import Person
+from mytower.game.core.types import HorizontalDirection, PersonState
+from mytower.game.core.constants import BLOCK_FLOAT_TOLERANCE
 
 
 

@@ -4,8 +4,8 @@ from typing import Final
 
 import pytest
 
-from mytower.game.elevator_bank import ElevatorBank
-from mytower.game.types import VerticalDirection
+from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.core.types import VerticalDirection
 
 
 # test_el_bank_requests.py

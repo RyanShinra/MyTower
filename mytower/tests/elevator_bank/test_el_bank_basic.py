@@ -8,9 +8,9 @@ import pytest
 
 
 
-from mytower.game.elevator_bank import ElevatorBank
-from mytower.game.person import PersonProtocol
-from mytower.game.types import VerticalDirection
+from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.entities.person import PersonProtocol
+from mytower.game.core.types import VerticalDirection
 # from mytower.game.types import VerticalDirection
 
 

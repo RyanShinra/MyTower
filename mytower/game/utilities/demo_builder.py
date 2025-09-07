@@ -5,8 +5,8 @@
 # from mytower.game.config import GameConfig
 
 
-from mytower.game.floor import FloorType
-from mytower.game.logger import LoggerProvider, MyTowerLogger
+from mytower.game.entities.floor import FloorType
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 from mytower.game.controllers.controller_commands import AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand, AddPersonCommand, CommandResult
 from mytower.game.controllers.game_controller import GameController

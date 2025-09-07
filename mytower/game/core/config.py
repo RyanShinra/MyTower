@@ -4,12 +4,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
-from mytower.game.types import RGB
-from mytower.game.ui import UIConfigProtocol
+from mytower.game.core.types import RGB
+from mytower.game.views.desktop_ui import UIConfigProtocol
 
 if TYPE_CHECKING:
-    from mytower.game.elevator import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
-    from mytower.game.person import PersonConfigProtocol, PersonCosmeticsProtocol
+    from mytower.game.entities.elevator import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
+    from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
 
 
 @dataclass

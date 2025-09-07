@@ -10,7 +10,7 @@ import pygame
 from pygame import Surface
 from pygame.font import Font
 
-from mytower.game.constants import (
+from mytower.game.core.constants import (
     APARTMENT_COLOR,
     APARTMENT_HEIGHT,
     BLOCK_HEIGHT,
@@ -27,15 +27,15 @@ from mytower.game.constants import (
     RETAIL_COLOR,
     RETAIL_HEIGHT,
 )
-from mytower.game.logger import LoggerProvider, MyTowerLogger
-from mytower.game.types import Color, FloorType
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.game.core.types import Color, FloorType
 
 # from mytower.game.ui import UIConfigProtocol
 
 
 if TYPE_CHECKING:
-    from mytower.game.building import Building
-    from mytower.game.person import PersonProtocol
+    from mytower.game.entities.building import Building
+    from mytower.game.entities.person import PersonProtocol
 
 
 # See FloorInfo below

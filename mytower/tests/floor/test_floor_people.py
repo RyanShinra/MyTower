@@ -7,9 +7,9 @@ from __future__ import annotations
 import pytest
 from unittest.mock import MagicMock
 
-from mytower.game.floor import Floor
-from mytower.game.types import FloorType
-from mytower.game.person import PersonProtocol
+from mytower.game.entities.floor import Floor
+from mytower.game.core.types import FloorType
+from mytower.game.entities.person import PersonProtocol
 
 
 @pytest.fixture

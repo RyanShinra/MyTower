@@ -1,4 +1,4 @@
-from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
+from mytower.game.core.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from dataclasses import dataclass
 from typing import List
 

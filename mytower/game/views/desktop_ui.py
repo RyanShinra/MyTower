@@ -3,8 +3,8 @@ from typing import List, Optional, Protocol
 
 import pygame
 
-from mytower.game.logger import LoggerProvider, MyTowerLogger
-from mytower.game.types import RGB, MouseButtons, MousePos, PygameSurface
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.game.core.types import RGB, MouseButtons, MousePos, PygameSurface
 
 
 
@@ -33,8 +33,6 @@ class Button:
     A simple button UI element
     """
 
-
-
     def __init__(
         self,
         logger_provider: LoggerProvider,
@@ -45,10 +43,10 @@ class Button:
         text: str,
         ui_config: UIConfigProtocol,
     ) -> None:
-        self._logger = logger_provider.get_logger("ui")
+        self._logger: MyTowerLogger = logger_provider.get_logger("ui")
         self._rect = pygame.Rect(x, y, width, height)
         self._text = text
-        self._ui_config = ui_config
+        self._ui_config: UIConfigProtocol = ui_config
         self._is_hovered = False
         self._is_clicked = False
 
@@ -70,8 +68,8 @@ class Button:
 
     def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons) -> None:
         """Update button state based on mouse position and clicks"""
-        self._is_hovered = self._rect.collidepoint(mouse_pos)
-        self._is_clicked = self._is_hovered and mouse_pressed[0]
+        self._is_hovered: bool = self._rect.collidepoint(mouse_pos)
+        self._is_clicked: bool = self._is_hovered and mouse_pressed[0]
 
 
 
@@ -94,8 +92,6 @@ class Toolbar:
     """
     A toolbar for building tools and controls
     """
-
-
 
     def __init__(
         self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, ui_config: UIConfigProtocol

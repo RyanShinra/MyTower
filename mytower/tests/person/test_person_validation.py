@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from mytower.game.person import Person
+from mytower.game.entities.person import Person
 
 
 

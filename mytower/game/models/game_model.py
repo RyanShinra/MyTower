@@ -9,18 +9,18 @@ from typing import Dict, Final, List, Optional
 from pygame import Surface
 
 
-from mytower.game.elevator import Elevator
-from mytower.game.floor import Floor
-from mytower.game.logger import LoggerProvider, MyTowerLogger
+from mytower.game.entities.elevator import Elevator
+from mytower.game.entities.floor import Floor
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 # from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from mytower.game.models.snapshot_builders import build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
-from mytower.game.person import Person, PersonProtocol
-from mytower.game.types import FloorType
-from mytower.game.building import Building
-from mytower.game.config import GameConfig
-from mytower.game.constants import STARTING_MONEY, MIN_TIME_MULTIPLIER, MAX_TIME_MULTIPLIER
-from mytower.game.elevator_bank import ElevatorBank
+from mytower.game.entities.person import Person, PersonProtocol
+from mytower.game.core.types import FloorType
+from mytower.game.entities.building import Building
+from mytower.game.core.config import GameConfig
+from mytower.game.core.constants import STARTING_MONEY, MIN_TIME_MULTIPLIER, MAX_TIME_MULTIPLIER
+from mytower.game.entities.elevator_bank import ElevatorBank
 
 class GameModel:
     """

@@ -1,7 +1,7 @@
 
 
-from mytower.game.elevator import Elevator, ElevatorState
-from mytower.game.types import VerticalDirection
+from mytower.game.entities.elevator import Elevator, ElevatorState
+from mytower.game.core.types import VerticalDirection
 
 
 

@@ -24,17 +24,17 @@ from typing import Optional as Opt
 
 import pygame
 
-from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
-from mytower.game.logger import LoggerProvider, MyTowerLogger
-from mytower.game.types import ElevatorState, VerticalDirection
-from mytower.game.id_generator import IDGenerator
+from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.game.core.types import ElevatorState, VerticalDirection
+from mytower.game.core.id_generator import IDGenerator
 
 if TYPE_CHECKING:
     from pygame import Surface
 
-    from mytower.game.building import Building
-    from mytower.game.elevator import Elevator, ElevatorCosmeticsProtocol
-    from mytower.game.person import PersonProtocol
+    from mytower.game.entities.building import Building
+    from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
+    from mytower.game.entities.person import PersonProtocol
 
 
 

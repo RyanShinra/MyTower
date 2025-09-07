@@ -9,8 +9,8 @@
 
 from typing import Final
 
-from mytower.game.logger import LoggerProvider, MyTowerLogger
-from mytower.game.types import RGB, Money
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.game.core.types import RGB, Money
 
 # We'll initialize this logger properly in main.py
 logger_provider = LoggerProvider()

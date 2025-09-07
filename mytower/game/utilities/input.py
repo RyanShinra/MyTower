@@ -12,8 +12,8 @@ from typing import List
 
 import pygame
 
-from mytower.game.logger import LoggerProvider, MyTowerLogger
-from mytower.game.types import MouseButtons, MousePos
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.game.core.types import MouseButtons, MousePos
 
 
 

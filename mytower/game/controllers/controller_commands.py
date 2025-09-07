@@ -5,7 +5,7 @@ from typing import Optional, TYPE_CHECKING, TypeVar, Generic, override
 
 if TYPE_CHECKING:
     from mytower.game.models.game_model import GameModel
-    from mytower.game.types import FloorType
+    from mytower.game.core.types import FloorType
 
 T = TypeVar('T')
 

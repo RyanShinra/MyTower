@@ -23,15 +23,15 @@ from typing import Protocol, Sequence
 import pygame
 from pygame import Surface
 
-from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
-from mytower.game.logger import LoggerProvider
-from mytower.game.types import RGB, ElevatorState, VerticalDirection
-from mytower.game.id_generator import IDGenerator
+from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
+from mytower.game.utilities.logger import LoggerProvider
+from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
+from mytower.game.core.id_generator import IDGenerator
 
 if TYPE_CHECKING:
-    from mytower.game.elevator_bank import ElevatorBank  # noqa E701
-    from mytower.game.logger import MyTowerLogger  # noqa E701
-    from mytower.game.person import PersonProtocol
+    from mytower.game.entities.elevator_bank import ElevatorBank  # noqa E701
+    from mytower.game.utilities.logger import MyTowerLogger  # noqa E701
+    from mytower.game.entities.person import PersonProtocol
 
 
 class ElevatorConfigProtocol(Protocol):

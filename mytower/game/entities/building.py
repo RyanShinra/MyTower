@@ -6,14 +6,14 @@ from pygame import Surface
 
 
 # pyright: ignore[reportImportCycles] 
-from mytower.game.elevator import Elevator
-from mytower.game.floor import Floor
-from mytower.game.logger import LoggerProvider, MyTowerLogger
-from mytower.game.types import FloorType
+from mytower.game.entities.elevator import Elevator
+from mytower.game.entities.floor import Floor
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.game.core.types import FloorType
 
 if TYPE_CHECKING:
-    from mytower.game.person import PersonProtocol
-    from mytower.game.elevator_bank import ElevatorBank
+    from mytower.game.entities.person import PersonProtocol
+    from mytower.game.entities.elevator_bank import ElevatorBank
 
 
 class Building:

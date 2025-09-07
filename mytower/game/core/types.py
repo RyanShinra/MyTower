@@ -12,7 +12,7 @@ from typing import NewType, Tuple, TypeAlias, Union
 
 import pygame
 
-from mytower.game.logger import LoggerProvider, MyTowerLogger
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 # We'll initialize the logger properly in main.py
 logger_provider = LoggerProvider()

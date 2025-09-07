@@ -3,11 +3,11 @@ from __future__ import annotations
 from mytower.game.models.model_snapshots import ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from typing import TYPE_CHECKING
 
-from mytower.game.person import PersonProtocol
+from mytower.game.entities.person import PersonProtocol
 
 if TYPE_CHECKING:
-    from mytower.game.floor import Floor
-    from mytower.game.elevator import Elevator
+    from mytower.game.entities.floor import Floor
+    from mytower.game.entities.elevator import Elevator
 
 
 
