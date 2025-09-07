@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 import pytest
-from mytower.game.person import Person
-from mytower.game.types import PersonState
+from mytower.game.entities.person import Person
+from mytower.game.core.types import PersonState
 
 
 

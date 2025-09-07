@@ -5,12 +5,12 @@ import pygame
 from pygame.surface import Surface
 from pygame.time import Clock
 
-from mytower.game import demo_builder
-from mytower.game.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SCREEN_WIDTH
+from mytower.game.utilities import demo_builder
+from mytower.game.core.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SCREEN_WIDTH
 from mytower.game.controllers.game_controller import GameController
-from mytower.game.desktop_view import DesktopView
-from mytower.game.input import MouseState, mouse
-from mytower.game.logger import LoggerProvider
+from mytower.game.views.desktop_view import DesktopView
+from mytower.game.utilities.input import MouseState, mouse
+from mytower.game.utilities.logger import LoggerProvider
 from mytower.game.models.game_model import GameModel
 
 # Initialize pygame

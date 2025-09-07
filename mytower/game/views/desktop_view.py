@@ -5,7 +5,7 @@ from pygame import Surface
 # from mytower.game.building import Building
 from mytower.game.controllers.game_controller import GameController
 # from mytower.game.demo_builder import build_model_building
-from mytower.game.logger import LoggerProvider, MyTowerLogger
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import GameModel
 
 

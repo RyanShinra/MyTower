@@ -3,12 +3,12 @@
 import pytest
 from typing import Protocol
 from unittest.mock import MagicMock, PropertyMock
-from mytower.game.person import PersonProtocol, Person
-from mytower.game.elevator import Elevator, ElevatorCosmeticsProtocol
-from mytower.game.elevator_bank import ElevatorBank
-from mytower.game.logger import LoggerProvider
-from mytower.game.building import Building
-from mytower.game.types import ElevatorState, VerticalDirection
+from mytower.game.entities.person import PersonProtocol, Person
+from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
+from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.utilities.logger import LoggerProvider
+from mytower.game.entities.building import Building
+from mytower.game.core.types import ElevatorState, VerticalDirection
 
 
 class PersonFactory(Protocol):
@@ -175,7 +175,6 @@ def elevator(
     return Elevator(
         mock_logger_provider,
         mock_elevator_bank,
-        h_cell=5,
         min_floor=1,
         max_floor=10,
         config=mock_config,

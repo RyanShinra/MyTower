@@ -14,16 +14,16 @@ from typing import TYPE_CHECKING, Final, List, Protocol, override
 
 import pygame
 
-from mytower.game.config import GameConfig
-from mytower.game.constants import BLOCK_HEIGHT, BLOCK_WIDTH
-from mytower.game.elevator import Elevator
+from mytower.game.core.config import GameConfig
+from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
+from mytower.game.entities.elevator import Elevator
 
 # from mytower.game.elevator_bank import ElevatorBank
-from mytower.game.logger import MyTowerLogger
-from mytower.game.types import HorizontalDirection, PersonState
+from mytower.game.utilities.logger import MyTowerLogger
+from mytower.game.core.types import HorizontalDirection, PersonState
 
 
-from mytower.game.id_generator import IDGenerator
+from mytower.game.core.id_generator import IDGenerator
 
 # from typing_extensions import override
 
@@ -32,10 +32,10 @@ from mytower.game.id_generator import IDGenerator
 if TYPE_CHECKING:
     from pygame import Surface
 
-    from mytower.game.building import Building
-    from mytower.game.elevator_bank import ElevatorBank
-    from mytower.game.floor import Floor
-    from mytower.game.logger import LoggerProvider
+    from mytower.game.entities.building import Building
+    from mytower.game.entities.elevator_bank import ElevatorBank
+    from mytower.game.entities.floor import Floor
+    from mytower.game.utilities.logger import LoggerProvider
 
 
 

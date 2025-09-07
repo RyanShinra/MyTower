@@ -4,9 +4,9 @@
 import pytest
 from typing import Sequence
 from unittest.mock import MagicMock
-from mytower.game.elevator import Elevator, ElevatorState
-from mytower.game.person import PersonProtocol
-from mytower.game.types import VerticalDirection
+from mytower.game.entities.elevator import Elevator, ElevatorState
+from mytower.game.entities.person import PersonProtocol
+from mytower.game.core.types import VerticalDirection
 from mytower.tests.conftest import PersonFactory
 
 # from mytower.tests.elevator.conftest import mock_person_factory

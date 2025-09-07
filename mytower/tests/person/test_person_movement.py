@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import Final
 from unittest.mock import MagicMock
 
-from mytower.game.elevator_bank import ElevatorBank
-from mytower.game.person import Person
-from mytower.game.types import PersonState, HorizontalDirection
+from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.entities.person import Person
+from mytower.game.core.types import PersonState, HorizontalDirection
 import math
 
 

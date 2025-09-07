@@ -10,7 +10,7 @@ Handles commands, manages update cycles
 
 from typing import Any, List, Optional
 from mytower.game.controllers.controller_commands import Command, CommandResult
-from mytower.game.logger import LoggerProvider, MyTowerLogger
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
 
 

@@ -7,9 +7,9 @@ from unittest.mock import MagicMock
 
 
 
-from mytower.game.elevator_bank import ElevatorBank
+from mytower.game.entities.elevator_bank import ElevatorBank
 # from mytower.game.types import VerticalDirection
-from mytower.game.types import VerticalDirection
+from mytower.game.core.types import VerticalDirection
 from mytower.tests.conftest import PersonFactory
 
 
