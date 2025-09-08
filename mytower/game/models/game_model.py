@@ -38,12 +38,12 @@ class GameModel:
         self._elevators: Dict[str, Elevator] = {}  # Dictionary of elevators in the game with their id as the key
         self._floors: Dict[int, Floor] = {}  # Dictionary of floors in the game with their floor number as the key
         
-        self._building = Building(logger_provider, width=20)
-        self._config = GameConfig()
-        
+        self._building: Building = Building(logger_provider, width=20)
+        self._config: GameConfig = GameConfig()
+
         self._money: int = STARTING_MONEY  # Starting money
         self._time: float = 0.0
-        self._speed: float = 1.0
+        self._speed: float = self._config.initial_speed
         self._paused: bool = False
         
 
