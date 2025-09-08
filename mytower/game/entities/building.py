@@ -97,14 +97,14 @@ class Building:
 
     def update(self, dt: float) -> None:
         """Update the building state by time increment dt (in seconds)"""
-        for elevator in self._elevator_banks:
-            if hasattr(elevator, "update"):
-                elevator.update(dt)
+        # for elevator in self._elevator_banks:
+        #     if hasattr(elevator, "update"):
+        #         elevator.update(dt)
 
-        # TODO: Remove this when fully migrating to GameModel and Floor ownership
-        for person in self.people:
-            if hasattr(person, "update"):
-                person.update(dt)
+        # # TODO: Remove this when fully migrating to GameModel and Floor ownership
+        # for person in self.people:
+        #     if hasattr(person, "update"):
+        #         person.update(dt)
 
     def draw(self, surface: Surface) -> None:
         """Draw the building on the given surface"""

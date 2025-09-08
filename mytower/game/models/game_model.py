@@ -77,7 +77,6 @@ class GameModel:
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         try:
-            # TODO: Add this new floor to the floors dictionary
             new_floor_num: int = self._building.add_floor(floor_type)
             new_floor: Floor | None = self._building.get_floor_by_number(new_floor_num)
             
@@ -221,7 +220,22 @@ class GameModel:
             if not self._paused:
                 game_dt: float = dt * self._speed
                 self._time += game_dt
+                
+                # First, we do the elevators
+                for elevator in self._elevators.values():
+                    elevator.update(game_dt)
+
+                # Next the elevator banks, they will further modify the elevators
+                for bank in self._elevator_banks.values():
+                    bank.update(game_dt)
+                    
+                # Next, we update the people
+                for person in self._people.values():
+                    person.update(game_dt)
+
+                # Finally, we update the building
                 self._building.update(game_dt)
+                
         except Exception as e:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e

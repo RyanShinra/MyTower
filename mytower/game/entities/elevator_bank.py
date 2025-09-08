@@ -310,7 +310,8 @@ class ElevatorBank:
         """Update elevator status over time increment dt (in seconds)"""
         for el in self.elevators:
             # Need to actually update the thing
-            el.update(dt)
+            # The elevators are all updated separately, now in GameModel
+            # el.update(dt)
             if el.state == ElevatorState.IDLE:
                 self._update_idle_elevator(el, dt)
             elif el.state == ElevatorState.READY_TO_MOVE:
