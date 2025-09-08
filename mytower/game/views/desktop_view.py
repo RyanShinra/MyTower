@@ -40,13 +40,6 @@ class DesktopView:
     def screen_height(self) -> int:
         return self._screen_height
 
-    def update(self, dt: float) -> None:
-        """Update game state by time increment dt (in seconds)"""
-        if not self._paused:            
-            # Update building and all its components
-            self._game_controller.update(dt)
-
-
 
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
