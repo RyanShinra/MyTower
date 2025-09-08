@@ -18,7 +18,7 @@ class ElevatorConfig:
 
     max_speed: Final[float] = 0.75  # Floors per second
     max_capacity: Final[int] = 15  # Number of people who can fit on board
-    passenger_loading_time: Final[float] = 1.0  # seconds before getting very angry
+    passenger_loading_time: Final[float] = 1.0  # How long it takes a single passenger to board
     idle_wait_timeout: Final[float] = 0.5  # Seconds: how often an idle elevator checks for passengers
     idle_log_timeout: Final[float] = 0.5  # Seconds: how often to log status while Idle
     moving_log_timeout: Final[float] = 0.5  # Seconds: how often to log status while Moving
@@ -73,9 +73,34 @@ class UIConfig:
 
 class GameConfig:
     def __init__(self) -> None:
-        self.elevator: ElevatorConfigProtocol = ElevatorConfig()
-        self.person: PersonConfigProtocol = PersonConfig()
-        self.person_cosmetics: PersonCosmeticsProtocol = PersonCosmetics()
-        self.elevator_cosmetics: ElevatorCosmeticsProtocol = ElevatorCosmetics()
-        self.ui_config: UIConfigProtocol = UIConfig()
+        self._elevator: ElevatorConfigProtocol = ElevatorConfig()
+        self._person: PersonConfigProtocol = PersonConfig()
+        self._person_cosmetics: PersonCosmeticsProtocol = PersonCosmetics()
+        self._elevator_cosmetics: ElevatorCosmeticsProtocol = ElevatorCosmetics()
+        self._ui_config: UIConfigProtocol = UIConfig()
+        self._initial_speed: float = 1.0
         # etc.
+
+    @property
+    def elevator(self) -> ElevatorConfigProtocol:
+        return self._elevator
+
+    @property
+    def person(self) -> PersonConfigProtocol:
+        return self._person
+
+    @property
+    def person_cosmetics(self) -> PersonCosmeticsProtocol:
+        return self._person_cosmetics
+
+    @property
+    def elevator_cosmetics(self) -> ElevatorCosmeticsProtocol:
+        return self._elevator_cosmetics
+
+    @property
+    def ui_config(self) -> UIConfigProtocol:
+        return self._ui_config
+
+    @property
+    def initial_speed(self) -> float:
+        return self._initial_speed

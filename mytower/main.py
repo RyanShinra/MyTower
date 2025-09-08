@@ -72,7 +72,7 @@ def main() -> NoReturn:
         mouse.update()
 
         # Update game state
-        desktop_view.update(dt)
+        game_controller.update(dt)
 
         # Draw everything
         screen.fill(BACKGROUND_COLOR)
