@@ -6,7 +6,7 @@ from typing import List
 @dataclass
 class PersonSnapshot:
     """Immutable snapshot of person state for API consumption"""
-    id: str
+    person_id: str
     current_floor: int
     current_block: float
     destination_floor: int

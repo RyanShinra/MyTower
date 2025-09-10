@@ -97,6 +97,9 @@ class Building:
 
     def update(self, dt: float) -> None:
         """Update the building state by time increment dt (in seconds)"""
+        pass        
+
+
     def draw(self, surface: Surface) -> None:
         """Draw the building on the given surface"""
         # Draw floors from bottom to top

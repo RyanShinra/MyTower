@@ -40,7 +40,7 @@ def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
 def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
     """Build a snapshot for a single person"""
     return PersonSnapshot(
-        id=person.person_id,
+        person_id=person.person_id,
         current_floor=person.current_floor_num,
         current_block=person.current_block_float,
         destination_floor=person.destination_floor_num,
