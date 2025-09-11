@@ -7,12 +7,18 @@ from typing import List
 class PersonSnapshot:
     """Immutable snapshot of person state for API consumption"""
     person_id: str
-    current_floor: int
-    current_block: float
-    destination_floor: int
-    destination_block: int
+    current_floor_num: int
+    current_floor_float: float
+    current_block_float: float
+    destination_floor_num: int
+    destination_block_num: int
     state: PersonState
     waiting_time: float
+    mad_fraction: float  # 0.0 to 1.0
+    draw_color: tuple[int, int, int]
+    draw_color_red: int
+    draw_color_green: int
+    draw_color_blue: int
 
 
 @dataclass
