@@ -1,13 +1,18 @@
 from __future__ import annotations  # Defer type evaluation
 
 from typing import TYPE_CHECKING
+
 import pygame
 
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH # TODO: Move this into a config
+from mytower.game.core.constants import (  # TODO: Move this into a config
+    BLOCK_HEIGHT,
+    BLOCK_WIDTH,
+)
 from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
 
 if TYPE_CHECKING:
     from pygame import Surface
+
     from mytower.game.models.model_snapshots import PersonSnapshot
     from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
