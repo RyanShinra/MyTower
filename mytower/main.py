@@ -5,13 +5,19 @@ import pygame
 from pygame.surface import Surface
 from pygame.time import Clock
 
-from mytower.game.utilities import demo_builder
-from mytower.game.core.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SCREEN_WIDTH
 from mytower.game.controllers.game_controller import GameController
-from mytower.game.views.desktop_view import DesktopView
+from mytower.game.core.config import GameConfig
+from mytower.game.core.constants import (
+    BACKGROUND_COLOR,
+    FPS,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+)
+from mytower.game.models.game_model import GameModel
+from mytower.game.utilities import demo_builder
 from mytower.game.utilities.input import MouseState, mouse
 from mytower.game.utilities.logger import LoggerProvider
-from mytower.game.models.game_model import GameModel
+from mytower.game.views.desktop_view import DesktopView
 
 # Initialize pygame
 # pylint: disable=no-member
@@ -43,9 +49,10 @@ def main() -> NoReturn:
     mouse = MouseState(logger_provider)
 
     # Create game state
+    config: GameConfig = GameConfig()
     game_model = GameModel(logger_provider)
     game_controller = GameController(model=game_model, logger_provider=logger_provider)
-    desktop_view = DesktopView(logger_provider, game_model, game_controller, window_width, window_height)
+    desktop_view = DesktopView(logger_provider, game_model, game_controller, config, window_width, window_height)
     demo_builder.build_model_building(game_controller, logger_provider)
     running = True
     main_logger.info("Entering main loop.")
