@@ -25,7 +25,7 @@ class PersonRenderer:
 
     # Someday this will be replaced with a proper transform system        
     def y_position(self, surface: Surface, person: PersonSnapshot) -> int:
-        """Calculate the z position for the given person"""
+        """Calculate the y position for the given person"""
         apparent_floor: float = person.current_floor_float - 1.0  # Floors are 1 indexed
         z_bottom: float = apparent_floor * BLOCK_HEIGHT
         z_centered: int = int(z_bottom + (BLOCK_HEIGHT / 2))
