@@ -5,14 +5,9 @@ import pygame
 from pygame.surface import Surface
 from pygame.time import Clock
 
-from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
-from mytower.game.core.constants import (
-    BACKGROUND_COLOR,
-    FPS,
-    SCREEN_HEIGHT,
-    SCREEN_WIDTH,
-)
+from mytower.game.core.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SCREEN_WIDTH
+from mytower.game.controllers.game_controller import GameController
 from mytower.game.models.game_model import GameModel
 from mytower.game.utilities import demo_builder
 from mytower.game.utilities.input import MouseState, mouse
@@ -21,7 +16,7 @@ from mytower.game.views.desktop_view import DesktopView
 
 # Initialize pygame
 # pylint: disable=no-member
-_ = pygame.init()
+pygame.init()
 
 # Get display info and calculate 75% of display size
 display_info = pygame.display.Info()

@@ -168,6 +168,13 @@ class GameModel:
             self._logger.exception(f"Failed to remove person {person_id}: {e}")
             raise RuntimeError(f"Failed to remove person {person_id}: {str(e)}") from e
 
+    def get_all_people(self) -> List[PersonSnapshot]:
+        """Get all people in the building"""
+        try:
+            return [build_person_snapshot(person) for person in self._people.values()]
+        except Exception as e:
+            self._logger.exception(f"Failed to get all people: {e}")
+            raise RuntimeError(f"Failed to get all people: {str(e)}") from e
 
 
     def set_game_speed(self, speed: float) -> bool:

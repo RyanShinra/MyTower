@@ -110,8 +110,3 @@ class Building:
             # self._logger.debug("I want to draw an elevator bank")
             if hasattr(elevator, "draw"):
                 elevator.draw(surface)
-
-        for person in self.people:
-            # self._logger.debug("I want to draw a person")
-            if hasattr(person, "draw") and callable(person.draw):
-                person.draw(surface)

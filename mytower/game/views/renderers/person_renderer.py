@@ -22,7 +22,8 @@ class PersonRenderer:
         self._logger: MyTowerLogger = logger_provider.get_logger("PersonRenderer")
         self._cosmetics: PersonCosmeticsProtocol = person_cosmetics
         self._config: PersonConfigProtocol = person_config
-        
+
+    # Someday this will be replaced with a proper transform system        
     def y_position(self, surface: Surface, person: PersonSnapshot) -> int:
         """Calculate the z position for the given person"""
         apparent_floor: float = person.current_floor_float - 1.0  # Floors are 1 indexed
@@ -34,7 +35,7 @@ class PersonRenderer:
         return y_pos
 
 
-    def x_position(self, surface: Surface, person: PersonSnapshot) -> int:
+    def x_position(self, _: Surface, person: PersonSnapshot) -> int:
         """Calculate the x position for the given person"""
         x_left: float = person.current_block_float * BLOCK_WIDTH
         x_centered: int = int(x_left + (BLOCK_WIDTH / 2))

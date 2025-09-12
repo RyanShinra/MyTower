@@ -12,26 +12,17 @@ from __future__ import annotations  # Defer type evaluation
 import random
 from typing import TYPE_CHECKING, Final, List, Protocol, override
 
-import pygame
-
 from mytower.game.core.config import GameConfig
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.entities.elevator import Elevator
 
-# from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
 
 
 from mytower.game.core.id_generator import IDGenerator
 
-# from typing_extensions import override
-
-
 
 if TYPE_CHECKING:
-    from pygame import Surface
-
     from mytower.game.entities.building import Building
     from mytower.game.entities.elevator_bank import ElevatorBank
     from mytower.game.entities.floor import Floor
@@ -105,9 +96,7 @@ class PersonProtocol(Protocol):
     
     @property
     def current_floor(self) -> Floor | None: ...
-
-    # @current_block_float.setter
-    # def current_block_float(self, value: float) -> None: ...
+    
     
     @property
     def destination_block_num(self) -> int: ...
@@ -119,8 +108,6 @@ class PersonProtocol(Protocol):
     def state(self) -> PersonState: ...
     
     # Let's keep this read-only for now
-    # @state.setter
-    # def state(self, value: PersonState) -> None: ...
     
     @property
     def direction(self) -> HorizontalDirection: ...
@@ -153,7 +140,6 @@ class PersonProtocol(Protocol):
     
     def testing_set_dest_floor_num(self, dest_floor: int) -> None: ...
     
-    def draw(self, surface: Surface) -> None: ...
 
     @property
     def mad_fraction(self) -> float: ...
@@ -170,13 +156,7 @@ class PersonProtocol(Protocol):
     @property
     def draw_color_blue(self) -> int: ...
 
-    # @property
-    # def in_elevator(self) -> bool: ...
-
-    # @property
-    # def waiting_for_elevator(self) -> bool: ...
-
-    # def request_elevator(self, floor: int) -> None: ...
+    
     
     # End PersonProtocol
 
@@ -270,10 +250,7 @@ class Person(PersonProtocol):
     @override
     def current_floor(self) -> Floor | None:
         return self._current_floor
-
-    # @current_block_float.setter
-    # def current_block_float(self, value: float) -> None:
-    #     self._current_block_float = value
+    
 
     @property
     @override
@@ -284,10 +261,7 @@ class Person(PersonProtocol):
     @override
     def state(self) -> PersonState:
         return self._state
-
-    # @state.setter
-    # def state(self, value: PersonState) -> None:
-    #     self._state = value
+    
 
     @property
     @override
@@ -547,25 +521,7 @@ class Person(PersonProtocol):
     def testing_set_current_floor(self, floor: Floor) -> None:
         self._current_floor = floor
 
-    @override
-    def draw(self, surface: Surface) -> None:
-        """Draw the person on the given surface"""
-        # Calculate position and draw a simple circle for now
-        screen_height: int = surface.get_height()
-
-        # Note: this needs to be the private, float _current_floor
-        apparent_floor: float = self._current_floor_float - 1.0
-        z_bottom: float = apparent_floor * BLOCK_HEIGHT
-        z_centered: int = int(z_bottom + (BLOCK_HEIGHT / 2))
-
-        # Need to invert y coordinates
-        y_pos: int = screen_height - z_centered
-
-        x_left: float = self._current_block_float * BLOCK_WIDTH
-        x_centered: int = int(x_left + (BLOCK_WIDTH / 2))
-        x_pos: int = x_centered
-
-        pygame.draw.circle(surface, self.draw_color, (int(x_pos), int(y_pos)), self._config.person.radius)  # radius
+    
 
     @property
     @override
