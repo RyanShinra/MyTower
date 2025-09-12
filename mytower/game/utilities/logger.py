@@ -2,8 +2,6 @@
 import logging
 import os
 from datetime import datetime
-
-# from typing import Optional, Dict, Any
 from typing import Any, Optional, cast
 
 # Define log levels with descriptive names

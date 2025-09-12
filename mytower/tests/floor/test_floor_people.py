@@ -144,12 +144,3 @@ class TestFloorPersonOwnershipEdgeCases:
 
 
 # TODO: Add these tests once we implement person count tracking
-# class TestFloorPersonCountTracking:
-#     """Test person count tracking (future enhancement)"""
-#     
-#     def test_person_count_starts_zero(self, floor: Floor) -> None:
-#         assert floor.person_count == 0
-#     
-#     def test_person_count_increases_with_additions(self, floor: Floor) -> None:
-#         # Add implementation once Floor has person_count property
-#         pass

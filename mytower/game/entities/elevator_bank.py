@@ -123,9 +123,6 @@ class ElevatorBank:
         return self._upward_waiting_passengers
 
     # I'm deprecating this, we should use a better accessor below.
-    # @property
-    # def requests(self) -> dict[int, set[VerticalDirection]]:
-    #     return self._requests
 
     def get_requests_for_floor(self, floor: int) -> set[VerticalDirection]:
         """Testing method to check what elevator requests exist for a floor"""
@@ -470,7 +467,6 @@ class ElevatorBank:
 
     def draw(self, surface: Surface) -> None:
         """Draw the elevator Bank on the given surface"""
-        # self._logger.debug("I'm drawing an Elevator Bank")
         screen_height: int = surface.get_height()
 
         shaft_left: int = self._horizontal_block * BLOCK_WIDTH
@@ -495,5 +491,4 @@ class ElevatorBank:
 
         # now draw the elevators
         for el in self.elevators:
-            # self._logger.debug("I want to draw an elevator")
             el.draw(surface)

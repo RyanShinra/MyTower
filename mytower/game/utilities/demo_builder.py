@@ -2,7 +2,6 @@
 # Creates a demo instance of the game
 
 
-# from mytower.game.config import GameConfig
 
 
 from mytower.game.entities.floor import FloorType
@@ -61,8 +60,6 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             return ""
       
 
-    # building = Building(logger_provider, width=20)
-    # config = GameConfig()
     
     # Initialize with some basic floors and an elevator
     add_floor(FloorType.LOBBY)
