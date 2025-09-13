@@ -4,9 +4,10 @@ import pygame
 from pygame import Surface
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
-from mytower.game.models.model_snapshots import PersonSnapshot
+from mytower.game.models.model_snapshots import ElevatorSnapshot, PersonSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import GameModel
+from mytower.game.views.renderers.elevator_renderer import ElevatorRenderer
 from mytower.game.views.renderers.person_renderer import PersonRenderer
 
 
@@ -29,6 +30,7 @@ class DesktopView:
         self._config: GameConfig = config
         
         self._person_renderer: PersonRenderer = PersonRenderer(self._config.person, self._config.person_cosmetics, logger_provider)
+        self._elevator_renderer: ElevatorRenderer = ElevatorRenderer(logger_provider, self._config.elevator_cosmetics)
 
         # UI state
         self._paused: bool = False
@@ -45,9 +47,14 @@ class DesktopView:
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
         
-        # TODO: Person is extracted, get the others later (person is rendered last)
+        # TODO: Keep extracting renderers, get the others later (person is rendered last)
         self._game_model.temp_draw_building(surface)
         
+        # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]
+        all_elevators: List[ElevatorSnapshot] = self._game_controller.get_all_elevators()
+        for elevator in all_elevators:
+            self._elevator_renderer.draw(surface, elevator)
+
         all_people: List[PersonSnapshot] = self._game_controller.get_all_people()
         for person in all_people:
             self._person_renderer.draw(surface, person)

@@ -489,6 +489,4 @@ class ElevatorBank:
             (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead),
         ) # pyright: ignore[reportUnusedCallResult]
 
-        # now draw the elevators
-        for el in self.elevators:
-            el.draw(surface)
+
