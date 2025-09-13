@@ -15,7 +15,6 @@ from mytower.game.core.constants import (  # TODO: Move this into a config
 if TYPE_CHECKING:
     from pygame import Surface
     from mytower.game.entities.elevator import ElevatorCosmeticsProtocol
-    from mytower.game.models.model_snapshots import ElevatorSnapshot
     from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 class ElevatorRenderer:
@@ -26,11 +25,13 @@ class ElevatorRenderer:
     def draw(self, surface: Surface, elevator: ElevatorSnapshot) -> None:
         screen_height: int = surface.get_height()
         elevator_height: int = BLOCK_HEIGHT  # Elevators are one block high for now
-        elevator_top_z: float = elevator.current_floor * BLOCK_HEIGHT # This is technically the height of a floor, not an elevator
+        # This is technically the height of a floor, not an elevator
+        elevator_top_z: float = elevator.current_floor * BLOCK_HEIGHT
         elevator_top_y: int = screen_height - int(elevator_top_z)
 
         elevator_width: int = BLOCK_WIDTH
-        elevator_left_x: int = int(elevator.current_block * BLOCK_WIDTH)  # This is technically the left edge of a block, not an elevator
+        # This is technically the left edge of a block, not an elevator
+        elevator_left_x: int = int(elevator.current_block * BLOCK_WIDTH)
 
         color = self._cosmetics_config.open_color if elevator.door_open else self._cosmetics_config.closed_color
 
