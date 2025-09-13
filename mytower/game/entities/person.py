@@ -526,7 +526,7 @@ class Person(PersonProtocol):
     @property
     @override
     def mad_fraction(self) -> float:
-        return (self._waiting_time / self._config.person.max_wait_time) if self._config.person.max_wait_time > 0 else 0
+        return (self._waiting_time / self._config.person.max_wait_time) if self._config.person.max_wait_time > 0.0 else 0.0
 
     @property
     @override
