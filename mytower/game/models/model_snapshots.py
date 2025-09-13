@@ -26,6 +26,7 @@ class ElevatorSnapshot:
     """Immutable snapshot of elevator state for API consumption"""
     id: str
     current_floor: float
+    current_block: float
     destination_floor: int
     state: ElevatorState
     nominal_direction: VerticalDirection

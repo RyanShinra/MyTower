@@ -187,6 +187,10 @@ class Elevator:
     @property
     def fractional_floor(self) -> float:
         return self._current_floor_float
+    
+    @property
+    def current_block_float(self) -> float:
+        return float(self._parent_elevator_bank.horizontal_block)
 
     @property
     def parent_elevator_bank(self) -> ElevatorBank:
@@ -468,39 +472,38 @@ class Elevator:
 
 
     def draw(self, surface: Surface) -> None:
-        """Draw the elevator on the given surface"""
-        # Calculate positions
-        screen_height = surface.get_height()
-        #   450 = 480 - (1.5 * 20)
-        # We want the private member here since it's a float and we're computing pixels
-        car_top = screen_height - int(self._current_floor_float * BLOCK_HEIGHT)
-        shaft_left = self._parent_elevator_bank.horizontal_block * BLOCK_WIDTH
-        width = BLOCK_WIDTH
+        # """Draw the elevator on the given surface"""
+        # # Calculate positions
+        # screen_height = surface.get_height()
+        # #   450 = 480 - (1.5 * 20)
+        # # We want the private member here since it's a float and we're computing pixels
+        # car_top = screen_height - int(self._current_floor_float * BLOCK_HEIGHT)
+        # shaft_left = self._parent_elevator_bank.horizontal_block * BLOCK_WIDTH
+        # width = BLOCK_WIDTH
 
-        # Draw shaft from min to max floor
-        #     420 = 480 - (3 * 20)
-        # shaft_top = screen_height - (self._max_floor * BLOCK_HEIGHT)
-        # shaft_overhead = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
-        #     480 = 480 - ((1 - 1) * 20)
-        # shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
-        # pygame.draw.rect(
-        #     surface,
-        #     self._cosmetics_config.shaft_color,
-        #     (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
-        # )
+        # # Draw shaft from min to max floor
+        # #     420 = 480 - (3 * 20)
+        # # shaft_top = screen_height - (self._max_floor * BLOCK_HEIGHT)
+        # # shaft_overhead = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
+        # #     480 = 480 - ((1 - 1) * 20)
+        # # shaft_bottom = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
+        # # pygame.draw.rect(
+        # #     surface,
+        # #     self._cosmetics_config.shaft_color,
+        # #     (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
+        # # )
 
-        # pygame.draw.rect(
-        #     surface,
-        #     UI_TEXT_COLOR,
-        #     (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
-        # )
+        # # pygame.draw.rect(
+        # #     surface,
+        # #     UI_TEXT_COLOR,
+        # #     (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
+        # # )
 
-        # Draw elevator car
-        color = self._cosmetics_config.open_color if self.door_open else self._cosmetics_config.closed_color
-        _ = pygame.draw.rect(surface, color, (shaft_left, car_top, width, BLOCK_HEIGHT))
+        # # Draw elevator car
+        # color = self._cosmetics_config.open_color if self.door_open else self._cosmetics_config.closed_color
+        # _ = pygame.draw.rect(surface, color, (shaft_left, car_top, width, BLOCK_HEIGHT))
 
-        # Draw any passengers or other elements after the elevator
-        # to make them appear on top of the elevator
-        # TODO: Depending on the size of the passenger icon, we can add judder here later to make it look crowded
-        for p in self._passengers:
-            p.draw(surface)
+        # # Draw any passengers or other elements after the elevator
+        # # to make them appear on top of the elevator
+        # # TODO: Depending on the size of the passenger icon, we can add judder here later to make it look crowded
+        pass  # Drawing is handled in ElevatorRenderer for better separation of concerns

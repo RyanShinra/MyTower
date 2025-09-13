@@ -26,6 +26,7 @@ def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
     return ElevatorSnapshot(
         id=elevator.elevator_id,
         current_floor=elevator.fractional_floor,
+        current_block=elevator.current_block_float,
         destination_floor=elevator.destination_floor,
         state=elevator.state,
         nominal_direction=elevator.nominal_direction,
