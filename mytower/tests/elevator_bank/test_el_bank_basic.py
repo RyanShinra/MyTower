@@ -1,5 +1,4 @@
 # tests/elevator_bank/test_basic.py
-# import pytest
 from collections import deque
 from typing import Final
 from unittest.mock import MagicMock
@@ -11,7 +10,6 @@ import pytest
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.entities.person import PersonProtocol
 from mytower.game.core.types import VerticalDirection
-# from mytower.game.types import VerticalDirection
 
 
 

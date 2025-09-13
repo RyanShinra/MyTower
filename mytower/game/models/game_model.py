@@ -3,7 +3,6 @@ Model layer: Pure business logic and data management
 No pygame dependencies, no rendering logic
 """
 from __future__ import annotations
-# from typing import List, Dict, Optional
 from typing import Dict, Final, List, Optional
 
 from pygame import Surface
@@ -12,7 +11,6 @@ from pygame import Surface
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-# from mytower.game.types import FloorType, PersonState, ElevatorState, VerticalDirection
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from mytower.game.models.snapshot_builders import build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
 from mytower.game.entities.person import Person, PersonProtocol
@@ -47,9 +45,6 @@ class GameModel:
         self._paused: bool = False
         
 
-    # @property
-    # def logger(self) -> MyTowerLogger:
-    #     return self._logger
     
     @property
     def is_paused(self) -> bool:
@@ -121,7 +116,6 @@ class GameModel:
             if el_bank is None:
                 raise ValueError(f"Elevator bank {el_bank_id} does not exist")
 
-            # For now, we assume that the Elevator covers all floors in the bank, in the future we may elaborate on this
             elevator = Elevator(
                 logger_provider=self._logger_provider,
                 elevator_bank=el_bank,
@@ -174,6 +168,13 @@ class GameModel:
             self._logger.exception(f"Failed to remove person {person_id}: {e}")
             raise RuntimeError(f"Failed to remove person {person_id}: {str(e)}") from e
 
+    def get_all_people(self) -> List[PersonSnapshot]:
+        """Get all people in the building"""
+        try:
+            return [build_person_snapshot(person) for person in self._people.values()]
+        except Exception as e:
+            self._logger.exception(f"Failed to get all people: {e}")
+            raise RuntimeError(f"Failed to get all people: {str(e)}") from e
 
 
     def set_game_speed(self, speed: float) -> bool:

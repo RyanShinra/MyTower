@@ -74,7 +74,3 @@ class TestRequestElevator:
         with pytest.raises(KeyError):
             elevator_bank.request_elevator(floor, VerticalDirection.STATIONARY)
             
-# class TestRequestClearing:
-    # Tests for when requests get fulfilled/cleared
-    # This might involve some elevator state simulation
-    # Let's return to this as an integration test

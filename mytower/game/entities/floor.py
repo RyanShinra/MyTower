@@ -2,7 +2,6 @@
 from __future__ import annotations  # Defer type evaluation
 
 from dataclasses import dataclass
-# from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from typing import TYPE_CHECKING, Dict
 from typing_extensions import Final
 
@@ -30,7 +29,6 @@ from mytower.game.core.constants import (
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import Color, FloorType
 
-# from mytower.game.ui import UIConfigProtocol
 
 
 if TYPE_CHECKING:
@@ -85,9 +83,7 @@ class Floor:
 
         self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor    
         
-        # Grid of rooms/spaces on this floor
-        # mypy: allow-any-explicit
-        # self._grid: List[Optional[Any]] = [None] * building.floor_width
+    # Grid of rooms/spaces on this floor
 
     @property
     def building(self) -> Building:
@@ -109,9 +105,6 @@ class Floor:
     def height(self) -> int:
         return self._height
 
-    # @property
-    # def grid(self) -> List[Optional[Any]]:
-    #     return self._grid
     
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""

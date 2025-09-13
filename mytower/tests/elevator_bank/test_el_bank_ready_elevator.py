@@ -1,6 +1,5 @@
 # test_el_bank_ready_elevator.py
 
-# from typing import Final, List
 from typing import List
 from unittest.mock import MagicMock
 

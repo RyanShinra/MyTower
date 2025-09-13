@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState
 
@@ -28,22 +28,13 @@ class TestPersonWaitingBehavior:
 
         
     def test_waiting_time_affects_anger_color(self, person_without_floor: Person, mock_game_config: MagicMock) -> None:
-        """Test that waiting time changes person's visual appearance"""
-        # Mock pygame surface for drawing
-        mock_surface = MagicMock()
-        mock_surface.get_height.return_value = 600
-        
+        """Test that waiting time changes person's visual appearance (red component)"""
         # Test calm state (no waiting)
         person_without_floor.testing_set_wait_time(0.0)
-        with patch('pygame.draw.circle') as mock_draw:
-            person_without_floor.draw(mock_surface)
-            # Color should be close to original (low red values)
-            color = mock_draw.call_args[0][1]  # Second argument is color
-            assert color[0] <= 32  # Red component should be low
-            
-        # Test angry state (long waiting)  
+        red_calm = person_without_floor.draw_color_red
+        assert red_calm <= 32  # Red component should be low
+
+        # Test angry state (long waiting)
         person_without_floor.testing_set_wait_time(person_without_floor.testing_get_max_wait_time())  # Max wait time
-        with patch('pygame.draw.circle') as mock_draw:
-            person_without_floor.draw(mock_surface)
-            color = mock_draw.call_args[0][1]
-            assert color[0] >= 150  # Red component should be high when angry
+        red_angry = person_without_floor.draw_color_red
+        assert red_angry >= 150  # Red component should be high when angry

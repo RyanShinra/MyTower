@@ -40,11 +40,17 @@ def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
 def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
     """Build a snapshot for a single person"""
     return PersonSnapshot(
-        id=person.person_id,
-        current_floor=person.current_floor_num,
-        current_block=person.current_block_float,
-        destination_floor=person.destination_floor_num,
-        destination_block=person.destination_block_num,
+        person_id=person.person_id,
+        current_floor_num=person.current_floor_num,
+        current_floor_float=person.current_floor_float,
+        current_block_float=person.current_block_float,
+        destination_floor_num=person.destination_floor_num,
+        destination_block_num=person.destination_block_num,
         state=person.state,
-        waiting_time=person.waiting_time
+        waiting_time=person.waiting_time,
+        mad_fraction=person.mad_fraction,
+        draw_color=person.draw_color,
+        draw_color_red=person.draw_color_red,
+        draw_color_green=person.draw_color_green,
+        draw_color_blue=person.draw_color_blue,
     )

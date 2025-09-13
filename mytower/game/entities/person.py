@@ -12,26 +12,17 @@ from __future__ import annotations  # Defer type evaluation
 import random
 from typing import TYPE_CHECKING, Final, List, Protocol, override
 
-import pygame
-
 from mytower.game.core.config import GameConfig
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.entities.elevator import Elevator
 
-# from mytower.game.elevator_bank import ElevatorBank
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
 
 
 from mytower.game.core.id_generator import IDGenerator
 
-# from typing_extensions import override
-
-
 
 if TYPE_CHECKING:
-    from pygame import Surface
-
     from mytower.game.entities.building import Building
     from mytower.game.entities.elevator_bank import ElevatorBank
     from mytower.game.entities.floor import Floor
@@ -95,6 +86,9 @@ class PersonProtocol(Protocol):
     def current_floor_num(self) -> int: ...
     
     @property
+    def current_floor_float(self) -> float: ...
+
+    @property
     def destination_floor_num(self) -> int: ...
     
     @property
@@ -102,9 +96,7 @@ class PersonProtocol(Protocol):
     
     @property
     def current_floor(self) -> Floor | None: ...
-
-    # @current_block_float.setter
-    # def current_block_float(self, value: float) -> None: ...
+    
     
     @property
     def destination_block_num(self) -> int: ...
@@ -116,8 +108,6 @@ class PersonProtocol(Protocol):
     def state(self) -> PersonState: ...
     
     # Let's keep this read-only for now
-    # @state.setter
-    # def state(self, value: PersonState) -> None: ...
     
     @property
     def direction(self) -> HorizontalDirection: ...
@@ -150,15 +140,23 @@ class PersonProtocol(Protocol):
     
     def testing_set_dest_floor_num(self, dest_floor: int) -> None: ...
     
-    def draw(self, surface: Surface) -> None: ...
 
-    # @property
-    # def in_elevator(self) -> bool: ...
+    @property
+    def mad_fraction(self) -> float: ...
+    
+    @property
+    def draw_color(self) -> tuple[int, int, int]: ...
+    
+    @property
+    def draw_color_red(self) -> int: ...
+    
+    @property
+    def draw_color_green(self) -> int: ...
+    
+    @property
+    def draw_color_blue(self) -> int: ...
 
-    # @property
-    # def waiting_for_elevator(self) -> bool: ...
-
-    # def request_elevator(self, floor: int) -> None: ...
+    
     
     # End PersonProtocol
 
@@ -191,7 +189,7 @@ class Person(PersonProtocol):
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self._config: Final[GameConfig] = config
-        self._cosmetics_config: Final[PersonCosmeticsProtocol] = config.person_cosmetics
+        self._cosmetics: Final[PersonCosmeticsProtocol] = config.person_cosmetics
         self._next_elevator_bank: ElevatorBank | None = None
         self._idle_timeout: float = 0
         self._current_elevator: Elevator | None = None
@@ -203,14 +201,19 @@ class Person(PersonProtocol):
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
         self._original_red: Final[int] = random.randint(
-            self._cosmetics_config.initial_min_red, self._cosmetics_config.initial_max_red
+            self._cosmetics.initial_min_red, self._cosmetics.initial_max_red
         )
         self._original_green: Final[int] = random.randint(
-            self._cosmetics_config.initial_min_green, self._cosmetics_config.initial_max_green
+            self._cosmetics.initial_min_green, self._cosmetics.initial_max_green
         )
         self._original_blue: Final[int] = random.randint(
-            self._cosmetics_config.initial_min_blue, self._cosmetics_config.initial_max_blue
+            self._cosmetics.initial_min_blue, self._cosmetics.initial_max_blue
         )
+                
+        self._red_range: int = abs(self._cosmetics.angry_max_red - self._original_red)
+        self._green_range: int = abs(self._cosmetics.angry_min_green - self._original_green)
+        self._blue_range: int = abs(self._cosmetics.angry_min_blue - self._original_blue)
+        
 
     @property
     @override
@@ -227,6 +230,11 @@ class Person(PersonProtocol):
     @override
     def current_floor_num(self) -> int:
         return int(self._current_floor_float)
+    
+    @property
+    @override
+    def current_floor_float(self) -> float:
+        return self._current_floor_float
 
     @property
     @override
@@ -242,10 +250,7 @@ class Person(PersonProtocol):
     @override
     def current_floor(self) -> Floor | None:
         return self._current_floor
-
-    # @current_block_float.setter
-    # def current_block_float(self, value: float) -> None:
-    #     self._current_block_float = value
+    
 
     @property
     @override
@@ -256,10 +261,7 @@ class Person(PersonProtocol):
     @override
     def state(self) -> PersonState:
         return self._state
-
-    # @state.setter
-    # def state(self, value: PersonState) -> None:
-    #     self._state = value
+    
 
     @property
     @override
@@ -519,46 +521,43 @@ class Person(PersonProtocol):
     def testing_set_current_floor(self, floor: Floor) -> None:
         self._current_floor = floor
 
+    
+
+    @property
     @override
-    def draw(self, surface: Surface) -> None:
-        """Draw the person on the given surface"""
-        # Calculate position and draw a simple circle for now
-        screen_height: int = surface.get_height()
+    def mad_fraction(self) -> float:
+        return (self._waiting_time / self._config.person.max_wait_time) if self._config.person.max_wait_time > 0.0 else 0.0
 
-        # Note: this needs to be the private, float _current_floor
-        apparent_floor: float = self._current_floor_float - 1.0
-        y_bottom: float = apparent_floor * BLOCK_HEIGHT
-        y_centered: int = int(y_bottom + (BLOCK_HEIGHT / 2))
+    @property
+    @override
+    def draw_color_red(self) -> int:
+        """As the person becomes more upset, they become more red"""
+        color_red: int = self._original_red + int(self._red_range * self.mad_fraction)
+        return max(0, min(254, color_red))
 
-        # Need to invert y coordinates
-        y_pos: int = screen_height - y_centered
 
-        x_left: float = self._current_block_float * BLOCK_WIDTH
-        x_centered: int = int(x_left + (BLOCK_WIDTH / 2))
-        x_pos: int = x_centered
+    @property
+    @override
+    def draw_color_green(self) -> int:
+        """As the person becomes more upset, they become less green"""
+        color_green: int = self._original_green - int(self._green_range * self.mad_fraction)
+        return max(0, min(254, color_green))
 
-        # How mad ARE we??
-        mad_fraction: float = (
-            self._waiting_time / self._config.person.max_wait_time
-        )  # Use _config.person for max_wait_time
-        # Use cosmetics_config for color changes when mad
-        draw_red: int = self._original_red + int(
-            abs(self._cosmetics_config.angry_max_red - self._original_red) * mad_fraction
+
+    @property
+    @override
+    def draw_color_blue(self) -> int:
+        """As the person becomes more upset, they become less blue"""
+        color_blue: int = self._original_blue - int(self._blue_range * self.mad_fraction)
+        return max(0, min(254, color_blue))
+
+
+    @property
+    @override
+    def draw_color(self) -> tuple[int, int, int]:
+        """Get the color for the person based on their current state"""
+        return (
+            self.draw_color_red,
+            self.draw_color_green,
+            self.draw_color_blue
         )
-        # Adjust green and blue values based on how "angry" the person is, using the configured minimum values for angry states.
-        draw_green: int = self._original_green - int(
-            abs(self._original_green - self._cosmetics_config.angry_min_green) * mad_fraction
-        )
-        draw_blue: int = self._original_blue - int(
-            abs(self._original_blue - self._cosmetics_config.angry_min_blue) * mad_fraction
-        )
-
-        # Clamp the draw colors to the range 0 to 254
-        draw_red = max(0, min(254, draw_red))
-        draw_green = max(0, min(254, draw_green))
-        draw_blue = max(0, min(254, draw_blue))
-
-        draw_color = (draw_red, draw_green, draw_blue)
-        # self._logger.debug(f"Person color: {draw_color}, person location: {(int(x_pos), int(y_pos))}")
-
-        _: pygame.Rect = pygame.draw.circle(surface, draw_color, (int(x_pos), int(y_pos)), self._config.person.radius)  # radius

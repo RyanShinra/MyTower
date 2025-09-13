@@ -97,6 +97,9 @@ class Building:
 
     def update(self, dt: float) -> None:
         """Update the building state by time increment dt (in seconds)"""
+        pass        
+
+
     def draw(self, surface: Surface) -> None:
         """Draw the building on the given surface"""
         # Draw floors from bottom to top
@@ -107,8 +110,3 @@ class Building:
             # self._logger.debug("I want to draw an elevator bank")
             if hasattr(elevator, "draw"):
                 elevator.draw(surface)
-
-        for person in self.people:
-            # self._logger.debug("I want to draw a person")
-            if hasattr(person, "draw") and callable(person.draw):
-                person.draw(surface)

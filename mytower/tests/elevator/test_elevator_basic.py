@@ -9,7 +9,6 @@ from mytower.game.entities.person import PersonProtocol
 from mytower.game.core.types import VerticalDirection
 from mytower.tests.conftest import PersonFactory
 
-# from mytower.tests.elevator.conftest import mock_person_factory
 
 
 

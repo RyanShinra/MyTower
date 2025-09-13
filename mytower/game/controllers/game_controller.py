@@ -60,6 +60,10 @@ class GameController:
         """Get specific elevator state"""
         return self._model.get_elevator_by_id(elevator_id)
     
+    def get_all_people(self) -> List[PersonSnapshot]:
+        """Get all people in the building"""
+        return self._model.get_all_people()
+    
     # Simulation management
     def update(self, dt: float) -> None:
         """Update the game simulation"""
