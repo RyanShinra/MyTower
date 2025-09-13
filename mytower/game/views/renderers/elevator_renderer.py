@@ -9,9 +9,6 @@ from mytower.game.core.constants import (  # TODO: Move this into a config
     BLOCK_WIDTH,
 )
 
-
-
-
 if TYPE_CHECKING:
     from pygame import Surface
     from mytower.game.models.model_snapshots import ElevatorSnapshot
