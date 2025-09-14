@@ -35,6 +35,7 @@ class ElevatorSnapshot:
     available_capacity: int
     max_capacity: int
 
+
 @dataclass
 class ElevatorBankSnapshot:
     """Immutable snapshot of elevator bank state for API consumption"""
