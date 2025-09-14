@@ -485,7 +485,7 @@ class ElevatorBank:
 
         pygame.draw.rect(
             surface,
-            self._cosmetics_config.shaft_overhead,
+            self._cosmetics_config.shaft_overhead_color,
             (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead),
         ) # pyright: ignore[reportUnusedCallResult]
 

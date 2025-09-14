@@ -30,7 +30,7 @@ class ElevatorCosmetics:
     """Implements Elevator Cosmetics Protocol"""
 
     shaft_color: Final[RGB] = (100, 100, 100)
-    shaft_overhead: Final[RGB] = (24, 24, 24)
+    shaft_overhead_color: Final[RGB] = (24, 24, 24)
     closed_color: Final[RGB] = (50, 50, 200)
     open_color: Final[RGB] = (200, 200, 50)
     shaft_overhead_height: Final[int] = BLOCK_HEIGHT  # Pixels

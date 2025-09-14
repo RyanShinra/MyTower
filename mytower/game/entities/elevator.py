@@ -59,7 +59,7 @@ class ElevatorCosmeticsProtocol(Protocol):
     def shaft_color(self) -> RGB: ...  # noqa E701
 
     @property
-    def shaft_overhead(self) -> RGB: ...  # noqa E701
+    def shaft_overhead_color(self) -> RGB: ...  # noqa E701
 
     @property
     def closed_color(self) -> RGB: ...  # noqa E701

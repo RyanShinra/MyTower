@@ -41,6 +41,6 @@ class ElevatorBankRenderer:
         # Draw the shaft overhead
         pygame.draw.rect(
             surface,
-            self._cosmetics_config.shaft_color,
+            self._cosmetics_config.shaft_overhead_color,
             (shaft_left_x, shaft_overhead_top_y, width, self._cosmetics_config.shaft_overhead_height)
         )
