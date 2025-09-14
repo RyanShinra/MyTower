@@ -37,6 +37,14 @@ class ElevatorSnapshot:
 
 
 @dataclass
+class ElevatorBankSnapshot:
+    """Immutable snapshot of elevator bank state for API consumption"""
+    horizontal_block: int
+    min_floor: int
+    max_floor: int
+    
+
+@dataclass
 class FloorSnapshot:
     """Immutable snapshot of floor state for API consumption"""
     floor_number: int

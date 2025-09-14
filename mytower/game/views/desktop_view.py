@@ -2,11 +2,13 @@
 from typing import List
 import pygame
 from pygame import Surface
+from pygame.font import Font
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
-from mytower.game.models.model_snapshots import ElevatorSnapshot, PersonSnapshot
+from mytower.game.models.model_snapshots import ElevatorBankSnapshot, ElevatorSnapshot, PersonSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import GameModel
+from mytower.game.views.renderers.elevator_bank_renderer import ElevatorBankRenderer
 from mytower.game.views.renderers.elevator_renderer import ElevatorRenderer
 from mytower.game.views.renderers.person_renderer import PersonRenderer
 
@@ -31,6 +33,7 @@ class DesktopView:
         
         self._person_renderer: PersonRenderer = PersonRenderer(self._config.person, self._config.person_cosmetics, logger_provider)
         self._elevator_renderer: ElevatorRenderer = ElevatorRenderer(logger_provider, self._config.elevator_cosmetics)
+        self._elevator_bank_renderer: ElevatorBankRenderer = ElevatorBankRenderer(logger_provider, self._config.elevator_cosmetics)
 
         # UI state
         self._paused: bool = False
@@ -51,6 +54,10 @@ class DesktopView:
         self._game_model.temp_draw_building(surface)
         
         # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]
+        all_elevator_banks: List[ElevatorBankSnapshot] = self._game_controller.get_all_elevator_banks()
+        for bank in all_elevator_banks:
+            self._elevator_bank_renderer.draw(surface, bank)        
+        
         all_elevators: List[ElevatorSnapshot] = self._game_controller.get_all_elevators()
         for elevator in all_elevators:
             self._elevator_renderer.draw(surface, elevator)
@@ -66,7 +73,7 @@ class DesktopView:
     def _draw_ui(self, surface: Surface) -> None:
         """Draw UI elements like time, money, etc."""
         # Draw time
-        font = pygame.font.SysFont(None, 24)
+        font: Font = pygame.font.SysFont(None, 24)
 
         # Convert time to hours:minutes
         time: float = self._game_controller.get_game_time()

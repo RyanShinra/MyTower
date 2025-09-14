@@ -10,6 +10,7 @@ Handles commands, manages update cycles
 
 from typing import Any, List, Optional
 from mytower.game.controllers.controller_commands import Command, CommandResult
+from mytower.game.models.model_snapshots import ElevatorBankSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
 
@@ -67,6 +68,10 @@ class GameController:
     def get_all_elevators(self) -> List[ElevatorSnapshot]:
         """Get all elevators in the building"""
         return self._model.get_all_elevators()
+
+    def get_all_elevator_banks(self) -> List[ElevatorBankSnapshot]:
+        """Get all elevator banks in the building"""
+        return self._model.get_all_elevator_banks()
 
     # Simulation management
     def update(self, dt: float) -> None:

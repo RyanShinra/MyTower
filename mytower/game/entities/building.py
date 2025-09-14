@@ -105,8 +105,3 @@ class Building:
         # Draw floors from bottom to top
         for floor_num in sorted(self._floors.keys()):
             self._floors[floor_num].draw(surface)
-
-        for elevator in self._elevator_banks:
-            # self._logger.debug("I want to draw an elevator bank")
-            if hasattr(elevator, "draw"):
-                elevator.draw(surface)

@@ -1,6 +1,7 @@
 
 from __future__ import annotations
-from mytower.game.models.model_snapshots import ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.models.model_snapshots import ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from typing import TYPE_CHECKING
 
 from mytower.game.entities.person import PersonProtocol
@@ -19,8 +20,6 @@ def build_floor_snapshot(floor: Floor) -> FloorSnapshot:
         person_count=0  # TODO: Implement once we have floors contain people
     )
 
-
-    
 def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
     """Build a snapshot for a single elevator"""
     return ElevatorSnapshot(
@@ -36,8 +35,14 @@ def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
         max_capacity=elevator.max_capacity,
     )
 
+def build_elevator_bank_snapshot(elevator_bank: ElevatorBank) -> ElevatorBankSnapshot:
+    """Build a snapshot for a single elevator bank"""
+    return ElevatorBankSnapshot(
+        horizontal_block=elevator_bank.horizontal_block,
+        min_floor=elevator_bank.min_floor,
+        max_floor=elevator_bank.max_floor,
+    )
 
-    
 def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
     """Build a snapshot for a single person"""
     return PersonSnapshot(

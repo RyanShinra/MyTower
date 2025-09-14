@@ -42,7 +42,8 @@ RETAIL_COLOR: Final[RGB] = (150, 250, 200)
 FLOORBOARD_COLOR: Final[RGB] = (10, 10, 10)
 
 # Floor heights
-LOBBY_HEIGHT: Final[int] = 1
+# Floors are one block high for now
+LOBBY_HEIGHT: Final[int] = 1 
 OFFICE_HEIGHT: Final[int] = 1
 APARTMENT_HEIGHT: Final[int] = 1
 HOTEL_HEIGHT: Final[int] = 1

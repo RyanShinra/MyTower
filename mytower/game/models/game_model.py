@@ -11,8 +11,8 @@ from pygame import Surface
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
-from mytower.game.models.snapshot_builders import build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
+from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+from mytower.game.models.snapshot_builders import build_elevator_bank_snapshot, build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
 from mytower.game.entities.person import Person, PersonProtocol
 from mytower.game.core.types import FloorType
 from mytower.game.entities.building import Building
@@ -184,6 +184,13 @@ class GameModel:
             self._logger.exception(f"Failed to get all elevators: {e}")
             raise RuntimeError(f"Failed to get all elevators: {str(e)}") from e
 
+    def get_all_elevator_banks(self) -> List[ElevatorBankSnapshot]:
+        """Get all elevator banks in the building"""
+        try:
+            return [build_elevator_bank_snapshot(bank) for bank in self._elevator_banks.values()]
+        except Exception as e:
+            self._logger.exception(f"Failed to get all elevator banks: {e}")
+            raise RuntimeError(f"Failed to get all elevator banks: {str(e)}") from e
 
     def set_game_speed(self, speed: float) -> bool:
         """Set game simulation speed"""
