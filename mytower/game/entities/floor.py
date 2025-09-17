@@ -1,31 +1,11 @@
 # game/floor.py
 from __future__ import annotations  # Defer type evaluation
 
-from dataclasses import dataclass
+
 from typing import TYPE_CHECKING, Dict
-from typing_extensions import Final
 
-import pygame
-from pygame import Surface
-from pygame.font import Font
 
-from mytower.game.core.constants import (
-    APARTMENT_COLOR,
-    APARTMENT_HEIGHT,
-    BLOCK_HEIGHT,
-    BLOCK_WIDTH,
-    FLOORBOARD_COLOR,
-    HOTEL_COLOR,
-    HOTEL_HEIGHT,
-    LOBBY_COLOR,
-    LOBBY_HEIGHT,
-    OFFICE_COLOR,
-    OFFICE_HEIGHT,
-    RESTAURANT_COLOR,
-    RESTAURANT_HEIGHT,
-    RETAIL_COLOR,
-    RETAIL_HEIGHT,
-)
+
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import Color, FloorType
 
@@ -43,28 +23,6 @@ class Floor:
     """
 
 
-    @dataclass
-    class FloorInfo:
-        """
-        Struct
-        """
-
-        color: Color
-        height: int
-
-    # Available floor types
-    # We shall return one day to fix this Any (turns out, that day is today)
-    LOBBY_INFO: Final = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
-    FLOOR_TYPES: Dict[FloorType, FloorInfo] = {
-        FloorType.LOBBY: FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT),
-        FloorType.OFFICE: FloorInfo(OFFICE_COLOR, OFFICE_HEIGHT),
-        FloorType.APARTMENT: FloorInfo(APARTMENT_COLOR, APARTMENT_HEIGHT),
-        FloorType.HOTEL: FloorInfo(HOTEL_COLOR, HOTEL_HEIGHT),
-        FloorType.RESTAURANT: FloorInfo(RESTAURANT_COLOR, RESTAURANT_HEIGHT),
-        FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
-    }
-
-
 
     def __init__(
         self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType
@@ -74,8 +32,7 @@ class Floor:
         # Floors are 1 indexed
         self._floor_num: int = floor_num
 
-        if floor_type not in self.FLOOR_TYPES:
-            raise ValueError(f"Invalid floor type: {floor_type}")
+
 
         self._floor_type: FloorType = floor_type
         self._color: Color = self.FLOOR_TYPES[floor_type].color
@@ -127,26 +84,26 @@ class Floor:
 
 
 
-    def draw(self, surface: Surface) -> None:
-        """Draw the floor on the given surface"""
-        # Calculate vertical position (inverted Y axis, 0 is at the bottom)
-        screen_height: int = surface.get_height()
-        floor_height: int = BLOCK_HEIGHT * self._height
-        # These are 1 indexed, plus
-        # 460 = 480 - (1 * 20) , the top of floor 1
-        # 440 = 480 - (2 * 20) , the top of floor 2
-        floor_y_top: int = screen_height - (self._floor_num * floor_height)
-        floor_x_left = 0
+    # def draw(self, surface: Surface) -> None:
+    #     """Draw the floor on the given surface"""
+    #     # Calculate vertical position (inverted Y axis, 0 is at the bottom)
+    #     screen_height: int = surface.get_height()
+    #     floor_height: int = BLOCK_HEIGHT * self._height
+    #     # These are 1 indexed, plus
+    #     # 460 = 480 - (1 * 20) , the top of floor 1
+    #     # 440 = 480 - (2 * 20) , the top of floor 2
+    #     floor_y_top: int = screen_height - (self._floor_num * floor_height)
+    #     floor_x_left = 0
 
-        # Draw the main floor rectangle
-        pygame.draw.rect(
-            surface, self._color, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, floor_height)
-        )
-        pygame.draw.rect(
-            surface, FLOORBOARD_COLOR, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, 2)
-        )
+    #     # Draw the main floor rectangle
+    #     pygame.draw.rect(
+    #         surface, self._color, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, floor_height)
+    #     )
+    #     pygame.draw.rect(
+    #         surface, FLOORBOARD_COLOR, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, 2)
+    #     )
 
-        # Draw floor number
-        font: Font = pygame.font.SysFont(["Palatino Linotype", "Menlo", "Lucida Sans Typewriter"], 18)
-        text: Surface = font.render(f"{self._floor_num}", True, (0, 0, 0))
-        surface.blit(text, (floor_x_left + 8, floor_y_top + 12))
+    #     # Draw floor number
+    #     font: Font = pygame.font.SysFont(["Palatino Linotype", "Menlo", "Lucida Sans Typewriter"], 18)
+    #     text: Surface = font.render(f"{self._floor_num}", True, (0, 0, 0))
+    #     surface.blit(text, (floor_x_left + 8, floor_y_top + 12))
