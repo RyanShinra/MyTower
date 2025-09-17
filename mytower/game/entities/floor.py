@@ -2,12 +2,29 @@
 from __future__ import annotations  # Defer type evaluation
 
 
-from typing import TYPE_CHECKING, Dict
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Dict, Final
 
 
 
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import Color, FloorType
+
+from mytower.game.core.constants import (
+    APARTMENT_COLOR,
+    APARTMENT_HEIGHT,
+    FLOORBOARD_COLOR,
+    HOTEL_COLOR,
+    HOTEL_HEIGHT,
+    LOBBY_COLOR,
+    LOBBY_HEIGHT,
+    OFFICE_COLOR,
+    OFFICE_HEIGHT,
+    RESTAURANT_COLOR,
+    RESTAURANT_HEIGHT,
+    RETAIL_COLOR,
+    RETAIL_HEIGHT,
+)
 
 
 
@@ -21,21 +38,39 @@ class Floor:
     """
     A floor in the building that can contain various room types
     """
+    @dataclass
+    class FloorInfo:
+        """
+        Struct
+        """
+        color: Color
+        height: int
 
-
+    # Available floor types
+    LOBBY_INFO: Final = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
+    FLOOR_TYPES: Dict[FloorType, FloorInfo] = {
+        FloorType.LOBBY: FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT),
+        FloorType.OFFICE: FloorInfo(OFFICE_COLOR, OFFICE_HEIGHT),
+        FloorType.APARTMENT: FloorInfo(APARTMENT_COLOR, APARTMENT_HEIGHT),
+        FloorType.HOTEL: FloorInfo(HOTEL_COLOR, HOTEL_HEIGHT),
+        FloorType.RESTAURANT: FloorInfo(RESTAURANT_COLOR, RESTAURANT_HEIGHT),
+        FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
+    }
 
     def __init__(
-        self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType
+        self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType, floor_left_edge: int = 0, floor_width: int = 20,
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("floor")
         self._building: Building = building
         # Floors are 1 indexed
         self._floor_num: int = floor_num
 
-
+        self._floor_left_edge: int = floor_left_edge
+        self._floor_width: int = floor_width
 
         self._floor_type: FloorType = floor_type
         self._color: Color = self.FLOOR_TYPES[floor_type].color
+        self._floorboard_color: Color = FLOORBOARD_COLOR
         self._height: int = self.FLOOR_TYPES[floor_type].height
 
         self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor    
@@ -59,15 +94,32 @@ class Floor:
         return self._color
 
     @property
+    def floorboard_color(self) -> Color:
+        return self._floorboard_color
+
+    @property
     def height(self) -> int:
         return self._height
+    
+    @property
+    def left_edge(self) -> int:
+        return self._floor_left_edge
 
+    @property
+    def width(self) -> int:
+        return self._floor_width
+
+    @property
+    def people(self) -> Dict[str, PersonProtocol]:
+        return dict(self._people)
+    
+    @property
+    def number_of_people(self) -> int:
+        return len(self._people)
     
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
-
-
         
     def remove_person(self, person_id: str) -> PersonProtocol:
         """Remove a person from the floor, returns the person if found, throws if not"""

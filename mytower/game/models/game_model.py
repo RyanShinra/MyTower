@@ -192,6 +192,14 @@ class GameModel:
             self._logger.exception(f"Failed to get all elevator banks: {e}")
             raise RuntimeError(f"Failed to get all elevator banks: {str(e)}") from e
 
+    def get_all_floors(self) -> List[FloorSnapshot]:
+        """Get all floors in the building"""
+        try:
+            return [build_floor_snapshot(floor) for floor in self._floors.values()]
+        except Exception as e:
+            self._logger.exception(f"Failed to get all floors: {e}")
+            raise RuntimeError(f"Failed to get all floors: {str(e)}") from e
+
     def set_game_speed(self, speed: float) -> bool:
         """Set game simulation speed"""
         try:

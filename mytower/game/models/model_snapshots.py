@@ -1,4 +1,5 @@
-from mytower.game.core.types import FloorType, PersonState, ElevatorState, VerticalDirection
+
+from mytower.game.core.types import FloorType, PersonState, ElevatorState, VerticalDirection, Color
 from dataclasses import dataclass
 from typing import List
 
@@ -35,7 +36,7 @@ class ElevatorSnapshot:
     available_capacity: int
     max_capacity: int
 
-
+ 
 @dataclass
 class ElevatorBankSnapshot:
     """Immutable snapshot of elevator bank state for API consumption"""
@@ -47,9 +48,14 @@ class ElevatorBankSnapshot:
 @dataclass
 class FloorSnapshot:
     """Immutable snapshot of floor state for API consumption"""
-    floor_number: int
     floor_type: FloorType
-    person_count: int  # Not yet implemented    
+    floor_number: int  # We'll need to think about what this means with multiple height floors
+    floor_height_blocks: int  
+    left_edge_block: int
+    floor_width_blocks: int
+    person_count: int  # Not yet implemented
+    floor_color: Color  # RGB color for rendering
+    floorboard_color: Color  # RGB color for rendering
 
 
 @dataclass
