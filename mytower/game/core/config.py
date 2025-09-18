@@ -71,7 +71,7 @@ class UIConfig:
     text_color: Final[RGB] = (0, 0, 0)
     button_color: Final[RGB] = (200, 200, 200)
     button_hover_color: Final[RGB] = (180, 180, 180)
-    ui_font_name: Final[tuple[str, ...]] = ("Cambria", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
+    ui_font_name: Final[tuple[str, ...]] = ("Garamond", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
     ui_font_size: Final[int] = 20  # Default font size for UI elements
     floor_label_font_name: Final[tuple[str, ...]] = ("Century Gothic", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
     floor_label_font_size: Final[int] = 18  # Font size for floor labels
