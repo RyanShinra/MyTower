@@ -1,5 +1,5 @@
 # game/ui.py
-from typing import List, Optional, Protocol
+from typing import List, Optional, Protocol, Sequence
 
 import pygame
 
@@ -25,7 +25,19 @@ class UIConfigProtocol(Protocol):
 
     @property
     def button_hover_color(self) -> RGB: ...  # noqa E701
+    
+    @property
+    def ui_font_name(self) -> Sequence[str]: ...  # noqa E701
 
+    @property
+    def ui_font_size(self) -> int: ...  # noqa E701
+    
+    # TODO: #23 This should be moved into its own config protocol
+    @property
+    def floor_label_font_name(self) -> Sequence[str]: ...  # noqa E701
+
+    @property
+    def floor_label_font_size(self) -> int: ...  # noqa E701
 
 
 class Button:
