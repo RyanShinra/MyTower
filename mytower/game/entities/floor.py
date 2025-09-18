@@ -134,28 +134,3 @@ class Floor:
         """Update floor simulation"""
         pass  # To be implemented
 
-
-
-    # def draw(self, surface: Surface) -> None:
-    #     """Draw the floor on the given surface"""
-    #     # Calculate vertical position (inverted Y axis, 0 is at the bottom)
-    #     screen_height: int = surface.get_height()
-    #     floor_height: int = BLOCK_HEIGHT * self._height
-    #     # These are 1 indexed, plus
-    #     # 460 = 480 - (1 * 20) , the top of floor 1
-    #     # 440 = 480 - (2 * 20) , the top of floor 2
-    #     floor_y_top: int = screen_height - (self._floor_num * floor_height)
-    #     floor_x_left = 0
-
-    #     # Draw the main floor rectangle
-    #     pygame.draw.rect(
-    #         surface, self._color, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, floor_height)
-    #     )
-    #     pygame.draw.rect(
-    #         surface, FLOORBOARD_COLOR, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, 2)
-    #     )
-
-    #     # Draw floor number
-    #     font: Font = pygame.font.SysFont(["Palatino Linotype", "Menlo", "Lucida Sans Typewriter"], 18)
-    #     text: Surface = font.render(f"{self._floor_num}", True, (0, 0, 0))
-    #     surface.blit(text, (floor_x_left + 8, floor_y_top + 12))
