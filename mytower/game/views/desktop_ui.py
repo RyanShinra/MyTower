@@ -27,14 +27,14 @@ class UIConfigProtocol(Protocol):
     def button_hover_color(self) -> RGB: ...  # noqa E701
     
     @property
-    def ui_font_name(self) -> Sequence[str]: ...  # noqa E701
+    def ui_font_name(self) -> tuple[str, ...]: ...  # noqa E701
 
     @property
     def ui_font_size(self) -> int: ...  # noqa E701
     
     # TODO: #23 This should be moved into its own config protocol
     @property
-    def floor_label_font_name(self) -> Sequence[str]: ...  # noqa E701
+    def floor_label_font_name(self) -> tuple[str, ...]: ...  # noqa E701
 
     @property
     def floor_label_font_size(self) -> int: ...  # noqa E701
