@@ -21,7 +21,7 @@ class FloorRenderer:
         floor_height: int = floor.floor_height_blocks * BLOCK_HEIGHT
 
         floor_bottom_z: int = (floor.floor_number - 1) * BLOCK_HEIGHT  # Floors are 1 indexed
-        floor_top_z: int = floor_bottom_z + floor_height  # NOTE: This will break if floor_height is not 1 block
+        floor_top_z: int = floor_bottom_z + floor_height
         floor_top_y: int = screen_height - floor_top_z
         left_edge: int = floor.left_edge_block * BLOCK_WIDTH
         floor_width: int = floor.floor_width_blocks * BLOCK_WIDTH

@@ -72,6 +72,7 @@ class GameModel:
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         try:
+            # The floor may be a different height depending on type, we'll need to account for that in the building function
             new_floor_num: int = self._building.add_floor(floor_type)
             new_floor: Floor | None = self._building.get_floor_by_number(new_floor_num)
             
@@ -195,6 +196,7 @@ class GameModel:
     def get_all_floors(self) -> List[FloorSnapshot]:
         """Get all floors in the building"""
         try:
+            # Somewhere, we may need to build these in order so that the floor heights are accounted for correctly
             return [build_floor_snapshot(floor) for floor in self._floors.values()]
         except Exception as e:
             self._logger.exception(f"Failed to get all floors: {e}")

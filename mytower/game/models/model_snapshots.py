@@ -49,11 +49,11 @@ class ElevatorBankSnapshot:
 class FloorSnapshot:
     """Immutable snapshot of floor state for API consumption"""
     floor_type: FloorType
-    floor_number: int  # We'll need to think about what this means with multiple height floors
+    floor_number: int  # NOTE: We'll need to think about what this means with multiple height floors
     floor_height_blocks: int  
     left_edge_block: int
     floor_width_blocks: int
-    person_count: int  # Not yet implemented
+    person_count: int 
     floor_color: Color  # RGB color for rendering
     floorboard_color: Color  # RGB color for rendering
 

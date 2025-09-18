@@ -1,5 +1,5 @@
 # game/ui.py
-from typing import List, Optional, Protocol, Sequence
+from typing import List, Optional, Protocol
 
 import pygame
 
