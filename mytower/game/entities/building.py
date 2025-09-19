@@ -53,7 +53,9 @@ class Building:
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         next_floor_num: int = self.num_floors + 1
-        self._floors[next_floor_num] = Floor(self._logger_provider, self, next_floor_num, floor_type)
+        # TODO: Left extent is hardcoded to 0 for now
+        left_edge: int = 0
+        self._floors[next_floor_num] = Floor(self._logger_provider, self, next_floor_num, floor_type, left_edge, self._floor_width)
         return next_floor_num
 
     def add_elevator_bank(self, elevator_bank: ElevatorBank) -> None:
@@ -103,5 +105,6 @@ class Building:
     def draw(self, surface: Surface) -> None:
         """Draw the building on the given surface"""
         # Draw floors from bottom to top
-        for floor_num in sorted(self._floors.keys()):
-            self._floors[floor_num].draw(surface)
+        # for floor_num in sorted(self._floors.keys()):
+        #     self._floors[floor_num].draw(surface)
+        pass  # To be implemented when the building needs to be drawn

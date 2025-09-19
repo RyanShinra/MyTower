@@ -40,6 +40,13 @@ HOTEL_COLOR: Final[RGB] = (200, 150, 250)
 RESTAURANT_COLOR: Final[RGB] = (250, 150, 200)
 RETAIL_COLOR: Final[RGB] = (150, 250, 200)
 FLOORBOARD_COLOR: Final[RGB] = (10, 10, 10)
+DEFAULT_FLOOR_COLOR: Final[RGB] = (180, 180, 180)
+
+# Floor dimensions
+FLOORBOARD_HEIGHT: Final[int] = 4  # Height of the floorboard in pixels
+DEFAULT_FLOOR_HEIGHT: Final[int] = 1  # Default height of a floor in blocks
+DEFAULT_FLOOR_LEFT_EDGE: Final[int] = 0  # Default left edge of a floor in blocks
+DEFAULT_FLOOR_WIDTH: Final[int] = 20  # Default width of a floor in blocks
 
 # Floor heights
 # Floors are one block high for now

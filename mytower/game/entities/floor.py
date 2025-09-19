@@ -1,19 +1,20 @@
 # game/floor.py
 from __future__ import annotations  # Defer type evaluation
 
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict
-from typing_extensions import Final
 
-import pygame
-from pygame import Surface
-from pygame.font import Font
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Dict, Final
+
+
+
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.game.core.types import Color, FloorType
 
 from mytower.game.core.constants import (
     APARTMENT_COLOR,
     APARTMENT_HEIGHT,
-    BLOCK_HEIGHT,
-    BLOCK_WIDTH,
+    DEFAULT_FLOOR_LEFT_EDGE,
+    DEFAULT_FLOOR_WIDTH,
     FLOORBOARD_COLOR,
     HOTEL_COLOR,
     HOTEL_HEIGHT,
@@ -26,8 +27,6 @@ from mytower.game.core.constants import (
     RETAIL_COLOR,
     RETAIL_HEIGHT,
 )
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.game.core.types import Color, FloorType
 
 
 
@@ -41,19 +40,15 @@ class Floor:
     """
     A floor in the building that can contain various room types
     """
-
-
     @dataclass
     class FloorInfo:
         """
         Struct
         """
-
         color: Color
         height: int
 
     # Available floor types
-    # We shall return one day to fix this Any (turns out, that day is today)
     LOBBY_INFO: Final = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
     FLOOR_TYPES: Dict[FloorType, FloorInfo] = {
         FloorType.LOBBY: FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT),
@@ -64,21 +59,26 @@ class Floor:
         FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
 
-
-
     def __init__(
-        self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType
+        self, 
+        logger_provider: LoggerProvider, 
+        building: Building, 
+        floor_num: int, 
+        floor_type: FloorType, 
+        floor_left_edge: int = DEFAULT_FLOOR_LEFT_EDGE, 
+        floor_width: int = DEFAULT_FLOOR_WIDTH,   
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("floor")
         self._building: Building = building
         # Floors are 1 indexed
         self._floor_num: int = floor_num
 
-        if floor_type not in self.FLOOR_TYPES:
-            raise ValueError(f"Invalid floor type: {floor_type}")
+        self._floor_left_edge: int = floor_left_edge
+        self._floor_width: int = floor_width
 
         self._floor_type: FloorType = floor_type
         self._color: Color = self.FLOOR_TYPES[floor_type].color
+        self._floorboard_color: Color = FLOORBOARD_COLOR
         self._height: int = self.FLOOR_TYPES[floor_type].height
 
         self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor    
@@ -102,15 +102,32 @@ class Floor:
         return self._color
 
     @property
+    def floorboard_color(self) -> Color:
+        return self._floorboard_color
+
+    @property
     def height(self) -> int:
         return self._height
+    
+    @property
+    def left_edge(self) -> int:
+        return self._floor_left_edge
 
+    @property
+    def width(self) -> int:
+        return self._floor_width
+
+    @property
+    def people(self) -> Dict[str, PersonProtocol]:
+        return dict(self._people)
+    
+    @property
+    def number_of_people(self) -> int:
+        return len(self._people)
     
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
-
-
         
     def remove_person(self, person_id: str) -> PersonProtocol:
         """Remove a person from the floor, returns the person if found, throws if not"""
@@ -125,28 +142,3 @@ class Floor:
         """Update floor simulation"""
         pass  # To be implemented
 
-
-
-    def draw(self, surface: Surface) -> None:
-        """Draw the floor on the given surface"""
-        # Calculate vertical position (inverted Y axis, 0 is at the bottom)
-        screen_height: int = surface.get_height()
-        floor_height: int = BLOCK_HEIGHT * self._height
-        # These are 1 indexed, plus
-        # 460 = 480 - (1 * 20) , the top of floor 1
-        # 440 = 480 - (2 * 20) , the top of floor 2
-        floor_y_top: int = screen_height - (self._floor_num * floor_height)
-        floor_x_left = 0
-
-        # Draw the main floor rectangle
-        pygame.draw.rect(
-            surface, self._color, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, floor_height)
-        )
-        pygame.draw.rect(
-            surface, FLOORBOARD_COLOR, (floor_x_left, floor_y_top, self._building.floor_width * BLOCK_WIDTH, 2)
-        )
-
-        # Draw floor number
-        font: Font = pygame.font.SysFont(["Palatino Linotype", "Menlo", "Lucida Sans Typewriter"], 18)
-        text: Surface = font.render(f"{self._floor_num}", True, (0, 0, 0))
-        surface.blit(text, (floor_x_left + 8, floor_y_top + 12))
