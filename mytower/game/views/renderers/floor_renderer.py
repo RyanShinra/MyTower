@@ -2,7 +2,7 @@ import pygame
 from pygame import Surface
 from pygame.font import Font
 
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
+from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH, FLOORBOARD_HEIGHT
 from mytower.game.models.model_snapshots import FloorSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
@@ -34,7 +34,7 @@ class FloorRenderer:
         pygame.draw.rect(surface, floor.floor_color, (left_edge, floor_top_y, floor_width, floor_height))
 
         # Draw the floorboard at the top of the floor
-        pygame.draw.rect(surface, floor.floorboard_color, (left_edge, floor_top_y, floor_width, 4))
+        pygame.draw.rect(surface, floor.floorboard_color, (left_edge, floor_top_y, floor_width, FLOORBOARD_HEIGHT))
 
         # Optionally draw the floor number for debugging
         text_surface: Surface = self._font.render(f"Floor {floor.floor_number}", True, (0, 0, 0))

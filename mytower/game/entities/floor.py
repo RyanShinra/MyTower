@@ -13,6 +13,8 @@ from mytower.game.core.types import Color, FloorType
 from mytower.game.core.constants import (
     APARTMENT_COLOR,
     APARTMENT_HEIGHT,
+    DEFAULT_FLOOR_LEFT_EDGE,
+    DEFAULT_FLOOR_WIDTH,
     FLOORBOARD_COLOR,
     HOTEL_COLOR,
     HOTEL_HEIGHT,
@@ -58,7 +60,13 @@ class Floor:
     }
 
     def __init__(
-        self, logger_provider: LoggerProvider, building: Building, floor_num: int, floor_type: FloorType, floor_left_edge: int = 0, floor_width: int = 20,
+        self, 
+        logger_provider: LoggerProvider, 
+        building: Building, 
+        floor_num: int, 
+        floor_type: FloorType, 
+        floor_left_edge: int = DEFAULT_FLOOR_LEFT_EDGE, 
+        floor_width: int = DEFAULT_FLOOR_WIDTH,   
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("floor")
         self._building: Building = building
