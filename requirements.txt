@@ -19,3 +19,7 @@ pylint==3.3.7
 pytest==8.3.5
 tomlkit==0.13.2
 typing_extensions==4.13.2
+pygame>=2.5.0
+strawberry-graphql>=0.234.0
+uvicorn>=0.24.0
+fastapi>=0.104.0
