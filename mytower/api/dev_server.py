@@ -19,6 +19,7 @@ def run_headless_game() -> NoReturn:
     # Simple game loop
     # TODO: Add proper & graceful shutdown handling
     while True:
+        # Be sure to use the game_bridge here, not the game_controller directly
         game_bridge.update_game(0.016)  # ~60 FPS
         time.sleep(0.016)
 

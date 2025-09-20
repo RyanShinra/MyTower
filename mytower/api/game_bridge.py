@@ -8,7 +8,25 @@ from mytower.game.controllers.game_controller import GameController
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
 class GameBridge:
-    """Thread-safe bridge between GraphQL API and game controller"""
+    """
+    Thread-safe bridge between GraphQL API and game simulation.
+    
+    IMPORTANT: In threaded mode, this is the ONLY safe way to interact
+    with the game controller. Direct controller access will cause:
+    - Race conditions between HTTP and game threads
+    - Lost mutations (commands not processed in frame order)  
+    - Inconsistent snapshots for GraphQL queries
+    
+    Usage:
+        bridge = GameBridge(controller)
+        
+        # Game thread:
+        bridge.update_game(dt)
+        
+        # HTTP threads:  
+        bridge.queue_command(cmd)
+        bridge.get_building_state()
+    """
 
     def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
         self._controller: Optional[GameController]  = controller
