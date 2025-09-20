@@ -85,9 +85,4 @@ def get_game_bridge() -> GameBridge:
         raise RuntimeError("Game bridge not initialized")
     return _bridge
 
-# Convenience functions
-def queue_command(command: Command[Any]) -> str:
-    return get_game_bridge().queue_command(command)
 
-def get_building_state() -> Optional[BuildingSnapshot]:
-    return get_game_bridge().get_building_state()
