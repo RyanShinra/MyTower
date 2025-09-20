@@ -81,4 +81,25 @@ class Mutation:
         command = AddElevatorCommand(elevator_bank_id=elevator_bank_id)
         return queue_command(command)
 
+    # Debug / synchronous versions of the above mutations
+    # These block until the command is processed and return the result directly
+    # Useful for testing and simple scripts
+    # Not recommended for production use due to blocking nature
+    @strawberry.field
+    def add_floor_sync(self, floor_type: FloorTypeGQL) -> int:
+        domain_floor_type = FloorType(floor_type.value)
+        return get_game_bridge().execute_add_floor_sync(domain_floor_type)
+        
+    @strawberry.field
+    def add_person_sync(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
+        return get_game_bridge().execute_add_person_sync(floor, block, dest_floor, dest_block)
+
+    @strawberry.field
+    def add_elevator_bank_sync(self, h_cell: int, min_floor: int, max_floor: int) -> str:
+        return get_game_bridge().execute_add_elevator_bank_sync(h_cell, min_floor, max_floor)
+
+    @strawberry.field
+    def add_elevator_sync(self, elevator_bank_id: str) -> str:
+        return get_game_bridge().execute_add_elevator_sync(elevator_bank_id)
+
 schema = strawberry.Schema(query=Query, mutation=Mutation)
