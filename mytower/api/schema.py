@@ -1,8 +1,10 @@
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 import strawberry
 from mytower.api.game_bridge import get_game_bridge
+from mytower.api.graphql_types import BuildingSnapshotGQL, PersonSnapshotGQL
+from mytower.api.type_conversions import convert_building_snapshot, convert_person_snapshot
 from mytower.game.controllers.controller_commands import (Command, 
     AddFloorCommand, AddPersonCommand, AddElevatorBankCommand, AddElevatorCommand)
 
@@ -33,6 +35,18 @@ class Query:
     def is_running(self) -> bool:
         return get_building_state() is not None
 
+     
+    @strawberry.field
+    def building_state(self) -> Optional[BuildingSnapshotGQL]:
+        snapshot: BuildingSnapshot | None = get_building_state()
+        return convert_building_snapshot(snapshot) if snapshot else None
+    
+    @strawberry.field
+    def all_people(self) -> Optional[List[PersonSnapshotGQL]]:
+        snapshot: BuildingSnapshot | None = get_building_state()
+        if not snapshot:
+            return None
+        return [convert_person_snapshot(p) for p in snapshot.people]
 
 @strawberry.enum
 class FloorTypeGQL(Enum):
