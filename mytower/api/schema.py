@@ -45,7 +45,7 @@ class FloorTypeGQL(Enum):
 @strawberry.type  
 class Mutation:
     @strawberry.field
-    def add_floor(self, floor_type: FloorTypeGQL) -> int:
+    def add_floor(self, floor_type: FloorTypeGQL) -> str:
         domain_floor_type = FloorType(floor_type.value)
         command = AddFloorCommand(floor_type=domain_floor_type)
         return queue_command(command)
