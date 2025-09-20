@@ -67,11 +67,7 @@ class GameBridge:
     def get_building_state(self) -> Optional[BuildingSnapshot]:
         with self._snapshot_lock:
             return self._latest_snapshot  # Returns cached snapshot
-            
-    def get_game_time(self) -> float:
-        # Fast, lock-free read from snapshot
-        snapshot: BuildingSnapshot | None = self.get_building_state()
-        return snapshot.time if snapshot else 0.0
+
 
 # Module-level singleton
 _bridge: Optional[GameBridge] = None

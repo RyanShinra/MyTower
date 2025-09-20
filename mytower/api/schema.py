@@ -26,11 +26,12 @@ class Query:
     
     @strawberry.field
     def game_time(self) -> float:
-        return get_game_bridge().get_game_time()
-    
+        snapshot: BuildingSnapshot | None = get_building_state()
+        return snapshot.time if snapshot else 0.0
+
     @strawberry.field
     def is_running(self) -> bool:
-        return get_game_bridge().get_building_state() is not None
+        return get_building_state() is not None
 
 
 @strawberry.enum
