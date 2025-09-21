@@ -7,7 +7,7 @@ from mytower.game.controllers.game_controller import GameController
 from mytower.game.models.game_model import GameModel
 from mytower.game.utilities.logger import LoggerProvider
 
-def run_headless_game(game_bridge: GameBridge) -> NoReturn:
+def run_headless_game(game_bridge: GameBridge) -> None:
     """Run the game loop without pygame display"""
     
     # Simple game loop

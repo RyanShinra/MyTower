@@ -1,4 +1,9 @@
-# In mytower/api/game_bridge.py
+"""
+Thread-safe bridge between the GraphQL API and the game simulation.
+
+Provides the GameBridge class for safe command queuing and state retrieval,
+and exposes a singleton instance for use throughout the application.
+"""
 from queue import Queue
 import queue
 import threading
