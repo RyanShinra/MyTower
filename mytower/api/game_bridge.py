@@ -33,18 +33,37 @@ class GameBridge:
     """
 
     def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
-        self._controller: GameController = controller
-        self._update_lock = threading.RLock()
-        self._command_queue: Queue[Tuple[str, Command[Any]]] = Queue()
         
-        self._snapshot_lock = threading.Lock()
+        self._controller: GameController = controller
+        self._update_lock = threading.Lock()
+        self._game_thread_id: Optional[int] = None
+        
+        self._command_queue: Queue[Tuple[str, Command[Any]]] = Queue(maxsize=10)
+        self._command_results: Dict[str, CommandResult[Any]] = {}
+        
         self._latest_snapshot: Optional[BuildingSnapshot] = None
         self._snapshot_interval_s: float = 1.0 / snapshot_fps
         self._last_snapshot_time: float = 0.0
-        self._command_results: Dict[str, CommandResult[Any]] = {}
     
+        # The update_game will clear (set) during startup
+        self._game_thread_ready = threading.Event()  
+        
+    @property
+    def game_thread_ready(self) -> threading.Event:
+        return self._game_thread_ready
+
+        
     def update_game(self, dt: float) -> None:
         """Update the game controller and process commands"""
+        current_thread: int = threading.get_ident()
+        
+        if self._game_thread_id is None:
+            self._game_thread_id = current_thread
+            self._game_thread_ready.set()  # 🚦 Signal that game thread is ready
+        elif self._game_thread_id != current_thread:
+            raise RuntimeError(f"update_game() called from wrong thread!")
+        
+        
         with self._update_lock:
             while not self._command_queue.empty():
                 try:
@@ -57,11 +76,14 @@ class GameBridge:
             
             # Create snapshot if interval elapsed
             now: float = time()
+            new_snapshot: Optional[BuildingSnapshot] = None
             if now - self._last_snapshot_time > self._snapshot_interval_s:
-                new_snapshot: BuildingSnapshot = self._controller.get_building_state()
-                with self._snapshot_lock:
-                    self._latest_snapshot = new_snapshot
-                    self._last_snapshot_time = now
+                new_snapshot = self._controller.get_building_state()
+        
+            if new_snapshot:
+                self._latest_snapshot = new_snapshot
+                self._last_snapshot_time = now
+
     
     T = TypeVar('T')
     def execute_command_sync(self, command: Command[T]) -> CommandResult[T]:
@@ -75,14 +97,16 @@ class GameBridge:
         return command_id
     
     def get_building_state(self) -> Optional[BuildingSnapshot]:
-        with self._snapshot_lock:
+        with self._update_lock:
             return self._latest_snapshot  # Returns cached snapshot
         
-    def get_command_result(self, command_id: str) -> Optional[CommandResult[Any]]:
-        return self._command_results.get(command_id, None)
+    def get_command_result_sync(self, command_id: str) -> Optional[CommandResult[Any]]:
+        with self._update_lock:
+            return self._command_results.get(command_id, None)
     
-    def get_all_command_results(self) -> Dict[str, CommandResult[Any]]:
-        return dict(self._command_results)  # Return a copy
+    def get_all_command_results_sync(self) -> Dict[str, CommandResult[Any]]:
+        with self._update_lock:
+            return dict(self._command_results)  # Return a copy
 
 
     def execute_add_floor_sync(self, floor_type: FloorType) -> int:
@@ -128,9 +152,10 @@ class GameBridge:
 # Module-level singleton
 _bridge: Optional[GameBridge] = None
 
-def initialize_game_bridge(controller: GameController) -> None:
+def initialize_game_bridge(controller: GameController) -> GameBridge:
     global _bridge
     _bridge = GameBridge(controller)
+    return _bridge
 
 def get_game_bridge() -> GameBridge:
     if _bridge is None:
