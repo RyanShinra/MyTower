@@ -1,4 +1,3 @@
-# In mytower/api/schema.py
 
 from typing import List
 import strawberry
