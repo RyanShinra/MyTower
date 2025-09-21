@@ -52,4 +52,4 @@ class PersonRenderer:
         x_pos: int = self.x_position(surface, person)
 
         # Draw the person as a circle
-        pygame.draw.circle(surface, person.draw_color, (x_pos, y_pos), self._config.radius)
+        pygame.draw.circle(surface, person.draw_color, (x_pos, y_pos), self._config.RADIUS)

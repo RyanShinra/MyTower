@@ -30,20 +30,21 @@ if TYPE_CHECKING:
 
 
 
+# pylint: disable=invalid-name
 class PersonConfigProtocol(Protocol):
     """Config requirements for Person class"""
 
     @property
-    def max_speed(self) -> float: ...  # noqa E701
+    def MAX_SPEED(self) -> float: ...  # noqa E701
 
     @property
-    def max_wait_time(self) -> float: ...  # noqa E701
+    def MAX_WAIT_TIME(self) -> float: ...  # noqa E701
 
     @property
-    def idle_timeout(self) -> float: ...  # noqa E701
+    def IDLE_TIMEOUT(self) -> float: ...  # noqa E701
 
     @property
-    def radius(self) -> int: ...  # noqa E701
+    def RADIUS(self) -> int: ...  # noqa E701
 
 
 
@@ -51,31 +52,32 @@ class PersonCosmeticsProtocol(Protocol):
     """Visual appearance settings for Person class"""
 
     @property
-    def angry_max_red(self) -> int: ...  # noqa E701
+    def ANGRY_MAX_RED(self) -> int: ...  # noqa E701
 
     @property
-    def angry_min_green(self) -> int: ...  # noqa E701
+    def ANGRY_MIN_GREEN(self) -> int: ...  # noqa E701
 
     @property
-    def angry_min_blue(self) -> int: ...  # noqa E701
+    def ANGRY_MIN_BLUE(self) -> int: ...  # noqa E701
 
     @property
-    def initial_max_red(self) -> int: ...  # noqa E701
+    def INITIAL_MAX_RED(self) -> int: ...  # noqa E701
 
     @property
-    def initial_max_green(self) -> int: ...  # noqa E701
+    def INITIAL_MAX_GREEN(self) -> int: ...  # noqa E701
 
     @property
-    def initial_max_blue(self) -> int: ...  # noqa E701
+    def INITIAL_MAX_BLUE(self) -> int: ...  # noqa E701
 
     @property
-    def initial_min_red(self) -> int: ...  # noqa E701
+    def INITIAL_MIN_RED(self) -> int: ...  # noqa E701
 
     @property
-    def initial_min_green(self) -> int: ...  # noqa E701
+    def INITIAL_MIN_GREEN(self) -> int: ...  # noqa E701
 
     @property
-    def initial_min_blue(self) -> int: ...  # noqa E701
+    def INITIAL_MIN_BLUE(self) -> int: ...  # noqa E701
+# pylint: enable=invalid-name
 
 
 
@@ -201,18 +203,18 @@ class Person(PersonProtocol):
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges
         self._original_red: Final[int] = random.randint(
-            self._cosmetics.initial_min_red, self._cosmetics.initial_max_red
+            self._cosmetics.INITIAL_MIN_RED, self._cosmetics.INITIAL_MAX_RED
         )
         self._original_green: Final[int] = random.randint(
-            self._cosmetics.initial_min_green, self._cosmetics.initial_max_green
+            self._cosmetics.INITIAL_MIN_GREEN, self._cosmetics.INITIAL_MAX_GREEN
         )
         self._original_blue: Final[int] = random.randint(
-            self._cosmetics.initial_min_blue, self._cosmetics.initial_max_blue
+            self._cosmetics.INITIAL_MIN_BLUE, self._cosmetics.INITIAL_MAX_BLUE
         )
                 
-        self._red_range: int = abs(self._cosmetics.angry_max_red - self._original_red)
-        self._green_range: int = abs(self._cosmetics.angry_min_green - self._original_green)
-        self._blue_range: int = abs(self._cosmetics.angry_min_blue - self._original_blue)
+        self._red_range: int = abs(self._cosmetics.ANGRY_MAX_RED - self._original_red)
+        self._green_range: int = abs(self._cosmetics.ANGRY_MIN_GREEN - self._original_green)
+        self._blue_range: int = abs(self._cosmetics.ANGRY_MIN_BLUE - self._original_blue)
         
 
     @property
@@ -275,7 +277,7 @@ class Person(PersonProtocol):
     @property
     @override
     def max_velocity(self) -> float:
-        return self._config.person.max_speed
+        return self._config.person.MAX_SPEED
        
     @property
     @override
@@ -418,7 +420,7 @@ class Person(PersonProtocol):
                 )
                 self._state = PersonState.IDLE
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
-                self._idle_timeout = self._config.person.idle_timeout
+                self._idle_timeout = self._config.person.IDLE_TIMEOUT
 
         if current_destination_block < self._current_block_float:
             # Already on the right floor (or walking to elevator?)
@@ -449,7 +451,7 @@ class Person(PersonProtocol):
         elif waypoint_block > self._current_block_float:
             self.direction = HorizontalDirection.RIGHT
 
-        next_block: float = self._current_block_float + dt * self._config.person.max_speed * self.direction.value
+        next_block: float = self._current_block_float + dt * self._config.person.MAX_SPEED * self.direction.value
         if self.direction == HorizontalDirection.RIGHT:
             if next_block >= waypoint_block:
                 done = True
@@ -516,7 +518,7 @@ class Person(PersonProtocol):
         self._state = state
         
     def testing_get_max_wait_time(self) -> float:
-        return self._config.person.max_wait_time
+        return self._config.person.MAX_WAIT_TIME
     
     def testing_set_current_floor(self, floor: Floor) -> None:
         self._current_floor = floor
@@ -526,7 +528,7 @@ class Person(PersonProtocol):
     @property
     @override
     def mad_fraction(self) -> float:
-        return (self._waiting_time / self._config.person.max_wait_time) if self._config.person.max_wait_time > 0.0 else 0.0
+        return (self._waiting_time / self._config.person.MAX_WAIT_TIME) if self._config.person.MAX_WAIT_TIME > 0.0 else 0.0
 
     @property
     @override

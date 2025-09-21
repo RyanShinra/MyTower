@@ -31,6 +31,6 @@ class ElevatorRenderer:
         # This is technically the left edge of a block, not an elevator
         elevator_left_x: int = int(elevator.current_block * BLOCK_WIDTH)
 
-        color = self._cosmetics_config.open_color if elevator.door_open else self._cosmetics_config.closed_color
+        color = self._cosmetics_config.OPEN_COLOR if elevator.door_open else self._cosmetics_config.CLOSED_COLOR
 
         pygame.draw.rect(surface, color, (elevator_left_x, elevator_top_y, elevator_width, elevator_height))

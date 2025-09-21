@@ -31,10 +31,10 @@ def mock_person_factory() -> PersonFactory:
 @pytest.fixture
 def mock_cosmetics_config() -> MagicMock:
     config = MagicMock(spec=ElevatorCosmeticsProtocol)
-    config.shaft_color = (100, 100, 100)
+    config.SHAFT_COLOR = (100, 100, 100)
     config.shaft_overhead = (24, 24, 24)
-    config.closed_color = (50, 50, 200)
-    config.open_color = (200, 200, 50)
+    config.CLOSED_COLOR = (50, 50, 200)
+    config.OPEN_COLOR = (200, 200, 50)
     return config
 
 
@@ -75,21 +75,21 @@ def mock_game_config() -> MagicMock:
     config = MagicMock()
     
     # Person config - use real values, not MagicMock
-    config.person.max_speed = 0.5
-    config.person.max_wait_time = 90.0
-    config.person.idle_timeout = 5.0
-    config.person.radius = 5
+    config.person.MAX_SPEED = 0.5
+    config.person.MAX_WAIT_TIME = 90.0
+    config.person.IDLE_TIMEOUT = 5.0
+    config.person.RADIUS = 5
     
     # Person cosmetics - IMPORTANT: Use real integers for random.randint()
-    config.person_cosmetics.angry_max_red = 192
-    config.person_cosmetics.angry_min_green = 0
-    config.person_cosmetics.angry_min_blue = 0
-    config.person_cosmetics.initial_max_red = 32
-    config.person_cosmetics.initial_max_green = 128
-    config.person_cosmetics.initial_max_blue = 128
-    config.person_cosmetics.initial_min_red = 0
-    config.person_cosmetics.initial_min_green = 0
-    config.person_cosmetics.initial_min_blue = 0
+    config.person_cosmetics.ANGRY_MAX_RED = 192
+    config.person_cosmetics.ANGRY_MIN_GREEN = 0
+    config.person_cosmetics.ANGRY_MIN_BLUE = 0
+    config.person_cosmetics.INITIAL_MAX_RED = 32
+    config.person_cosmetics.INITIAL_MAX_GREEN = 128
+    config.person_cosmetics.INITIAL_MAX_BLUE = 128
+    config.person_cosmetics.INITIAL_MIN_RED = 0
+    config.person_cosmetics.INITIAL_MIN_GREEN = 0
+    config.person_cosmetics.INITIAL_MIN_BLUE = 0
     
     return config
 
@@ -129,12 +129,12 @@ def mock_elevator_bank() -> MagicMock:
 @pytest.fixture
 def mock_config() -> MagicMock:
     config = MagicMock()
-    config.max_speed = 0.75
-    config.max_capacity = 15
-    config.passenger_loading_time = 1.0
-    config.idle_log_timeout = 0.5
-    config.moving_log_timeout = 0.5
-    config.idle_wait_timeout = 0.5
+    config.MAX_SPEED = 0.75
+    config.MAX_CAPACITY = 15
+    config.PASSENGER_LOADING_TIME = 1.0
+    config.IDLE_LOG_TIMEOUT = 0.5
+    config.MOVING_LOG_TIMEOUT = 0.5
+    config.IDLE_WAIT_TIMEOUT = 0.5
     return config
 
 
