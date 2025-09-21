@@ -7,6 +7,8 @@
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
+# flake8: noqa: E701
+
 from __future__ import annotations  # Defer type evaluation
 
 import random
@@ -35,16 +37,16 @@ class PersonConfigProtocol(Protocol):
     """Config requirements for Person class"""
 
     @property
-    def MAX_SPEED(self) -> float: ...  # noqa E701
+    def MAX_SPEED(self) -> float: ...
 
     @property
-    def MAX_WAIT_TIME(self) -> float: ...  # noqa E701
+    def MAX_WAIT_TIME(self) -> float: ...
 
     @property
-    def IDLE_TIMEOUT(self) -> float: ...  # noqa E701
+    def IDLE_TIMEOUT(self) -> float: ...
 
     @property
-    def RADIUS(self) -> int: ...  # noqa E701
+    def RADIUS(self) -> int: ...
 
 
 
@@ -52,31 +54,31 @@ class PersonCosmeticsProtocol(Protocol):
     """Visual appearance settings for Person class"""
 
     @property
-    def ANGRY_MAX_RED(self) -> int: ...  # noqa E701
+    def ANGRY_MAX_RED(self) -> int: ...
 
     @property
-    def ANGRY_MIN_GREEN(self) -> int: ...  # noqa E701
+    def ANGRY_MIN_GREEN(self) -> int: ...
 
     @property
-    def ANGRY_MIN_BLUE(self) -> int: ...  # noqa E701
+    def ANGRY_MIN_BLUE(self) -> int: ...
 
     @property
-    def INITIAL_MAX_RED(self) -> int: ...  # noqa E701
+    def INITIAL_MAX_RED(self) -> int: ...
 
     @property
-    def INITIAL_MAX_GREEN(self) -> int: ...  # noqa E701
+    def INITIAL_MAX_GREEN(self) -> int: ...
 
     @property
-    def INITIAL_MAX_BLUE(self) -> int: ...  # noqa E701
+    def INITIAL_MAX_BLUE(self) -> int: ...
 
     @property
-    def INITIAL_MIN_RED(self) -> int: ...  # noqa E701
+    def INITIAL_MIN_RED(self) -> int: ...
 
     @property
-    def INITIAL_MIN_GREEN(self) -> int: ...  # noqa E701
+    def INITIAL_MIN_GREEN(self) -> int: ...
 
     @property
-    def INITIAL_MIN_BLUE(self) -> int: ...  # noqa E701
+    def INITIAL_MIN_BLUE(self) -> int: ...
 # pylint: enable=invalid-name
 
 

@@ -1,4 +1,6 @@
 # game/ui.py
+# flake8: noqa: E701
+
 from typing import List, Optional, Protocol
 
 import pygame
@@ -13,32 +15,32 @@ class UIConfigProtocol(Protocol):
     """Config requirements for UI elements"""
 
     @property
-    def BACKGROUND_COLOR(self) -> RGB: ...  # noqa E701
+    def BACKGROUND_COLOR(self) -> RGB: ...
 
     @property
-    def BORDER_COLOR(self) -> RGB: ...  # noqa E701
+    def BORDER_COLOR(self) -> RGB: ...
 
     @property
-    def TEXT_COLOR(self) -> RGB: ...  # noqa E701
+    def TEXT_COLOR(self) -> RGB: ...
 
     @property
-    def BUTTON_COLOR(self) -> RGB: ...  # noqa E701
+    def BUTTON_COLOR(self) -> RGB: ...
 
     @property
-    def BUTTON_HOVER_COLOR(self) -> RGB: ...  # noqa E701
+    def BUTTON_HOVER_COLOR(self) -> RGB: ...
     
     @property
-    def UI_FONT_NAME(self) -> tuple[str, ...]: ...  # noqa E701
+    def UI_FONT_NAME(self) -> tuple[str, ...]: ...
 
     @property
-    def UI_FONT_SIZE(self) -> int: ...  # noqa E701
+    def UI_FONT_SIZE(self) -> int: ...
     
     # TODO: #23 This should be moved into its own config protocol
     @property
-    def FLOOR_LABEL_FONT_NAME(self) -> tuple[str, ...]: ...  # noqa E701
+    def FLOOR_LABEL_FONT_NAME(self) -> tuple[str, ...]: ...
 
     @property
-    def FLOOR_LABEL_FONT_SIZE(self) -> int: ...  # noqa E701
+    def FLOOR_LABEL_FONT_SIZE(self) -> int: ...
 # pylint: enable=invalid-name
 
 

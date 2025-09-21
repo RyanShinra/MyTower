@@ -8,6 +8,7 @@
 #
 # MyTower is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
+
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
@@ -25,54 +26,55 @@ from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
 
 if TYPE_CHECKING:
-    from mytower.game.entities.elevator_bank import ElevatorBank  # noqa E701
-    from mytower.game.utilities.logger import MyTowerLogger  # noqa E701
+    from mytower.game.entities.elevator_bank import ElevatorBank
+    from mytower.game.utilities.logger import MyTowerLogger  
     from mytower.game.entities.person import PersonProtocol
 
 
+# flake8: noqa: E701
 # pylint: disable=invalid-name
 class ElevatorConfigProtocol(Protocol):
     """Config requirements for Elevator class"""
 
     @property
-    def MAX_SPEED(self) -> float: ...  # noqa E701
+    def MAX_SPEED(self) -> float: ...
 
     @property
-    def MAX_CAPACITY(self) -> int: ...  # noqa E701
+    def MAX_CAPACITY(self) -> int: ...
 
     @property
-    def PASSENGER_LOADING_TIME(self) -> float: ...  # noqa E701
+    def PASSENGER_LOADING_TIME(self) -> float: ...
 
     @property
-    def IDLE_LOG_TIMEOUT(self) -> float: ...  # noqa E701
+    def IDLE_LOG_TIMEOUT(self) -> float: ...
 
     @property
-    def MOVING_LOG_TIMEOUT(self) -> float: ...  # noqa E701
+    def MOVING_LOG_TIMEOUT(self) -> float: ...
 
     @property
-    def IDLE_WAIT_TIMEOUT(self) -> float: ...  # noqa E701
+    def IDLE_WAIT_TIMEOUT(self) -> float: ...
 
 
 class ElevatorCosmeticsProtocol(Protocol):
     """Visual appearance settings for Elevator class"""
 
     @property
-    def SHAFT_COLOR(self) -> RGB: ...  # noqa E701
+    def SHAFT_COLOR(self) -> RGB: ...
 
     @property
-    def SHAFT_OVERHEAD_COLOR(self) -> RGB: ...  # noqa E701
+    def SHAFT_OVERHEAD_COLOR(self) -> RGB: ...
 
     @property
-    def CLOSED_COLOR(self) -> RGB: ...  # noqa E701
+    def CLOSED_COLOR(self) -> RGB: ...
 
     @property
-    def OPEN_COLOR(self) -> RGB: ...  # noqa E701
+    def OPEN_COLOR(self) -> RGB: ...
 
     @property
-    def SHAFT_OVERHEAD_HEIGHT(self) -> int: ...  # noqa E701
+    def SHAFT_OVERHEAD_HEIGHT(self) -> int: ...
     
     @property
-    def ELEVATOR_WIDTH(self) -> int: ...  # noqa E701
+    def ELEVATOR_WIDTH(self) -> int: ...
 # pylint: enable=invalid-name
 
     
