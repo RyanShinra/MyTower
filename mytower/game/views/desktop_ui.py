@@ -1,4 +1,6 @@
 # game/ui.py
+# flake8: noqa: E701
+
 from typing import List, Optional, Protocol
 
 import pygame
@@ -8,36 +10,38 @@ from mytower.game.core.types import RGB, MouseButtons, MousePos, PygameSurface
 
 
 
+# pylint: disable=invalid-name
 class UIConfigProtocol(Protocol):
     """Config requirements for UI elements"""
 
     @property
-    def background_color(self) -> RGB: ...  # noqa E701
+    def BACKGROUND_COLOR(self) -> RGB: ...
 
     @property
-    def border_color(self) -> RGB: ...  # noqa E701
+    def BORDER_COLOR(self) -> RGB: ...
 
     @property
-    def text_color(self) -> RGB: ...  # noqa E701
+    def TEXT_COLOR(self) -> RGB: ...
 
     @property
-    def button_color(self) -> RGB: ...  # noqa E701
+    def BUTTON_COLOR(self) -> RGB: ...
 
     @property
-    def button_hover_color(self) -> RGB: ...  # noqa E701
+    def BUTTON_HOVER_COLOR(self) -> RGB: ...
     
     @property
-    def ui_font_name(self) -> tuple[str, ...]: ...  # noqa E701
+    def UI_FONT_NAME(self) -> tuple[str, ...]: ...
 
     @property
-    def ui_font_size(self) -> int: ...  # noqa E701
+    def UI_FONT_SIZE(self) -> int: ...
     
     # TODO: #23 This should be moved into its own config protocol
     @property
-    def floor_label_font_name(self) -> tuple[str, ...]: ...  # noqa E701
+    def FLOOR_LABEL_FONT_NAME(self) -> tuple[str, ...]: ...
 
     @property
-    def floor_label_font_size(self) -> int: ...  # noqa E701
+    def FLOOR_LABEL_FONT_SIZE(self) -> int: ...
+# pylint: enable=invalid-name
 
 
 class Button:
@@ -88,13 +92,13 @@ class Button:
     def draw(self, surface: PygameSurface) -> None:
         """Draw the button on the given surface"""
         # Draw button background
-        color = self._ui_config.button_hover_color if self._is_hovered else self._ui_config.button_color
+        color = self._ui_config.BUTTON_HOVER_COLOR if self._is_hovered else self._ui_config.BUTTON_COLOR
         pygame.draw.rect(surface, color, self._rect)
-        pygame.draw.rect(surface, self._ui_config.text_color, self._rect, 2)  # Border
+        pygame.draw.rect(surface, self._ui_config.TEXT_COLOR, self._rect, 2)  # Border
 
         # Draw text
         font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(self._text, True, self._ui_config.text_color)
+        text_surface = font.render(self._text, True, self._ui_config.TEXT_COLOR)
         text_rect = text_surface.get_rect(center=self._rect.center)
         surface.blit(text_surface, text_rect)
 
@@ -151,8 +155,8 @@ class Toolbar:
     def draw(self, surface: PygameSurface) -> None:
         """Draw the toolbar and its buttons"""
         # Draw toolbar background
-        pygame.draw.rect(surface, self._ui_config.background_color, self._rect)
-        pygame.draw.rect(surface, self._ui_config.border_color, self._rect, 2)  # Border
+        pygame.draw.rect(surface, self._ui_config.BACKGROUND_COLOR, self._rect)
+        pygame.draw.rect(surface, self._ui_config.BORDER_COLOR, self._rect, 2)  # Border
 
         # Draw buttons
         for button in self._buttons:

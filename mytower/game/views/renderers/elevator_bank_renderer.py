@@ -28,20 +28,20 @@ class ElevatorBankRenderer:
         shaft_top_z: int = elevator_bank.max_floor * BLOCK_HEIGHT
         shaft_top_y: int = screen_height - shaft_top_z
         shaft_left_x: int = elevator_bank.horizontal_block * BLOCK_WIDTH
-        width: int = self._cosmetics_config.elevator_width
+        width: int = self._cosmetics_config.ELEVATOR_WIDTH
 
-        shaft_overhead_top_z: int = shaft_top_z + self._cosmetics_config.shaft_overhead_height
+        shaft_overhead_top_z: int = shaft_top_z + self._cosmetics_config.SHAFT_OVERHEAD_HEIGHT
         shaft_overhead_top_y: int = screen_height - shaft_overhead_top_z
 
         # Draw the elevator shaft
         pygame.draw.rect(
             surface,
-            self._cosmetics_config.shaft_color,
+            self._cosmetics_config.SHAFT_COLOR,
             (shaft_left_x, shaft_top_y, width, shaft_height))
         
         # Draw the shaft overhead
         pygame.draw.rect(
             surface,
-            self._cosmetics_config.shaft_overhead_color,
-            (shaft_left_x, shaft_overhead_top_y, width, self._cosmetics_config.shaft_overhead_height)
+            self._cosmetics_config.SHAFT_OVERHEAD_COLOR,
+            (shaft_left_x, shaft_overhead_top_y, width, self._cosmetics_config.SHAFT_OVERHEAD_HEIGHT)
         )

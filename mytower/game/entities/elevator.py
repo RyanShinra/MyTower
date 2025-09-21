@@ -8,6 +8,7 @@
 #
 # MyTower is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
+
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
@@ -25,53 +26,56 @@ from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
 
 if TYPE_CHECKING:
-    from mytower.game.entities.elevator_bank import ElevatorBank  # noqa E701
-    from mytower.game.utilities.logger import MyTowerLogger  # noqa E701
+    from mytower.game.entities.elevator_bank import ElevatorBank
+    from mytower.game.utilities.logger import MyTowerLogger  
     from mytower.game.entities.person import PersonProtocol
 
 
+# flake8: noqa: E701
+# pylint: disable=invalid-name
 class ElevatorConfigProtocol(Protocol):
     """Config requirements for Elevator class"""
 
     @property
-    def max_speed(self) -> float: ...  # noqa E701
+    def MAX_SPEED(self) -> float: ...
 
     @property
-    def max_capacity(self) -> int: ...  # noqa E701
+    def MAX_CAPACITY(self) -> int: ...
 
     @property
-    def passenger_loading_time(self) -> float: ...  # noqa E701
+    def PASSENGER_LOADING_TIME(self) -> float: ...
 
     @property
-    def idle_log_timeout(self) -> float: ...  # noqa E701
+    def IDLE_LOG_TIMEOUT(self) -> float: ...
 
     @property
-    def moving_log_timeout(self) -> float: ...  # noqa E701
+    def MOVING_LOG_TIMEOUT(self) -> float: ...
 
     @property
-    def idle_wait_timeout(self) -> float: ...  # noqa E701
+    def IDLE_WAIT_TIMEOUT(self) -> float: ...
 
 
 class ElevatorCosmeticsProtocol(Protocol):
     """Visual appearance settings for Elevator class"""
 
     @property
-    def shaft_color(self) -> RGB: ...  # noqa E701
+    def SHAFT_COLOR(self) -> RGB: ...
 
     @property
-    def shaft_overhead_color(self) -> RGB: ...  # noqa E701
+    def SHAFT_OVERHEAD_COLOR(self) -> RGB: ...
 
     @property
-    def closed_color(self) -> RGB: ...  # noqa E701
+    def CLOSED_COLOR(self) -> RGB: ...
 
     @property
-    def open_color(self) -> RGB: ...  # noqa E701
+    def OPEN_COLOR(self) -> RGB: ...
 
     @property
-    def shaft_overhead_height(self) -> int: ...  # noqa E701
+    def SHAFT_OVERHEAD_HEIGHT(self) -> int: ...
     
     @property
-    def elevator_width(self) -> int: ...  # noqa E701
+    def ELEVATOR_WIDTH(self) -> int: ...
+# pylint: enable=invalid-name
 
     
 class Elevator:
@@ -146,11 +150,11 @@ class Elevator:
 
     @property
     def avail_capacity(self) -> int:
-        return self._config.max_capacity - len(self._passengers)
+        return self._config.MAX_CAPACITY - len(self._passengers)
 
     @property
     def max_capacity(self) -> int:
-        return self._config.max_capacity
+        return self._config.MAX_CAPACITY
     
     @property
     def passenger_count(self) -> int:
@@ -215,11 +219,11 @@ class Elevator:
 
     @property
     def max_velocity(self) -> float:
-        return self._config.max_speed
+        return self._config.MAX_SPEED
 
     @property
     def idle_wait_timeout(self) -> float:  # Added public property for idle_wait_timeout
-        return self._config.idle_wait_timeout
+        return self._config.IDLE_WAIT_TIMEOUT
 
     @property
     def destination_floor(self) -> int:
@@ -259,8 +263,8 @@ class Elevator:
 
     def testing_set_passengers(self, passengers: Sequence[PersonProtocol]) -> None:
         """Set passengers directly for testing purposes."""
-        if len(passengers) > self._config.max_capacity:
-            raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.max_capacity}")
+        if len(passengers) > self._config.MAX_CAPACITY:
+            raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.MAX_CAPACITY}")
         self._passengers = list(passengers)  # Defensive copy
         
     def testing_get_passengers(self) -> List[PersonProtocol]:
@@ -359,7 +363,7 @@ class Elevator:
 
     def _update_idle(self, dt: float) -> None:
         self._idle_log_timer += dt
-        if self._idle_log_timer >= self._config.idle_log_timeout:
+        if self._idle_log_timer >= self._config.IDLE_LOG_TIMEOUT:
             self._logger.trace(f"{self.state} Elevator: Elevator is idle on floor {self.current_floor_int}")
             self._idle_log_timer = 0.0
         self._motion_direction = VerticalDirection.STATIONARY
@@ -368,7 +372,7 @@ class Elevator:
     def _update_moving(self, dt: float) -> None:
         dy: float = dt * self.max_velocity * self.motion_direction.value
         cur_floor: float = self._current_floor_float + dy
-        if self._moving_log_timer >= self._config.moving_log_timeout:
+        if self._moving_log_timer >= self._config.MOVING_LOG_TIMEOUT:
             self._logger.trace(
                 f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_float} to {cur_floor}"
             )
@@ -410,7 +414,7 @@ class Elevator:
 
     def _update_unloading(self, dt: float) -> None:
         self._unloading_timeout += dt
-        if self._unloading_timeout < self._config.passenger_loading_time:
+        if self._unloading_timeout < self._config.PASSENGER_LOADING_TIME:
             return
 
         self._unloading_timeout = 0.0
@@ -429,7 +433,7 @@ class Elevator:
 
     def _update_loading(self, dt: float) -> None:
         self._loading_timeout += dt
-        if self._loading_timeout < self._config.passenger_loading_time:
+        if self._loading_timeout < self._config.PASSENGER_LOADING_TIME:
             return
 
         self._loading_timeout = 0.0

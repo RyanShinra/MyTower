@@ -17,64 +17,64 @@ if TYPE_CHECKING:
 class ElevatorConfig:
     """Concrete implementation of Elevator configuration"""
 
-    max_speed: Final[float] = 0.75  # Floors per second
-    max_capacity: Final[int] = 15  # Number of people who can fit on board
-    passenger_loading_time: Final[float] = 1.0  # How long it takes a single passenger to board
-    idle_wait_timeout: Final[float] = 0.5  # Seconds: how often an idle elevator checks for passengers
-    idle_log_timeout: Final[float] = 0.5  # Seconds: how often to log status while Idle
-    moving_log_timeout: Final[float] = 0.5  # Seconds: how often to log status while Moving
+    MAX_SPEED: Final[float] = 0.75  # Floors per second
+    MAX_CAPACITY: Final[int] = 15  # Number of people who can fit on board
+    PASSENGER_LOADING_TIME: Final[float] = 1.0  # How long it takes a single passenger to board
+    IDLE_WAIT_TIMEOUT: Final[float] = 0.5  # Seconds: how often an idle elevator checks for passengers
+    IDLE_LOG_TIMEOUT: Final[float] = 0.5  # Seconds: how often to log status while Idle
+    MOVING_LOG_TIMEOUT: Final[float] = 0.5  # Seconds: how often to log status while Moving
 
 
 @dataclass
 class ElevatorCosmetics:
     """Implements Elevator Cosmetics Protocol"""
 
-    shaft_color: Final[RGB] = (100, 100, 100)
-    shaft_overhead_color: Final[RGB] = (24, 24, 24)
-    closed_color: Final[RGB] = (50, 50, 200)
-    open_color: Final[RGB] = (200, 200, 50)
-    shaft_overhead_height: Final[int] = BLOCK_HEIGHT  # Pixels
-    elevator_width: Final[int] = BLOCK_WIDTH  # Pixels
+    SHAFT_COLOR: Final[RGB] = (100, 100, 100)
+    SHAFT_OVERHEAD_COLOR: Final[RGB] = (24, 24, 24)
+    CLOSED_COLOR: Final[RGB] = (50, 50, 200)
+    OPEN_COLOR: Final[RGB] = (200, 200, 50)
+    SHAFT_OVERHEAD_HEIGHT: Final[int] = BLOCK_HEIGHT  # Pixels
+    ELEVATOR_WIDTH: Final[int] = BLOCK_WIDTH  # Pixels
 
 
 @dataclass
 class PersonConfig:
     """Concrete implementation of Person configuration"""
 
-    max_speed: Final[float] = 0.5  # blocks per second
-    max_wait_time: Final[float] = 90.0  # seconds before getting very angry
-    idle_timeout: Final[float] = 5.0  # In person.py update_idle method
-    radius: Final[int] = 5  # Visual size of person
+    MAX_SPEED: Final[float] = 0.5  # blocks per second
+    MAX_WAIT_TIME: Final[float] = 90.0  # seconds before getting very angry
+    IDLE_TIMEOUT: Final[float] = 5.0  # In person.py update_idle method
+    RADIUS: Final[int] = 5  # Visual size of person
 
 
 @dataclass
 class PersonCosmetics:
     """Implements Person Cosmetics Proto."""
 
-    angry_max_red: Final[int] = 192
-    angry_min_green: Final[int] = 0
-    angry_min_blue: Final[int] = 0
-    initial_max_red: Final[int] = 32
-    initial_max_green: Final[int] = 128
-    initial_max_blue: Final[int] = 128
-    initial_min_red: Final[int] = 0
-    initial_min_green: Final[int] = 0
-    initial_min_blue: Final[int] = 0
+    ANGRY_MAX_RED: Final[int] = 192
+    ANGRY_MIN_GREEN: Final[int] = 0
+    ANGRY_MIN_BLUE: Final[int] = 0
+    INITIAL_MAX_RED: Final[int] = 32
+    INITIAL_MAX_GREEN: Final[int] = 128
+    INITIAL_MAX_BLUE: Final[int] = 128
+    INITIAL_MIN_RED: Final[int] = 0
+    INITIAL_MIN_GREEN: Final[int] = 0
+    INITIAL_MIN_BLUE: Final[int] = 0
 
 
 @dataclass
 class UIConfig:
     """Default UI configuration implementation"""
 
-    background_color: Final[RGB] = (220, 220, 220)
-    border_color: Final[RGB] = (150, 150, 150)
-    text_color: Final[RGB] = (0, 0, 0)
-    button_color: Final[RGB] = (200, 200, 200)
-    button_hover_color: Final[RGB] = (180, 180, 180)
-    ui_font_name: Final[tuple[str, ...]] = ("Garamond", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
-    ui_font_size: Final[int] = 20  # Default font size for UI elements
-    floor_label_font_name: Final[tuple[str, ...]] = ("Century Gothic", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
-    floor_label_font_size: Final[int] = 18  # Font size for floor labels
+    BACKGROUND_COLOR: Final[RGB] = (220, 220, 220)
+    BORDER_COLOR: Final[RGB] = (150, 150, 150)
+    TEXT_COLOR: Final[RGB] = (0, 0, 0)
+    BUTTON_COLOR: Final[RGB] = (200, 200, 200)
+    BUTTON_HOVER_COLOR: Final[RGB] = (180, 180, 180)
+    UI_FONT_NAME: Final[tuple[str, ...]] = ("Garamond", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
+    UI_FONT_SIZE: Final[int] = 20  # Default font size for UI elements
+    FLOOR_LABEL_FONT_NAME: Final[tuple[str, ...]] = ("Century Gothic", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
+    FLOOR_LABEL_FONT_SIZE: Final[int] = 18  # Font size for floor labels
 
 class GameConfig:
     def __init__(self) -> None:

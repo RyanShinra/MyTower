@@ -33,7 +33,7 @@ class DesktopView:
         # Configuration
         self._config: Final[GameConfig] = config
         ui_config: Final[UIConfigProtocol] = self._config.ui_config  # For easier access
-        floor_font: Final[Font] = pygame.font.SysFont(ui_config.floor_label_font_name, ui_config.floor_label_font_size)
+        floor_font: Final[Font] = pygame.font.SysFont(ui_config.FLOOR_LABEL_FONT_NAME, ui_config.FLOOR_LABEL_FONT_SIZE)
         
         self._person_renderer: PersonRenderer = PersonRenderer(self._config.person, self._config.person_cosmetics, logger_provider)
         self._elevator_renderer: ElevatorRenderer = ElevatorRenderer(logger_provider, self._config.elevator_cosmetics)
@@ -81,7 +81,7 @@ class DesktopView:
         """Draw UI elements like time, money, etc."""
         # Draw time
         ui_config: Final[UIConfigProtocol] = self._config.ui_config
-        font: Font = pygame.font.SysFont(ui_config.ui_font_name, ui_config.ui_font_size)
+        font: Font = pygame.font.SysFont(ui_config.UI_FONT_NAME, ui_config.UI_FONT_SIZE)
 
         # Convert time to hours:minutes
         time: float = self._game_controller.get_game_time()
