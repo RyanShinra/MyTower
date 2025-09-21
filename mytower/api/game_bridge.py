@@ -38,7 +38,7 @@ class GameBridge:
         self._update_lock = threading.Lock()
         self._game_thread_id: Optional[int] = None
         
-        self._command_queue: Queue[Tuple[str, Command[Any]]] = Queue(maxsize=10)
+        self._command_queue: Queue[Tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
         self._command_results: Dict[str, CommandResult[Any]] = {}
         
         self._latest_snapshot: Optional[BuildingSnapshot] = None
@@ -91,6 +91,7 @@ class GameBridge:
             # Execute immediately, blocking updates
             return self._controller.execute_command(command)
      
+    # TODO: Change the command_id to a sequential integer for easier tracking
     def queue_command(self, command: Command[Any]) -> str:
         command_id: str = f"cmd_{time()}"
         self._command_queue.put((command_id, command))
