@@ -28,9 +28,3 @@ enable=
 
 [BASIC]
 good-names=i,j,k,ex,_,fd
-
-# Allow UPPER_CASE naming for constant-like attributes (like in protocols)
-attr-rgx=[a-z_][a-z0-9_]{2,30}$|^[A-Z_][A-Z0-9_]{2,30}$
-
-# Allow UPPER_CASE property names in protocols
-property-classes=property

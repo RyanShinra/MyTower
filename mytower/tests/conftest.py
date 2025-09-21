@@ -32,7 +32,7 @@ def mock_person_factory() -> PersonFactory:
 def mock_cosmetics_config() -> MagicMock:
     config = MagicMock(spec=ElevatorCosmeticsProtocol)
     config.SHAFT_COLOR = (100, 100, 100)
-    config.shaft_overhead = (24, 24, 24)
+    config.SHAFT_OVERHEAD_COLOR = (24, 24, 24)
     config.CLOSED_COLOR = (50, 50, 200)
     config.OPEN_COLOR = (200, 200, 50)
     return config
