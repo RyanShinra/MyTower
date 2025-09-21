@@ -1,0 +1,85 @@
+{
+    "git.suggestSmartCommit": false,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.formatOnSave": true,
+        
+    },
+    "editor.formatOnSaveMode": "file",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoIndent": true,
+    "python.analysis.completeFunctionParens": false,
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.stubPath": "./typings",
+    "python.analysis.logLevel": "Warning",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.pytestParameters": true,
+    "python.analysis.inlayHints.callArgumentNames": "off",
+    "python.analysis.generateWithTypeAnnotation": true,
+    "python.analysis.typeEvaluation.strictDictionaryInference": true,
+    
+    // Terminal settings for Git Bash
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.profiles.windows": {
+        "Git Bash": {
+            "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+            "args": ["--login"]
+        }
+    },
+    "python.terminal.activateEnvironment": true,
+    
+    // Python interpreter path (update this to your actual venv path)
+    "python.defaultInterpreterPath": ".\\venv\\Scripts\\python.exe",
+
+    // New format for formatter settings
+    "editor.defaultFormatter": "ms-python.autopep8",
+    "autopep8.args": [
+        "--max-line-length=120",
+        "--aggressive",
+        "--aggressive", 
+        "--indent-size=4",
+        "--spaces-around-default-or-named-assign"
+    ],
+    "cSpell.words": [
+        "blit",
+        "collidepoint",
+        "levelname",
+        "msecs",
+        "mytower",
+        "popleft",
+        "pycache",
+        "venv"
+    ],
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "files.eol": "\n",
+    "python.testing.pytestArgs": [
+        "mytower",
+        "--cov=mytower.game.elevator",
+        "--cov-report=xml",
+        "--cov-report=html",
+        "--cov-report=term-missing",
+        "--cov-branch"
+
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "coverage-gutters.coverageFileNames": [
+        "coverage.xml",
+        "cov.xml"
+    ],
+    "coverage-gutters.showLineCoverage": true,
+    "coverage-gutters.showRulerCoverage": true,
+    "coverage-gutters.coverageReportFileName": "coverage.xml",
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.languageServerMode": "default",
+    "editor.inlineSuggest.enabled": true,
+    "editor.inlineSuggest.experimental.triggerCommandOnProviderChange": false,
+    "C_Cpp.default.compilerPath": "c:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Tools\\MSVC\\14.29.30133\\bin\\Hostx64\\x64\\cl.exe",
+    "cSpell.ignoreWords": [
+        "PCAC"
+    ],
+}
