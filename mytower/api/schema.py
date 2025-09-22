@@ -1,9 +1,8 @@
-from enum import Enum
 from typing import Any, List, Optional
 
 import strawberry
 from mytower.api.game_bridge import get_game_bridge
-from mytower.api.graphql_types import BuildingSnapshotGQL, PersonSnapshotGQL
+from mytower.api.graphql_types import BuildingSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL
 from mytower.api.type_conversions import convert_building_snapshot, convert_person_snapshot
 from mytower.game.controllers.controller_commands import (Command, 
     AddFloorCommand, AddPersonCommand, AddElevatorBankCommand, AddElevatorCommand)
@@ -48,14 +47,7 @@ class Query:
             return None
         return [convert_person_snapshot(p) for p in snapshot.people]
 
-@strawberry.enum
-class FloorTypeGQL(Enum):
-    LOBBY = "LOBBY"
-    OFFICE = "OFFICE"
-    APARTMENT = "APARTMENT"
-    HOTEL = "HOTEL"
-    RESTAURANT = "RESTAURANT"
-    RETAIL = "RETAIL"
+
 
 @strawberry.type  
 class Mutation:

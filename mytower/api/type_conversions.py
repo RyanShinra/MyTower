@@ -1,4 +1,4 @@
-from mytower.api.graphql_types import BuildingSnapshotGQL, ElevatorSnapshotGQL, FloorSnapshotGQL, PersonSnapshotGQL
+from mytower.api.graphql_types import BuildingSnapshotGQL, ColorGQL, ElevatorSnapshotGQL, ElevatorStateGQL, FloorSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL, PersonStateGQL, VerticalDirectionGQL
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 
 
@@ -18,9 +18,13 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
         current_block_float=person.current_block_float,
         destination_floor_num=person.destination_floor_num,
         destination_block_num=person.destination_block_num,
-        state=person.state.value,  # Enum to string
+        state=PersonStateGQL(person.state.value),
         waiting_time=person.waiting_time,
-        mad_fraction=person.mad_fraction
+        mad_fraction=person.mad_fraction,
+        draw_color=person.draw_color,
+        draw_color_red=person.draw_color_red,
+        draw_color_green=person.draw_color_green,
+        draw_color_blue=person.draw_color_blue
     )
 
 def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL:
@@ -29,17 +33,22 @@ def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL
         current_floor=elevator.current_floor,
         current_block=elevator.current_block,
         destination_floor=elevator.destination_floor,
-        state=elevator.state.value,  # Enum to string
+        state=ElevatorStateGQL(elevator.state.value),
         door_open=elevator.door_open,
         passenger_count=elevator.passenger_count,
         available_capacity=elevator.available_capacity,
-        max_capacity=elevator.max_capacity
+        max_capacity=elevator.max_capacity,
+        nominal_direction=VerticalDirectionGQL(elevator.nominal_direction.value)
     )
 
 def convert_floor_snapshot(floor: FloorSnapshot) -> FloorSnapshotGQL:
     return FloorSnapshotGQL(
         floor_number=floor.floor_number,
-        floor_type=floor.floor_type.value,  # Enum to string
+        floor_type=FloorTypeGQL(floor.floor_type.value),
         floor_height_blocks=floor.floor_height_blocks,
-        person_count=floor.person_count
+        person_count=floor.person_count,
+        left_edge_block=floor.left_edge_block,
+        floor_width_blocks=floor.floor_width_blocks,
+        floor_color=ColorGQL.from_tuple(floor.floor_color),
+        floorboard_color=ColorGQL.from_tuple(floor.floorboard_color)
     )

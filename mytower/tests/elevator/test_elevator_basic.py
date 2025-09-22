@@ -10,10 +10,7 @@ from mytower.game.core.types import VerticalDirection
 from mytower.tests.conftest import PersonFactory
 
 
-
-
 class TestElevatorBasics:
-
 
         
     def test_initial_state(self, elevator: Elevator) -> None:

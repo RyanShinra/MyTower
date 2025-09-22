@@ -12,11 +12,12 @@ if TYPE_CHECKING:
     from mytower.game.entities.elevator import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
     from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
 
-
+# It can't seem to make up its mind whether to use snake_case because they are class properties or UPPER_CASE for constants
+# So, it gets neither
+# pylint: disable=invalid-name 
 @dataclass
 class ElevatorConfig:
     """Concrete implementation of Elevator configuration"""
-
     MAX_SPEED: Final[float] = 0.75  # Floors per second
     MAX_CAPACITY: Final[int] = 15  # Number of people who can fit on board
     PASSENGER_LOADING_TIME: Final[float] = 1.0  # How long it takes a single passenger to board
@@ -75,6 +76,8 @@ class UIConfig:
     UI_FONT_SIZE: Final[int] = 20  # Default font size for UI elements
     FLOOR_LABEL_FONT_NAME: Final[tuple[str, ...]] = ("Century Gothic", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
     FLOOR_LABEL_FONT_SIZE: Final[int] = 18  # Font size for floor labels
+
+# pylint: enable=invalid-name
 
 class GameConfig:
     def __init__(self) -> None:
