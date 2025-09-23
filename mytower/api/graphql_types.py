@@ -86,9 +86,6 @@ class PersonSnapshotGQL:
     waiting_time: float
     mad_fraction: float
     draw_color: tuple[int, int, int]
-    draw_color_red: int
-    draw_color_green: int
-    draw_color_blue: int
 
 @strawberry.type
 class ElevatorSnapshotGQL:
