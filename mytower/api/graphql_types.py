@@ -85,7 +85,11 @@ class PersonSnapshotGQL:
     state: PersonStateGQL
     waiting_time: float
     mad_fraction: float
-    draw_color: tuple[int, int, int]
+    _draw_color: tuple[int, int, int]
+    
+    @strawberry.field
+    def draw_color(self) -> ColorGQL:
+        return ColorGQL.from_tuple(self._draw_color)
 
 @strawberry.type
 class ElevatorSnapshotGQL:
