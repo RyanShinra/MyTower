@@ -94,17 +94,6 @@ def mock_game_config() -> MagicMock:
     return config
 
 
-# @pytest.fixture
-# def person_without_floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock, mock_game_config: MagicMock) -> Person:
-#     """Standard person fixture - created with no current floor by default"""
-#     return Person(
-#         logger_provider=mock_logger_provider,
-#         building=mock_building_no_floor,
-#         current_floor_num=None,
-#         current_block_float=10.0,
-#         config=mock_game_config
-#     )
-
 PERSON_DEFAULT_FLOOR = 5
 PERSON_DEFAULT_BLOCK = 10.0
 
