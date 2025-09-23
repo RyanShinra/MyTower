@@ -97,7 +97,6 @@ class AddElevatorBankCommand(Command[str]):
             return CommandResult(success=False, error=f"Invalid min floor: {self.min_floor}")
         if self.max_floor < self.min_floor:
             return CommandResult(success=False, error=f"max_floor must be >= min_floor: {self.max_floor} < {self.min_floor}")
-         
         el_bank_id: str = model.add_elevator_bank(
             h_cell=self.h_cell,
             min_floor=self.min_floor,
