@@ -83,6 +83,11 @@ class ElevatorBank:
         if self._max_floor < self._min_floor:
             raise ValueError(f"max_floor must be >= min_floor, got {self._max_floor} < {self._min_floor}")
         
+        if self.max_floor > self.building.num_floors:
+            raise ValueError(
+                f"max_floor {self.max_floor} exceeds building's number of floors {self.building.num_floors}"
+            )
+        
         # Passengers waiting on each floor who want to go UP
         # Key: floor number, Value: queue of people waiting to go upward from that floor
         self._upward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
