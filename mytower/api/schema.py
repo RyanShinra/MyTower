@@ -51,24 +51,24 @@ class Query:
 
 @strawberry.type  
 class Mutation:
-    @strawberry.field
+    @strawberry.mutation
     def add_floor(self, floor_type: FloorTypeGQL) -> str:
         domain_floor_type = FloorType(floor_type.value)
         command = AddFloorCommand(floor_type=domain_floor_type)
         return queue_command(command)
         
-    @strawberry.field
+    @strawberry.mutation
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
         command = AddPersonCommand(floor=floor, block=block, 
                                  dest_floor=dest_floor, dest_block=dest_block)
         return queue_command(command)
         
-    @strawberry.field
+    @strawberry.mutation
     def add_elevator_bank(self, h_cell: int, min_floor: int, max_floor: int) -> str:
         command = AddElevatorBankCommand(h_cell=h_cell, min_floor=min_floor, max_floor=max_floor)
         return queue_command(command)
-        
-    @strawberry.field
+
+    @strawberry.mutation
     def add_elevator(self, elevator_bank_id: str) -> str:
         command = AddElevatorCommand(elevator_bank_id=elevator_bank_id)
         return queue_command(command)
@@ -77,20 +77,20 @@ class Mutation:
     # These block until the command is processed and return the result directly
     # Useful for testing and simple scripts
     # Not recommended for production use due to blocking nature
-    @strawberry.field
+    @strawberry.mutation
     def add_floor_sync(self, floor_type: FloorTypeGQL) -> int:
         domain_floor_type = FloorType(floor_type.value)
         return get_game_bridge().execute_add_floor_sync(domain_floor_type)
         
-    @strawberry.field
+    @strawberry.mutation
     def add_person_sync(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
         return get_game_bridge().execute_add_person_sync(floor, block, dest_floor, dest_block)
 
-    @strawberry.field
+    @strawberry.mutation
     def add_elevator_bank_sync(self, h_cell: int, min_floor: int, max_floor: int) -> str:
         return get_game_bridge().execute_add_elevator_bank_sync(h_cell, min_floor, max_floor)
 
-    @strawberry.field
+    @strawberry.mutation
     def add_elevator_sync(self, elevator_bank_id: str) -> str:
         return get_game_bridge().execute_add_elevator_sync(elevator_bank_id)
 
