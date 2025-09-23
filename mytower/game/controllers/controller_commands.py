@@ -122,6 +122,7 @@ class AddElevatorCommand(Command[str]):
         if not stripped_id:
             return CommandResult(success=False, error="elevator_bank_id cannot be empty")
         
+        # TODO: #29 Make 64 a config value somewhere
         if len(stripped_id) > 64:
             return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {len(stripped_id)} characters")
         
