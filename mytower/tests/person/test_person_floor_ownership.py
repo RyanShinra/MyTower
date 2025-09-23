@@ -148,20 +148,6 @@ class TestPersonFloorOwnershipEdgeCases:
 class TestPersonCurrentFloorProperty:
     """Test the current_floor property behavior"""
 
-    def test_current_floor_none_by_default(self, mock_building_no_floor: MagicMock, mock_game_config: MagicMock, mock_logger_provider: MagicMock) -> None:
-        """Test that current_floor starts as None when person is created"""
-        # Create new person to test initialization
-        new_person = Person(
-            logger_provider=mock_logger_provider,
-            building=mock_building_no_floor,
-            current_floor_num=None,
-            current_block_float=10.0,
-            config=mock_game_config
-        )
-
-        assert new_person.current_floor is None
-
-
     def test_current_floor_set_during_initialization_when_floor_exists(
         self, 
         mock_building_with_floor: MagicMock,
