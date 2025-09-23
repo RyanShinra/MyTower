@@ -61,7 +61,4 @@ def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
         waiting_time=person.waiting_time,
         mad_fraction=person.mad_fraction,
         draw_color=person.draw_color,
-        draw_color_red=person.draw_color_red,
-        draw_color_green=person.draw_color_green,
-        draw_color_blue=person.draw_color_blue,
     )

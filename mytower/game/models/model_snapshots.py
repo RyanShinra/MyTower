@@ -17,9 +17,6 @@ class PersonSnapshot:
     waiting_time: float
     mad_fraction: float  # 0.0 to 1.0
     draw_color: tuple[int, int, int]
-    draw_color_red: int
-    draw_color_green: int
-    draw_color_blue: int
 
 
 @dataclass

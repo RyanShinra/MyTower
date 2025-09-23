@@ -42,7 +42,6 @@ class PersonRenderer:
         return x_centered
     
 
-
     def draw(self, surface: Surface, person: PersonSnapshot) -> None:
         """Draw the person on the given surface"""
         self._logger.debug(f"Drawing person: {person.person_id}")

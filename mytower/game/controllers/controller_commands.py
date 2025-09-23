@@ -51,9 +51,20 @@ class AddPersonCommand(Command[str]):
     dest_floor: int
     dest_block: int
 
-
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
+        if self.floor == self.dest_floor and self.block == self.dest_block:
+            return CommandResult(success=False, error="Source and destination cannot be the same")
+        # NOTE: We will need to revisit this validation if we add basement floors
+        if self.floor < 1:
+            return CommandResult(success=False, error=f"Invalid source floor: {self.floor}")
+        if self.dest_floor < 1:
+            return CommandResult(success=False, error=f"Invalid destination floor: {self.dest_floor}")
+        if self.dest_block < 0.0:
+            return CommandResult(success=False, error=f"Invalid destination block: {self.dest_block}")
+        if self.block < 0.0:
+            return CommandResult(success=False, error=f"Invalid source block: {self.block}")
+        
         person_id: str = model.add_person(
             floor=self.floor,
             block=self.block,
@@ -78,6 +89,14 @@ class AddElevatorBankCommand(Command[str]):
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
+        if self.h_cell < 0:
+            return CommandResult(success=False, error=f"Invalid horizontal cell: {self.h_cell}")
+        
+        # NOTE: This will need to be revisited if we add basement floors
+        if self.min_floor < 1:
+            return CommandResult(success=False, error=f"Invalid min floor: {self.min_floor}")
+        if self.max_floor < self.min_floor:
+            return CommandResult(success=False, error=f"max_floor must be >= min_floor: {self.max_floor} < {self.min_floor}")
         el_bank_id: str = model.add_elevator_bank(
             h_cell=self.h_cell,
             min_floor=self.min_floor,
@@ -99,7 +118,15 @@ class AddElevatorCommand(Command[str]):
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
-        el_id: str = model.add_elevator(self.elevator_bank_id)
+        stripped_id: str = self.elevator_bank_id.strip()
+        if not stripped_id:
+            return CommandResult(success=False, error="elevator_bank_id cannot be empty")
+        
+        # TODO: #29 Make 64 a config value somewhere
+        if len(stripped_id) > 64:
+            return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {len(stripped_id)} characters")
+        
+        el_id: str = model.add_elevator(stripped_id)
         return CommandResult(success=True, data=el_id)
 
     @override

@@ -149,18 +149,7 @@ class PersonProtocol(Protocol):
     def mad_fraction(self) -> float: ...
     
     @property
-    def draw_color(self) -> tuple[int, int, int]: ...
-    
-    @property
-    def draw_color_red(self) -> int: ...
-    
-    @property
-    def draw_color_green(self) -> int: ...
-    
-    @property
-    def draw_color_blue(self) -> int: ...
-
-    
+    def draw_color(self) -> tuple[int, int, int]: ...   
     
     # End PersonProtocol
 
@@ -525,7 +514,6 @@ class Person(PersonProtocol):
     def testing_set_current_floor(self, floor: Floor) -> None:
         self._current_floor = floor
 
-    
 
     @property
     @override
@@ -533,7 +521,6 @@ class Person(PersonProtocol):
         return (self._waiting_time / self._config.person.MAX_WAIT_TIME) if self._config.person.MAX_WAIT_TIME > 0.0 else 0.0
 
     @property
-    @override
     def draw_color_red(self) -> int:
         """As the person becomes more upset, they become more red"""
         color_red: int = self._original_red + int(self._red_range * self.mad_fraction)
@@ -541,7 +528,6 @@ class Person(PersonProtocol):
 
 
     @property
-    @override
     def draw_color_green(self) -> int:
         """As the person becomes more upset, they become less green"""
         color_green: int = self._original_green - int(self._green_range * self.mad_fraction)
@@ -549,7 +535,6 @@ class Person(PersonProtocol):
 
 
     @property
-    @override
     def draw_color_blue(self) -> int:
         """As the person becomes more upset, they become less blue"""
         color_blue: int = self._original_blue - int(self._blue_range * self.mad_fraction)

@@ -40,6 +40,7 @@ class Floor:
     """
     A floor in the building that can contain various room types
     """
+    # TODO: #27 Consider what we will want for basements and European floor numbering schemes
     @dataclass
     class FloorInfo:
         """
