@@ -97,7 +97,6 @@ class AddElevatorBankCommand(Command[str]):
             return CommandResult(success=False, error=f"Invalid min floor: {self.min_floor}")
         if self.max_floor < self.min_floor:
             return CommandResult(success=False, error=f"max_floor must be >= min_floor: {self.max_floor} < {self.min_floor}")
-         
         el_bank_id: str = model.add_elevator_bank(
             h_cell=self.h_cell,
             min_floor=self.min_floor,
@@ -120,11 +119,12 @@ class AddElevatorCommand(Command[str]):
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
         stripped_id: str = self.elevator_bank_id.strip()
-        if not stripped_id or len(stripped_id) == 0:
+        if not stripped_id:
             return CommandResult(success=False, error="elevator_bank_id cannot be empty")
         
+        # TODO: #29 Make 64 a config value somewhere
         if len(stripped_id) > 64:
-            return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {stripped_id}")
+            return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {len(stripped_id)} characters")
         
         el_id: str = model.add_elevator(stripped_id)
         return CommandResult(success=True, data=el_id)
