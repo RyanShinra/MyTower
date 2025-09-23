@@ -77,6 +77,12 @@ class ElevatorBank:
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
         
+        # NOTE: We will need to revisit this validation if we add basement floors
+        if self._min_floor < 1:
+            raise ValueError(f"min_floor must be >= 1, got {self._min_floor}")
+        if self._max_floor < self._min_floor:
+            raise ValueError(f"max_floor must be >= min_floor, got {self._max_floor} < {self._min_floor}")
+        
         # Passengers waiting on each floor who want to go UP
         # Key: floor number, Value: queue of people waiting to go upward from that floor
         self._upward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
