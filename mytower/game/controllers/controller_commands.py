@@ -120,11 +120,11 @@ class AddElevatorCommand(Command[str]):
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
         stripped_id: str = self.elevator_bank_id.strip()
-        if not stripped_id or len(stripped_id) == 0:
+        if not stripped_id:
             return CommandResult(success=False, error="elevator_bank_id cannot be empty")
         
         if len(stripped_id) > 64:
-            return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {stripped_id}")
+            return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {len(stripped_id)} characters")
         
         el_id: str = model.add_elevator(stripped_id)
         return CommandResult(success=True, data=el_id)
