@@ -28,14 +28,14 @@ class TestPersonFloorOwnership:
         assert person_with_floor.state == PersonState.IN_ELEVATOR
                
     
-    def test_disembark_elevator_nonexistent_floor_raises_error(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+    def test_disembark_elevator_nonexistent_floor_raises_error(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test that disembarking onto non-existent floor raises RuntimeError"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 99  # Non-existent floor
         mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
         
         # Building returns None for non-existent floor
-        mock_building_no_floor.get_floor_by_number.return_value = None
+        mock_building_with_floor.get_floor_by_number.return_value = None
         
         # Setup: person is in elevator
         person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
@@ -43,9 +43,9 @@ class TestPersonFloorOwnership:
         
         with pytest.raises(RuntimeError, match="Cannot disembark elevator: floor 99 does not exist"):
             person_with_floor.disembark_elevator()
-    
-    
-    def test_floor_ownership_transfer_during_elevator_journey(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+
+
+    def test_floor_ownership_transfer_during_elevator_journey(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test complete floor ownership transfer: floor A → elevator → floor B"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 7
@@ -66,7 +66,7 @@ class TestPersonFloorOwnership:
         
         # Step 2: Disembark elevator (should add to destination floor)
         person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)  # Ensure correct state
-        mock_building_no_floor.get_floor_by_number.return_value = mock_destination_floor
+        mock_building_with_floor.get_floor_by_number.return_value = mock_destination_floor
         
         person_with_floor.disembark_elevator()
         
@@ -77,7 +77,7 @@ class TestPersonFloorOwnership:
         # Verify no additional calls to origin floor
         pass  # Assertion moved to a separate test to avoid mypy unreachable warning
 
-    def test_origin_floor_remove_person_called_once(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+    def test_origin_floor_remove_person_called_once(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test that remove_person is called exactly once on origin floor during elevator journey"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 7
@@ -94,7 +94,7 @@ class TestPersonFloorOwnership:
 
         # Disembark elevator (should add to destination floor)
         person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
-        mock_building_no_floor.get_floor_by_number.return_value = mock_destination_floor
+        mock_building_with_floor.get_floor_by_number.return_value = mock_destination_floor
         person_with_floor.disembark_elevator()
 
         # Now check the call count
@@ -114,9 +114,9 @@ class TestPersonFloorOwnershipEdgeCases:
         # For now, let's assume the KeyError should propagate
         with pytest.raises(KeyError):
             person_with_floor.board_elevator(mock_elevator)
-    
-    
-    def test_disembark_elevator_floor_addition_fails_handled_gracefully(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+
+
+    def test_disembark_elevator_floor_addition_fails_handled_gracefully(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test behavior when floor addition fails during disembarking"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 8
@@ -124,7 +124,7 @@ class TestPersonFloorOwnershipEdgeCases:
         
         mock_destination_floor = MagicMock()
         mock_destination_floor.add_person.side_effect = Exception("Floor is full")  # Hypothetical error
-        mock_building_no_floor.get_floor_by_number.return_value = mock_destination_floor
+        mock_building_with_floor.get_floor_by_number.return_value = mock_destination_floor
         
         person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
         person_with_floor.testing_set_current_elevator(mock_elevator)

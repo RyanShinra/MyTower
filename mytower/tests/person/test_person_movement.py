@@ -31,10 +31,9 @@ class TestPersonMovement:
         assert person_with_floor.current_floor_num == original_floor
 
         
-        
-    def test_update_idle_different_floor_no_elevator(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+    def test_update_idle_different_floor_no_elevator(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test person behavior when needing different floor but no elevator available"""
-        mock_building_no_floor.get_elevator_banks_on_floor.return_value = []  # No elevators
+        mock_building_with_floor.get_elevator_banks_on_floor.return_value = []  # No elevators
         
         person_with_floor.set_destination(dest_floor_num=8, dest_block_num=15)
         person_with_floor.update_idle(6.0)  # Past idle timeout
@@ -43,8 +42,7 @@ class TestPersonMovement:
         assert person_with_floor.state == PersonState.IDLE
 
         
-        
-    def test_update_idle_finds_elevator_starts_walking(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+    def test_update_idle_finds_elevator_starts_walking(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test that person starts walking toward elevator when one is available"""
         # Person defaults to block 10, floor 5 - be sure to double check conftest 
         
@@ -52,7 +50,7 @@ class TestPersonMovement:
         mock_elevator_bank = MagicMock()
         mock_elevator_bank.get_waiting_block.return_value = elevator_waiting_block
         mock_elevator_bank.horizontal_block = elevator_waiting_block  # Person starts at initial_block
-        mock_building_no_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
+        mock_building_with_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
         
         person_with_floor.set_destination(dest_floor_num=8, dest_block_num=15)
         person_with_floor.update_idle(6.0)  # Past idle timeout
@@ -62,7 +60,6 @@ class TestPersonMovement:
         assert person_with_floor.state == PersonState.WALKING
         assert person_with_floor.direction == HorizontalDirection.LEFT  # Moving from block {initial_block} to {elevator_waiting_block}
 
-        
         
     def test_update_walking_same_floor_reaches_destination_block(self, person_with_floor: Person) -> None:
         """Test walking state reaches destination and becomes idle"""
@@ -82,11 +79,11 @@ class TestPersonMovement:
 
         
         
-    def test_update_walking_reaches_selected_elevator_waits(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+    def test_update_walking_reaches_selected_elevator_waits(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test walking to elevator triggers waiting state"""
         mock_elevator_bank = MagicMock()
         mock_elevator_bank.get_waiting_block.return_value = 5
-        mock_building_no_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
+        mock_building_with_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
         
         # Set up person walking toward elevator
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
@@ -102,9 +99,9 @@ class TestPersonMovement:
         assert person_with_floor.state == PersonState.WAITING_FOR_ELEVATOR
         mock_elevator_bank.add_waiting_passenger.assert_called_once_with(person_with_floor)
 
-        
-        
-    def test_find_nearest_elevator_bank_chooses_closest(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+
+
+    def test_find_nearest_elevator_bank_chooses_closest(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Test that person finds the closest elevator bank"""
         # Set up multiple elevator banks at different distances
         far_elevator = MagicMock()
@@ -113,7 +110,7 @@ class TestPersonMovement:
         close_elevator = MagicMock()  
         close_elevator.horizontal_block = 12  # Distance: |10 - 12| = 2
         
-        mock_building_no_floor.get_elevator_banks_on_floor.return_value = [far_elevator, close_elevator]
+        mock_building_with_floor.get_elevator_banks_on_floor.return_value = [far_elevator, close_elevator]
         
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
         result: None | ElevatorBank = person_with_floor.find_nearest_elevator_bank()
@@ -122,7 +119,7 @@ class TestPersonMovement:
 
 
 
-    def test_update_idle_finds_elevator_walks_there(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
+    def test_update_idle_finds_elevator_walks_there(self, person_with_floor: Person, mock_building_with_floor: MagicMock) -> None:
         """Larger tests, person wakes from idle, walks all the way to elevator"""
         
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
@@ -134,7 +131,7 @@ class TestPersonMovement:
         mock_elevator_bank.horizontal_block = 3 # Person starts at block 10
         elevator_waiting_block: Final[int] = 2
         mock_elevator_bank.get_waiting_block.return_value = elevator_waiting_block
-        mock_building_no_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
+        mock_building_with_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
         
         person_with_floor.update_idle(6.0) # default idle timeout is 5.0 (verify conftest configuration)
         assert person_with_floor.state == PersonState.WALKING
