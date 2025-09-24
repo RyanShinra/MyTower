@@ -45,13 +45,15 @@ def mock_logger_provider() -> MagicMock:
     provider.get_logger.return_value = mock_logger
     return provider
 
+BUILDING_DEFAULT_NUM_FLOORS = 10
+BUILDING_DEFAULT_FLOOR_WIDTH = 20
 
 @pytest.fixture
 def mock_building_no_floor() -> MagicMock:
     """Standard building mock - For tests where a person does not need to belong to a floor"""
     building = MagicMock(spec=Building)
-    building.num_floors = 10
-    building.floor_width = 20
+    building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
+    building.floor_width = BUILDING_DEFAULT_FLOOR_WIDTH
     building.get_elevator_banks_on_floor.return_value = []
     building.get_floor_by_number.return_value = None
     return building
@@ -61,8 +63,8 @@ def mock_building_no_floor() -> MagicMock:
 def mock_building_with_floor() -> MagicMock:
     """Building mock that returns a floor (for tests where person should be on a floor)"""
     building = MagicMock(spec=Building)
-    building.num_floors = 10
-    building.floor_width = 20
+    building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
+    building.floor_width = BUILDING_DEFAULT_FLOOR_WIDTH
     building.get_elevator_banks_on_floor.return_value = []
     mock_floor = MagicMock(spec=Floor)
     building.get_floor_by_number.return_value = mock_floor
@@ -72,24 +74,31 @@ def mock_building_with_floor() -> MagicMock:
 @pytest.fixture
 def mock_game_config() -> MagicMock:
     """Standard game configuration for tests with real integer values"""
-    config = MagicMock()
+    from mytower.game.core.config import GameConfig
+    from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
     
-    # Person config - use real values, not MagicMock
-    config.person.MAX_SPEED = 0.5
-    config.person.MAX_WAIT_TIME = 90.0
-    config.person.IDLE_TIMEOUT = 5.0
-    config.person.RADIUS = 5
+    config = MagicMock(spec=GameConfig)
     
-    # Person cosmetics - IMPORTANT: Use real integers for random.randint()
-    config.person_cosmetics.ANGRY_MAX_RED = 192
-    config.person_cosmetics.ANGRY_MIN_GREEN = 0
-    config.person_cosmetics.ANGRY_MIN_BLUE = 0
-    config.person_cosmetics.INITIAL_MAX_RED = 32
-    config.person_cosmetics.INITIAL_MAX_GREEN = 128
-    config.person_cosmetics.INITIAL_MAX_BLUE = 128
-    config.person_cosmetics.INITIAL_MIN_RED = 0
-    config.person_cosmetics.INITIAL_MIN_GREEN = 0
-    config.person_cosmetics.INITIAL_MIN_BLUE = 0
+    # Create properly typed sub-mocks for person config
+    person_config = MagicMock(spec=PersonConfigProtocol)
+    person_config.MAX_SPEED = 0.5
+    person_config.MAX_WAIT_TIME = 90.0
+    person_config.IDLE_TIMEOUT = 5.0
+    person_config.RADIUS = 5
+    config.person = person_config
+    
+    # Create properly typed sub-mocks for person cosmetics - IMPORTANT: Use real integers for random.randint()
+    person_cosmetics = MagicMock(spec=PersonCosmeticsProtocol)
+    person_cosmetics.ANGRY_MAX_RED = 192
+    person_cosmetics.ANGRY_MIN_GREEN = 0
+    person_cosmetics.ANGRY_MIN_BLUE = 0
+    person_cosmetics.INITIAL_MAX_RED = 32
+    person_cosmetics.INITIAL_MAX_GREEN = 128
+    person_cosmetics.INITIAL_MAX_BLUE = 128
+    person_cosmetics.INITIAL_MIN_RED = 0
+    person_cosmetics.INITIAL_MIN_GREEN = 0
+    person_cosmetics.INITIAL_MIN_BLUE = 0
+    config.person_cosmetics = person_cosmetics
     
     return config
 
@@ -118,7 +127,7 @@ def mock_elevator_bank() -> MagicMock:
 
 
 @pytest.fixture
-def mock_config() -> MagicMock:
+def mock_elevator_config() -> MagicMock:
     config = MagicMock()
     config.MAX_SPEED = 0.75
     config.MAX_CAPACITY = 15
@@ -161,7 +170,7 @@ def elevator_bank(
 def elevator(
     mock_logger_provider: MagicMock, 
     mock_elevator_bank: MagicMock, 
-    mock_config: MagicMock, 
+    mock_elevator_config: MagicMock, 
     mock_cosmetics_config: MagicMock
 ) -> Elevator:
     return Elevator(
@@ -169,7 +178,7 @@ def elevator(
         mock_elevator_bank,
         min_floor=1,
         max_floor=10,
-        config=mock_config,
+        config=mock_elevator_config,
         cosmetics_config=mock_cosmetics_config,
     )
     

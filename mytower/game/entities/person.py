@@ -278,12 +278,14 @@ class Person(PersonProtocol):
 
     @override
     def set_destination(self, dest_floor_num: int, dest_block_num: int) -> None:
-        # Check if destination values are out of bounds and log warnings
+        # Check if destination values are out of bounds and raise warnings
+        # TODO: This will need be revised if we ever have buildings with negative floor numbers
         if dest_floor_num < 0 or dest_floor_num > self.building.num_floors:
-            self._logger.warning(f"Destination floor {dest_floor_num} is out of bounds (0-{self.building.num_floors})")
+            raise ValueError(f"Destination floor {dest_floor_num} is out of bounds (0-{self.building.num_floors})")
 
+        # TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
         if dest_block_num < 0 or dest_block_num > self.building.floor_width:
-            self._logger.warning(f"Destination block {dest_block_num} is out of bounds (0-{self.building.floor_width})")
+            raise ValueError(f"Destination block {dest_block_num} is out of bounds (0-{self.building.floor_width})")
 
         dest_floor_num = min(dest_floor_num, self.building.num_floors)
         dest_floor_num = max(dest_floor_num, 0)

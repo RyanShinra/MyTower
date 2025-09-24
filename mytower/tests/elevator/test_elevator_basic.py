@@ -31,8 +31,8 @@ class TestElevatorBasics:
 
 
         
-    def test_avail_capacity(self, elevator: Elevator, mock_person_factory: PersonFactory, mock_config: MagicMock) -> None:
-        max_cap: int = mock_config.MAX_CAPACITY
+    def test_avail_capacity(self, elevator: Elevator, mock_person_factory: PersonFactory, mock_elevator_config: MagicMock) -> None:
+        max_cap: int = mock_elevator_config.MAX_CAPACITY
         assert elevator.avail_capacity == max_cap
         
         # The destination floor for these people does not matter (we're only loading them into the elevator)
@@ -77,13 +77,13 @@ class TestElevatorBasics:
         with pytest.raises(ValueError):
             elevator.testing_set_current_floor(elevator.max_floor + 2)
             
-    def test_idle_wait_timeout_property(self, elevator: Elevator, mock_config: MagicMock) -> None:
+    def test_idle_wait_timeout_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_wait_timeout property returns the value from config"""
-        assert elevator.idle_wait_timeout == mock_config.IDLE_WAIT_TIMEOUT
+        assert elevator.idle_wait_timeout == mock_elevator_config.IDLE_WAIT_TIMEOUT
 
 
 
-    def test_idle_time_property(self, elevator: Elevator, mock_config: MagicMock) -> None:
+    def test_idle_time_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_time property returns the value in Elevator.py"""
         assert elevator.idle_time == 0.0 # Default constant in the Elevator C'tor
         
