@@ -1,20 +1,19 @@
 from unittest.mock import MagicMock
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState, HorizontalDirection
+from mytower.tests.conftest import PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR
 
 
 
 class TestPersonBasics:
     """Test basic Person properties and initialization"""
 
-
-    
     def test_initial_state(self, person_with_floor: Person) -> None:
         """Test that person initializes with correct values"""
         assert person_with_floor.state == PersonState.IDLE
-        assert person_with_floor.current_floor_num == 0 # Determined by Person constructor's default behavior when current_floor_num=None
-        assert person_with_floor.current_block_float == 10.0
-        assert person_with_floor.destination_floor_num == 0  # Same as current floor, initially
+        assert person_with_floor.current_floor_num == PERSON_DEFAULT_FLOOR # Determined by Person constructor's default behavior when current_floor_num=None
+        assert person_with_floor.current_block_float == PERSON_DEFAULT_BLOCK
+        assert person_with_floor.destination_floor_num == PERSON_DEFAULT_FLOOR  # Same as current floor, initially
         assert person_with_floor.direction == HorizontalDirection.STATIONARY
         
     def test_set_destination_valid(self, person_with_floor: Person) -> None:
@@ -43,7 +42,7 @@ class TestPersonBasics:
         
     def test_current_block_property(self, person_with_floor: Person) -> None:
         """Test current_block getter and setter"""
-        assert person_with_floor.current_block_float == 10.0
+        assert person_with_floor.current_block_float == PERSON_DEFAULT_BLOCK
 
         person_with_floor.testing_set_current_block_float(15.5)
         assert person_with_floor.current_block_float == 15.5

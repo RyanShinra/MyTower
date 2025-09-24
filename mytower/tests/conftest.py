@@ -94,8 +94,8 @@ def mock_game_config() -> MagicMock:
     return config
 
 
-PERSON_DEFAULT_FLOOR = 5
-PERSON_DEFAULT_BLOCK = 10.0
+PERSON_DEFAULT_FLOOR = 6
+PERSON_DEFAULT_BLOCK = 11.0
 
 @pytest.fixture 
 def person_with_floor(mock_logger_provider: MagicMock, mock_building_with_floor: MagicMock, mock_game_config: MagicMock) -> Person:
