@@ -166,8 +166,8 @@ class Person(PersonProtocol):
         self,
         logger_provider: LoggerProvider,
         building: Building,
-        current_floor_num: int,
-        current_block_float: float,
+        initial_floor_number: int,
+        initial_block_float: float,
         config: GameConfig,
     ) -> None:
         # Assign unique ID and increment counter
@@ -175,10 +175,10 @@ class Person(PersonProtocol):
         
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: Building = building
-        self._current_floor_float: float = float(current_floor_num)
-        self._current_block_float: float = current_block_float
-        self._dest_block_num: int = int(current_block_float)
-        self._dest_floor_num: int = current_floor_num
+        self._current_floor_float: float = float(initial_floor_number)
+        self._current_block_float: float = initial_block_float
+        self._dest_block_num: int = int(initial_block_float)
+        self._dest_floor_num: int = initial_floor_number
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self._config: Final[GameConfig] = config
@@ -188,8 +188,14 @@ class Person(PersonProtocol):
         self._current_elevator: Elevator | None = None
         self._waiting_time: float = 0  # How long have we been waiting for elevator (or something else, I suppose)
         
+        if initial_floor_number < 0 or initial_floor_number > building.num_floors:
+            raise ValueError(f"Initial floor {initial_floor_number} is out of bounds (0-{building.num_floors})")
+        
+        if initial_block_float < 0 or initial_block_float > building.floor_width:
+            raise ValueError(f"Initial block {initial_block_float} is out of bounds (0-{building.floor_width})")
+
         self._current_floor: Floor | None = None
-        self._assign_floor(current_floor_num)
+        self._assign_floor(initial_floor_number)
 
         # Appearance (for visualization)
         # Use cosmetics_config for initial color ranges

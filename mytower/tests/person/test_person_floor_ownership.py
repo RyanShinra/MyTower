@@ -148,8 +148,8 @@ class TestPersonCurrentFloorProperty:
         new_person = Person(
             logger_provider=mock_logger_provider,
             building=mock_building_with_floor,
-            current_floor_num=5,
-            current_block_float=10.0,
+            initial_floor_number=5,
+            initial_block_float=10.0,
             config=mock_game_config
         )
         

@@ -112,8 +112,8 @@ def person_with_floor(mock_logger_provider: MagicMock, mock_building_with_floor:
     return Person(
         logger_provider=mock_logger_provider,
         building=mock_building_with_floor,
-        current_floor_num=PERSON_DEFAULT_FLOOR,
-        current_block_float=PERSON_DEFAULT_BLOCK,
+        initial_floor_number=PERSON_DEFAULT_FLOOR,
+        initial_block_float=PERSON_DEFAULT_BLOCK,
         config=mock_game_config
     )
 
