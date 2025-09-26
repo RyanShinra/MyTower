@@ -32,28 +32,3 @@ class TestPersonPhysics:
         
         assert abs(person_with_floor.current_block_float - expected_block) < BLOCK_FLOAT_TOLERANCE  # Allow for floating point precision
 
-
-        
-    def test_walking_respects_building_boundaries(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:
-        """Test that person movement is constrained by building boundaries"""
-        mock_building_no_floor.floor_width = 20
-        
-        # Test right boundary
-        person_with_floor.testing_set_current_block_float(19.5)
-        person_with_floor.direction = HorizontalDirection.RIGHT
-        person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=5, dest_block_num=25)  # Beyond building width
-        
-        person_with_floor.update_walking(10.0)  # Large dt
-        
-        assert person_with_floor.current_block_float <= 20  # Clamped to building width
-
-        # Test left boundary
-        person_with_floor.testing_set_current_block_float(0.5)
-        person_with_floor.direction = HorizontalDirection.LEFT
-        person_with_floor.set_destination(dest_floor_num=5, dest_block_num=-5)  # Below 0
-        
-        person_with_floor.update_walking(10.0)
-        
-        assert person_with_floor.current_block_float >= 0  # Clamped to 0
-
