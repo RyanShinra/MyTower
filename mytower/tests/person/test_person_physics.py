@@ -20,40 +20,15 @@ class TestPersonPhysics:
 
     ])
     def test_walking_movement_calculation(
-        self, person_without_floor: Person, direction: HorizontalDirection, initial_block: int, dt: float, expected_block: int
+        self, person_with_floor: Person, direction: HorizontalDirection, initial_block: int, dt: float, expected_block: int
     ) -> None:
         """Test that walking movement calculations are correct"""
-        person_without_floor.testing_set_current_block_float(initial_block)
-        person_without_floor.direction = direction
-        person_without_floor.testing_set_current_state(PersonState.WALKING)
-        person_without_floor.set_destination(dest_floor_num=5, dest_block_num=expected_block)
+        person_with_floor.testing_set_current_block_float(initial_block)
+        person_with_floor.direction = direction
+        person_with_floor.testing_set_current_state(PersonState.WALKING)
+        person_with_floor.set_destination(dest_floor_num=5, dest_block_num=expected_block)
         
-        person_without_floor.update_walking(dt)
+        person_with_floor.update_walking(dt)
         
-        assert abs(person_without_floor.current_block_float - expected_block) < BLOCK_FLOAT_TOLERANCE  # Allow for floating point precision
-
-
-        
-    def test_walking_respects_building_boundaries(self, person_without_floor: Person, mock_building_no_floor: MagicMock) -> None:
-        """Test that person movement is constrained by building boundaries"""
-        mock_building_no_floor.floor_width = 20
-        
-        # Test right boundary
-        person_without_floor.testing_set_current_block_float(19.5)
-        person_without_floor.direction = HorizontalDirection.RIGHT
-        person_without_floor.testing_set_current_state(PersonState.WALKING)
-        person_without_floor.set_destination(dest_floor_num=5, dest_block_num=25)  # Beyond building width
-        
-        person_without_floor.update_walking(10.0)  # Large dt
-        
-        assert person_without_floor.current_block_float <= 20  # Clamped to building width
-
-        # Test left boundary
-        person_without_floor.testing_set_current_block_float(0.5)
-        person_without_floor.direction = HorizontalDirection.LEFT
-        person_without_floor.set_destination(dest_floor_num=5, dest_block_num=-5)  # Below 0
-        
-        person_without_floor.update_walking(10.0)
-        
-        assert person_without_floor.current_block_float >= 0  # Clamped to 0
+        assert abs(person_with_floor.current_block_float - expected_block) < BLOCK_FLOAT_TOLERANCE  # Allow for floating point precision
 

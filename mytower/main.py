@@ -10,7 +10,7 @@ from mytower.game.core.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SC
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.models.game_model import GameModel
 from mytower.game.utilities import demo_builder
-from mytower.game.utilities.input import MouseState, mouse
+from mytower.game.utilities.input import MouseState
 from mytower.game.utilities.logger import LoggerProvider
 from mytower.game.views.desktop_view import DesktopView
 

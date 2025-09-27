@@ -29,12 +29,12 @@ class DesktopView:
 
         self._game_model: GameModel = game_model  # Eventually this will need to be removed for proper MVC
         self._game_controller: GameController = game_controller
-        
+
         # Configuration
         self._config: Final[GameConfig] = config
         ui_config: Final[UIConfigProtocol] = self._config.ui_config  # For easier access
         floor_font: Final[Font] = pygame.font.SysFont(ui_config.FLOOR_LABEL_FONT_NAME, ui_config.FLOOR_LABEL_FONT_SIZE)
-        
+
         self._person_renderer: PersonRenderer = PersonRenderer(self._config.person, self._config.person_cosmetics, logger_provider)
         self._elevator_renderer: ElevatorRenderer = ElevatorRenderer(logger_provider, self._config.elevator_cosmetics)
         self._elevator_bank_renderer: ElevatorBankRenderer = ElevatorBankRenderer(logger_provider, self._config.elevator_cosmetics)
@@ -54,17 +54,17 @@ class DesktopView:
 
     def draw(self, surface: Surface) -> None:
         """Draw the entire game state"""
-        
-        #TODO: There's nothing to draw for building yet, but we might later
+
+        # TODO: There's nothing to draw for building yet, but we might later
         # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]
         all_floors: List[FloorSnapshot] = self._game_controller.get_all_floors()
         for floor in all_floors:
             self._floor_renderer.draw(surface, floor)
-        
+
         all_elevator_banks: List[ElevatorBankSnapshot] = self._game_controller.get_all_elevator_banks()
         for bank in all_elevator_banks:
-            self._elevator_bank_renderer.draw(surface, bank)        
-        
+            self._elevator_bank_renderer.draw(surface, bank)
+
         all_elevators: List[ElevatorSnapshot] = self._game_controller.get_all_elevators()
         for elevator in all_elevators:
             self._elevator_renderer.draw(surface, elevator)

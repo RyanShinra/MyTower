@@ -23,13 +23,13 @@ class PersonRenderer:
         self._cosmetics: PersonCosmeticsProtocol = person_cosmetics
         self._config: PersonConfigProtocol = person_config
 
-    # Someday this will be replaced with a proper transform system        
+    # Someday this will be replaced with a proper transform system
     def y_position(self, surface: Surface, person: PersonSnapshot) -> int:
         """Calculate the y position for the given person"""
         apparent_floor: float = person.current_floor_float - 1.0  # Floors are 1 indexed
         z_bottom: float = apparent_floor * BLOCK_HEIGHT
         z_centered: int = int(z_bottom + (BLOCK_HEIGHT / 2))
-        
+
         screen_height: int = surface.get_height()
         y_pos: int = screen_height - z_centered
         return y_pos
@@ -40,12 +40,12 @@ class PersonRenderer:
         x_left: float = person.current_block_float * BLOCK_WIDTH
         x_centered: int = int(x_left + (BLOCK_WIDTH / 2))
         return x_centered
-    
+
 
     def draw(self, surface: Surface, person: PersonSnapshot) -> None:
         """Draw the person on the given surface"""
         self._logger.debug(f"Drawing person: {person.person_id}")
-        
+
         # Calculate position and draw a simple circle for now
         y_pos: int = self.y_position(surface, person)
         x_pos: int = self.x_position(surface, person)

@@ -22,51 +22,51 @@ class TestPersonElevatorInteraction:
 
 
 
-    def test_disembark_elevator_success(self, person_without_floor: Person) -> None:
+    def test_disembark_elevator_success(self, person_with_floor: Person) -> None:
         """Test successful elevator disembarking"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 5
         mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
         
         # Set up person as if they're in elevator (This person version doesn't have a floor)
-        person_without_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
-        person_without_floor.testing_set_current_elevator(mock_elevator)
+        person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
+        person_with_floor.testing_set_current_elevator(mock_elevator)
 
         # The building is a mock, see the conftest.py
         mock_floor = MagicMock()
-        person_without_floor.building.get_floor_by_number.return_value = mock_floor  # type: ignore
+        person_with_floor.building.get_floor_by_number.return_value = mock_floor  # type: ignore
 
-        person_without_floor.disembark_elevator()
+        person_with_floor.disembark_elevator()
         
-        assert person_without_floor.state == PersonState.IDLE
-        assert person_without_floor.current_floor == mock_floor
-        assert person_without_floor.current_floor_num == 5
-        assert person_without_floor.current_block_float == 3
-        mock_floor.add_person.assert_called_once_with(person_without_floor)
-        assert person_without_floor.testing_get_current_elevator() is None
-        assert person_without_floor.testing_get_next_elevator_bank() is None
-        assert person_without_floor.testing_get_wait_time() == 0.0
+        assert person_with_floor.state == PersonState.IDLE
+        assert person_with_floor.current_floor == mock_floor
+        assert person_with_floor.current_floor_num == 5
+        assert person_with_floor.current_block_float == 3
+        mock_floor.add_person.assert_called_once_with(person_with_floor)
+        assert person_with_floor.testing_get_current_elevator() is None
+        assert person_with_floor.testing_get_next_elevator_bank() is None
+        assert person_with_floor.testing_get_wait_time() == 0.0
 
 
-    def test_disembark_elevator_not_in_elevator_raises_error(self, person_without_floor: Person) -> None:
+    def test_disembark_elevator_not_in_elevator_raises_error(self, person_with_floor: Person) -> None:
         """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""                
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 8
         mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
         
-        person_without_floor.testing_set_current_elevator(mock_elevator)
-        person_without_floor.testing_set_current_state(PersonState.WALKING)  # Wrong state
+        person_with_floor.testing_set_current_elevator(mock_elevator)
+        person_with_floor.testing_set_current_state(PersonState.WALKING)  # Wrong state
     
         with pytest.raises(RuntimeError, match="Cannot disembark elevator: person must be in elevator state"):
-            person_without_floor.disembark_elevator()
+            person_with_floor.disembark_elevator()
 
 
             
-    def test_disembark_elevator_no_current_elevator_raises_error(self, person_without_floor: Person) -> None:
+    def test_disembark_elevator_no_current_elevator_raises_error(self, person_with_floor: Person) -> None:
         """Test that an error is raised when a person is in IN_ELEVATOR state but has no current elevator assigned."""
-        person_without_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
+        person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
         # No need to set _current_elevator = None as it's None by default
         
         with pytest.raises(RuntimeError, match="Cannot disembark elevator: no elevator is currently boarded"):
-            person_without_floor.disembark_elevator()
+            person_with_floor.disembark_elevator()
 

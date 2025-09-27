@@ -142,8 +142,8 @@ class GameModel:
             new_person: Person = Person(
                 logger_provider=self._logger_provider,
                 building=self._building,
-                current_floor_num=floor,
-                current_block_float=block,
+                initial_floor_number=floor,
+                initial_block_float=block,
                 config=self._config
             )
             
