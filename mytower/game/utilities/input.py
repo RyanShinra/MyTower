@@ -75,6 +75,10 @@ class MouseState:
         Returns:
             True if the button is pressed, False otherwise
         """
+        # TODO: enable this after we merge this PR (it's the one that wrote lots of tests)
+        # if button_idx not in range(0, 3 + len(self._extended_buttons)):
+        #     raise ValueError(f"Button index {button_idx} out of range 0 to {2 + len(self._extended_buttons)}")
+
         if button_idx < 3:
             return self._buttons[button_idx]
         elif button_idx - 3 < len(self._extended_buttons):
