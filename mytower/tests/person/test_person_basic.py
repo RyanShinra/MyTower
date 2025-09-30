@@ -1,21 +1,26 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
+from typing import Callable
 
 import pytest
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState, HorizontalDirection
 from mytower.tests.conftest import BUILDING_DEFAULT_FLOOR_WIDTH, BUILDING_DEFAULT_NUM_FLOORS, PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR
+from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
 
 
 
 class TestPersonBasics:
     """Test basic Person properties and initialization"""
 
-    def test_initial_state(self, person_with_floor: Person) -> None:
+    def test_initial_state(self, person_with_floor: Person, state_assertions: StateAssertions) -> None:
         """Test that person initializes with correct values"""
-        assert person_with_floor.state == PersonState.IDLE
-        assert person_with_floor.current_floor_num == PERSON_DEFAULT_FLOOR # Determined by Person constructor's default behavior when current_floor_num=None
-        assert person_with_floor.current_block_float == PERSON_DEFAULT_BLOCK
-        assert person_with_floor.destination_floor_num == PERSON_DEFAULT_FLOOR  # Same as current floor, initially
+        state_assertions.assert_person_state(
+            person_with_floor,
+            expected_state=PersonState.IDLE,
+            expected_floor=PERSON_DEFAULT_FLOOR,
+            expected_block=PERSON_DEFAULT_BLOCK,
+            expected_destination_floor=PERSON_DEFAULT_FLOOR
+        )
         assert person_with_floor.direction == HorizontalDirection.STATIONARY
         
         
@@ -27,8 +32,15 @@ class TestPersonBasics:
         assert person_with_floor.testing_confirm_dest_block_is(15)
 
 
-    def test_person_creation_invalid_floor_raises_value_error(self, mock_building_with_floor: MagicMock, mock_logger_provider: MagicMock, mock_game_config: MagicMock) -> None:
+    def test_person_creation_invalid_floor_raises_value_error(
+        self, 
+        building_factory: Callable[..., Mock], 
+        mock_logger_provider: MagicMock, 
+        mock_game_config: MagicMock
+    ) -> None:
         """Test that creating a person with invalid initial floor raises ValueError"""
+        mock_building_with_floor = building_factory(has_floors=True)
+        
         # Building has 10 floors (from fixture)
         with pytest.raises(ValueError, match=f"Initial floor {BUILDING_DEFAULT_NUM_FLOORS + 1} is out of bounds"):
             Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=BUILDING_DEFAULT_NUM_FLOORS + 1, initial_block_float=5)  # Floor too high
