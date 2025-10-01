@@ -395,7 +395,7 @@ class ElevatorBank:
             search_direction = VerticalDirection.UP  # Bias to search up when stationary
         
         # Now search in the normalized direction
-        destinations: Final[List[int]] = self._collect_destinations(elevator, floor=current_floor, direction=search_direction)
+        destinations: List[int] = self._collect_destinations(elevator, floor=current_floor, direction=search_direction)
         if destinations:
             next_floor: int = self._select_next_floor(destinations, search_direction)
             return ElevatorBank.Destination(True, next_floor, search_direction)
