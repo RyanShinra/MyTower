@@ -109,7 +109,7 @@ class TestBoundaryTestMixinDemo(BoundaryTestMixin):
     def test_boundary_validation_example(self, person_with_floor: Person) -> None:
         """Test using BoundaryTestMixin for boundary testing"""
         valid_floors = [1, 5, 10]
-        invalid_floors = [-1, 11, 100]  # Remove 0 as it might be valid
+        invalid_floors = [-1, 11, 100]  # 0 is excluded because some buildings may have a valid floor 0 (e.g., ground floor)
         
         # Test person destination floor boundary validation
         def set_dest_floor(floor_num: int) -> None:
