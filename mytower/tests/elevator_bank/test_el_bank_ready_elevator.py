@@ -1,6 +1,6 @@
 # test_el_bank_ready_elevator.py
 
-from typing import List
+from typing import List, Final
 from unittest.mock import MagicMock
 
 import pytest
@@ -305,7 +305,7 @@ class TestDestinationCollection:
         elevator_bank.request_elevator(8, VerticalDirection.UP)
         
         # Use the actual method (assuming you add a testing accessor)
-        destinations: List[int] = elevator_bank.testing_collect_destinations(mock_elevator, floor=5, direction=VerticalDirection.UP)
+        destinations: Final[List[int]] = elevator_bank.testing_collect_destinations(mock_elevator, floor=5, direction=VerticalDirection.UP)
         
         # Should include both passenger destinations and call requests
         assert 7 in destinations  # Passenger

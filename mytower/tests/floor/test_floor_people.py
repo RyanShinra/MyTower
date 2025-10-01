@@ -4,6 +4,7 @@
 
 # tests/floor/test_floor_people.py 22
 from __future__ import annotations
+from typing import Final
 import pytest
 from unittest.mock import MagicMock
 
@@ -45,7 +46,7 @@ class TestFloorPeopleOwnership:
         floor.add_person(mock_person)
         
         # Should be able to retrieve the person
-        retrieved_person: PersonProtocol = floor.remove_person("person_123")
+        retrieved_person: Final[PersonProtocol] = floor.remove_person("person_123")
         assert retrieved_person == mock_person
     
     
@@ -66,9 +67,9 @@ class TestFloorPeopleOwnership:
         floor.add_person(person3)
         
         # Should be able to retrieve all in any order
-        retrieved2: PersonProtocol = floor.remove_person("person_002")
-        retrieved1: PersonProtocol = floor.remove_person("person_001") 
-        retrieved3: PersonProtocol = floor.remove_person("person_003")
+        retrieved2: Final[PersonProtocol] = floor.remove_person("person_002")
+        retrieved1: Final[PersonProtocol] = floor.remove_person("person_001") 
+        retrieved3: Final[PersonProtocol] = floor.remove_person("person_003")
         
         assert retrieved1 == person1
         assert retrieved2 == person2
@@ -87,7 +88,7 @@ class TestFloorPeopleOwnership:
         floor.add_person(person2)  # Should overwrite person1
         
         # Should get person2, not person1
-        retrieved: PersonProtocol = floor.remove_person("person_duplicate")
+        retrieved: Final[PersonProtocol] = floor.remove_person("person_duplicate")
         assert retrieved == person2
         assert retrieved != person1
     
@@ -96,7 +97,7 @@ class TestFloorPeopleOwnership:
         """Test successfully removing a person from floor"""
         floor.add_person(mock_person)
         
-        removed_person: PersonProtocol = floor.remove_person("person_123")
+        removed_person: Final[PersonProtocol] = floor.remove_person("person_123")
         
         assert removed_person == mock_person
         
