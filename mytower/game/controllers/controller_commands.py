@@ -49,7 +49,7 @@ class AddPersonCommand(Command[str]):
     floor: int
     block: float
     dest_floor: int
-    dest_block: int
+    dest_block: float
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:

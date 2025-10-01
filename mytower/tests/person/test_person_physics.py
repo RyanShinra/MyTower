@@ -26,7 +26,7 @@ class TestPersonPhysics:
         person_with_floor.testing_set_current_block_float(initial_block)
         person_with_floor.direction = direction
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=5, dest_block_num=expected_block)
+        person_with_floor.set_destination(dest_floor_num=5, dest_block_num=float(expected_block))
         
         person_with_floor.update_walking(dt)
         

@@ -13,7 +13,7 @@ class TestPersonWaitingBehavior:
         """Test that idle timeout prevents person from constantly searching for elevators"""
         mock_building_with_floor.get_elevator_banks_on_floor.return_value = []
         
-        person_with_floor.set_destination(dest_floor_num=8, dest_block_num=15)
+        person_with_floor.set_destination(dest_floor_num=8, dest_block_num=15.0)
         
         # First call should set timeout
         # The default idle timeout is 5.0 seconds (see Person.IDLE_TIMEOUT). 6.0 is used to ensure we are past the initial timeout.
