@@ -5,7 +5,7 @@ import pytest
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState, HorizontalDirection
 from mytower.tests.conftest import BUILDING_DEFAULT_FLOOR_WIDTH, BUILDING_DEFAULT_NUM_FLOORS, PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR
-from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
+from mytower.tests.test_utilities import StateAssertions
 
 
 
