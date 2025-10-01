@@ -113,7 +113,7 @@ class TestBoundaryTestMixinDemo(BoundaryTestMixin):
         
         # Test person destination floor boundary validation
         def set_dest_floor(floor_num: int) -> None:
-            person_with_floor.set_destination(dest_floor_num=floor_num, dest_block_num=10)
+            person_with_floor.set_destination(dest_floor_num=floor_num, dest_block_num=10.0)
         
         # This tests both valid and invalid values in one clean call
         self.assert_boundary_validation(

@@ -136,7 +136,7 @@ class GameModel:
 
 
 
-    def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
+    def add_person(self, floor: int, block: float, dest_floor: int, dest_block: float) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
             new_person: Person = Person(

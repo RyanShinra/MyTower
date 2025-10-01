@@ -26,10 +26,10 @@ class TestPersonBasics:
         
     def test_set_destination_valid(self, person_with_floor: Person) -> None:
         """Test setting valid destination updates internal state"""
-        person_with_floor.set_destination(dest_floor_num=8, dest_block_num=15)
+        person_with_floor.set_destination(dest_floor_num=8, dest_block_num=15.0)
         
         assert person_with_floor.destination_floor_num == 8
-        assert person_with_floor.testing_confirm_dest_block_is(15)
+        assert person_with_floor.testing_confirm_dest_block_is(15.0)
 
 
     def test_person_creation_invalid_floor_raises_value_error(
@@ -63,18 +63,18 @@ class TestPersonBasics:
         """Test that out-of-bounds destinations get clamped to valid range"""
         # Building has 10 floors, 20 width (from fixture)
         with pytest.raises(ValueError, match=f"Destination floor {BUILDING_DEFAULT_NUM_FLOORS + 1} is out of bounds"):
-            person_with_floor.set_destination(dest_floor_num=BUILDING_DEFAULT_NUM_FLOORS + 1, dest_block_num=15)  # Floor too high
+            person_with_floor.set_destination(dest_floor_num=BUILDING_DEFAULT_NUM_FLOORS + 1, dest_block_num=15.0)  # Floor too high
             
         #TODO: This will need be revised if we ever have buildings with negative floor numbers
         with pytest.raises(ValueError, match="Destination floor -1 is out of bounds"):
-            person_with_floor.set_destination(dest_floor_num=-1, dest_block_num=15)  # Floor too low
+            person_with_floor.set_destination(dest_floor_num=-1, dest_block_num=15.0)  # Floor too low
 
-        with pytest.raises(ValueError, match=f"Destination block {BUILDING_DEFAULT_FLOOR_WIDTH + 2} is out of bounds"):
-            person_with_floor.set_destination(dest_floor_num=5, dest_block_num=BUILDING_DEFAULT_FLOOR_WIDTH + 2)  # Block too high
+        with pytest.raises(ValueError, match=f"Destination block {float(BUILDING_DEFAULT_FLOOR_WIDTH + 2)} is out of bounds"):
+            person_with_floor.set_destination(dest_floor_num=5, dest_block_num=float(BUILDING_DEFAULT_FLOOR_WIDTH + 2))  # Block too high
         
         #TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
-        with pytest.raises(ValueError, match="Destination block -5 is out of bounds"):
-            person_with_floor.set_destination(dest_floor_num=5, dest_block_num=-5)  # Block too low
+        with pytest.raises(ValueError, match="Destination block -5.0 is out of bounds"):
+            person_with_floor.set_destination(dest_floor_num=5, dest_block_num=-5.0)  # Block too low
         
         
     def test_current_block_property(self, person_with_floor: Person) -> None:

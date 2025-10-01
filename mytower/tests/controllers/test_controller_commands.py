@@ -91,16 +91,16 @@ class TestAddPersonCommand:
 
     def test_command_creation(self) -> None:
         """Test creating AddPersonCommand"""
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4)
+        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4.0)
         
         assert command.floor == 1
         assert command.block == 2.5
         assert command.dest_floor == 3
-        assert command.dest_block == 4
+        assert command.dest_block == 4.0
 
     def test_get_description(self) -> None:
         """Test command description generation"""
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4)
+        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4.0)
         
         description: Final[str] = command.get_description()
         assert "Add person at floor 1, block 2.5" in description
@@ -111,7 +111,7 @@ class TestAddPersonCommand:
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
         mock_model.add_person.return_value = "person_123"
         
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=2, block=1.0, dest_floor=5, dest_block=3)
+        command: Final[AddPersonCommand] = AddPersonCommand(floor=2, block=1.0, dest_floor=5, dest_block=3.0)
         result: Final[CommandResult[str]] = command.execute(mock_model)
         
         assert result.success is True
@@ -125,7 +125,7 @@ class TestAddPersonCommand:
         """Test that same source and destination causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
         
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=2, block=1.0, dest_floor=2, dest_block=1)
+        command: Final[AddPersonCommand] = AddPersonCommand(floor=2, block=1.0, dest_floor=2, dest_block=1.0)
         result: Final[CommandResult[str]] = command.execute(mock_model)
         
         assert result.success is False
@@ -138,14 +138,14 @@ class TestAddPersonCommand:
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
         
         # Invalid source floor
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=0, block=1.0, dest_floor=2, dest_block=2)
+        command: Final[AddPersonCommand] = AddPersonCommand(floor=0, block=1.0, dest_floor=2, dest_block=2.0)
         result: Final[CommandResult[str]] = command.execute(mock_model)
         assert result.success is False
         assert result.error is not None
         assert "Invalid source floor: 0" in result.error
         
         # Invalid destination floor
-        command2: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=1.0, dest_floor=-1, dest_block=2)
+        command2: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=1.0, dest_floor=-1, dest_block=2.0)
         result2: Final[CommandResult[str]] = command2.execute(mock_model)
         assert result2.success is False
         assert result2.error is not None
@@ -156,14 +156,14 @@ class TestAddPersonCommand:
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
         
         # Invalid source block
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=-1.0, dest_floor=2, dest_block=2)
+        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=-1.0, dest_floor=2, dest_block=2.0)
         result: Final[CommandResult[str]] = command.execute(mock_model)
         assert result.success is False
         assert result.error is not None
         assert "Invalid source block: -1.0" in result.error
         
         # Invalid destination block
-        command2: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=1.0, dest_floor=2, dest_block=-2)
+        command2: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=1.0, dest_floor=2, dest_block=-2.0)
         result2: Final[CommandResult[str]] = command2.execute(mock_model)
         assert result2.success is False
         assert result2.error is not None

@@ -12,7 +12,7 @@ class PersonSnapshot:
     current_floor_float: float
     current_block_float: float
     destination_floor_num: int
-    destination_block_num: int
+    destination_block_num: float
     state: PersonState
     waiting_time: float
     mad_fraction: float  # 0.0 to 1.0

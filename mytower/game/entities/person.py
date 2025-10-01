@@ -103,7 +103,7 @@ class PersonProtocol(Protocol):
     
     
     @property
-    def destination_block_num(self) -> int: ...
+    def destination_block_num(self) -> float: ...
     
     @property
     def person_id(self) -> str: ...
@@ -128,7 +128,7 @@ class PersonProtocol(Protocol):
     @property
     def waiting_time(self) -> float: ...        
 
-    def set_destination(self, dest_floor_num: int, dest_block_num: int) -> None: ...
+    def set_destination(self, dest_floor_num: int, dest_block_num: float) -> None: ...
     
     def find_nearest_elevator_bank(self) -> None | ElevatorBank: ...
     
@@ -177,7 +177,7 @@ class Person(PersonProtocol):
         self._building: Building = building
         self._current_floor_float: float = float(initial_floor_number)
         self._current_block_float: float = initial_block_float
-        self._dest_block_num: int = int(initial_block_float)
+        self._dest_block_num: float = initial_block_float
         self._dest_floor_num: int = initial_floor_number
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
@@ -237,7 +237,7 @@ class Person(PersonProtocol):
 
     @property
     @override
-    def destination_block_num(self) -> int:
+    def destination_block_num(self) -> float:
         return self._dest_block_num
 
     @property
@@ -283,7 +283,7 @@ class Person(PersonProtocol):
 
 
     @override
-    def set_destination(self, dest_floor_num: int, dest_block_num: int) -> None:
+    def set_destination(self, dest_floor_num: int, dest_block_num: float) -> None:
         # Check if destination values are out of bounds and raise warnings
         # TODO: This will need be revised if we ever have buildings with negative floor numbers
         if dest_floor_num < 0 or dest_floor_num > self.building.num_floors:
@@ -442,7 +442,7 @@ class Person(PersonProtocol):
         done: bool = False
 
         # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-        waypoint_block: Final[int] = self._next_elevator_bank.get_waiting_block() if self._next_elevator_bank else self._dest_block_num        
+        waypoint_block: Final[float] = self._next_elevator_bank.get_waiting_block() if self._next_elevator_bank else self._dest_block_num        
 
         if waypoint_block < self._current_block_float:
             self.direction = HorizontalDirection.LEFT
@@ -483,7 +483,7 @@ class Person(PersonProtocol):
             raise ValueError(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
         self._dest_floor_num = min(max(dest_floor, 0), self.building.num_floors)
 
-    def testing_confirm_dest_block_is(self, block: int) -> bool:
+    def testing_confirm_dest_block_is(self, block: float) -> bool:
         return self._dest_block_num == block
 
     def testing_set_next_elevator_bank(self, next_bank: ElevatorBank) -> None:

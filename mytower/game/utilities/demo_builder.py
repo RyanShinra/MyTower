@@ -44,7 +44,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             demo_logger.error(f"Failed to add elevator: {result.error}")
             return ""
 
-    def add_person(current_floor_num: int, current_block_float: int, dest_floor_num: int, dest_block_num: int) -> str:
+    def add_person(current_floor_num: int, current_block_float: float, dest_floor_num: int, dest_block_num: float) -> str:
         result: CommandResult[str] = controller.execute_command(
             AddPersonCommand(
                 floor=current_floor_num,
@@ -84,9 +84,9 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
     elevator_bank_id: str = add_elevator_bank(h_cell=14, min_floor=1, max_floor=top_floor)
     add_elevator(elevator_bank_id)
 
-    add_person(current_floor_num=1, current_block_float=1, dest_floor_num=9, dest_block_num=7)
-    add_person(current_floor_num=1, current_block_float=3, dest_floor_num=3, dest_block_num=7)
-    add_person(current_floor_num=1, current_block_float=6, dest_floor_num=7, dest_block_num=7)
-    add_person(current_floor_num=12, current_block_float=1, dest_floor_num=1, dest_block_num=1)
+    add_person(current_floor_num=1, current_block_float=1.0, dest_floor_num=9, dest_block_num=7.0)
+    add_person(current_floor_num=1, current_block_float=3.0, dest_floor_num=3, dest_block_num=7.0)
+    add_person(current_floor_num=1, current_block_float=6.0, dest_floor_num=7, dest_block_num=7.0)
+    add_person(current_floor_num=12, current_block_float=1.0, dest_floor_num=1, dest_block_num=1.0)
 
     demo_logger.info("Demo building complete.")

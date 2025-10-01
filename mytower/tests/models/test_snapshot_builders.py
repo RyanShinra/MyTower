@@ -159,7 +159,7 @@ class TestBuildPersonSnapshot:
         mock_person.current_floor_float = 3.0
         mock_person.current_block_float = 8.5
         mock_person.destination_floor_num = 7
-        mock_person.destination_block_num = 12
+        mock_person.destination_block_num = 12.0
         mock_person.state = PersonState.WALKING
         mock_person.waiting_time = 25.3
         mock_person.mad_fraction = 0.4
@@ -172,7 +172,7 @@ class TestBuildPersonSnapshot:
         assert snapshot.current_floor_float == 3.0
         assert snapshot.current_block_float == 8.5
         assert snapshot.destination_floor_num == 7
-        assert snapshot.destination_block_num == 12
+        assert snapshot.destination_block_num == 12.0
         assert snapshot.state == PersonState.WALKING
         assert snapshot.waiting_time == 25.3
         assert snapshot.mad_fraction == 0.4
@@ -189,7 +189,7 @@ class TestBuildPersonSnapshot:
             mock_person.current_floor_float = 1.0
             mock_person.current_block_float = 5.0
             mock_person.destination_floor_num = 5
-            mock_person.destination_block_num = 10
+            mock_person.destination_block_num = 10.0
             mock_person.state = state
             mock_person.waiting_time = 0.0 if state == PersonState.IDLE else 30.0
             mock_person.mad_fraction = 0.0 if state == PersonState.IDLE else 0.5
@@ -211,7 +211,7 @@ class TestBuildPersonSnapshot:
             mock_person.current_floor_float = 1.0
             mock_person.current_block_float = 5.0
             mock_person.destination_floor_num = 2
-            mock_person.destination_block_num = 10
+            mock_person.destination_block_num = 10.0
             mock_person.state = PersonState.WAITING_FOR_ELEVATOR
             mock_person.waiting_time = mad_fraction * 100  # Correlate waiting time with madness
             mock_person.mad_fraction = mad_fraction
@@ -239,7 +239,7 @@ class TestBuildPersonSnapshot:
             mock_person.current_floor_float = 1.0
             mock_person.current_block_float = 5.0
             mock_person.destination_floor_num = 2
-            mock_person.destination_block_num = 10
+            mock_person.destination_block_num = 10.0
             mock_person.state = PersonState.IDLE
             mock_person.waiting_time = 0.0
             mock_person.mad_fraction = 0.0
@@ -304,7 +304,7 @@ class TestSnapshotBuilderIntegration:
         mock_person.current_floor_float = 1.0
         mock_person.current_block_float = 5.0
         mock_person.destination_floor_num = 2
-        mock_person.destination_block_num = 10
+        mock_person.destination_block_num = 10.0
         mock_person.state = PersonState.IDLE
         mock_person.waiting_time = 0.0
         mock_person.mad_fraction = 0.0
