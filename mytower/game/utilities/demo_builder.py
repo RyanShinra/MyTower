@@ -2,7 +2,7 @@
 # Creates a demo instance of the game
 
 
-
+from typing import Final
 
 from mytower.game.entities.floor import FloorType
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
@@ -14,10 +14,10 @@ from mytower.game.controllers.game_controller import GameController
 def build_model_building(controller: GameController, logger_provider: LoggerProvider) -> None:
     """Build a demo instance of the game building."""
     
-    demo_logger: MyTowerLogger = logger_provider.get_logger("DemoBuilder")
+    demo_logger: Final[MyTowerLogger] = logger_provider.get_logger("DemoBuilder")
     
     def add_floor(floor_type: FloorType) -> int:
-        result: CommandResult[int] = controller.execute_command(AddFloorCommand(floor_type=floor_type))
+        result: Final[CommandResult[int]] = controller.execute_command(AddFloorCommand(floor_type=floor_type))
         if result.success and result.data is not None:
             return result.data  # Return the new floor number
         else:
@@ -25,7 +25,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             return -1
 
     def add_elevator_bank(h_cell: int, min_floor: int, max_floor: int) -> str:
-        result: CommandResult[str] = controller.execute_command(
+        result: Final[CommandResult[str]] = controller.execute_command(
             AddElevatorBankCommand(h_cell=h_cell, min_floor=min_floor, max_floor=max_floor)
         )
         if result.success and result.data is not None:
@@ -35,7 +35,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             return ""
 
     def add_elevator(elevator_bank_id: str) -> str:
-        result: CommandResult[str] = controller.execute_command(
+        result: Final[CommandResult[str]] = controller.execute_command(
             AddElevatorCommand(elevator_bank_id=elevator_bank_id)
         )
         if result.success and result.data is not None:
@@ -45,7 +45,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             return ""
 
     def add_person(current_floor_num: int, current_block_float: float, dest_floor_num: int, dest_block_num: float) -> str:
-        result: CommandResult[str] = controller.execute_command(
+        result: Final[CommandResult[str]] = controller.execute_command(
             AddPersonCommand(
                 floor=current_floor_num,
                 block=current_block_float,

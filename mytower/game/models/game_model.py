@@ -139,7 +139,7 @@ class GameModel:
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: float) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
-            new_person: Person = Person(
+            new_person: Final[Person] = Person(
                 logger_provider=self._logger_provider,
                 building=self._building,
                 initial_floor_number=floor,
@@ -342,7 +342,7 @@ class GameModel:
     def get_elevator_by_id(self, elevator_id: str) -> Optional[ElevatorSnapshot]:
         """Get specific elevator state by ID"""
         try:
-            elevators: List[Elevator] = self._building.get_elevators()
+            elevators: Final[List[Elevator]] = self._building.get_elevators()
             for elevator in elevators:
                 if elevator.elevator_id == elevator_id:
                     return build_elevator_snapshot(elevator)

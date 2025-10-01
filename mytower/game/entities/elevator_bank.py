@@ -224,14 +224,14 @@ class ElevatorBank:
             self._logger.error(f"Invalid direction 'STATIONARY' for dequeue operation on floor {floor}")
             raise ValueError(f"Trying to get 'STATIONARY' Queue on floor {floor}")
 
-        result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, direction)
+        result: Final[ElevatorBank.DirQueue] = self._get_waiting_passengers(floor, direction)
         current_queue: deque[PersonProtocol] = result[0]
 
         if len(current_queue) == 0:
             self._logger.info(f"No passengers waiting on floor {floor} in direction {direction}")
             return None
 
-        passenger: PersonProtocol = current_queue.popleft()
+        passenger: Final[PersonProtocol] = current_queue.popleft()
         self._logger.debug(f"Dequeued passenger from floor {floor} heading {direction}")
         return passenger
 
@@ -339,11 +339,11 @@ class ElevatorBank:
         # First, let's figure out if there is anybody here who wants to go UP or DOWN
         # This section is if the elevator was just waiting at a floor and somebody pushed the button
         floor: int = elevator.current_floor_int
-        nom_direction: VerticalDirection = elevator.nominal_direction
+        nom_direction: Final[VerticalDirection] = elevator.nominal_direction
 
-        result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, nom_direction)
+        result: Final[ElevatorBank.DirQueue] = self._get_waiting_passengers(floor, nom_direction)
         who_wants_to_get_on: deque[PersonProtocol] = result[0]
-        new_direction: VerticalDirection = result[1]
+        new_direction: Final[VerticalDirection] = result[1]
 
         if who_wants_to_get_on:
             elevator.request_load_passengers(new_direction)
@@ -358,12 +358,12 @@ class ElevatorBank:
 
     def _update_ready_elevator(self, elevator: Elevator) -> None:
         floor: int = elevator.current_floor_int
-        nom_direction: VerticalDirection = elevator.nominal_direction
+        nom_direction: Final[VerticalDirection] = elevator.nominal_direction
 
         self._logger.debug(
             f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}"
         )
-        next_destination: ElevatorBank.ElevatorDestination = self._get_next_destination(elevator, floor, nom_direction)
+        next_destination: Final[ElevatorBank.ElevatorDestination] = self._get_next_destination(elevator, floor, nom_direction)
         
         if next_destination.has_destination:
             self._logger.info(
@@ -401,7 +401,7 @@ class ElevatorBank:
             return ElevatorBank.Destination(True, next_floor, search_direction)
 
         # No? Shall we turn around?
-        opposite_dir: VerticalDirection = search_direction.invert()
+        opposite_dir: Final[VerticalDirection] = search_direction.invert()
         destinations = self._collect_destinations(elevator, floor=current_floor, direction=opposite_dir)
         if destinations:
             next_floor = self._select_next_floor(destinations, opposite_dir)
@@ -417,7 +417,7 @@ class ElevatorBank:
 
 
     def _collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
-        destinations: List[int] = []
+        destinations: Final[List[int]] = []
 
         # Passengers have higher priority
         destinations.extend(elevator.get_passenger_destinations_in_direction(floor, direction))
@@ -448,7 +448,7 @@ class ElevatorBank:
     ) -> List[int]:
         """The requests are where the 'call buttons' are pressed - this may need updating for programmable elevators"""
         self._logger.debug(f"Getting floor requests from floor {start_floor} in direction {search_direction}")
-        answer: List[int] = []
+        answer: Final[List[int]] = []
         search_range: Opt[range] = None
 
         if search_direction == VerticalDirection.UP:

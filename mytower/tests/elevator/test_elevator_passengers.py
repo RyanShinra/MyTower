@@ -20,15 +20,15 @@ class TestPassengers:
     ) -> None:
         """Test filtering passengers by destination floor"""
         # Elevator starts on floor one (see test_initial_state above)
-        passenger_current_floor: PersonProtocol = mock_person_factory(dest_floor_num=1, cur_floor_num=1) # pylint: disable=invalid-name
-        passenger_another_floor: PersonProtocol = mock_person_factory(dest_floor_num=5, cur_floor_num=1)
+        passenger_current_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=1, cur_floor_num=1) # pylint: disable=invalid-name
+        passenger_another_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=5, cur_floor_num=1)
 
         elevator.testing_set_passengers([passenger_another_floor, passenger_current_floor])
-        who_wants_off: List[PersonProtocol] = elevator.passengers_who_want_off()
+        who_wants_off: Final[List[PersonProtocol]] = elevator.passengers_who_want_off()
 
         assert len(who_wants_off) == 1
         # assert who_wants_off[0] == passenger_current_floor # This made the type checker mad
-        disembarking_passenger: PersonProtocol = who_wants_off[0]
+        disembarking_passenger: Final[PersonProtocol] = who_wants_off[0]
         assert disembarking_passenger == passenger_current_floor
 
     @pytest.mark.parametrize(
@@ -54,12 +54,12 @@ class TestPassengers:
     ) -> None:
         """Test getting sorted destinations in the direction of 'direction' """
         elevator.testing_set_current_floor(current_floor)
-        dest_floors: List[int] = [1, 3, 5, 7]
+        dest_floors: Final[List[int]] = [1, 3, 5, 7]
 
         passengers: Sequence[PersonProtocol] = [mock_person_factory(current_floor, destination_floor) for destination_floor in dest_floors]
         elevator.testing_set_passengers(passengers)
 
-        actual_floors: List[int] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
+        actual_floors: Final[List[int]] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
         assert expected_floors == actual_floors
 
 
@@ -113,7 +113,7 @@ class TestPassengers:
         elevator.testing_set_state(ElevatorState.ARRIVED)
         elevator.testing_set_current_floor(3.0)
         
-        passengers: List[PersonProtocol] = [
+        passengers: Final[List[PersonProtocol]] = [
             mock_person_factory(1,3),  # Wants off here
             mock_person_factory(1,5),  # Doesn't want off
         ]

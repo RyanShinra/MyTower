@@ -304,7 +304,7 @@ class Person(PersonProtocol):
 
     @override
     def find_nearest_elevator_bank(self) -> None | ElevatorBank:
-        elevator_list: List[ElevatorBank] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
+        elevator_list: Final[List[ElevatorBank]] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
         closest_el: ElevatorBank | None = None
         closest_dist: float = float(self.building.floor_width + 5)
 

@@ -1,7 +1,7 @@
 # /tests/conftest.py
 
 import pytest
-from typing import Protocol, Callable
+from typing import Protocol, Callable, Final
 from unittest.mock import MagicMock, PropertyMock, Mock
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol, Person
@@ -22,7 +22,7 @@ class PersonFactory(Protocol):
 @pytest.fixture
 def mock_person_factory() -> PersonFactory:
     def _person_gen(cur_floor_num: int, dest_floor_num: int) -> PersonProtocol:
-        person: MagicMock = MagicMock(spec=PersonProtocol)
+        person: Final[MagicMock] = MagicMock(spec=PersonProtocol)
         type(person).current_floor_num = PropertyMock(return_value=cur_floor_num)
         type(person).destination_floor_num = PropertyMock(return_value=dest_floor_num)
         person.board_elevator = MagicMock()

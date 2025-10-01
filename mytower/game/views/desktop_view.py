@@ -55,19 +55,19 @@ class DesktopView:
 
         # TODO: There's nothing to draw for building yet, but we might later
         # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]
-        all_floors: List[FloorSnapshot] = self._game_controller.get_all_floors()
+        all_floors: Final[List[FloorSnapshot]] = self._game_controller.get_all_floors()
         for floor in all_floors:
             self._floor_renderer.draw(surface, floor)
 
-        all_elevator_banks: List[ElevatorBankSnapshot] = self._game_controller.get_all_elevator_banks()
+        all_elevator_banks: Final[List[ElevatorBankSnapshot]] = self._game_controller.get_all_elevator_banks()
         for bank in all_elevator_banks:
             self._elevator_bank_renderer.draw(surface, bank)
 
-        all_elevators: List[ElevatorSnapshot] = self._game_controller.get_all_elevators()
+        all_elevators: Final[List[ElevatorSnapshot]] = self._game_controller.get_all_elevators()
         for elevator in all_elevators:
             self._elevator_renderer.draw(surface, elevator)
 
-        all_people: List[PersonSnapshot] = self._game_controller.get_all_people()
+        all_people: Final[List[PersonSnapshot]] = self._game_controller.get_all_people()
         for person in all_people:
             self._person_renderer.draw(surface, person)
 
@@ -79,7 +79,7 @@ class DesktopView:
         """Draw UI elements like time, money, etc."""
         # Draw time
         ui_config: Final[UIConfigProtocol] = self._config.ui_config
-        font: Font = pygame.font.SysFont(ui_config.UI_FONT_NAME, ui_config.UI_FONT_SIZE)
+        font: Final[Font] = pygame.font.SysFont(ui_config.UI_FONT_NAME, ui_config.UI_FONT_SIZE)
 
         # Convert time to hours:minutes
         time: float = self._game_controller.get_game_time()
@@ -88,11 +88,11 @@ class DesktopView:
         seconds: int = int(time) % 60
         time_str: str = f"[{self._game_controller.speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
 
-        text: Surface = font.render(time_str, True, (0, 0, 0))
+        text: Final[Surface] = font.render(time_str, True, (0, 0, 0))
         surface.blit(text, (10, 10))
 
         # Draw money
-        building_state: BuildingSnapshot = self._game_controller.get_building_state()
+        building_state: Final[BuildingSnapshot] = self._game_controller.get_building_state()
         money_str: str = f"Money: ${building_state.money:,}"
         text = font.render(money_str, True, (0, 0, 0))
         surface.blit(text, (10, 40))
