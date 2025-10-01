@@ -47,7 +47,7 @@ def main() -> NoReturn:
     config: GameConfig = GameConfig()
     game_model = GameModel(logger_provider)
     game_controller = GameController(model=game_model, logger_provider=logger_provider)
-    desktop_view = DesktopView(logger_provider, game_model, game_controller, config, window_width, window_height)
+    desktop_view = DesktopView(logger_provider, game_controller, config, window_width, window_height)
     demo_builder.build_model_building(game_controller, logger_provider)
     running = True
     main_logger.info("Entering main loop.")
