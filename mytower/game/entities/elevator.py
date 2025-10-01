@@ -17,7 +17,7 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Final, List
 from typing import Optional as Opt
 from typing import Protocol, Sequence
 
@@ -287,7 +287,7 @@ class Elevator:
 
 
     def passengers_who_want_off(self) -> List[PersonProtocol]:
-        answer: List[PersonProtocol] = []
+        answer: Final[List[PersonProtocol]] = []
         for p in self._passengers:
             if p.destination_floor_num == self.current_floor_int:
                 answer.append(p)
@@ -310,7 +310,7 @@ class Elevator:
             elif direction == VerticalDirection.DOWN and p.destination_floor_num < floor:
                 floors_set.add(p.destination_floor_num)
 
-        sorted_floors: List[int] = list(floors_set)
+        sorted_floors: Final[List[int]] = list(floors_set)
         if direction == VerticalDirection.UP:
             sorted_floors.sort()
         elif direction == VerticalDirection.DOWN:
@@ -401,7 +401,7 @@ class Elevator:
 
 
     def _update_arrived(self, dt: float) -> None:
-        who_wants_off: List[PersonProtocol] = self.passengers_who_want_off()
+        who_wants_off: Final[List[PersonProtocol]] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
             self._state = ElevatorState.UNLOADING
@@ -418,11 +418,11 @@ class Elevator:
             return
 
         self._unloading_timeout = 0.0
-        who_wants_off: List[PersonProtocol] = self.passengers_who_want_off()
+        who_wants_off: Final[List[PersonProtocol]] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
             self._logger.debug(f"{self.state} Elevator: Unloading Passenger")
-            disembarking_passenger: PersonProtocol = who_wants_off.pop()
+            disembarking_passenger: Final[PersonProtocol] = who_wants_off.pop()
             self._passengers.remove(disembarking_passenger)
             disembarking_passenger.disembark_elevator()
         else:

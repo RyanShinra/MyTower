@@ -1,4 +1,5 @@
 import pygame
+from typing import Final
 from pygame import Surface
 from pygame.font import Font
 
@@ -37,5 +38,5 @@ class FloorRenderer:
         pygame.draw.rect(surface, floor.floorboard_color, (left_edge, floor_top_y, floor_width, FLOORBOARD_HEIGHT))
 
         # Optionally draw the floor number for debugging
-        text_surface: Surface = self._font.render(f"Floor {floor.floor_number}", True, (0, 0, 0))
+        text_surface: Final[Surface] = self._font.render(f"Floor {floor.floor_number}", True, (0, 0, 0))
         surface.blit(text_surface, (left_edge + 5, floor_top_y + 5))

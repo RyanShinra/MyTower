@@ -1,6 +1,6 @@
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, Final, List
 
 from pygame import Surface
 
@@ -92,7 +92,7 @@ class Building:
 
     def get_elevators(self) -> List[Elevator]:
         """Get all elevators from all banks"""
-        elevators: List[Elevator] = []
+        elevators: Final[List[Elevator]] = []
         for bank in self._elevator_banks:
             elevators.extend(bank.elevators)
         return elevators

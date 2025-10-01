@@ -8,7 +8,7 @@ Handles commands, manages update cycles
 # The abstract base class provides the protection we need for what we do 
 # (execute and get_description, Also, log errors from the result)
 
-from typing import Any, List, Optional
+from typing import Any, Final, List, Optional
 from mytower.game.controllers.controller_commands import Command, CommandResult
 from mytower.game.models.model_snapshots import ElevatorBankSnapshot, FloorSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
@@ -32,7 +32,7 @@ class GameController:
     def execute_command(self, command: Command[Any]) -> CommandResult[Any]:
         """Execute a command and optionally store for history"""
         try:
-            result: CommandResult[Any] = command.execute(self._model)
+            result: Final[CommandResult[Any]] = command.execute(self._model)
             
             if result.success:
                 self._command_history.append(command)
