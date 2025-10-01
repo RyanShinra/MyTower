@@ -1,8 +1,8 @@
 # /tests/conftest.py
 
 import pytest
-from typing import Protocol
-from unittest.mock import MagicMock, PropertyMock
+from typing import Protocol, Callable
+from unittest.mock import MagicMock, PropertyMock, Mock
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol, Person
 from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
@@ -10,6 +10,9 @@ from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.entities.building import Building
 from mytower.game.core.types import ElevatorState, VerticalDirection
+
+# Import new type-safe test utilities
+from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
 
 
 class PersonFactory(Protocol):
@@ -47,6 +50,33 @@ def mock_logger_provider() -> MagicMock:
 
 BUILDING_DEFAULT_NUM_FLOORS = 10
 BUILDING_DEFAULT_FLOOR_WIDTH = 20
+
+
+# New type-safe test utilities fixtures
+@pytest.fixture
+def typed_mock_factory() -> TypedMockFactory:
+    """Fixture providing type-safe mock creation"""
+    return TypedMockFactory()
+
+
+@pytest.fixture  
+def state_assertions() -> StateAssertions:
+    """Fixture providing common state assertion helpers"""
+    return StateAssertions()
+
+
+@pytest.fixture
+def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:
+    """Factory for creating building mocks with configurable floor behavior"""
+    
+    def _create_building(has_floors: bool = True, num_floors: int = BUILDING_DEFAULT_NUM_FLOORS, floor_width: int = BUILDING_DEFAULT_FLOOR_WIDTH) -> Mock:
+        return typed_mock_factory.create_building_mock(
+            num_floors=num_floors,
+            floor_width=floor_width,
+            has_floors=has_floors
+        )
+    
+    return _create_building
 
 @pytest.fixture
 def mock_building_no_floor() -> MagicMock:
