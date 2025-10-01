@@ -5,9 +5,8 @@ from pygame import Surface
 from pygame.font import Font
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
-from mytower.game.models.model_snapshots import ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.game.models.game_model import GameModel
 from mytower.game.views.desktop_ui import UIConfigProtocol
 from mytower.game.views.renderers.elevator_bank_renderer import ElevatorBankRenderer
 from mytower.game.views.renderers.elevator_renderer import ElevatorRenderer
@@ -21,13 +20,12 @@ class DesktopView:
     Manages the overall game state including the building, UI, and game controls.
     """
 
-    def __init__(self, logger_provider: LoggerProvider, game_model: GameModel, game_controller: GameController, config: GameConfig, screen_width: int, screen_height: int) -> None:
+    def __init__(self, logger_provider: LoggerProvider, game_controller: GameController, config: GameConfig, screen_width: int, screen_height: int) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("GameState")
 
         self._screen_width: int = screen_width
         self._screen_height: int = screen_height
 
-        self._game_model: GameModel = game_model  # Eventually this will need to be removed for proper MVC
         self._game_controller: GameController = game_controller
 
         # Configuration
@@ -94,6 +92,7 @@ class DesktopView:
         surface.blit(text, (10, 10))
 
         # Draw money
-        money_str: str = f"Money: ${self._game_model.money:,}"
+        building_state: BuildingSnapshot = self._game_controller.get_building_state()
+        money_str: str = f"Money: ${building_state.money:,}"
         text = font.render(money_str, True, (0, 0, 0))
         surface.blit(text, (10, 40))
