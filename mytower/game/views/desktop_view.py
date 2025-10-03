@@ -94,5 +94,5 @@ class DesktopView:
         # Draw money
         building_state: Final[BuildingSnapshot] = self._game_controller.get_building_state()
         money_str: str = f"Money: ${building_state.money:,}"
-        text = font.render(money_str, True, (0, 0, 0))
-        surface.blit(text, (10, 40))
+        money_text: Final[Surface] = font.render(money_str, True, (0, 0, 0))
+        surface.blit(money_text, (10, 40))
