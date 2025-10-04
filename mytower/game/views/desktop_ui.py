@@ -63,8 +63,8 @@ class Button:
         self._rect = pygame.Rect(x, y, width, height)
         self._text = text
         self._ui_config: UIConfigProtocol = ui_config
-        self._is_hovered = False
-        self._is_clicked = False
+        self._is_hovered: bool = False
+        self._is_clicked: bool = False
 
     @property
     def rect(self) -> pygame.Rect:
@@ -84,8 +84,8 @@ class Button:
 
     def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons) -> None:
         """Update button state based on mouse position and clicks"""
-        self._is_hovered: bool = self._rect.collidepoint(mouse_pos)
-        self._is_clicked: bool = self._is_hovered and mouse_pressed[0]
+        self._is_hovered = self._rect.collidepoint(mouse_pos)
+        self._is_clicked = self._is_hovered and mouse_pressed[0]
 
 
 
