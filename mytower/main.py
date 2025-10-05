@@ -14,6 +14,8 @@ from mytower.game.utilities.input import MouseState
 from mytower.game.utilities.logger import LoggerProvider
 from mytower.game.views.desktop_view import DesktopView
 
+from mytower.game.utilities.cli_args import GameArgs, parse_args, print_startup_banner
+
 # Initialize pygame
 # pylint: disable=no-member
 pygame.init()
@@ -38,6 +40,9 @@ def main() -> NoReturn:
     # Make the Logger provider, if we need to use this outside main(), then we can promote it to file scope
     logger_provider: LoggerProvider = LoggerProvider()
     main_logger: demo_builder.MyTowerLogger = logger_provider.get_logger("Main")
+
+    args: GameArgs = parse_args()
+    print_startup_banner(args)
 
     # Initialize the mouse with the logger provider
     global mouse
