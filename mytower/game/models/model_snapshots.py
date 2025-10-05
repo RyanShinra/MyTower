@@ -62,5 +62,6 @@ class BuildingSnapshot:
     money: int
     floors: List[FloorSnapshot]
     elevators: List[ElevatorSnapshot]
+    elevator_banks: List[ElevatorBankSnapshot]
     people: List[PersonSnapshot]
 

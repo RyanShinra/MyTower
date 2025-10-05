@@ -47,7 +47,7 @@ def main() -> NoReturn:
     config: GameConfig = GameConfig()
     game_model = GameModel(logger_provider)
     game_controller = GameController(model=game_model, logger_provider=logger_provider)
-    desktop_view = DesktopView(logger_provider, game_controller, config, window_width, window_height)
+    desktop_view = DesktopView(logger_provider, config, window_width, window_height)
     demo_builder.build_model_building(game_controller, logger_provider)
     running = True
     main_logger.info("Entering main loop.")
@@ -78,7 +78,7 @@ def main() -> NoReturn:
 
         # Draw everything
         screen.fill(BACKGROUND_COLOR)
-        desktop_view.draw(screen)
+        desktop_view.draw(screen, game_controller.get_building_state(), game_controller.speed)
 
         # Update the display
         pygame.display.flip()
