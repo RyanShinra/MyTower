@@ -82,12 +82,17 @@ class GameBridge:
             # Create snapshot if interval elapsed
             now: float = time()
             new_snapshot: Optional[BuildingSnapshot] = None
+            # TODO: Consider making snapshot interval adaptive based on load
+            # TODO: Let's keep an eye on thisThis may cause an extra frame of lag
             if now - self._last_snapshot_time > self._snapshot_interval_s:
                 new_snapshot = self._controller.get_building_state()
         
             if new_snapshot:
                 self._latest_snapshot = new_snapshot
                 self._last_snapshot_time = now
+        # End of with self._update_lock, releases self._update_lock
+    # End of update_game()
+        
 
     
     T = TypeVar('T')
