@@ -8,7 +8,7 @@ from queue import Queue
 import queue
 import threading
 from time import time
-from typing import Any, Dict, Optional, Tuple, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, TypeVar
 from mytower.game.controllers.controller_commands import AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand, AddPersonCommand, Command, CommandResult
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
@@ -40,7 +40,11 @@ class GameBridge:
     def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
         
         self._controller: GameController = controller
+        
         self._update_lock = threading.Lock()
+        self._command_lock = threading.Lock()
+        self._snapshot_lock = threading.Lock()
+        
         self._game_thread_id: Optional[int] = None
         
         self._command_queue: Queue[Tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
@@ -68,33 +72,29 @@ class GameBridge:
         elif self._game_thread_id != current_thread:
             raise RuntimeError(f"update_game() called from wrong thread!")
         
-        
-        with self._update_lock:
+        commands_this_frame: List[Tuple[str, Command[Any]]] = []
+        with self._command_lock:
             while not self._command_queue.empty():
                 try:
-                    _cmd_id, command = self._command_queue.get_nowait()
-                    self._command_results[_cmd_id] = self._controller.execute_command(command)
+                    commands_this_frame.append(self._command_queue.get_nowait())
                 except queue.Empty:
                     break
-            
-            self._controller.update(dt)
-            
-            # Create snapshot if interval elapsed
-            now: float = time()
-            new_snapshot: Optional[BuildingSnapshot] = None
-            # TODO: Consider making snapshot interval adaptive based on load
-            # TODO: Let's keep an eye on thisThis may cause an extra frame of lag
-            if now - self._last_snapshot_time > self._snapshot_interval_s:
-                new_snapshot = self._controller.get_building_state()
+        # End of with self._command_lock, releases self._command_lock
         
-            if new_snapshot:
-                self._latest_snapshot = new_snapshot
-                self._last_snapshot_time = now
+        with self._update_lock:            
+            for cmd_id, command in commands_this_frame:
+                self._command_results[cmd_id] = self._controller.execute_command(command)
+
+            self._controller.update(dt)
+
+            new_snapshot: BuildingSnapshot = self._controller.get_building_state()
         # End of with self._update_lock, releases self._update_lock
+        
+        with self._snapshot_lock:
+            self._latest_snapshot = new_snapshot        
     # End of update_game()
         
 
-    
     T = TypeVar('T')
     def execute_command_sync(self, command: Command[T]) -> CommandResult[T]:
         with self._update_lock:
@@ -107,8 +107,8 @@ class GameBridge:
         self._command_queue.put((command_id, command))
         return command_id
     
-    def get_building_state(self) -> Optional[BuildingSnapshot]:
-        with self._update_lock:
+    def get_building_snapshot(self) -> Optional[BuildingSnapshot]:
+        with self._snapshot_lock:
             return self._latest_snapshot  # Returns cached snapshot
         
     def get_command_result_sync(self, command_id: str) -> Optional[CommandResult[Any]]:

@@ -138,7 +138,7 @@ def run_desktop_mode(args: GameArgs) -> NoReturn:
         mouse.update()
         
         # Get latest snapshot from bridge
-        snapshot: BuildingSnapshot | None = bridge.get_building_state()
+        snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
         
         # Render
         screen.fill(BACKGROUND_COLOR)
@@ -215,6 +215,7 @@ def run_hybrid_mode(args: GameArgs) -> NoReturn:
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_SPACE:
+                    # TODO: These need to go on the GameBridge command queue to avoid race conditions
                     game_controller.set_paused(not game_controller.is_paused())
                 elif event.key == pygame.K_UP:
                     game_controller.set_speed(game_controller.speed + 0.25)
@@ -222,9 +223,7 @@ def run_hybrid_mode(args: GameArgs) -> NoReturn:
                     game_controller.set_speed(game_controller.speed - 0.25)
         
         mouse.update()
-        # TODO: We need to revisit this to avoid potential stutter, this blocks the main thread while updating
-        # (tantamount to just doing a direct call to game_controller)
-        snapshot: BuildingSnapshot | None = bridge.get_building_state()
+        snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
         
         screen.fill(BACKGROUND_COLOR)
         if snapshot:
