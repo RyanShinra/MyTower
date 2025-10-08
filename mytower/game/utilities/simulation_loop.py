@@ -10,9 +10,21 @@ def run_simulation_loop(bridge: GameBridge, target_fps: int = 60) -> None:
     # Simple game loop
     # TODO: Add proper & graceful shutdown handling
     while True:
+        frame_start_time: float = time.perf_counter()
+        
         # Be sure to use the game_bridge here, not the game_controller directly
         bridge.update_game(frame_interval)
-        time.sleep(frame_interval)
+        
+        frame_end_time: float = time.perf_counter()
+        frame_elapsed_time: float = frame_end_time - frame_start_time
+        sleep_duration: float = frame_interval - frame_elapsed_time
+        
+        if sleep_duration > 0:
+            time.sleep(sleep_duration)
+        else:
+            # We're running behind, consider logging a warning if this happens often
+            print(f"Warning: Simulation loop is running behind schedule by {-sleep_duration:.4f} seconds")
+            pass
 
 
 def start_simulation_thread(bridge: GameBridge, target_fps: int = 60) -> threading.Thread:
