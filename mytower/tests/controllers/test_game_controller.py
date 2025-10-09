@@ -83,7 +83,8 @@ class TestCommandExecution:
         result: CommandResult[None] = controller.execute_command(mock_command)
         
         assert result.success is False
-        assert result.error is not None  # Narrow the type
+        # Ensure that the error field is populated when a command crashes and fail_fast is False
+        assert result.error is not None
         assert "Command crashed: Test exception" in result.error
         assert len(controller._command_history) == 0
 
