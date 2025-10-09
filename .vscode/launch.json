@@ -6,20 +6,58 @@
     "configurations": [
 
         {
-            "name": "Python: mytower.main (module)",
+            "name": "MyTower: Desktop",
             "type": "debugpy",
             "request": "launch",
             "module": "mytower.main",
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
         {
-            "name": "Python: mytower.api.dev_server (module)",
+            "name": "MyTower: Desktop Demo",
             "type": "debugpy",
             "request": "launch",
-            "module": "mytower.api.dev_server",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "module": "mytower.main",
+            "args": ["--demo"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "MyTower: Hybrid Mode (Desktop + GraphQL)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "mytower.main",
+            "args": ["--with-graphql", "--demo", "--port", "8000"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "MyTower: Headless Mode",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "mytower.main",
+            "args": ["--headless", "--demo"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "MyTower: Headless + GraphQL",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "mytower.main",
+            "args": ["--headless", "--with-graphql", "--demo", "--port", "8000"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "MyTower: Attach to Hybrid (GraphQL Thread)",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            }
         }
     ]
 }
