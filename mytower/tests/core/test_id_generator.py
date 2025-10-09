@@ -14,7 +14,7 @@ class TestIDGeneratorBasics:
         """Test that IDGenerator initializes with correct values"""
         generator = IDGenerator("test", radix=1, first_id=1)
         
-        first_id = generator.get_next_id()
+        first_id: str = generator.get_next_id()
         assert first_id == "test_1"
         
         second_id = generator.get_next_id()

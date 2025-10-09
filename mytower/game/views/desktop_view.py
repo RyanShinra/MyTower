@@ -3,7 +3,6 @@ from typing import Final, List
 import pygame
 from pygame import Surface
 from pygame.font import Font
-from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
@@ -20,13 +19,11 @@ class DesktopView:
     Manages the overall game state including the building, UI, and game controls.
     """
 
-    def __init__(self, logger_provider: LoggerProvider, game_controller: GameController, config: GameConfig, screen_width: int, screen_height: int) -> None:
+    def __init__(self, logger_provider: LoggerProvider, config: GameConfig, screen_width: int, screen_height: int) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("GameState")
 
         self._screen_width: int = screen_width
         self._screen_height: int = screen_height
-
-        self._game_controller: GameController = game_controller
 
         # Configuration
         self._config: Final[GameConfig] = config
@@ -50,49 +47,48 @@ class DesktopView:
         return self._screen_height
 
 
-    def draw(self, surface: Surface) -> None:
+    def draw(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw the entire game state"""
 
         # TODO: There's nothing to draw for building yet, but we might later
         # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]
-        all_floors: Final[List[FloorSnapshot]] = self._game_controller.get_all_floors()
+        all_floors: Final[List[FloorSnapshot]] = snapshot.floors
         for floor in all_floors:
             self._floor_renderer.draw(surface, floor)
 
-        all_elevator_banks: Final[List[ElevatorBankSnapshot]] = self._game_controller.get_all_elevator_banks()
+        all_elevator_banks: Final[List[ElevatorBankSnapshot]] = snapshot.elevator_banks
         for bank in all_elevator_banks:
             self._elevator_bank_renderer.draw(surface, bank)
 
-        all_elevators: Final[List[ElevatorSnapshot]] = self._game_controller.get_all_elevators()
+        all_elevators: Final[List[ElevatorSnapshot]] = snapshot.elevators
         for elevator in all_elevators:
             self._elevator_renderer.draw(surface, elevator)
 
-        all_people: Final[List[PersonSnapshot]] = self._game_controller.get_all_people()
+        all_people: Final[List[PersonSnapshot]] = snapshot.people
         for person in all_people:
             self._person_renderer.draw(surface, person)
 
         # Draw UI elements
-        self._draw_ui(surface)
+        self._draw_ui(surface, snapshot, speed)
 
 
-    def _draw_ui(self, surface: Surface) -> None:
+    def _draw_ui(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw UI elements like time, money, etc."""
         # Draw time
         ui_config: Final[UIConfigProtocol] = self._config.ui_config
         font: Final[Font] = pygame.font.SysFont(ui_config.UI_FONT_NAME, ui_config.UI_FONT_SIZE)
 
         # Convert time to hours:minutes
-        time: float = self._game_controller.get_game_time()
+        time: float = snapshot.time
         hours: int = int(time // 3600) % 24
         minutes: int = int(time // 60) % 60
         seconds: int = int(time) % 60
-        time_str: str = f"[{self._game_controller.speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
+        time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
 
         text: Final[Surface] = font.render(time_str, True, (0, 0, 0))
         surface.blit(text, (10, 10))
 
         # Draw money
-        building_state: Final[BuildingSnapshot] = self._game_controller.get_building_state()
-        money_str: str = f"Money: ${building_state.money:,}"
+        money_str: str = f"Money: ${snapshot.money:,}"
         money_text: Final[Surface] = font.render(money_str, True, (0, 0, 0))
         surface.blit(money_text, (10, 40))

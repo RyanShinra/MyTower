@@ -32,6 +32,10 @@ class MyTowerLogger(logging.Logger):
         """
         if self.isEnabledFor(TRACE):
             self._log(TRACE, msg, args, **kwargs)
+    
+    def get_level_name(self, level: int) -> str:
+        """Get the string name of a log level."""
+        return logging.getLevelName(level)
 
 
 # Register our custom logger class with the logging system BEFORE creating any loggers
@@ -116,8 +120,18 @@ def get_logger(module_name: str) -> MyTowerLogger:
 
 # Create a LoggerProvider:
 class LoggerProvider:
-    def __init__(self, root_logger: Optional[MyTowerLogger] = None):
-        self._root_logger = root_logger or setup_logger(name="mytower")
+    def __init__(self, root_logger: Optional[MyTowerLogger] = None, log_level: int = logging.INFO):
+        if root_logger:
+            self._root_logger = root_logger
+        else:
+            # Pass log_level to setup_logger
+            self._root_logger: logging.Logger = setup_logger(
+                name="mytower",
+                level=log_level,
+                log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
+                file_level=TRACE,  # Always log everything to file
+                console_level=log_level  # Use specified level for console
+            )
         self._loggers: dict[str, MyTowerLogger] = {}
 
     def get_logger(self, module_name: str) -> MyTowerLogger:

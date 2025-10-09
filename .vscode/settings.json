@@ -82,4 +82,5 @@
     "cSpell.ignoreWords": [
         "PCAC"
     ],
+    "github.copilot.nextEditSuggestions.enabled": true,
 }

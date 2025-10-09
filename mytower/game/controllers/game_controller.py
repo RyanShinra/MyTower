@@ -21,10 +21,12 @@ class GameController:
     Coordinates game logic, handles commands from various sources
     Acts as the interface between external systems (pygame, GraphQL) and the model
     """
-    def __init__(self, model: GameModel, logger_provider: LoggerProvider, fail_fast: bool = False) -> None:
+    def __init__(self, model: GameModel, logger_provider: LoggerProvider, fail_fast: bool, print_exceptions: bool) -> None:
         self._fail_fast: bool = fail_fast
-        self._model: GameModel = model
+        self._print_exceptions: bool = print_exceptions
         self._logger: MyTowerLogger = logger_provider.get_logger("GameController")
+        
+        self._model: GameModel = model
         self._command_history: List[Command[Any]] = []  # For potential undo functionality
 
     
@@ -43,7 +45,11 @@ class GameController:
             return result
         
         except Exception as e:
-            self._logger.exception(f"Command execution crashed: {command.get_description()} - {str(e)}")
+            if self._print_exceptions:
+                self._logger.exception(f"Command execution crashed: {command.get_description()} - {str(e)}")
+            else:
+                self._logger.error(f"Command execution crashed: {command.get_description()} - {str(e)}")
+
             if self._fail_fast:
                 raise e
             return CommandResult(success=False, error=f"Command crashed: {str(e)}")

@@ -1,10 +1,10 @@
-import pytest
-
+"""Tests for model snapshot dataclasses"""
 from mytower.game.models.model_snapshots import (
     PersonSnapshot, ElevatorSnapshot, ElevatorBankSnapshot, 
     FloorSnapshot, BuildingSnapshot
 )
 from mytower.game.core.types import FloorType, PersonState, ElevatorState, VerticalDirection
+
 
 
 class TestPersonSnapshot:
@@ -207,12 +207,17 @@ class TestBuildingSnapshot:
             floor_color=(200, 200, 200), floorboard_color=(10, 10, 10)
         )
         
+        elevator_bank_snapshot = ElevatorBankSnapshot(
+            horizontal_block=14, min_floor=1, max_floor=20
+        )
+        
         building_snapshot = BuildingSnapshot(
             time=12345.67,
             money=500000,
             floors=[floor_snapshot],
             elevators=[elevator_snapshot],
-            people=[person_snapshot]
+            people=[person_snapshot],
+            elevator_banks=[elevator_bank_snapshot]
         )
         
         assert building_snapshot.time == 12345.67
@@ -231,7 +236,8 @@ class TestBuildingSnapshot:
             money=100000,
             floors=[],
             elevators=[],
-            people=[]
+            people=[],
+            elevator_banks=[]
         )
         
         assert snapshot.time == 0.0
@@ -242,7 +248,7 @@ class TestBuildingSnapshot:
 
     def test_multiple_entities(self) -> None:
         """Test BuildingSnapshot with multiple entities"""
-        floors = [
+        floors: list[FloorSnapshot] = [
             FloorSnapshot(
                 floor_type=FloorType.LOBBY, floor_number=1, floor_height_blocks=1,
                 left_edge_block=0, floor_width_blocks=20, person_count=0,
@@ -255,7 +261,7 @@ class TestBuildingSnapshot:
             )
         ]
         
-        elevators = [
+        elevators: list[ElevatorSnapshot] = [
             ElevatorSnapshot(
                 id="elevator_1", current_floor=1.0, current_block=14.0,
                 destination_floor=2, state=ElevatorState.MOVING,
@@ -264,7 +270,7 @@ class TestBuildingSnapshot:
             )
         ]
         
-        people = [
+        people: list[PersonSnapshot] = [
             PersonSnapshot(
                 person_id="person_1", current_floor_num=2, current_floor_float=2.0,
                 current_block_float=5.0, destination_floor_num=1, destination_block_num=10,
@@ -279,12 +285,22 @@ class TestBuildingSnapshot:
             )
         ]
         
+        el_banks: list[ElevatorBankSnapshot] = [
+            ElevatorBankSnapshot(
+                horizontal_block=14, min_floor=1, max_floor=20
+            ),
+            ElevatorBankSnapshot(
+                horizontal_block=18, min_floor=1, max_floor=10
+            )
+        ]
+        
         snapshot = BuildingSnapshot(
             time=300.0,
             money=450000,
             floors=floors,
             elevators=elevators,
-            people=people
+            people=people,
+            elevator_banks=el_banks
         )
         
         assert len(snapshot.floors) == 2
