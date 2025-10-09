@@ -9,9 +9,11 @@ Supports multiple execution modes:
 - Remote: Desktop connected to remote server (future)
 """
 
+from math import log
 import sys
 import threading
 from typing import NoReturn
+from venv import logger
 
 import pygame
 from pygame.surface import Surface
@@ -44,8 +46,8 @@ def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBri
     Optionally populates with demo content.
     """
     game_model = GameModel(logger_provider)
-    game_controller = GameController(model=game_model, logger_provider=logger_provider)
-    bridge = initialize_game_bridge(game_controller)
+    game_controller = GameController(model=game_model, logger_provider=logger_provider, fail_fast=args.fail_fast, print_exceptions=args.print_exceptions)
+    bridge: GameBridge = initialize_game_bridge(game_controller)
     
     if args.demo:
         demo_builder.build_model_building(game_controller, logger_provider)
@@ -53,7 +55,7 @@ def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBri
     return bridge, game_controller
 
 
-def run_headless_mode(args: GameArgs) -> NoReturn:
+def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Headless mode: GraphQL server only (for AWS deployment).
     
@@ -61,7 +63,6 @@ def run_headless_mode(args: GameArgs) -> NoReturn:
     - Main thread: HTTP server (uvicorn blocks here)
     - Background thread: Game simulation loop
     """
-    logger_provider = LoggerProvider()
     logger: MyTowerLogger = logger_provider.get_logger("Main")
     
     logger.info("Starting headless mode...")
@@ -79,7 +80,7 @@ def run_headless_mode(args: GameArgs) -> NoReturn:
     sys.exit(0)
 
 # pylint: disable=no-member
-def run_desktop_mode(args: GameArgs) -> NoReturn:
+def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Desktop mode: Pygame rendering with local simulation.
     
@@ -87,8 +88,8 @@ def run_desktop_mode(args: GameArgs) -> NoReturn:
     - Main thread: Pygame event loop + rendering (must be main on macOS)
     - Background thread: Game simulation loop
     """
-    logger_provider = LoggerProvider()
-    logger = logger_provider.get_logger("Main")
+    
+    logger: MyTowerLogger = logger_provider.get_logger("Main")
     
     logger.info("Starting desktop mode...")
     
@@ -152,7 +153,7 @@ def run_desktop_mode(args: GameArgs) -> NoReturn:
     sys.exit(0)
 
 
-def run_hybrid_mode(args: GameArgs) -> NoReturn:
+def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Hybrid mode: Desktop + local GraphQL server.
     
@@ -164,7 +165,6 @@ def run_hybrid_mode(args: GameArgs) -> NoReturn:
     Both desktop and GraphQL share the same GameBridge,
     so mutations from GraphQL are immediately visible in the desktop view.
     """
-    logger_provider = LoggerProvider()
     logger: MyTowerLogger = logger_provider.get_logger("Main")
     
     logger.info("Starting hybrid mode (Desktop + GraphQL)...")
@@ -236,7 +236,7 @@ def run_hybrid_mode(args: GameArgs) -> NoReturn:
     sys.exit(0)
 
 
-def run_remote_mode(args: GameArgs) -> NoReturn:
+def run_remote_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Remote mode: Desktop connected to remote server (future implementation).
     
@@ -247,7 +247,6 @@ def run_remote_mode(args: GameArgs) -> NoReturn:
     In this mode, there's no local simulation - all state comes from
     the remote server via WebSocket.
     """
-    logger_provider = LoggerProvider()
     logger: MyTowerLogger = logger_provider.get_logger("Main")
     
     logger.error("Remote mode not yet implemented")
@@ -266,15 +265,26 @@ def main() -> NoReturn:
     args: GameArgs = parse_args()
     print_startup_banner(args)
     
+    logger_provider = LoggerProvider(log_level=args.log_level)    
+    logger: MyTowerLogger = logger_provider.get_logger("Main")
+    
+    # Log startup configuration
+    if args.print_exceptions:
+        logger.info("Exception stack traces enabled")
+    if args.fail_fast:
+        logger.info("Fail-fast mode enabled")
+        
+    logger.info(f"Log level set to {logger.get_level_name(args.log_level)}")
+    
     # Route to appropriate mode
     if args.mode == 'headless':
-        run_headless_mode(args)
+        run_headless_mode(args, logger_provider)
     elif args.mode == 'hybrid':
-        run_hybrid_mode(args)
+        run_hybrid_mode(args, logger_provider)
     elif args.mode == 'remote':
-        run_remote_mode(args)
+        run_remote_mode(args, logger_provider)
     else:  # desktop
-        run_desktop_mode(args)
+        run_desktop_mode(args, logger_provider)
 
 
 if __name__ == "__main__":
