@@ -1,5 +1,5 @@
 
-from math import log
+
 import threading
 import time
 from mytower.api.game_bridge import GameBridge

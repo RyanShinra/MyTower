@@ -38,7 +38,7 @@ class GameArgs:
     
     def __post_init__(self) -> None:
         """Validate arguments after initialization"""
-        valid_modes: set[str] = {'desktop', 'headless', 'headless_graphql', 'hybrid', 'remote'}
+        valid_modes: set[str] = {'desktop', 'headless', 'hybrid', 'remote'}
         if self.mode not in valid_modes:
             raise ValueError(f"Invalid mode '{self.mode}'. Must be one of {valid_modes}")
         
@@ -158,9 +158,6 @@ Keyboard Controls (Desktop mode):
     if args.remote:
         mode = 'remote'
         remote_url = args.remote
-    elif args.headless and args.with_graphql:
-        mode = 'headless_graphql'
-        remote_url = None
     elif args.headless:
         mode = 'headless'
         remote_url = None
