@@ -9,9 +9,11 @@ Supports multiple execution modes:
 - Remote: Desktop connected to remote server (future)
 """
 
-import argparse
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
+import argparse
+import logging  # Add this import
 
 
 @dataclass
@@ -30,6 +32,9 @@ class GameArgs:
     demo: bool
     target_fps: int
     remote_url: Optional[str] = None
+    log_level: int = logging.INFO  # Default log level
+    print_exceptions: bool = False  # Whether to print full exceptions
+    fail_fast: bool = False  # Whether to exit on first error
     
     def __post_init__(self) -> None:
         """Validate arguments after initialization"""
@@ -128,17 +133,54 @@ Keyboard Controls (Desktop mode):
         version='MyTower 0.1.0 (Alpha)'
     )
     
+    parser.add_argument(
+        '--log-level',
+        type=str,
+        choices=['TRACE', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        default='INFO',
+        help='Set logging level (default: INFO)'
+    )
+    parser.add_argument(
+        '--print-exceptions',
+        action='store_true',
+        help='Print full exception stack traces for caught exceptions'
+    )
+    parser.add_argument(
+        '--fail-fast',
+        action='store_true',
+        help='Raise exceptions instead of catching them (for debugging)'
+    )
+    
     args: argparse.Namespace = parser.parse_args()
     
     # Determine mode from arguments
-    if args.headless:
-        mode = 'headless'
-    elif args.remote:
+    # Determine mode
+    if args.remote:
         mode = 'remote'
+        remote_url = args.remote
+    elif args.headless and args.with_graphql:
+        mode = 'headless_graphql'
+        remote_url = None
+    elif args.headless:
+        mode = 'headless'
+        remote_url = None
     elif args.with_graphql:
         mode = 'hybrid'
+        remote_url = None
     else:
         mode = 'desktop'
+        remote_url = None
+    
+    # Convert log level string to logging constant
+    log_level_map: dict[str, int] = {
+        'TRACE': 5,  # Your custom TRACE level
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL
+    }
+    log_level: int = log_level_map[args.log_level]
     
     # Construct and validate GameArgs
     game_args = GameArgs(
@@ -146,7 +188,10 @@ Keyboard Controls (Desktop mode):
         port=args.port,
         demo=args.demo,
         target_fps=args.fps,
-        remote_url=args.remote
+        remote_url=remote_url,
+        log_level=log_level,
+        print_exceptions=args.print_exceptions,
+        fail_fast=args.fail_fast
     )
     
     return game_args
