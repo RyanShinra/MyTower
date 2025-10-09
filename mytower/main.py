@@ -9,11 +9,9 @@ Supports multiple execution modes:
 - Remote: Desktop connected to remote server (future)
 """
 
-from math import log
 import sys
 import threading
 from typing import NoReturn
-from venv import logger
 
 import pygame
 from pygame.surface import Surface
