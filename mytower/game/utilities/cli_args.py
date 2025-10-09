@@ -154,7 +154,6 @@ Keyboard Controls (Desktop mode):
     args: argparse.Namespace = parser.parse_args()
     
     # Determine mode from arguments
-    # Determine mode
     if args.remote:
         mode = 'remote'
         remote_url = args.remote
