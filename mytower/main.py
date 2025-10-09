@@ -68,7 +68,7 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
     bridge, _ = setup_game(args, logger_provider)
 
     # Start simulation in background thread
-    start_simulation_thread(bridge, target_fps=args.target_fps)
+    start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
     
     # Start HTTP server on main thread (blocks)
     logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
@@ -112,7 +112,7 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     mouse = MouseState(logger_provider)
     
     # Start simulation in background thread
-    start_simulation_thread(bridge, target_fps=args.target_fps)
+    start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
     
     # Main pygame loop
     logger.info("Entering pygame main loop...")
@@ -187,7 +187,7 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     mouse = MouseState(logger_provider)
     
     # Start simulation in background thread
-    start_simulation_thread(bridge, target_fps=args.target_fps)
+    start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
     
     # Start GraphQL server in background thread
     def graphql_thread_target() -> None:

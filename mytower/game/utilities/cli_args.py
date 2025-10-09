@@ -38,7 +38,7 @@ class GameArgs:
     
     def __post_init__(self) -> None:
         """Validate arguments after initialization"""
-        valid_modes: set[str] = {'desktop', 'headless', 'hybrid', 'remote'}
+        valid_modes: set[str] = {'desktop', 'headless', 'headless_graphql', 'hybrid', 'remote'}
         if self.mode not in valid_modes:
             raise ValueError(f"Invalid mode '{self.mode}'. Must be one of {valid_modes}")
         
