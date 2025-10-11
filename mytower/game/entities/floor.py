@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Dict, Final
 
 
 
+from mytower.game.core.units import Blocks
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import Color, FloorType
 
@@ -44,10 +45,10 @@ class Floor:
     @dataclass
     class FloorInfo:
         """
-        Struct
+        Struct to hold information about a floor's appearance and dimensions.
         """
         color: Color
-        height: int
+        height: Blocks
 
     # Available floor types
     LOBBY_INFO: Final = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
@@ -66,21 +67,21 @@ class Floor:
         building: Building, 
         floor_num: int, 
         floor_type: FloorType, 
-        floor_left_edge: int = DEFAULT_FLOOR_LEFT_EDGE, 
-        floor_width: int = DEFAULT_FLOOR_WIDTH,   
+        floor_left_edge: Blocks = DEFAULT_FLOOR_LEFT_EDGE, 
+        floor_width: Blocks = DEFAULT_FLOOR_WIDTH,   
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("floor")
         self._building: Building = building
         # Floors are 1 indexed
         self._floor_num: int = floor_num
 
-        self._floor_left_edge: int = floor_left_edge
-        self._floor_width: int = floor_width
+        self._floor_left_edge: Blocks = floor_left_edge
+        self._floor_width: Blocks = floor_width
 
         self._floor_type: FloorType = floor_type
         self._color: Color = self.FLOOR_TYPES[floor_type].color
         self._floorboard_color: Color = FLOORBOARD_COLOR
-        self._height: int = self.FLOOR_TYPES[floor_type].height
+        self._height: Blocks = self.FLOOR_TYPES[floor_type].height
 
         self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor    
         
@@ -107,15 +108,15 @@ class Floor:
         return self._floorboard_color
 
     @property
-    def height(self) -> int:
+    def height(self) -> Blocks:
         return self._height
     
     @property
-    def left_edge(self) -> int:
+    def left_edge(self) -> Blocks:
         return self._floor_left_edge
 
     @property
-    def width(self) -> int:
+    def width(self) -> Blocks:
         return self._floor_width
 
     @property

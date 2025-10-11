@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Final, List
 from typing import Optional as Opt
 from typing import Protocol, Sequence
 
+from mytower.game.core.units import Meters
 from mytower.game.utilities.logger import LoggerProvider
 from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
@@ -71,10 +72,14 @@ class ElevatorCosmeticsProtocol(Protocol):
     def OPEN_COLOR(self) -> RGB: ...
 
     @property
-    def SHAFT_OVERHEAD_HEIGHT(self) -> int: ...
+    def SHAFT_OVERHEAD_HEIGHT(self) -> Meters: ...
     
     @property
-    def ELEVATOR_WIDTH(self) -> int: ...
+    def ELEVATOR_WIDTH(self) -> Meters: ...
+    
+    @property
+    def ELEVATOR_HEIGHT(self) -> Meters: ...
+    
 # pylint: enable=invalid-name
 
     

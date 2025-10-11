@@ -6,6 +6,7 @@ from pygame import Surface
 
 
 # pyright: ignore[reportImportCycles] 
+from mytower.game.core.units import Blocks
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
@@ -24,12 +25,12 @@ class Building:
     def __init__(
         self,
         logger_provider: LoggerProvider,
-        width: int = 20,
+        width: Blocks = Blocks(20),
     ) -> None:
         self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger("Building")
 
-        self._floor_width: int = width  # Width in grid cells
+        self._floor_width: Blocks = width  # Width in grid cells
         self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
         self._elevator_banks: List[ElevatorBank] = []  # List of elevator objects
         
@@ -42,7 +43,7 @@ class Building:
         return len(self._floors)
 
     @property
-    def floor_width(self) -> int:
+    def floor_width(self) -> Blocks:
         return self._floor_width
     
     # TODO: Remove this when fully migrating to GameModel and Floor ownership
@@ -54,7 +55,7 @@ class Building:
         """Add a new floor to the building"""
         next_floor_num: int = self.num_floors + 1
         # TODO: Left extent is hardcoded to 0 for now
-        left_edge: int = 0
+        left_edge: Blocks = Blocks(0)
         self._floors[next_floor_num] = Floor(self._logger_provider, self, next_floor_num, floor_type, left_edge, self._floor_width)
         return next_floor_num
 

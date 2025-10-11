@@ -2,14 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from tkinter import E
 from typing import TYPE_CHECKING, Final
 
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
-from mytower.game.core.types import RGB
-from mytower.game.views.desktop_ui import UIConfigProtocol
+from mytower.game.core.units import Blocks, Meters
 
 if TYPE_CHECKING:
+    from mytower.game.core.types import RGB
     from mytower.game.entities.elevator import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
+    from mytower.game.views.desktop_ui import UIConfigProtocol
     from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
 
 # It can't seem to make up its mind whether to use snake_case because they are class properties or UPPER_CASE for constants
@@ -34,18 +35,21 @@ class ElevatorCosmetics:
     SHAFT_OVERHEAD_COLOR: Final[RGB] = (24, 24, 24)
     CLOSED_COLOR: Final[RGB] = (50, 50, 200)
     OPEN_COLOR: Final[RGB] = (200, 200, 50)
-    SHAFT_OVERHEAD_HEIGHT: Final[int] = BLOCK_HEIGHT  # Pixels
-    ELEVATOR_WIDTH: Final[int] = BLOCK_WIDTH  # Pixels
+    SHAFT_OVERHEAD_HEIGHT: Final[Meters] = Blocks(1.0).in_meters
+    ELEVATOR_WIDTH: Final[Meters] = Blocks(1.0).in_meters
+    ELEVATOR_HEIGHT: Final[Meters] = Blocks(1.0).in_meters
 
 
 @dataclass
 class PersonConfig:
     """Concrete implementation of Person configuration"""
 
-    MAX_SPEED: Final[float] = 0.5  # blocks per second
+    MAX_SPEED: Final[float] = 1.35  # Meters per second (4.8 km/h, 3.0 mph - Midwestern walking speed)
+    WALKING_ACCELERATION: Final[float] = 0.5  # Meters per second squared
+    WALKING_DECELERATION: Final[float] = 0.5  # Meters per second squared
     MAX_WAIT_TIME: Final[float] = 90.0  # seconds before getting very angry
     IDLE_TIMEOUT: Final[float] = 5.0  # In person.py update_idle method
-    RADIUS: Final[int] = 5  # Visual size of person
+    RADIUS: Final[Meters] = Meters(1.75)  # Visual size of person in meters
 
 
 @dataclass

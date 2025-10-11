@@ -24,7 +24,8 @@ from typing import Optional as Opt
 
 import pygame
 
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
+
+from mytower.game.core.units import Blocks, Pixels, rect_from_pixels
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
@@ -61,7 +62,7 @@ class ElevatorBank:
         self,
         logger_provider: LoggerProvider,
         building: Building,
-        h_cell: int,
+        h_cell: Blocks,
         min_floor: int,
         max_floor: int,
         cosmetics_config: ElevatorCosmeticsProtocol,
@@ -72,7 +73,7 @@ class ElevatorBank:
 
         # Passengers waiting for the elevator on each floor
         self._building: Building = building
-        self._horizontal_block: int = h_cell
+        self._horizontal_block: Blocks = h_cell
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
@@ -122,7 +123,7 @@ class ElevatorBank:
         return self._max_floor
 
     @property
-    def horizontal_block(self) -> int:
+    def horizontal_block(self) -> Blocks:
         return self._horizontal_block
 
     @property
@@ -308,9 +309,10 @@ class ElevatorBank:
         return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, STATIONARY)
 
 
-    def get_waiting_block(self) -> int:
+    def get_waiting_block(self) -> Blocks:
+        """The block where people wait for the elevator, it's just to the left of the elevator bank unless it's at the left edge of the building, then it's just to the right"""
         # TODO: Update this once we add building extents
-        return max(1, self.horizontal_block - 1)
+        return max(Blocks(1), self.horizontal_block - Blocks(1))
 
 
 
@@ -478,26 +480,29 @@ class ElevatorBank:
 
     def draw(self, surface: Surface) -> None:
         """Draw the elevator Bank on the given surface"""
-        screen_height: int = surface.get_height()
+        screen_height: Pixels = Pixels(surface.get_height())
 
-        shaft_left: int = self._horizontal_block * BLOCK_WIDTH
-        width: int = BLOCK_WIDTH
+        shaft_left: Pixels = self._horizontal_block.in_pixels
+        width: Pixels = self._cosmetics_config.ELEVATOR_WIDTH.in_pixels
 
         # Draw shaft from min to max floor
-        #     420 = 480 - (3 * 20)
-        shaft_top: int = screen_height - (self._max_floor * BLOCK_HEIGHT)
-        shaft_overhead: int = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
-        #     480 = 480 - ((1 - 1) * 20)
-        shaft_bottom: int = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
+        shaft_top: Pixels = screen_height - Blocks(self._max_floor).in_pixels
+        shaft_overhead: Pixels = screen_height - Blocks(self._max_floor + 1).in_pixels
+        shaft_bottom: Pixels = screen_height - Blocks(self._min_floor - 1).in_pixels
         
+        elevator_shaft_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_top, width, shaft_bottom - shaft_top)
         pygame.draw.rect(
-            surface, self._cosmetics_config.SHAFT_COLOR, (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
-        ) # pyright: ignore[reportUnusedCallResult]
+            surface,
+            self._cosmetics_config.SHAFT_COLOR,
+            elevator_shaft_rect
+        )
 
+        # Draw overhead part of shaft
+        elevator_overhead_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
         pygame.draw.rect(
             surface,
             self._cosmetics_config.SHAFT_OVERHEAD_COLOR,
-            (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead),
-        ) # pyright: ignore[reportUnusedCallResult]
+            elevator_overhead_rect
+        )
 
 

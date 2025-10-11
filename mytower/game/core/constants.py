@@ -9,6 +9,7 @@
 
 from typing import Final
 
+from mytower.game.core.units import Blocks
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import RGB, Money
 
@@ -27,8 +28,10 @@ MAX_TIME_MULTIPLIER: Final[float] = 10.0
 BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants
-BLOCK_WIDTH: Final[int] = 40  # Width of a grid cell in pixels, 3.0m
-BLOCK_HEIGHT: Final[int] = 40  # Height of a grid cell in pixels, 3.0m
+
+BLOCK_WIDTH: Final[Blocks] = Blocks(1.0)  # Width of a grid cell in meters
+BLOCK_HEIGHT: Final[Blocks] = Blocks(1.0)  # Height of a grid cell in meters
+
 BLOCK_FLOAT_TOLERANCE: Final[float] = 0.1  # We comparing two positions to be in the same block
 
 # TODO: We should definitely re-imagine how the colors and heights are organized.
@@ -44,18 +47,18 @@ DEFAULT_FLOOR_COLOR: Final[RGB] = (180, 180, 180)
 
 # Floor dimensions
 FLOORBOARD_HEIGHT: Final[int] = 4  # Height of the floorboard in pixels
-DEFAULT_FLOOR_HEIGHT: Final[int] = 1  # Default height of a floor in blocks
-DEFAULT_FLOOR_LEFT_EDGE: Final[int] = 0  # Default left edge of a floor in blocks
-DEFAULT_FLOOR_WIDTH: Final[int] = 20  # Default width of a floor in blocks
+DEFAULT_FLOOR_HEIGHT: Final[Blocks] = Blocks(1)  # Default height of a floor in blocks
+DEFAULT_FLOOR_LEFT_EDGE: Final[Blocks] = Blocks(0)  # Default left edge of a floor in blocks
+DEFAULT_FLOOR_WIDTH: Final[Blocks] = Blocks(20)  # Default width of a floor in blocks
 
 # Floor heights
 # Floors are one block high for now
-LOBBY_HEIGHT: Final[int] = 1 
-OFFICE_HEIGHT: Final[int] = 1
-APARTMENT_HEIGHT: Final[int] = 1
-HOTEL_HEIGHT: Final[int] = 1
-RESTAURANT_HEIGHT: Final[int] = 1
-RETAIL_HEIGHT: Final[int] = 1
+LOBBY_HEIGHT: Final[Blocks] = Blocks(1)
+OFFICE_HEIGHT: Final[Blocks] = Blocks(1)
+APARTMENT_HEIGHT: Final[Blocks] = Blocks(1)
+HOTEL_HEIGHT: Final[Blocks] = Blocks(1)
+RESTAURANT_HEIGHT: Final[Blocks] = Blocks(1)
+RETAIL_HEIGHT: Final[Blocks] = Blocks(1)
 
 # Game balance constants
 STARTING_MONEY: Final[Money] = Money(100000)
