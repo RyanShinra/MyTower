@@ -60,7 +60,7 @@ class ElevatorBank:
         self,
         logger_provider: LoggerProvider,
         building: Building,
-        h_cell: Blocks,
+        h_cell: int,
         min_floor: int,
         max_floor: int,
         cosmetics_config: ElevatorCosmeticsProtocol,
@@ -71,7 +71,7 @@ class ElevatorBank:
 
         # Passengers waiting for the elevator on each floor
         self._building: Building = building
-        self._horizontal_block: Blocks = h_cell
+        self._horizontal_block: Blocks = Blocks(h_cell)
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config

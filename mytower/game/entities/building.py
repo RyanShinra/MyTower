@@ -1,17 +1,16 @@
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, Dict, Final, List
+from typing import TYPE_CHECKING, Dict, List, Final
 
 from pygame import Surface
 
-# pyright: ignore[reportImportCycles] 
 from mytower.game.core.units import Blocks
-from mytower.game.entities.elevator import Elevator
-from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import FloorType
+from mytower.game.entities.floor import Floor
 
 if TYPE_CHECKING:
+    from mytower.game.entities.elevator import Elevator
     from mytower.game.entities.person import PersonProtocol
     from mytower.game.entities.elevator_bank import ElevatorBank
 
@@ -24,12 +23,12 @@ class Building:
     def __init__(
         self,
         logger_provider: LoggerProvider,
-        width: Blocks = Blocks(20),
+        width: int = 20,
     ) -> None:
         self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger("Building")
 
-        self._floor_width: Blocks = width  # Width in grid cells
+        self._floor_width: Blocks = Blocks(width)  # Width in grid cells
         self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
         self._elevator_banks: List[ElevatorBank] = []  # List of elevator objects
         

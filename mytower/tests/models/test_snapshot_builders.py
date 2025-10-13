@@ -172,7 +172,7 @@ class TestBuildPersonSnapshot:
         assert snapshot.current_floor_float == 3.0
         assert snapshot.current_block_float == 8.5
         assert snapshot.destination_floor_num == 7
-        assert snapshot.destination_block_num == 12.0
+        assert snapshot.destination_block_float == 12.0
         assert snapshot.state == PersonState.WALKING
         assert snapshot.waiting_time == 25.3
         assert snapshot.mad_fraction == 0.4

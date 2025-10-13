@@ -17,7 +17,7 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
         current_floor_num=person.current_floor_num,
         current_block_float=person.current_block_float,
         destination_floor_num=person.destination_floor_num,
-        destination_block_num=person.destination_block_num,
+        destination_block_num=person.destination_block_float,
         state=PersonStateGQL(person.state.value),
         waiting_time=person.waiting_time,
         mad_fraction=person.mad_fraction,

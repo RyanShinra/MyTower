@@ -18,7 +18,7 @@ class TestPersonSnapshot:
             current_floor_float=5.2,
             current_block_float=10.5,
             destination_floor_num=8,
-            destination_block_num=15,
+            destination_block_float=15,
             state=PersonState.WALKING,
             waiting_time=30.5,
             mad_fraction=0.7,
@@ -30,7 +30,7 @@ class TestPersonSnapshot:
         assert snapshot.current_floor_float == 5.2
         assert snapshot.current_block_float == 10.5
         assert snapshot.destination_floor_num == 8
-        assert snapshot.destination_block_num == 15
+        assert snapshot.destination_block_float == 15
         assert snapshot.state == PersonState.WALKING
         assert snapshot.waiting_time == 30.5
         assert snapshot.mad_fraction == 0.7
@@ -44,7 +44,7 @@ class TestPersonSnapshot:
             current_floor_float=5.2,
             current_block_float=10.5,
             destination_floor_num=8,
-            destination_block_num=15,
+            destination_block_float=15,
             state=PersonState.IDLE,
             waiting_time=0.0,
             mad_fraction=0.0,
@@ -189,7 +189,7 @@ class TestBuildingSnapshot:
         """Test BuildingSnapshot creation with all fields"""
         person_snapshot = PersonSnapshot(
             person_id="person_1", current_floor_num=1, current_floor_float=1.0,
-            current_block_float=5.0, destination_floor_num=5, destination_block_num=10,
+            current_block_float=5.0, destination_floor_num=5, destination_block_float=10,
             state=PersonState.WALKING, waiting_time=0.0, mad_fraction=0.0,
             draw_color=(128, 128, 128)
         )
@@ -273,13 +273,13 @@ class TestBuildingSnapshot:
         people: list[PersonSnapshot] = [
             PersonSnapshot(
                 person_id="person_1", current_floor_num=2, current_floor_float=2.0,
-                current_block_float=5.0, destination_floor_num=1, destination_block_num=10,
+                current_block_float=5.0, destination_floor_num=1, destination_block_float=10,
                 state=PersonState.WAITING_FOR_ELEVATOR, waiting_time=15.5, mad_fraction=0.2,
                 draw_color=(200, 150, 100)
             ),
             PersonSnapshot(
                 person_id="person_2", current_floor_num=2, current_floor_float=2.0,
-                current_block_float=8.0, destination_floor_num=1, destination_block_num=3,
+                current_block_float=8.0, destination_floor_num=1, destination_block_float=3,
                 state=PersonState.IDLE, waiting_time=0.0, mad_fraction=0.0,
                 draw_color=(100, 200, 150)
             )

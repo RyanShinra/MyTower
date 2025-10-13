@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Final, List
 from typing import Optional as Opt
 from typing import Protocol, Sequence
 
-from mytower.game.core.units import Meters
+from mytower.game.core.units import Blocks, Meters
 from mytower.game.utilities.logger import LoggerProvider
 from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
@@ -98,6 +98,7 @@ class Elevator:
         max_floor: int,
         config: ElevatorConfigProtocol,
         cosmetics_config: ElevatorCosmeticsProtocol,
+        starting_floor: int | None = None,
     ) -> None:
         """
         Initialize a new elevator
@@ -123,8 +124,8 @@ class Elevator:
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
 
         # Current state
-        self._current_floor_float: float = float(min_floor)  # Floor number (can be fractional when moving)
-        self._destination_floor: int = min_floor  # Let's not stop between floors
+        self._current_floor_in_blocks: Blocks = Blocks(min_floor if starting_floor is None else starting_floor)  # Floor number (can be fractional when moving)
+        self._destination_floor: int = min_floor if starting_floor is None else starting_floor  # Let's not stop between floors
         self._door_open: bool = False
         self._state: ElevatorState = ElevatorState.IDLE
         self._motion_direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
@@ -185,22 +186,22 @@ class Elevator:
     
     @property
     def current_floor_int(self) -> int:
-        return int(self._current_floor_float)
+        return int(self._current_floor_in_blocks)
 
-    def testing_set_current_floor(self, floor: float) -> None:
-        if not (self.min_floor <= floor <= self.max_floor):
+    def testing_set_current_floor(self, floor: Blocks) -> None:
+        if not (self.min_floor <= float(floor) <= self.max_floor):
             raise ValueError(
                 f"Testing floor {floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}."
             )
-        self._current_floor_float = float(floor)
+        self._current_floor_in_blocks = floor
 
     @property
-    def fractional_floor(self) -> float:
-        return self._current_floor_float
+    def fractional_floor(self) -> Blocks:
+        return self._current_floor_in_blocks
     
     @property
-    def current_block_float(self) -> float:
-        return float(self._parent_elevator_bank.horizontal_block)
+    def current_block_float(self) -> Blocks:
+        return self._parent_elevator_bank.horizontal_block
 
     @property
     def parent_elevator_bank(self) -> ElevatorBank:
@@ -376,10 +377,10 @@ class Elevator:
 
     def _update_moving(self, dt: float) -> None:
         dy: float = dt * self.max_velocity * self.motion_direction.value
-        cur_floor: float = self._current_floor_float + dy
+        cur_floor: float = float(self._current_floor_in_blocks) + dy
         if self._moving_log_timer >= self._config.MOVING_LOG_TIMEOUT:
             self._logger.trace(
-                f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_float} to {cur_floor}"
+                f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_in_blocks} to {cur_floor}"
             )
             self._moving_log_timer = 0.0
 
@@ -396,13 +397,13 @@ class Elevator:
             self._logger.info(
                 f"{self.state} Elevator: The elevator has arrived from moving {self.motion_direction} -> ARRIVED"
             )
-            cur_floor = self.destination_floor
+            cur_floor = float(self.destination_floor)
             self._state = ElevatorState.ARRIVED
             self._motion_direction = VerticalDirection.STATIONARY
 
         cur_floor = min(self.max_floor, cur_floor)
         cur_floor = max(self.min_floor, cur_floor)
-        self._current_floor_float = cur_floor
+        self._current_floor_in_blocks = Blocks(cur_floor)
 
 
     def _update_arrived(self, dt: float) -> None:

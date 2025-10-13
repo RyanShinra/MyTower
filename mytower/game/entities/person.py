@@ -16,8 +16,6 @@ from typing import TYPE_CHECKING, Final, List, Protocol, override
 
 from mytower.game.core.config import GameConfig
 from mytower.game.core.units import Blocks, Meters
-from mytower.game.core.units import Meters
-from mytower.game.entities.elevator import Elevator
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
 from mytower.game.core.id_generator import IDGenerator
@@ -27,6 +25,7 @@ if TYPE_CHECKING:
     from mytower.game.entities.building import Building
     from mytower.game.entities.elevator_bank import ElevatorBank
     from mytower.game.entities.floor import Floor
+    from mytower.game.entities.elevator import Elevator
     from mytower.game.utilities.logger import LoggerProvider
 
 
@@ -89,7 +88,7 @@ class PersonProtocol(Protocol):
     def current_floor_num(self) -> int: ...
     
     @property
-    def current_floor_float(self) -> float: ...
+    def current_floor_float(self) -> Blocks: ...
 
     @property
     def destination_floor_num(self) -> int: ...
@@ -166,7 +165,7 @@ class Person(PersonProtocol):
         logger_provider: LoggerProvider,
         building: Building,
         initial_floor_number: int,
-        initial_block_float: Blocks,
+        initial_block_float: float,
         config: GameConfig,
     ) -> None:
         # Assign unique ID and increment counter
@@ -174,9 +173,9 @@ class Person(PersonProtocol):
         
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: Building = building
-        self._current_floor_float: float = float(initial_floor_number)
-        self._current_block_float: Blocks = initial_block_float
-        self._dest_block_num: Blocks = initial_block_float
+        self._current_floor_blocks: Blocks = Blocks(initial_floor_number)
+        self._current_block_blocks: Blocks = Blocks(initial_block_float)
+        self._dest_block_blocks: Blocks = Blocks(initial_block_float)
         self._dest_floor_num: int = initial_floor_number
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
@@ -189,7 +188,8 @@ class Person(PersonProtocol):
         
         if initial_floor_number < 0 or initial_floor_number > building.num_floors:
             raise ValueError(f"Initial floor {initial_floor_number} is out of bounds (0-{building.num_floors})")
-        if initial_block_float < Blocks(0) or initial_block_float > building.floor_width:
+
+        if initial_block_float < 0 or initial_block_float > float(building.floor_width):
             raise ValueError(f"Initial block {initial_block_float} is out of bounds (0-{building.floor_width})")
 
         self._current_floor: Floor | None = None
@@ -226,22 +226,22 @@ class Person(PersonProtocol):
     @property
     @override
     def current_floor_num(self) -> int:
-        return int(self._current_floor_float)
+        return int(self._current_floor_blocks)
     
     @property
     @override
-    def current_floor_float(self) -> float:
-        return self._current_floor_float
+    def current_floor_float(self) -> Blocks:
+        return self._current_floor_blocks
 
     @property
     @override
     def destination_block_num(self) -> Blocks:
-        return self._dest_block_num
+        return self._dest_block_blocks
 
     @property
     @override
     def current_block_float(self) -> Blocks:
-        return self._current_block_float
+        return self._current_block_blocks
 
     @property
     @override
@@ -297,7 +297,7 @@ class Person(PersonProtocol):
 
         dest_block_num = min(dest_block_num, self.building.floor_width)
         dest_block_num = max(dest_block_num, Blocks(0))
-        self._dest_block_num = dest_block_num
+        self._dest_block_blocks = dest_block_num
 
 
     @override
@@ -308,7 +308,7 @@ class Person(PersonProtocol):
 
         for elevator in elevator_list:
             # TODO: Add logic to skip elevator banks that don't go to dest floor
-            dist: float = abs(float(elevator.horizontal_block - self._current_block_float))
+            dist: float = abs(float(elevator.horizontal_block - self._current_block_blocks))
             if dist < closest_dist:
                 closest_dist = dist
                 closest_el = elevator
@@ -349,8 +349,8 @@ class Person(PersonProtocol):
         if self.state != PersonState.IN_ELEVATOR:
             raise RuntimeError("Cannot disembark elevator: person must be in elevator state.")
 
-        self._current_block_float = self._current_elevator.parent_elevator_bank.get_waiting_block()
-        self._current_floor_float = float(self._current_elevator.current_floor_int)
+        self._current_block_blocks = self._current_elevator.parent_elevator_bank.get_waiting_block()
+        self._current_floor_blocks = Blocks(self._current_elevator.current_floor_int)
         
         try:
             self._assign_floor(self._current_elevator.current_floor_int)
@@ -381,8 +381,8 @@ class Person(PersonProtocol):
             case PersonState.IN_ELEVATOR:
                 if self._current_elevator:
                     self._waiting_time += dt
-                    self._current_floor_float = self._current_elevator.fractional_floor
-                    self._current_block_float = self._current_elevator.parent_elevator_bank.horizontal_block
+                    self._current_floor_blocks = self._current_elevator.fractional_floor
+                    self._current_block_blocks = self._current_elevator.parent_elevator_bank.horizontal_block
 
             case _:
                 # Handle unexpected states
@@ -398,7 +398,7 @@ class Person(PersonProtocol):
         if self._idle_timeout > 0.0:
             return
 
-        current_destination_block: Blocks = self._dest_block_num
+        current_destination_block: Blocks = self._dest_block_blocks
 
         if self._dest_floor_num != self.current_floor_num:
             # Find the nearest elevator, go in that direction
@@ -411,7 +411,7 @@ class Person(PersonProtocol):
                 self._state = PersonState.WALKING
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
-                current_destination_block = self._current_block_float  # why move? There's nowhere to go
+                current_destination_block = self._current_block_blocks  # why move? There's nowhere to go
                 self._logger.trace(
                     f"IDLE Person: Destination fl. {self.destination_floor_num} != current fl. {self.current_floor_num} -> IDLE b/c no Elevator on this floor"
                 )
@@ -419,7 +419,7 @@ class Person(PersonProtocol):
                 # Set a timer so that we don't run this constantly (like every 5 seconds)
                 self._idle_timeout = self._config.person.IDLE_TIMEOUT
 
-        if current_destination_block < self._current_block_float:
+        if current_destination_block < self._current_block_blocks:
             # Already on the right floor (or walking to elevator?)
             self._logger.trace(
                 f"IDLE Person: Destination is on this floor: {self.destination_floor_num}, WALKING LEFT to block: {current_destination_block}"
@@ -427,7 +427,7 @@ class Person(PersonProtocol):
             self._state = PersonState.WALKING
             self.direction = HorizontalDirection.LEFT
 
-        elif current_destination_block > self._current_block_float:
+        elif current_destination_block > self._current_block_blocks:
             self._logger.trace(
                 f"IDLE Person: Destination is on this floor: {self.destination_floor_num}, WALKING RIGHT to block: {current_destination_block}"
             )
@@ -440,15 +440,15 @@ class Person(PersonProtocol):
         done: bool = False
 
         # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-        waypoint_block: Blocks = self._next_elevator_bank.get_waiting_block() if self._next_elevator_bank else self._dest_block_num        
+        waypoint_block: Blocks = self._next_elevator_bank.get_waiting_block() if self._next_elevator_bank else self._dest_block_blocks        
 
-        if waypoint_block < self._current_block_float:
+        if waypoint_block < self._current_block_blocks:
             self.direction = HorizontalDirection.LEFT
 
-        elif waypoint_block > self._current_block_float:
+        elif waypoint_block > self._current_block_blocks:
             self.direction = HorizontalDirection.RIGHT
 
-        next_block: Blocks = self._current_block_float + Blocks(dt * self._config.person.MAX_SPEED * self.direction.value)
+        next_block: Blocks = self._current_block_blocks + Blocks(dt * self._config.person.MAX_SPEED * self.direction.value)
         if self.direction == HorizontalDirection.RIGHT:
             if next_block >= waypoint_block:
                 done = True
@@ -471,7 +471,7 @@ class Person(PersonProtocol):
         # TODO: Update these once we have building extents
         next_block = min(next_block, self.building.floor_width)
         next_block = max(next_block, Blocks(0))
-        self._current_block_float = next_block
+        self._current_block_blocks = next_block
 
     # TESTING ONLY: Set the destination floor directly (for unit tests)
     @override
@@ -482,7 +482,7 @@ class Person(PersonProtocol):
         self._dest_floor_num = min(max(dest_floor, 0), self.building.num_floors)
 
     def testing_confirm_dest_block_is(self, block: float) -> bool:
-        return self._dest_block_num == block
+        return self._dest_block_blocks == block
 
     def testing_set_next_elevator_bank(self, next_bank: ElevatorBank) -> None:
         self._next_elevator_bank = next_bank
@@ -503,13 +503,13 @@ class Person(PersonProtocol):
         return self._next_elevator_bank
     
     def testing_set_current_floor_float(self, cur_floor: float) -> None:
-        self._current_floor_float = cur_floor
+        self._current_floor_blocks = Blocks(cur_floor)
         
     def testing_get_current_floor_float(self) -> float:
-        return self._current_floor_float
+        return float(self._current_floor_blocks)
 
     def testing_set_current_block_float(self, cur_block: Blocks) -> None:
-        self._current_block_float = cur_block
+        self._current_block_blocks = cur_block
 
     def testing_set_current_state(self, state: PersonState) -> None:
         self._state = state

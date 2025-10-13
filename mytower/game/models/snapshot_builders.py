@@ -43,6 +43,7 @@ def build_elevator_snapshot(elevator: Elevator) -> ElevatorSnapshot:
 def build_elevator_bank_snapshot(elevator_bank: ElevatorBank) -> ElevatorBankSnapshot:
     """Build a snapshot for a single elevator bank"""
     return ElevatorBankSnapshot(
+        id=elevator_bank.elevator_bank_id,
         horizontal_block=elevator_bank.horizontal_block,
         min_floor=elevator_bank.min_floor,
         max_floor=elevator_bank.max_floor,
@@ -56,7 +57,7 @@ def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
         current_floor_float=person.current_floor_float,
         current_block_float=person.current_block_float,
         destination_floor_num=person.destination_floor_num,
-        destination_block_num=person.destination_block_num,
+        destination_block_float=person.destination_block_num,
         state=person.state,
         waiting_time=person.waiting_time,
         mad_fraction=person.mad_fraction,
