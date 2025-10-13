@@ -1,21 +1,35 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, override, Final
+from dataclasses import dataclass, field
+from typing import override
+import math
 
 from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE, METRIC_FLOAT_TOLERANCE, PIXELS_PER_METER, METERS_PER_BLOCK
 
 
-
-PIXELS_PER_METER: Final[int] = 20  # 20 pixels = 1 meter
-METERS_PER_BLOCK: Final[float] = 3.2  # 1 block = 3.2 meters
-
-if TYPE_CHECKING:
-    pass
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, order=True)
 class Meters:
-    value: float
-
+    """
+    Physical distance measurement in SI units.
+    
+    Design notes:
+    - frozen=True: Immutable value semantics (like C++ const)
+    - slots=True: No __dict__ overhead (~70% memory reduction)
+    - order=True: Auto-generates __lt__, __le__, __gt__, __ge__
+    - Custom __eq__: Floating-point tolerance for physics calculations
+    """
+    value: float = field(
+        metadata={
+            "unit": "meters",
+            "si_base": True,
+            "description": "Physical measurement for collision detection"
+        }
+    )
+    
+    def __post_init__(self) -> None:
+        """Validate finite value for physics safety"""
+        if not math.isfinite(self.value):
+            raise ValueError(f"Meters value must be finite, got {self.value}")
+    
     def __add__(self, other: Meters) -> Meters:
         return Meters(self.value + other.value)
 
@@ -28,24 +42,12 @@ class Meters:
     def __truediv__(self, divisor: float) -> Meters:
         return Meters(self.value / divisor)
 
-    def __lt__(self, other: Meters) -> bool:
-        return self.value < other.value
-
-    def __le__(self, other: Meters) -> bool:
-        return self.value <= other.value
-
-    def __gt__(self, other: Meters) -> bool:
-        return self.value > other.value
-
-    def __ge__(self, other: Meters) -> bool:
-        return self.value >= other.value
-
     @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Meters):
             return NotImplemented
-        return abs(self.value - other.value) < BLOCK_FLOAT_TOLERANCE
-
+        return abs(self.value - other.value) < METRIC_FLOAT_TOLERANCE
+    
     @override
     def __repr__(self) -> str:
         return f"Meters({self.value})"
@@ -66,10 +68,30 @@ class Meters:
         return self.value
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, order=True)
 class Pixels:
-    value: int
-
+    """
+    Integer screen-space coordinate for rendering.
+    
+    Design notes:
+    - Integer precision (no floating-point tolerance needed)
+    - order=True: Auto-generates __lt__, __le__, __gt__, __ge__
+    - Optimized for high allocation rate during frame rendering
+    - Converts to Meters/Blocks for physics calculations
+    """
+    value: int = field(
+        metadata={
+            "unit": "pixels",
+            "rendering": True,
+            "description": "Screen coordinate for UI/sprite positioning"
+        }
+    )
+    
+    def __post_init__(self) -> None:
+        """Validate pixel coordinates are reasonable"""
+        if not isinstance(self.value, int):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise TypeError(f"Pixels requires int, got {type(self.value)}")
+    
     def __add__(self, other: Pixels) -> Pixels:
         return Pixels(self.value + other.value)
 
@@ -81,18 +103,6 @@ class Pixels:
 
     def __truediv__(self, divisor: float) -> Pixels:
         return Pixels(int(self.value / divisor))
-
-    def __lt__(self, other: Pixels) -> bool:
-        return self.value < other.value
-
-    def __le__(self, other: Pixels) -> bool:
-        return self.value <= other.value
-
-    def __gt__(self, other: Pixels) -> bool:
-        return self.value > other.value
-
-    def __ge__(self, other: Pixels) -> bool:
-        return self.value >= other.value
 
     @override
     def __eq__(self, other: object) -> bool:
@@ -122,10 +132,30 @@ class Pixels:
         return float(self.value)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, order=True)
 class Blocks:
-    value: float
-
+    """
+    Building grid coordinate system.
+    
+    Design notes:
+    - Logical game coordinate (not physical measurement)
+    - order=True: Auto-generates __lt__, __le__, __gt__, __ge__
+    - Floor numbers are discrete (int), positions are continuous (float)
+    - Supports fractional values during elevator movement
+    """
+    value: float = field(
+        metadata={
+            "unit": "blocks",
+            "grid_based": True,
+            "description": "Vertical position in building floor system"
+        }
+    )
+    
+    def __post_init__(self) -> None:
+        """Validate finite value for simulation safety"""
+        if not math.isfinite(self.value):
+            raise ValueError(f"Blocks value must be finite, got {self.value}")
+    
     def __add__(self, other: Blocks) -> Blocks:
         return Blocks(self.value + other.value)
 
@@ -137,18 +167,6 @@ class Blocks:
     
     def __truediv__(self, divisor: float) -> Blocks:
         return Blocks(self.value / divisor)
-
-    def __lt__(self, other: Blocks) -> bool:
-        return self.value < other.value
-
-    def __le__(self, other: Blocks) -> bool:
-        return self.value <= other.value
-
-    def __gt__(self, other: Blocks) -> bool:
-        return self.value > other.value
-
-    def __ge__(self, other: Blocks) -> bool:
-        return self.value >= other.value
 
     @override
     def __eq__(self, other: object) -> bool:
