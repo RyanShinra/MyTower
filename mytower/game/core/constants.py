@@ -9,7 +9,8 @@
 
 from typing import Final
 
-from mytower.game.core.units import Blocks
+from mytower.game.core.units import Blocks, Pixels
+from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import RGB, Money
 

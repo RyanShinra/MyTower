@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, override, Final
 
-from mytower.game.core.constants import BLOCK_FLOAT_TOLERANCE
+from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE, METRIC_FLOAT_TOLERANCE, PIXELS_PER_METER, METERS_PER_BLOCK
 
 
 
