@@ -33,7 +33,6 @@ BLOCK_WIDTH: Final[Blocks] = Blocks(1.0)  # Width of a grid cell in meters
 BLOCK_HEIGHT: Final[Blocks] = Blocks(1.0)  # Height of a grid cell in meters
 
 BLOCK_FLOAT_TOLERANCE: Final[float] = 0.1  # We comparing two positions to be in the same block
-
 # TODO: We should definitely re-imagine how the colors and heights are organized.
 # Floor colors
 LOBBY_COLOR: Final[RGB] = (200, 200, 200)

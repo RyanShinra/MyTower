@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Dict, Final, List
 
 from pygame import Surface
 
-
 # pyright: ignore[reportImportCycles] 
 from mytower.game.core.units import Blocks
 from mytower.game.entities.elevator import Elevator

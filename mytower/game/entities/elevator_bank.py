@@ -24,7 +24,6 @@ from typing import Optional as Opt
 
 import pygame
 
-
 from mytower.game.core.units import Blocks, Pixels, rect_from_pixels
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import ElevatorState, VerticalDirection
@@ -32,7 +31,6 @@ from mytower.game.core.id_generator import IDGenerator
 
 if TYPE_CHECKING:
     from pygame import Surface
-
     from mytower.game.entities.building import Building
     from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
     from mytower.game.entities.person import PersonProtocol

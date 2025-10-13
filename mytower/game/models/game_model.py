@@ -146,9 +146,7 @@ class GameModel:
                 initial_block_float=block,
                 config=self._config
             )
-            
             new_person.set_destination(dest_floor_num=dest_floor, dest_block_num=dest_block)
-            
             self._people[new_person.person_id] = new_person
             self._building.add_person(new_person)
             return new_person.person_id

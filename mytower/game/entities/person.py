@@ -18,11 +18,8 @@ from mytower.game.core.config import GameConfig
 from mytower.game.core.units import Blocks, Meters
 from mytower.game.core.units import Meters
 from mytower.game.entities.elevator import Elevator
-
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
-
-
 from mytower.game.core.id_generator import IDGenerator
 
 
@@ -192,7 +189,6 @@ class Person(PersonProtocol):
         
         if initial_floor_number < 0 or initial_floor_number > building.num_floors:
             raise ValueError(f"Initial floor {initial_floor_number} is out of bounds (0-{building.num_floors})")
-        
         if initial_block_float < Blocks(0) or initial_block_float > building.floor_width:
             raise ValueError(f"Initial block {initial_block_float} is out of bounds (0-{building.floor_width})")
 
