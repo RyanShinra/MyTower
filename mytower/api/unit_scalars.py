@@ -1,0 +1,37 @@
+# pyright: ignore[reportUnknownMemberType]
+"""
+GraphQL scalar types for dimensional units.
+
+Design philosophy:
+- Scalars serialize core unit types directly (no wrappers)
+- Type annotations use actual game types
+- Self-documenting schema with physical meanings
+"""
+import strawberry
+from mytower.game.core.units import Blocks as BlocksCore, Meters as MetersCore, Pixels as PixelsCore
+
+
+# Serialize the actual core types directly
+Blocks = strawberry.scalar( 
+    BlocksCore,
+    serialize=lambda v: float(v.value),
+    parse_value=lambda v: BlocksCore(float(v)),
+    description="Vertical position in building grid coordinates (1 block ≈ 3.2 meters). "
+                "Examples: Floor 1 = 1.0, elevator between floors = 2.5"
+)
+
+Meters = strawberry.scalar(
+    MetersCore,
+    serialize=lambda v: float(v.value),
+    parse_value=lambda v: MetersCore(float(v)),
+    description="Physical distance in SI units (meters). "
+                "Examples: Elevator shaft height = 64.0, person walking speed = 1.4 m/s"
+)
+
+Pixels = strawberry.scalar(
+    PixelsCore,
+    serialize=lambda v: int(v.value),
+    parse_value=lambda v: PixelsCore(int(v)),
+    description="Screen-space coordinates for rendering (integer pixels). "
+                "Note: Clients may compute their own screen positions."
+)
