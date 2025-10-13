@@ -83,4 +83,6 @@
         "PCAC"
     ],
     "github.copilot.nextEditSuggestions.enabled": true,
+    "errorLens.messageEnabled": false,
+    "errorLens.problemRangeDecorationEnabled": true,
 }
