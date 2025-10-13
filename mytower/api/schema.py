@@ -20,6 +20,25 @@ def get_building_state() -> Optional[BuildingSnapshot]:
 
 
 @strawberry.type
+class CachedPathGQL:
+    """Expose optimization details to clients"""
+    origin: int
+    destination: int
+    elevator_bank: int
+    estimated_time: float
+
+
+@strawberry.type
+class Person:
+    id: str
+    home_floor: int
+    work_floor: int
+    current_floor: int
+    state: str
+    cached_path: CachedPathGQL | None
+
+
+@strawberry.type
 class Query:
     @strawberry.field
     def hello(self) -> str:
@@ -47,6 +66,11 @@ class Query:
             return None
         return [convert_person_snapshot(p) for p in snapshot.people]
 
+    # NOTE: For future expansion, but subscriptions would come first
+    # @strawberry.field
+    # def people(self) -> List[Person]:
+    #     # Your existing PersonAgent objects serialize cleanly
+    #     return [person.to_gql() for person in game.get_all_people()]
 
 
 @strawberry.type  
