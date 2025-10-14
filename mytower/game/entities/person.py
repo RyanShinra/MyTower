@@ -14,7 +14,7 @@ from __future__ import annotations  # Defer type evaluation
 import random
 from typing import TYPE_CHECKING, Final, List, Protocol, override  # Remove cast
 
-from mytower.game.core.config import GameConfig
+from mytower.game.core.config import GameConfig, PersonConfigProtocol, PersonCosmeticsProtocol
 from mytower.game.core.units import Blocks, Meters, Velocity, Time
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
@@ -27,57 +27,6 @@ if TYPE_CHECKING:
     from mytower.game.entities.floor import Floor
     from mytower.game.entities.elevator import Elevator
     from mytower.game.utilities.logger import LoggerProvider
-
-
-
-# pylint: disable=invalid-name
-class PersonConfigProtocol(Protocol):
-    """Config requirements for Person class"""
-
-    @property
-    def MAX_SPEED(self) -> Velocity: ...
-
-    @property
-    def MAX_WAIT_TIME(self) -> Time: ...  # Changed to Time
-
-    @property
-    def IDLE_TIMEOUT(self) -> Time: ...  # Changed to Time
-
-    @property
-    def RADIUS(self) -> Meters: ...
-
-
-
-class PersonCosmeticsProtocol(Protocol):
-    """Visual appearance settings for Person class"""
-
-    @property
-    def ANGRY_MAX_RED(self) -> int: ...
-
-    @property
-    def ANGRY_MIN_GREEN(self) -> int: ...
-
-    @property
-    def ANGRY_MIN_BLUE(self) -> int: ...
-
-    @property
-    def INITIAL_MAX_RED(self) -> int: ...
-
-    @property
-    def INITIAL_MAX_GREEN(self) -> int: ...
-
-    @property
-    def INITIAL_MAX_BLUE(self) -> int: ...
-
-    @property
-    def INITIAL_MIN_RED(self) -> int: ...
-
-    @property
-    def INITIAL_MIN_GREEN(self) -> int: ...
-
-    @property
-    def INITIAL_MIN_BLUE(self) -> int: ...
-# pylint: enable=invalid-name
 
 
 

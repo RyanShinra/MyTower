@@ -22,6 +22,7 @@ from typing import Optional as Opt
 from typing import Protocol, Sequence
 
 from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
+from mytower.game.core.config import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
 from mytower.game.utilities.logger import LoggerProvider
 from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
@@ -33,54 +34,6 @@ if TYPE_CHECKING:
 
 
 # flake8: noqa: E701
-# pylint: disable=invalid-name
-class ElevatorConfigProtocol(Protocol):
-    """Config requirements for Elevator class"""
-
-    @property
-    def MAX_SPEED(self) -> Velocity: ...
-
-    @property
-    def MAX_CAPACITY(self) -> int: ...
-
-    @property
-    def PASSENGER_LOADING_TIME(self) -> Time: ...  # Changed to Time
-
-    @property
-    def IDLE_LOG_TIMEOUT(self) -> Time: ...  # Changed to Time
-
-    @property
-    def MOVING_LOG_TIMEOUT(self) -> Time: ...  # Changed to Time
-
-    @property
-    def IDLE_WAIT_TIMEOUT(self) -> Time: ...  # Changed to Time
-
-class ElevatorCosmeticsProtocol(Protocol):
-    """Visual appearance settings for Elevator class"""
-
-    @property
-    def SHAFT_COLOR(self) -> RGB: ...
-
-    @property
-    def SHAFT_OVERHEAD_COLOR(self) -> RGB: ...
-
-    @property
-    def CLOSED_COLOR(self) -> RGB: ...
-
-    @property
-    def OPEN_COLOR(self) -> RGB: ...
-
-    @property
-    def SHAFT_OVERHEAD_HEIGHT(self) -> Meters: ...
-    
-    @property
-    def ELEVATOR_WIDTH(self) -> Meters: ...
-    
-    @property
-    def ELEVATOR_HEIGHT(self) -> Meters: ...
-    
-# pylint: enable=invalid-name
-
     
 class Elevator:
     """

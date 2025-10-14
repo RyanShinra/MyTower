@@ -9,7 +9,7 @@ from mytower.game.core.units import Blocks, Pixels, rect_from_pixels
 if TYPE_CHECKING:
     from pygame import Surface
     from mytower.game.models.model_snapshots import ElevatorBankSnapshot
-    from mytower.game.entities.elevator import ElevatorCosmeticsProtocol
+    from mytower.game.core.config import ElevatorCosmeticsProtocol
     from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
     
     
