@@ -69,11 +69,13 @@ class TestPersonBasics:
         with pytest.raises(ValueError, match="Destination floor -1 is out of bounds"):
             person_with_floor.set_destination(dest_floor_num=-1, dest_block_num=Blocks(15.0))  # Wrap in Blocks
 
-        with pytest.raises(ValueError, match=f"Destination block {float(BUILDING_DEFAULT_FLOOR_WIDTH + 2)} is out of bounds"):
+        # Match the new error message format that includes "Blocks(22.0)"
+        with pytest.raises(ValueError, match=r"Destination block Blocks\(22\.0\) is out of bounds"):
             person_with_floor.set_destination(dest_floor_num=5, dest_block_num=Blocks(float(BUILDING_DEFAULT_FLOOR_WIDTH + 2)))  # Wrap in Blocks
         
         #TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
-        with pytest.raises(ValueError, match="Destination block -5.0 is out of bounds"):
+        # Match the new error message format that includes "Blocks(-5.0)"
+        with pytest.raises(ValueError, match=r"Destination block Blocks\(-5\.0\) is out of bounds"):
             person_with_floor.set_destination(dest_floor_num=5, dest_block_num=Blocks(-5.0))  # Wrap in Blocks
         
         

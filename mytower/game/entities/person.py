@@ -288,17 +288,11 @@ class Person(PersonProtocol):
             raise ValueError(f"Destination floor {dest_floor_num} is out of bounds (0-{self.building.num_floors})")
     
         # TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
-        # Convert building.floor_width to Blocks if it isn't already
-        floor_width_blocks: Blocks = self.building.floor_width if isinstance(self.building.floor_width, Blocks) else Blocks(float(self.building.floor_width))
-        if dest_block_num < Blocks(0) or dest_block_num > floor_width_blocks:
-            raise ValueError(f"Destination block {float(dest_block_num)} is out of bounds (0-{float(floor_width_blocks)})")
+        if dest_block_num < Blocks(0) or dest_block_num > self.building.floor_width:
+            raise ValueError(f"Destination block {dest_block_num} is out of bounds (0-{float(self.building.floor_width)})")
 
-        dest_floor_num = min(dest_floor_num, self.building.num_floors)
-        dest_floor_num = max(dest_floor_num, 0)
+        # Validation passed - set destinations directly
         self._dest_floor_num = dest_floor_num
-
-        dest_block_num = min(dest_block_num, self.building.floor_width)
-        dest_block_num = max(dest_block_num, Blocks(0))
         self._dest_block_blocks = dest_block_num
 
 

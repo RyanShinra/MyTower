@@ -133,8 +133,8 @@ class TypedMockFactory:
         
         # Mock parent elevator bank
         mock.parent_elevator_bank = Mock()
-        mock.parent_elevator_bank.horizontal_block = 5
-        mock.parent_elevator_bank.get_waiting_block = Mock(return_value=5)
+        mock.parent_elevator_bank.horizontal_block = Blocks(5)  # Return Blocks
+        mock.parent_elevator_bank.get_waiting_block = Mock(return_value=Blocks(5))  # Return Blocks
         
         # Apply any overrides
         for key, value in overrides.items():
@@ -148,16 +148,16 @@ class TypedMockFactory:
     def create_building_mock(
         self,
         num_floors: int = 10,
-        floor_width: int = 20,
+        floor_width: float = 20.0,
         has_floors: bool = True,
         **overrides: Any
     ) -> Mock:
         """Create a properly typed Building mock"""
         mock = Mock(spec=Building)
         
-        # Set up properties
+        # Set up properties - wrap floor_width in Blocks
         mock.num_floors = num_floors
-        mock.floor_width = floor_width
+        mock.floor_width = Blocks(floor_width)  # Wrap in Blocks to match production code
         mock.people = []
         
         # Set up methods

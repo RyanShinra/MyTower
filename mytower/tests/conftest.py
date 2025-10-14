@@ -50,7 +50,7 @@ def mock_logger_provider() -> MagicMock:
     return provider
 
 BUILDING_DEFAULT_NUM_FLOORS = 10
-BUILDING_DEFAULT_FLOOR_WIDTH = 20
+BUILDING_DEFAULT_FLOOR_WIDTH = 20.0 # Needs to be float for Person initial_block_float
 
 
 # New type-safe test utilities fixtures
@@ -70,10 +70,10 @@ def state_assertions() -> StateAssertions:
 def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:
     """Factory for creating building mocks with configurable floor behavior"""
     
-    def _create_building(has_floors: bool = True, num_floors: int = BUILDING_DEFAULT_NUM_FLOORS, floor_width: int = BUILDING_DEFAULT_FLOOR_WIDTH) -> Mock:
+    def _create_building(has_floors: bool = True, num_floors: int = BUILDING_DEFAULT_NUM_FLOORS, floor_width: float = BUILDING_DEFAULT_FLOOR_WIDTH) -> Mock:
         return typed_mock_factory.create_building_mock(
             num_floors=num_floors,
-            floor_width=floor_width,
+            floor_width=floor_width,  # TypedMockFactory should wrap this in Blocks
             has_floors=has_floors
         )
     
@@ -84,7 +84,7 @@ def mock_building_no_floor() -> MagicMock:
     """Standard building mock - For tests where a person does not need to belong to a floor"""
     building = MagicMock(spec=Building)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = BUILDING_DEFAULT_FLOOR_WIDTH
+    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)  # Wrap in Blocks
     building.get_elevator_banks_on_floor.return_value = []
     building.get_floor_by_number.return_value = None
     return building
@@ -95,7 +95,7 @@ def mock_building_with_floor() -> MagicMock:
     """Building mock that returns a floor (for tests where person should be on a floor)"""
     building = MagicMock(spec=Building)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = BUILDING_DEFAULT_FLOOR_WIDTH
+    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)  # Wrap in Blocks
     building.get_elevator_banks_on_floor.return_value = []
     mock_floor = MagicMock(spec=Floor)
     building.get_floor_by_number.return_value = mock_floor

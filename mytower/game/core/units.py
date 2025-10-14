@@ -67,6 +67,10 @@ class Meters:
     def __float__(self) -> float:
         return self.value
 
+    def __abs__(self) -> Meters:
+        """Return absolute value while preserving type"""
+        return Meters(abs(self.value))
+
 
 @dataclass(frozen=True, slots=True, order=True)
 class Pixels:
@@ -131,6 +135,10 @@ class Pixels:
     def __float__(self) -> float:
         return float(self.value)
 
+    def __abs__(self) -> Pixels:
+        """Return absolute value while preserving type"""
+        return Pixels(abs(self.value))
+
 
 @dataclass(frozen=True, slots=True, order=True)
 class Blocks:
@@ -192,6 +200,10 @@ class Blocks:
 
     def __float__(self) -> float:
         return self.value
+
+    def __abs__(self) -> Blocks:
+        """Return absolute value while preserving type"""
+        return Blocks(abs(self.value))
 
 def rect_from_pixels(x: Pixels, y: Pixels, width: Pixels, height: Pixels) -> tuple[int, int, int, int]:
     """Convert Pixels to pygame rect tuple (int, int, int, int)"""
