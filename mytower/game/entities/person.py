@@ -286,10 +286,12 @@ class Person(PersonProtocol):
         # TODO: This will need be revised if we ever have buildings with negative floor numbers
         if dest_floor_num < 0 or dest_floor_num > self.building.num_floors:
             raise ValueError(f"Destination floor {dest_floor_num} is out of bounds (0-{self.building.num_floors})")
-
+    
         # TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
-        if dest_block_num < Blocks(0) or dest_block_num > self.building.floor_width:
-            raise ValueError(f"Destination block {dest_block_num} is out of bounds (0-{self.building.floor_width})")
+        # Convert building.floor_width to Blocks if it isn't already
+        floor_width_blocks: Blocks = self.building.floor_width if isinstance(self.building.floor_width, Blocks) else Blocks(float(self.building.floor_width))
+        if dest_block_num < Blocks(0) or dest_block_num > floor_width_blocks:
+            raise ValueError(f"Destination block {float(dest_block_num)} is out of bounds (0-{float(floor_width_blocks)})")
 
         dest_floor_num = min(dest_floor_num, self.building.num_floors)
         dest_floor_num = max(dest_floor_num, 0)
@@ -304,11 +306,12 @@ class Person(PersonProtocol):
     def find_nearest_elevator_bank(self) -> None | ElevatorBank:
         elevator_list: Final[List[ElevatorBank]] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
         closest_el: ElevatorBank | None = None
-        closest_dist: float = float(self.building.floor_width + Blocks(5))
+    
+        closest_dist: Blocks = self.building.floor_width + Blocks(5)
 
         for elevator in elevator_list:
             # TODO: Add logic to skip elevator banks that don't go to dest floor
-            dist: float = abs(float(elevator.horizontal_block - self._current_block_blocks))
+            dist: Blocks = Blocks(abs(float(elevator.horizontal_block - self._current_block_blocks)))
             if dist < closest_dist:
                 closest_dist = dist
                 closest_el = elevator
@@ -481,7 +484,7 @@ class Person(PersonProtocol):
             raise ValueError(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
         self._dest_floor_num = min(max(dest_floor, 0), self.building.num_floors)
 
-    def testing_confirm_dest_block_is(self, block: float) -> bool:
+    def testing_confirm_dest_block_is(self, block: Blocks) -> bool:
         return self._dest_block_blocks == block
 
     def testing_set_next_elevator_bank(self, next_bank: ElevatorBank) -> None:

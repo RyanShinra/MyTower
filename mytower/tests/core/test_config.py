@@ -1,7 +1,5 @@
-import pytest
-
 from mytower.game.core.config import GameConfig, ElevatorConfig, ElevatorCosmetics, PersonConfig, PersonCosmetics, UIConfig
-from mytower.game.core.types import RGB
+from mytower.game.core.units import Blocks, Meters  # Add unit import
 
 
 class TestElevatorConfig:
@@ -40,8 +38,8 @@ class TestElevatorCosmetics:
         assert cosmetics.SHAFT_OVERHEAD_COLOR == (24, 24, 24)
         assert cosmetics.CLOSED_COLOR == (50, 50, 200)
         assert cosmetics.OPEN_COLOR == (200, 200, 50)
-        assert cosmetics.SHAFT_OVERHEAD_HEIGHT == 40  # BLOCK_HEIGHT
-        assert cosmetics.ELEVATOR_WIDTH == 40  # BLOCK_WIDTH
+        assert cosmetics.SHAFT_OVERHEAD_HEIGHT == Blocks(1.0).in_meters
+        assert cosmetics.ELEVATOR_WIDTH == Blocks(1.0).in_meters
 
     def test_color_types(self) -> None:
         """Test that all colors are RGB tuples"""
@@ -61,10 +59,12 @@ class TestPersonConfig:
         """Test that PersonConfig has expected default values"""
         config = PersonConfig()
         
-        assert config.MAX_SPEED == 0.5
+        assert config.MAX_SPEED == 1.35  # Updated value
+        assert config.WALKING_ACCELERATION == 0.5
+        assert config.WALKING_DECELERATION == 0.5
         assert config.MAX_WAIT_TIME == 90.0
         assert config.IDLE_TIMEOUT == 5.0
-        assert config.RADIUS == 5
+        assert config.RADIUS == Meters(1.75)
 
     def test_positive_values(self) -> None:
         """Test that all config values are positive"""
@@ -73,7 +73,7 @@ class TestPersonConfig:
         assert config.MAX_SPEED > 0
         assert config.MAX_WAIT_TIME > 0
         assert config.IDLE_TIMEOUT > 0
-        assert config.RADIUS > 0
+        assert config.RADIUS > Meters(0)  # Compare Meters to Meters
 
 
 class TestPersonCosmetics:

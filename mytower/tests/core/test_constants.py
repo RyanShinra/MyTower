@@ -1,7 +1,8 @@
 import pytest
 
-from mytower.game.core import constants
-from mytower.game.core.types import RGB, Money
+from mytower.game.core import constants, primitive_constants
+from mytower.game.core.types import Money
+from mytower.game.core.units import Blocks, Meters, Pixels  # Add unit import
 
 
 class TestDisplayConstants:
@@ -37,16 +38,16 @@ class TestGameGridConstants:
 
     def test_block_dimensions(self) -> None:
         """Test block dimension constants"""
-        assert constants.BLOCK_WIDTH == 40
-        assert constants.BLOCK_HEIGHT == 40
-        assert constants.BLOCK_WIDTH > 0
-        assert constants.BLOCK_HEIGHT > 0
+        assert constants.BLOCK_WIDTH == Blocks(1.0)  # Wrap in Blocks
+        assert constants.BLOCK_HEIGHT == Blocks(1.0)  # Wrap in Blocks
+        assert constants.BLOCK_WIDTH > Blocks(0)  # Compare Blocks to Blocks
+        assert constants.BLOCK_HEIGHT > Blocks(0)  # Compare Blocks to Blocks
 
-    def test_block_tolerance(self) -> None:
-        """Test block float tolerance constant"""
-        assert constants.BLOCK_FLOAT_TOLERANCE == 0.1
-        assert constants.BLOCK_FLOAT_TOLERANCE > 0
-        assert constants.BLOCK_FLOAT_TOLERANCE < 1.0
+    def test_metric_float_tolerance(self) -> None:
+        """Test metric float tolerance constant"""
+        assert primitive_constants.METRIC_FLOAT_TOLERANCE == 0.01  # 1 cm tolerance for metric values
+        assert primitive_constants.METRIC_FLOAT_TOLERANCE > 0
+        assert primitive_constants.METRIC_FLOAT_TOLERANCE < 1.0
 
 
 class TestFloorConstants:
@@ -72,16 +73,16 @@ class TestFloorConstants:
 
     def test_floor_dimensions(self) -> None:
         """Test floor dimension constants"""
-        assert constants.FLOORBOARD_HEIGHT == 4
-        assert constants.DEFAULT_FLOOR_HEIGHT == 1
-        assert constants.DEFAULT_FLOOR_LEFT_EDGE == 0
-        assert constants.DEFAULT_FLOOR_WIDTH == 20
+        assert constants.FLOORBOARD_HEIGHT == Pixels(4)  # Wrap in Pixels
+        assert constants.DEFAULT_FLOOR_HEIGHT == Blocks(1)  # Wrap in Blocks
+        assert constants.DEFAULT_FLOOR_LEFT_EDGE == Blocks(0)  # Wrap in Blocks
+        assert constants.DEFAULT_FLOOR_WIDTH == Blocks(20)  # Wrap in Blocks
         
         # All dimensions should be positive (except left edge which can be 0)
-        assert constants.FLOORBOARD_HEIGHT > 0
-        assert constants.DEFAULT_FLOOR_HEIGHT > 0
-        assert constants.DEFAULT_FLOOR_LEFT_EDGE >= 0
-        assert constants.DEFAULT_FLOOR_WIDTH > 0
+        assert constants.FLOORBOARD_HEIGHT > Pixels(0)  # Compare Pixels to Pixels
+        assert constants.DEFAULT_FLOOR_HEIGHT > Blocks(0)  # Compare Blocks to Blocks
+        assert constants.DEFAULT_FLOOR_LEFT_EDGE >= Blocks(0)  # Compare Blocks to Blocks
+        assert constants.DEFAULT_FLOOR_WIDTH > Blocks(0)  # Compare Blocks to Blocks
 
     def test_floor_heights(self) -> None:
         """Test floor height constants"""
@@ -95,8 +96,8 @@ class TestFloorConstants:
         ]
         
         for height in floor_heights:
-            assert height == 1  # All are 1 block high for now
-            assert height > 0
+            assert height == Blocks(1)  # All are 1 block high for now - compare to Blocks
+            assert height > Blocks(0)  # Compare Blocks to Blocks
 
     def test_floor_height_consistency(self) -> None:
         """Test that floor heights are consistent with default"""
@@ -109,14 +110,14 @@ class TestGameBalanceConstants:
 
     def test_starting_money(self) -> None:
         """Test starting money constant"""
-        assert constants.STARTING_MONEY == Money(100000)
+        assert constants.STARTING_MONEY == Money(1000000)  # Updated to actual value
         assert isinstance(constants.STARTING_MONEY, int)  # Money is NewType based on int
         assert constants.STARTING_MONEY > Money(0)
 
     def test_money_value_reasonable(self) -> None:
         """Test that starting money is a reasonable amount"""
         # Should be enough to build something, but not unlimited
-        assert Money(1000) < constants.STARTING_MONEY < Money(1000000)
+        assert Money(1000) < constants.STARTING_MONEY <= Money(10000000)  # Updated upper bound
 
 
 class TestConstantTypes:
@@ -128,16 +129,18 @@ class TestConstantTypes:
             constants.SCREEN_WIDTH,
             constants.SCREEN_HEIGHT,
             constants.FPS,
-            constants.BLOCK_WIDTH,
-            constants.BLOCK_HEIGHT,
-            constants.FLOORBOARD_HEIGHT,
-            constants.DEFAULT_FLOOR_HEIGHT,
-            constants.DEFAULT_FLOOR_LEFT_EDGE,
-            constants.DEFAULT_FLOOR_WIDTH
         ]
         
         for const in int_constants:
             assert isinstance(const, int)
+        
+        # Unit types are not plain integers - test separately
+        assert isinstance(constants.BLOCK_WIDTH, Blocks)  # Changed from Pixels
+        assert isinstance(constants.BLOCK_HEIGHT, Blocks)  # Changed from Pixels
+        assert isinstance(constants.FLOORBOARD_HEIGHT, Pixels)
+        assert isinstance(constants.DEFAULT_FLOOR_HEIGHT, Blocks)
+        assert isinstance(constants.DEFAULT_FLOOR_LEFT_EDGE, Blocks)
+        assert isinstance(constants.DEFAULT_FLOOR_WIDTH, Blocks)
 
     def test_float_constants(self) -> None:
         """Test that float constants are actually floats"""

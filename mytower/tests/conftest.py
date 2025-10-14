@@ -10,6 +10,7 @@ from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.entities.building import Building
 from mytower.game.core.types import ElevatorState, VerticalDirection
+from mytower.game.core.units import Blocks  # Add import
 
 # Import new type-safe test utilities
 from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
@@ -133,8 +134,8 @@ def mock_game_config() -> MagicMock:
     return config
 
 
-PERSON_DEFAULT_FLOOR = 6
-PERSON_DEFAULT_BLOCK = 11.0
+PERSON_DEFAULT_FLOOR: Final[int] = 6
+PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)  # Change to Blocks type
 
 @pytest.fixture 
 def person_with_floor(mock_logger_provider: MagicMock, mock_building_with_floor: MagicMock, mock_game_config: MagicMock) -> Person:
@@ -143,7 +144,7 @@ def person_with_floor(mock_logger_provider: MagicMock, mock_building_with_floor:
         logger_provider=mock_logger_provider,
         building=mock_building_with_floor,
         initial_floor_number=PERSON_DEFAULT_FLOOR,
-        initial_block_float=PERSON_DEFAULT_BLOCK,
+        initial_block_float=float(PERSON_DEFAULT_BLOCK),
         config=mock_game_config
     )
 

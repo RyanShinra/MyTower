@@ -1,4 +1,4 @@
-# game/constants.py
+ # game/constants.py
 # MyTower - A tower building and management game
 # Copyright (C) 2025 [Your Name]
 #
@@ -49,7 +49,8 @@ FPS: Final[int] = 60
 BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 
 # Game grid constants
-
+# TODO: These are deprecated, or should be. We should refactor the code to use Blocks and Pixels directly.
+# They are left here for backward compatibility.
 BLOCK_WIDTH: Final[Blocks] = Blocks(1.0)  # Width of a grid cell in meters
 BLOCK_HEIGHT: Final[Blocks] = Blocks(1.0)  # Height of a grid cell in meters
 

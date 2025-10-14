@@ -8,6 +8,7 @@ from unittest.mock import Mock
 
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState, ElevatorState
+from mytower.game.core.units import Blocks  # Add unit import
 from mytower.tests.test_utilities import TypedMockFactory, StateAssertions, BoundaryTestMixin
 from mytower.tests.conftest import PERSON_DEFAULT_FLOOR, PERSON_DEFAULT_BLOCK
 
@@ -113,7 +114,7 @@ class TestBoundaryTestMixinDemo(BoundaryTestMixin):
         
         # Test person destination floor boundary validation
         def set_dest_floor(floor_num: int) -> None:
-            person_with_floor.set_destination(dest_floor_num=floor_num, dest_block_num=10.0)
+            person_with_floor.set_destination(dest_floor_num=floor_num, dest_block_num=Blocks(10.0))
         
         # This tests both valid and invalid values in one clean call
         self.assert_boundary_validation(
