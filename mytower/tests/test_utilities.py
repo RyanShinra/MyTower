@@ -14,6 +14,7 @@ from mytower.game.entities.building import Building
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.core.types import PersonState, ElevatorState, VerticalDirection
+from mytower.game.core.units import Blocks  # Add import
 
 
 class MockFactoryProtocol(Protocol):
@@ -237,18 +238,19 @@ class StateAssertions:
         person: PersonProtocol,
         expected_state: PersonState,
         expected_floor: int | None = None,
-        expected_block: float | None = None,
+        expected_block: Blocks | None = None,  # Accept Blocks too
         expected_destination_floor: int | None = None
     ) -> None:
         """Assert person is in expected state and position"""
         assert person.state == expected_state, f"Expected state {expected_state}, got {person.state}"
-        
+    
         if expected_floor is not None:
             assert person.current_floor_num == expected_floor, f"Expected floor {expected_floor}, got {person.current_floor_num}"
-        
+    
         if expected_block is not None:
+            # Convert to Blocks if needed for comparison
             assert person.current_block_float == expected_block, f"Expected block {expected_block}, got {person.current_block_float}"
-        
+    
         if expected_destination_floor is not None:
             assert person.destination_floor_num == expected_destination_floor, f"Expected destination floor {expected_destination_floor}, got {person.destination_floor_num}"
     

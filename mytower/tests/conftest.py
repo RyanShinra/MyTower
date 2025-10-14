@@ -135,7 +135,7 @@ def mock_game_config() -> MagicMock:
 
 
 PERSON_DEFAULT_FLOOR: Final[int] = 6
-PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)  # Change to Blocks type
+PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)
 
 @pytest.fixture 
 def person_with_floor(mock_logger_provider: MagicMock, mock_building_with_floor: MagicMock, mock_game_config: MagicMock) -> Person:
