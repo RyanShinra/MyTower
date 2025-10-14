@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
-from mytower.game.core.units import Blocks, Meters
+from mytower.game.core.units import Blocks, Meters, Time, Velocity
 
 if TYPE_CHECKING:
     from mytower.game.core.types import RGB
@@ -18,12 +18,12 @@ if TYPE_CHECKING:
 @dataclass
 class ElevatorConfig:
     """Concrete implementation of Elevator configuration"""
-    MAX_SPEED: Final[float] = 0.75  # Floors per second
+    MAX_SPEED: Velocity = Velocity(3.5)  # Changed from float to Velocity (m/s)
     MAX_CAPACITY: Final[int] = 15  # Number of people who can fit on board
-    PASSENGER_LOADING_TIME: Final[float] = 1.0  # How long it takes a single passenger to board
-    IDLE_WAIT_TIMEOUT: Final[float] = 0.5  # Seconds: how often an idle elevator checks for passengers
-    IDLE_LOG_TIMEOUT: Final[float] = 0.5  # Seconds: how often to log status while Idle
-    MOVING_LOG_TIMEOUT: Final[float] = 0.5  # Seconds: how often to log status while Moving
+    PASSENGER_LOADING_TIME: Time = Time(1.0)  # Time to load one passenger
+    IDLE_WAIT_TIMEOUT: Time = Time(0.5)  # Seconds: how often an idle elevator checks for passengers
+    IDLE_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Idle
+    MOVING_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Moving
 
 
 @dataclass
@@ -41,14 +41,13 @@ class ElevatorCosmetics:
 
 @dataclass
 class PersonConfig:
-    """Concrete implementation of Person configuration"""
-
-    MAX_SPEED: Final[float] = 1.35  # Meters per second (4.8 km/h, 3.0 mph - Midwestern walking speed)
-    WALKING_ACCELERATION: Final[float] = 0.5  # Meters per second squared
-    WALKING_DECELERATION: Final[float] = 0.5  # Meters per second squared
-    MAX_WAIT_TIME: Final[float] = 90.0  # seconds before getting very angry
-    IDLE_TIMEOUT: Final[float] = 5.0  # In person.py update_idle method
-    RADIUS: Final[Meters] = Meters(1.75)  # Visual size of person in meters
+    """Person behavior configuration with explicit units"""
+    MAX_SPEED: Velocity = Velocity(1.35)  # Explicit m/s
+    WALKING_ACCELERATION: float = 0.5  # TODO: Make this Velocity/Time
+    WALKING_DECELERATION: float = 0.5  # TODO: Make this Velocity/Time
+    MAX_WAIT_TIME: Time = Time(90.0)   # Explicit seconds
+    IDLE_TIMEOUT: Time = Time(5.0)     # Explicit seconds
+    RADIUS: Meters = Meters(1.75)      # Explicit meters
 
 
 @dataclass

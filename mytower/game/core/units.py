@@ -1,9 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import override
+from typing import override, overload  # Add overload
 import math
 
-from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE, METRIC_FLOAT_TOLERANCE, PIXELS_PER_METER, METERS_PER_BLOCK
+from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE, METRIC_FLOAT_TOLERANCE, PIXELS_PER_METER, METERS_PER_BLOCK, TIME_FLOAT_TOLERANCE
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -39,7 +39,19 @@ class Meters:
     def __mul__(self, factor: float) -> Meters:
         return Meters(self.value * factor)
 
-    def __truediv__(self, divisor: float) -> Meters:
+    @overload
+    def __truediv__(self, divisor: float) -> Meters: ...
+
+    @overload
+    def __truediv__(self, divisor: Time) -> Velocity: ...
+
+    def __truediv__(self, divisor: float | Time) -> Meters | Velocity:
+        """
+        Meters / scalar = Meters
+        Meters / Time = Velocity (dimensional analysis!)
+        """
+        if isinstance(divisor, Time):
+            return Velocity(self.value / divisor.value)
         return Meters(self.value / divisor)
 
     @override
@@ -208,3 +220,138 @@ class Blocks:
 def rect_from_pixels(x: Pixels, y: Pixels, width: Pixels, height: Pixels) -> tuple[int, int, int, int]:
     """Convert Pixels to pygame rect tuple (int, int, int, int)"""
     return (int(x), int(y), int(width), int(height))
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class Time:
+    value: float = field(
+        metadata={
+            "unit": "seconds",
+            "description": "Time duration in seconds"
+        }
+    )
+    
+    def __post_init__(self) -> None:
+        """Validate finite value for simulation safety"""
+        if not math.isfinite(self.value):
+            raise ValueError(f"Time value must be finite, got {self.value}")
+    
+    def __add__(self, other: Time) -> Time:
+        return Time(self.value + other.value)
+
+    def __sub__(self, other: Time) -> Time:
+        return Time(self.value - other.value)
+
+    def __mul__(self, factor: float) -> Time:
+        return Time(self.value * factor)
+    
+    @overload
+    def __truediv__(self, divisor: float) -> Time: ...
+
+    @overload
+    def __truediv__(self, divisor: Time) -> float: ...
+
+    def __truediv__(self, divisor: float | Time) -> Time | float:
+        """
+        Time / scalar = Time (scaling)
+        Time / Time = float (dimensionless ratio)
+        """
+        if isinstance(divisor, Time):
+            return self.value / divisor.value  # Returns dimensionless float
+        return Time(self.value / divisor)  # Returns scaled Time
+    
+    @override
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Time):
+            return NotImplemented
+        return abs(self.value - other.value) < TIME_FLOAT_TOLERANCE  # Small tolerance for time comparison
+
+    @override
+    def __repr__(self) -> str:
+        return f"Time({self.value})"
+    
+    def __int__(self) -> int:
+        return int(self.value)
+
+    def __float__(self) -> float:
+        return self.value
+
+    def __abs__(self) -> Time:
+        """Return absolute value while preserving type"""
+        return Time(abs(self.value))
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class Velocity:
+    """
+    Velocity measurement in meters per second.
+    
+    Design notes:
+    - Derived unit: meters/second
+    - Used for person walking speed, elevator speed
+    - Can be multiplied by Time to get Meters
+    - Can be divided into Meters to get Time
+    """
+    value: float = field(
+        metadata={
+            "unit": "meters_per_second",
+            "derived": True,
+            "description": "Speed of movement (m/s)"
+        }
+    )
+    
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.value):
+            raise ValueError(f"Velocity value must be finite, got {self.value}")
+    
+    def __add__(self, other: Velocity) -> Velocity:
+        return Velocity(self.value + other.value)
+
+    def __sub__(self, other: Velocity) -> Velocity:
+        return Velocity(self.value - other.value)
+
+    @overload
+    def __mul__(self, time: Time) -> Meters: ...
+
+    @overload
+    def __mul__(self, time: float) -> Velocity: ...
+
+    def __mul__(self, time: Time | float) -> Meters | Velocity:
+        """
+        Velocity × Time = Distance (dimensional analysis)
+        Velocity × scalar = Velocity (scaling)
+        """
+        if isinstance(time, Time):
+            return Meters(self.value * time.value)
+        return Velocity(self.value * time)
+
+    @overload
+    def __rmul__(self, time: Time) -> Meters: ...
+
+    @overload
+    def __rmul__(self, time: float) -> Velocity: ...
+
+    def __rmul__(self, time: Time | float) -> Meters | Velocity:
+        """Support reversed multiplication: 2.0 * velocity"""
+        return self.__mul__(time)
+    
+    def __truediv__(self, divisor: float) -> Velocity:
+        """Scale velocity"""
+        return Velocity(self.value / divisor)
+
+    def __abs__(self) -> Velocity:
+        return Velocity(abs(self.value))
+
+    @override
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Velocity):
+            return NotImplemented
+        return abs(self.value - other.value) < TIME_FLOAT_TOLERANCE
+
+    @override
+    def __repr__(self) -> str:
+        return f"Velocity({self.value} m/s)"
+
+    def __float__(self) -> float:
+        return self.value
+
