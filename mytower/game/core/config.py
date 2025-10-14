@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 # So, it gets neither
 # pylint: disable=invalid-name
 
+# flake8: noqa: E704
 # Protocol definitions for configuration
 class ElevatorConfigProtocol(Protocol):
     """Config requirements for Elevator class"""
