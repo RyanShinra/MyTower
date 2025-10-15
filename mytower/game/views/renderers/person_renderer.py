@@ -9,7 +9,7 @@ from mytower.game.core.constants import (  # TODO: Move this into a config
     DEFAULT_FLOOR_HEIGHT,
 )
 from mytower.game.core.units import Blocks, Pixels
-from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
+from mytower.game.core.config import PersonConfigProtocol, PersonCosmeticsProtocol
 
 if TYPE_CHECKING:
     from pygame import Surface

@@ -5,7 +5,8 @@ from typing import Protocol, Callable, Final
 from unittest.mock import MagicMock, PropertyMock, Mock
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol, Person
-from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
+from mytower.game.entities.elevator import Elevator
+from mytower.game.core.config import ElevatorCosmeticsProtocol
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.entities.building import Building
@@ -105,8 +106,7 @@ def mock_building_with_floor() -> MagicMock:
 @pytest.fixture
 def mock_game_config() -> MagicMock:
     """Standard game configuration for tests with real integer values"""
-    from mytower.game.core.config import GameConfig
-    from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
+    from mytower.game.core.config import GameConfig, PersonConfigProtocol, PersonCosmeticsProtocol
     
     config = MagicMock(spec=GameConfig)
     

@@ -32,8 +32,9 @@ from mytower.game.core.id_generator import IDGenerator
 if TYPE_CHECKING:
     from pygame import Surface
     from mytower.game.entities.building import Building
-    from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
+    from mytower.game.entities.elevator import Elevator
     from mytower.game.entities.person import PersonProtocol
+    from mytower.game.core.config import ElevatorCosmeticsProtocol
 
 
 
