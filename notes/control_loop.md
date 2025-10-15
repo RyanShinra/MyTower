@@ -297,6 +297,7 @@ Identified the fundamental mismatch between synchronous frame-based execution an
 ### Advanced OOP & Design Patterns
 - **Command Pattern**: Type-safe with generics `Command[T]` and `CommandResult[T]`
 - **Protocol Classes**: Duck typing with type safety (PersonProtocol, ElevatorConfigProtocol)
+- **Protocol Segregation**: Separate production and testing interfaces (ElevatorProtocol vs ElevatorTestingProtocol)
 - **Composition over Inheritance**: IDGenerator utility vs inheritance mixins
 - **MVC Architecture**: Clean separation of concerns
 
@@ -304,6 +305,8 @@ Identified the fundamental mismatch between synchronous frame-based execution an
 - Heavy use of Protocol classes for dependency injection
 - Generic command pattern with proper type parameterization
 - Strategic use of `@override` decorator for interface compliance
+- **Protocol inheritance**: Combined protocols for testing (TestableElevatorProtocol)
+- **Interface Segregation Principle**: Production vs testing protocol separation
 
 ### Concurrency & Threading
 - Thread-safe ID generation with locks

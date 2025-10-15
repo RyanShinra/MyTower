@@ -18,7 +18,7 @@ from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
 from mytower.game.core.units import Blocks, Meters, Velocity, Time
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
-from mytower.game.entities.entities_protocol import PersonProtocol
+from mytower.game.entities.entities_protocol import PersonProtocol, PersonTestingProtocol
 from mytower.game.core.id_generator import IDGenerator
 
 
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 
 
-class Person(PersonProtocol):
+class Person(PersonProtocol, PersonTestingProtocol):
     """
     A person in the building who moves between floors and has needs.
     """
@@ -356,42 +356,55 @@ class Person(PersonProtocol):
             raise ValueError(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
         self._dest_floor_num = min(max(dest_floor, 0), self.building.num_floors)
 
+    @override
     def testing_confirm_dest_block_is(self, block: Blocks) -> bool:
         return self._dest_block_blocks == block
 
+    @override
     def testing_set_next_elevator_bank(self, next_bank: ElevatorBank) -> None:
         self._next_elevator_bank = next_bank
 
+    @override
     def testing_set_wait_time(self, time: Time) -> None:
         self._waiting_time = time
 
+    @override
     def testing_get_wait_time(self) -> Time:
         return self._waiting_time
 
+    @override
     def testing_get_max_wait_time(self) -> Time:
         return self._config.person.MAX_WAIT_TIME
 
+    @override
     def testing_set_current_elevator(self, elevator: Elevator) -> None:
         self._current_elevator = elevator
 
+    @override
     def testing_get_current_elevator(self) -> Elevator | None:
         return self._current_elevator
     
+    @override
     def testing_get_next_elevator_bank(self) -> ElevatorBank | None:
         return self._next_elevator_bank
     
+    @override
     def testing_set_current_floor_float(self, cur_floor: float) -> None:
         self._current_floor_blocks = Blocks(cur_floor)
         
+    @override
     def testing_get_current_floor_float(self) -> float:
         return float(self._current_floor_blocks)
 
+    @override
     def testing_set_current_block_float(self, cur_block: Blocks) -> None:
         self._current_block_blocks = cur_block
 
+    @override
     def testing_set_current_state(self, state: PersonState) -> None:
         self._state = state
     
+    @override
     def testing_set_current_floor(self, floor: Floor) -> None:
         self._current_floor = floor
 

@@ -28,7 +28,7 @@ from mytower.game.core.units import Blocks, Pixels, rect_from_pixels
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
-from mytower.game.entities.entities_protocol import ElevatorBankProtocol
+from mytower.game.entities.entities_protocol import ElevatorBankProtocol, ElevatorBankTestingProtocol, PersonProtocol
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -39,7 +39,10 @@ if TYPE_CHECKING:
 
 
 
-class ElevatorBank(ElevatorBankProtocol):
+class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
+    """
+    An elevator bank managing multiple elevators serving a range of floors.
+    """
     # Used in deciding if to move or not
     class ElevatorDestination(NamedTuple):
         has_destination: bool
@@ -243,7 +246,8 @@ class ElevatorBank(ElevatorBankProtocol):
         return passenger
 
 
-        # In ElevatorBank class
+    # In ElevatorBank class
+    @override
     def testing_get_upward_queue(self, floor: int) -> deque[PersonProtocol]:
         """
         Testing method to access the queue of passengers waiting on a specific floor
@@ -257,8 +261,7 @@ class ElevatorBank(ElevatorBankProtocol):
         """
         return self._upward_waiting_passengers[floor]
 
-
-
+    @override
     def testing_get_downward_queue(self, floor: int) -> deque[PersonProtocol]:
         """
         Testing method to access downward waiting passengers queue
@@ -270,16 +273,24 @@ class ElevatorBank(ElevatorBankProtocol):
         """
         return self._downward_waiting_passengers[floor]
 
+    @override
     def testing_update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
         """Testing method to access idle elevator update logic"""
         self._update_idle_elevator(elevator, dt)
 
+    @override
     def testing_update_ready_elevator(self, elevator: Elevator) -> None:
         """Testing method to access ready elevator update logic"""
         self._update_ready_elevator(elevator)
 
-    
-    
+    @override
+    def testing_collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
+        return self._collect_destinations(elevator, floor, direction)
+
+    @override
+    def testing_select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
+        return self._select_next_floor(destinations, direction)
+
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         self._logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
@@ -420,8 +431,7 @@ class ElevatorBank(ElevatorBankProtocol):
         return ElevatorBank.Destination(False, current_floor, VerticalDirection.STATIONARY)
 
 
-    def testing_collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
-        return self._collect_destinations(elevator, floor, direction)
+
 
 
 
@@ -437,8 +447,6 @@ class ElevatorBank(ElevatorBankProtocol):
         return destinations
 
 
-    def testing_select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
-        return self._select_next_floor(destinations, direction)
 
 
 

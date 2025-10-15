@@ -16,7 +16,11 @@ from mytower.game.core.units import Blocks  # Add import
 
 # Import new type-safe test utilities
 from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
-from mytower.tests.test_protocols import TestableElevatorProtocol
+from mytower.tests.test_protocols import (
+    TestableElevatorProtocol,
+    TestablePersonProtocol,
+    TestableElevatorBankProtocol,
+)
 
 
 class PersonFactory(Protocol):
@@ -140,7 +144,11 @@ PERSON_DEFAULT_FLOOR: Final[int] = 6
 PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)
 
 @pytest.fixture 
-def person_with_floor(mock_logger_provider: MagicMock, mock_building_with_floor: MagicMock, mock_game_config: MagicMock) -> Person:
+def person_with_floor(
+    mock_logger_provider: MagicMock, 
+    mock_building_with_floor: MagicMock, 
+    mock_game_config: MagicMock
+) -> TestablePersonProtocol:
     """Person fixture that starts on a floor"""
     return Person(
         logger_provider=mock_logger_provider,
@@ -188,7 +196,8 @@ def elevator_bank(
     mock_building_no_floor: MagicMock, 
     mock_logger_provider: MagicMock, 
     mock_cosmetics_config: MagicMock
-) -> ElevatorBank:
+) -> TestableElevatorBankProtocol:
+    """Fixture returns type that supports both production and testing interfaces"""
     return ElevatorBank(
         building=mock_building_no_floor,
         logger_provider=mock_logger_provider,
