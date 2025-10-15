@@ -29,7 +29,6 @@ from mytower.game.core.id_generator import IDGenerator
 from mytower.game.entities.entities_protocol import PersonProtocol, ElevatorProtocol, ElevatorTestingProtocol, ElevatorBankProtocol
 
 if TYPE_CHECKING:
-    from mytower.game.entities.elevator_bank import ElevatorBank
     from mytower.game.utilities.logger import MyTowerLogger
 
 
@@ -45,7 +44,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     def __init__(
         self,
         logger_provider: LoggerProvider,
-        elevator_bank: ElevatorBank,
+        elevator_bank: ElevatorBankProtocol,  # Changed to protocol
         min_floor: int,
         max_floor: int,
         config: ElevatorConfigProtocol,
@@ -68,7 +67,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         self._elevator_id: str = Elevator._id_generator.get_next_id()
 
         self._logger: MyTowerLogger = logger_provider.get_logger("Elevator")
-        self._parent_elevator_bank: ElevatorBank = elevator_bank
+        self._parent_elevator_bank: ElevatorBankProtocol = elevator_bank
 
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor

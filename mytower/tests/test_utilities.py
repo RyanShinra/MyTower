@@ -8,13 +8,15 @@ from typing import Any, Protocol, Callable
 from unittest.mock import Mock, PropertyMock
 import pytest
 
-from mytower.game.entities.entities_protocol import PersonProtocol
-from mytower.game.entities.elevator import Elevator
-from mytower.game.entities.building import Building
-from mytower.game.entities.floor import Floor
-from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.entities.entities_protocol import (
+    PersonProtocol,
+    ElevatorProtocol,
+    BuildingProtocol,
+    FloorProtocol,
+    ElevatorBankProtocol
+)
 from mytower.game.core.types import PersonState, ElevatorState, VerticalDirection
-from mytower.game.core.units import Blocks  # Add import
+from mytower.game.core.units import Blocks
 
 
 class MockFactoryProtocol(Protocol):
@@ -27,7 +29,7 @@ class MockFactoryProtocol(Protocol):
         current_block: float = 10.0,
         person_id: str = "test_person_1",
         **overrides: Any
-    ) -> Mock: ...
+    ) -> PersonProtocol: ...  # Changed return type
     
     def create_elevator_mock(
         self,
@@ -35,7 +37,7 @@ class MockFactoryProtocol(Protocol):
         state: ElevatorState = ElevatorState.IDLE,
         elevator_id: str = "test_elevator_1",
         **overrides: Any
-    ) -> Mock: ...
+    ) -> ElevatorProtocol: ...  # Changed return type
     
     def create_building_mock(
         self,
@@ -43,13 +45,13 @@ class MockFactoryProtocol(Protocol):
         floor_width: int = 20,
         has_floors: bool = True,
         **overrides: Any
-    ) -> Mock: ...
+    ) -> BuildingProtocol: ...  # Changed return type
 
     def create_floor_mock(
         self,
         floor_num: int = 1,
         **overrides: Any
-    ) -> Mock: ...
+    ) -> FloorProtocol: ...  # Changed return type
 
     def create_elevator_bank_mock(
         self,
@@ -57,7 +59,7 @@ class MockFactoryProtocol(Protocol):
         min_floor: int = 1,
         max_floor: int = 10,
         **overrides: Any
-    ) -> Mock: ...
+    ) -> ElevatorBankProtocol: ...  # Changed return type
 
 
 class TypedMockFactory:
@@ -71,7 +73,7 @@ class TypedMockFactory:
         person_id: str = "test_person_1",
         state: PersonState = PersonState.IDLE,
         **overrides: Any
-    ) -> Mock:
+    ) -> PersonProtocol:  # Changed return type
         """Create a properly typed Person mock"""
         mock = Mock(spec=PersonProtocol)
         
@@ -108,9 +110,9 @@ class TypedMockFactory:
         passenger_count: int = 0,
         max_capacity: int = 15,
         **overrides: Any
-    ) -> Mock:
+    ) -> ElevatorProtocol:  # Changed return type
         """Create a properly typed Elevator mock"""
-        mock = Mock(spec=Elevator)
+        mock = Mock(spec=ElevatorProtocol)
         
         if fractional_floor is None:
             fractional_floor = float(current_floor)
@@ -132,9 +134,9 @@ class TypedMockFactory:
         mock.remove_passenger = Mock()
         
         # Mock parent elevator bank
-        mock.parent_elevator_bank = Mock()
-        mock.parent_elevator_bank.horizontal_block = Blocks(5)  # Return Blocks
-        mock.parent_elevator_bank.get_waiting_block = Mock(return_value=Blocks(5))  # Return Blocks
+        mock.parent_elevator_bank = Mock(spec=ElevatorBankProtocol)  # Use protocol
+        mock.parent_elevator_bank.horizontal_block = Blocks(5)
+        mock.parent_elevator_bank.get_waiting_block = Mock(return_value=Blocks(5))
         
         # Apply any overrides
         for key, value in overrides.items():
@@ -151,9 +153,9 @@ class TypedMockFactory:
         floor_width: float = 20.0,
         has_floors: bool = True,
         **overrides: Any
-    ) -> Mock:
+    ) -> BuildingProtocol:  # Changed return type
         """Create a properly typed Building mock"""
-        mock = Mock(spec=Building)
+        mock = Mock(spec=BuildingProtocol)
         
         # Set up properties - wrap floor_width in Blocks
         mock.num_floors = num_floors
@@ -181,9 +183,9 @@ class TypedMockFactory:
         self,
         floor_num: int = 1,
         **overrides: Any
-    ) -> Mock:
+    ) -> FloorProtocol:  # Changed return type
         """Create a properly typed Floor mock"""
-        mock = Mock(spec=Floor)
+        mock = Mock(spec=FloorProtocol)
         
         # Set up properties
         mock.floor_num = floor_num
@@ -208,9 +210,9 @@ class TypedMockFactory:
         min_floor: int = 1,
         max_floor: int = 10,
         **overrides: Any
-    ) -> Mock:
+    ) -> ElevatorBankProtocol:  # Changed return type
         """Create a properly typed ElevatorBank mock"""
-        mock = Mock(spec=ElevatorBank)
+        mock = Mock(spec=ElevatorBankProtocol)
         
         # Set up properties
         mock.horizontal_block = horizontal_block
@@ -235,10 +237,10 @@ class StateAssertions:
     
     @staticmethod
     def assert_person_state(
-        person: PersonProtocol,
+        person: PersonProtocol,  # Use protocol
         expected_state: PersonState,
         expected_floor: int | None = None,
-        expected_block: Blocks | None = None,  # Accept Blocks too
+        expected_block: Blocks | None = None,
         expected_destination_floor: int | None = None
     ) -> None:
         """Assert person is in expected state and position"""
@@ -256,7 +258,7 @@ class StateAssertions:
     
     @staticmethod
     def assert_elevator_state(
-        elevator: Elevator,
+        elevator: ElevatorProtocol,  # Use protocol
         expected_state: ElevatorState,
         expected_floor: int | None = None,
         expected_passenger_count: int | None = None,
@@ -277,7 +279,7 @@ class StateAssertions:
     @staticmethod
     def assert_mock_called_with_person(
         mock_method: Mock,
-        expected_person: PersonProtocol,
+        expected_person: PersonProtocol,  # Use protocol
         call_index: int = 0
     ) -> None:
         """Assert a mock method was called with a specific person"""

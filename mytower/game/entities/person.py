@@ -18,17 +18,17 @@ from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
 from mytower.game.core.units import Blocks, Meters, Velocity, Time
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
-from mytower.game.entities.entities_protocol import PersonProtocol, PersonTestingProtocol
+from mytower.game.entities.entities_protocol import BuildingProtocol, PersonProtocol, PersonTestingProtocol
 from mytower.game.core.id_generator import IDGenerator
 
 
 if TYPE_CHECKING:
-    from mytower.game.entities.building import Building
-    from mytower.game.entities.elevator_bank import ElevatorBank
-    from mytower.game.entities.floor import Floor
-    from mytower.game.entities.elevator import Elevator
+    from mytower.game.entities.entities_protocol import (
+        ElevatorBankProtocol,
+        FloorProtocol,
+        ElevatorProtocol
+    )
     from mytower.game.utilities.logger import LoggerProvider
-
 
 
 class Person(PersonProtocol, PersonTestingProtocol):
@@ -41,7 +41,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
     def __init__(
         self,
         logger_provider: LoggerProvider,
-        building: Building,
+        building: BuildingProtocol,
         initial_floor_number: int,
         initial_block_float: float,
         config: GameConfig,
@@ -50,7 +50,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._person_id: str = Person._id_generator.get_next_id()
         
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
-        self._building: Building = building
+        self._building: BuildingProtocol = building
         self._current_floor_blocks: Blocks = Blocks(initial_floor_number)
         self._current_block_blocks: Blocks = Blocks(initial_block_float)
         self._dest_block_blocks: Blocks = Blocks(initial_block_float)
@@ -59,9 +59,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
         self._config: Final[GameConfig] = config
         self._cosmetics: Final[PersonCosmeticsProtocol] = config.person_cosmetics
-        self._next_elevator_bank: ElevatorBank | None = None
+        self._next_elevator_bank: ElevatorBankProtocol | None = None
         self._idle_timeout: Time = Time(0.0)  # Changed to Time
-        self._current_elevator: Elevator | None = None
+        self._current_elevator: ElevatorProtocol | None = None
         self._waiting_time: Time = Time(0.0)  # Changed to Time
         
         if initial_floor_number < 0 or initial_floor_number > building.num_floors:
@@ -70,7 +70,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if initial_block_float < 0 or initial_block_float > float(building.floor_width):
             raise ValueError(f"Initial block {initial_block_float} is out of bounds (0-{building.floor_width})")
 
-        self._current_floor: Floor | None = None
+        self._current_floor: FloorProtocol | None = None
         self._assign_floor(initial_floor_number)
 
         # Appearance (for visualization)
@@ -98,7 +98,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
     
     @property
     @override
-    def building(self) -> Building:
+    def building(self) -> BuildingProtocol:
         return self._building
 
     @property
@@ -123,7 +123,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
     @property
     @override
-    def current_floor(self) -> Floor | None:
+    def current_floor(self) -> FloorProtocol | None:
         return self._current_floor
     
 
@@ -175,9 +175,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
 
     @override
-    def find_nearest_elevator_bank(self) -> None | ElevatorBank:
-        elevator_list: Final[List[ElevatorBank]] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
-        closest_el: ElevatorBank | None = None
+    def find_nearest_elevator_bank(self) -> None | ElevatorBankProtocol:
+        elevator_list: Final[List[ElevatorBankProtocol]] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
+        closest_el: ElevatorBankProtocol | None = None
     
         closest_dist: Blocks = self.building.floor_width + Blocks(5)
 
@@ -206,7 +206,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._current_floor = None
 
     @override
-    def board_elevator(self, elevator: Elevator) -> None:
+    def board_elevator(self, elevator: ElevatorProtocol) -> None:
         self._current_elevator = elevator
         self._waiting_time = Time(0.0)
         self._state = PersonState.IN_ELEVATOR
@@ -361,7 +361,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         return self._dest_block_blocks == block
 
     @override
-    def testing_set_next_elevator_bank(self, next_bank: ElevatorBank) -> None:
+    def testing_set_next_elevator_bank(self, next_bank: ElevatorBankProtocol) -> None:
         self._next_elevator_bank = next_bank
 
     @override
@@ -377,15 +377,15 @@ class Person(PersonProtocol, PersonTestingProtocol):
         return self._config.person.MAX_WAIT_TIME
 
     @override
-    def testing_set_current_elevator(self, elevator: Elevator) -> None:
+    def testing_set_current_elevator(self, elevator: ElevatorProtocol) -> None:
         self._current_elevator = elevator
 
     @override
-    def testing_get_current_elevator(self) -> Elevator | None:
+    def testing_get_current_elevator(self) -> ElevatorProtocol | None:
         return self._current_elevator
     
     @override
-    def testing_get_next_elevator_bank(self) -> ElevatorBank | None:
+    def testing_get_next_elevator_bank(self) -> ElevatorBankProtocol | None:
         return self._next_elevator_bank
     
     @override
@@ -405,7 +405,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._state = state
     
     @override
-    def testing_set_current_floor(self, floor: Floor) -> None:
+    def testing_set_current_floor(self, floor: FloorProtocol) -> None:
         self._current_floor = floor
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations  # Defer type evaluation
 
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, Final
+from typing import TYPE_CHECKING, Dict, Final, override
 
 
 
@@ -29,15 +29,14 @@ from mytower.game.core.constants import (
     RETAIL_HEIGHT,
 )
 
+from mytower.game.entities.entities_protocol import FloorProtocol
 
 
 if TYPE_CHECKING:
-    from mytower.game.entities.building import Building
-    from mytower.game.entities.person import PersonProtocol
+    from mytower.game.entities.entities_protocol import PersonProtocol, BuildingProtocol
 
 
-# See FloorInfo below
-class Floor:
+class Floor(FloorProtocol):
     """
     A floor in the building that can contain various room types
     """
@@ -64,14 +63,14 @@ class Floor:
     def __init__(
         self, 
         logger_provider: LoggerProvider, 
-        building: Building, 
+        building: BuildingProtocol, 
         floor_num: int, 
         floor_type: FloorType, 
         floor_left_edge: Blocks = DEFAULT_FLOOR_LEFT_EDGE, 
         floor_width: Blocks = DEFAULT_FLOOR_WIDTH,   
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("floor")
-        self._building: Building = building
+        self._building: BuildingProtocol = building
         # Floors are 1 indexed
         self._floor_num: int = floor_num
 
@@ -88,57 +87,67 @@ class Floor:
     # Grid of rooms/spaces on this floor
 
     @property
-    def building(self) -> Building:
+    def building(self) -> BuildingProtocol:
         return self._building
 
     @property
+    @override
     def floor_num(self) -> int:
         return self._floor_num
 
     @property
+    @override
     def floor_type(self) -> FloorType:
         return self._floor_type
 
     @property
-    def color(self) -> Color:
-        return self._color
+    @override
+    def width(self) -> Blocks:
+        return self._floor_width
 
     @property
-    def floorboard_color(self) -> Color:
-        return self._floorboard_color
-
-    @property
+    @override
     def height(self) -> Blocks:
         return self._height
-    
+
     @property
+    @override
     def left_edge(self) -> Blocks:
         return self._floor_left_edge
 
     @property
-    def width(self) -> Blocks:
-        return self._floor_width
+    @override
+    def number_of_people(self) -> int:
+        return len(self._people)
+
+    @property
+    @override
+    def color(self) -> Color:
+        return self._color
+
+    @property
+    @override
+    def floorboard_color(self) -> Color:
+        return self._floorboard_color
 
     @property
     def people(self) -> Dict[str, PersonProtocol]:
         return dict(self._people)
     
-    @property
-    def number_of_people(self) -> int:
-        return len(self._people)
-    
+    @override
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
         
-    def remove_person(self, person_id: str) -> PersonProtocol:
+    @override
+    def remove_person(self, person_id: str) -> None:
         """Remove a person from the floor, returns the person if found, throws if not"""
         # This is fairly reasonable since only a person should be removing themselves from the floor
         # If it throws, then it's a pretty serious problem
         person: PersonProtocol | None = self._people.pop(person_id, None)
         if not person:
             raise KeyError(f"Person not found: {person_id}")
-        return person
+        
             
     def update(self, dt: float) -> None:
         """Update floor simulation"""
