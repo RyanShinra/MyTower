@@ -2,7 +2,8 @@
 
 import pytest
 from typing import Protocol, Callable, Final
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, Mock
+
 from mytower.game.entities.person import Person
 from mytower.game.entities.elevator import Elevator
 from mytower.game.core.config import ElevatorCosmeticsProtocol
@@ -11,7 +12,7 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.units import Blocks
 
-# Import protocols instead of concrete classes where possible
+# Import protocols for type hints in production code, not for Mock return types
 from mytower.game.entities.entities_protocol import (
     PersonProtocol,
     ElevatorProtocol,
@@ -30,12 +31,12 @@ from mytower.tests.test_protocols import (
 
 
 class PersonFactory(Protocol):
-    def __call__(self, cur_floor_num: int, dest_floor_num: int) -> PersonProtocol: ...  # Use protocol
+    def __call__(self, cur_floor_num: int, dest_floor_num: int) -> Mock: ...  # ✅ Honest return type
 
 
 @pytest.fixture
 def mock_person_factory() -> PersonFactory:
-    def _person_gen(cur_floor_num: int, dest_floor_num: int) -> PersonProtocol:  # Use protocol
+    def _person_gen(cur_floor_num: int, dest_floor_num: int) -> Mock:  # ✅ Returns Mock
         person: Final[MagicMock] = MagicMock(spec=PersonProtocol)
         type(person).current_floor_num = PropertyMock(return_value=cur_floor_num)
         type(person).destination_floor_num = PropertyMock(return_value=dest_floor_num)
@@ -80,14 +81,14 @@ def state_assertions() -> StateAssertions:
 
 
 @pytest.fixture
-def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., BuildingProtocol]:  # Use protocol
+def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:  # ✅
     """Factory for creating building mocks with configurable floor behavior"""
     
     def _create_building(
         has_floors: bool = True, 
         num_floors: int = BUILDING_DEFAULT_NUM_FLOORS, 
         floor_width: float = BUILDING_DEFAULT_FLOOR_WIDTH
-    ) -> BuildingProtocol:  # Use protocol
+    ) -> Mock:  # ✅ Returns Mock
         return typed_mock_factory.create_building_mock(
             num_floors=num_floors,
             floor_width=floor_width,
@@ -97,24 +98,24 @@ def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Buil
     return _create_building
 
 @pytest.fixture
-def mock_building_no_floor() -> BuildingProtocol:  # Use protocol
+def mock_building_no_floor() -> Mock:  # ✅
     """Standard building mock - For tests where a person does not need to belong to a floor"""
-    building = MagicMock(spec=BuildingProtocol)  # Use protocol
+    building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)  # Wrap in Blocks
+    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
     building.get_elevator_banks_on_floor.return_value = []
     building.get_floor_by_number.return_value = None
     return building
 
 
 @pytest.fixture
-def mock_building_with_floor() -> BuildingProtocol:  # Use protocol
+def mock_building_with_floor() -> Mock:  # ✅
     """Building mock that returns a floor (for tests where person should be on a floor)"""
-    building = MagicMock(spec=BuildingProtocol)  # Use protocol
+    building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)  # Wrap in Blocks
+    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
     building.get_elevator_banks_on_floor.return_value = []
-    mock_floor = MagicMock(spec=FloorProtocol)  # Use protocol
+    mock_floor = MagicMock(spec=FloorProtocol)
     building.get_floor_by_number.return_value = mock_floor
     return building
 
@@ -171,8 +172,8 @@ def person_with_floor(
 
 # Elevator-specific fixtures
 @pytest.fixture
-def mock_elevator_bank() -> ElevatorBankProtocol:  # Use protocol
-    mock_bank = MagicMock(spec=ElevatorBankProtocol)  # Use protocol
+def mock_elevator_bank() -> Mock:  # ✅
+    mock_bank = MagicMock(spec=ElevatorBankProtocol)
     mock_bank.horizontal_block = 5
     return mock_bank
 
@@ -190,8 +191,8 @@ def mock_elevator_config() -> MagicMock:
 
 
 @pytest.fixture
-def mock_elevator(mock_logger_provider: MagicMock) -> ElevatorProtocol:  # Use protocol
-    elevator = MagicMock(spec=ElevatorProtocol)  # Use protocol
+def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
+    elevator = MagicMock(spec=ElevatorProtocol)
     elevator.state = ElevatorState.IDLE
     elevator.current_floor_int = 5
     elevator.idle_time = 0.0
