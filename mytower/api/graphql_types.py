@@ -2,7 +2,8 @@ from enum import Enum
 from typing import List
 import strawberry
 
-from mytower.game.core.units import Blocks, Meters, Pixels  # Use core types directly!
+from mytower.game.core.units import Blocks, Meters, Pixels, Time  # Use core types directly!
+import mytower.api.unit_scalars  # type: ignore # noqa: F401 # Ensure custom scalars are registered; leave the import in this file 
 
 
 
@@ -85,7 +86,7 @@ class PersonSnapshotGQL:
     destination_floor_num: int
     destination_block_float: Blocks  # Core type
     state: PersonStateGQL
-    waiting_time: float
+    waiting_time: Time  # Core type
     mad_fraction: float
     _draw_color: tuple[int, int, int]
     
@@ -141,7 +142,7 @@ class FloorSnapshotGQL:
 
 @strawberry.type
 class BuildingSnapshotGQL:
-    time: float
+    time: Time  # Core type
     money: int
     floors: List[FloorSnapshotGQL]
     elevators: List[ElevatorSnapshotGQL]

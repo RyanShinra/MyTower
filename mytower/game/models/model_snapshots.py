@@ -3,7 +3,7 @@ from mytower.game.core.types import RGB, FloorType, PersonState, ElevatorState, 
 from dataclasses import dataclass
 from typing import List
 
-from mytower.game.core.units import Blocks
+from mytower.game.core.units import Blocks, Time
 
 
 @dataclass
@@ -16,7 +16,7 @@ class PersonSnapshot:
     destination_floor_num: int
     destination_block_float: Blocks
     state: PersonState
-    waiting_time: float
+    waiting_time: Time
     mad_fraction: float  # 0.0 to 1.0
     draw_color: RGB  # RGB color for rendering
 
@@ -61,7 +61,7 @@ class FloorSnapshot:
 @dataclass
 class BuildingSnapshot:
     """Complete building state snapshot for API consumption"""
-    time: float
+    time: Time
     money: int
     floors: List[FloorSnapshot]
     elevators: List[ElevatorSnapshot]

@@ -47,7 +47,7 @@ class GameModel:
         self._config: GameConfig = GameConfig()
 
         self._money: int = STARTING_MONEY  # Starting money
-        self._time: float = 0.0
+        self._time: Time = Time(0.0)
         self._speed: float = self._config.initial_speed
         self._paused: bool = False
         
@@ -58,7 +58,7 @@ class GameModel:
         return self._paused
     
     @property
-    def current_time(self) -> float:
+    def current_time(self) -> Time:
         return self._time
 
     @property
@@ -249,23 +249,20 @@ class GameModel:
 
 
     # Simulation Methods
-    def update(self, dt: float) -> None:
+    def update(self, dt: Time) -> None:
         """Update game simulation"""
         try:
             if not self._paused:
-                game_dt_float: float = dt * self._speed
-                self._time += game_dt_float
-                
-                # Wrap in Time for type safety
-                game_dt: Time = Time(game_dt_float)
-                
+                game_dt: Time = dt * self._speed
+                self._time += game_dt
+
                 # First, we do the elevators
                 for elevator in self._elevators.values():
                     elevator.update(game_dt)
 
                 # Next the elevator banks, they will further modify the elevators
                 for bank in self._elevator_banks.values():
-                    bank.update(game_dt_float)  # ElevatorBank.update still takes float
+                    bank.update(game_dt)  
                     
                 # Next, we update the people
                 for person in self._people.values():
@@ -277,7 +274,6 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
-
 
 
     def get_building_snapshot(self) -> BuildingSnapshot:

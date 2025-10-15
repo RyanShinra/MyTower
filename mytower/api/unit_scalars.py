@@ -8,7 +8,7 @@ Design philosophy:
 - Self-documenting schema with physical meanings
 """
 import strawberry
-from mytower.game.core.units import Blocks as BlocksCore, Meters as MetersCore, Pixels as PixelsCore
+from mytower.game.core.units import Blocks as BlocksCore, Meters as MetersCore, Pixels as PixelsCore, Velocity as VelocityCore, Time as TimeCore
 
 
 # Serialize the actual core types directly
@@ -34,4 +34,20 @@ Pixels = strawberry.scalar(
     parse_value=lambda v: PixelsCore(int(v)),
     description="Screen-space coordinates for rendering (integer pixels). "
                 "Note: Clients may compute their own screen positions."
+)
+
+Velocity = strawberry.scalar(
+    VelocityCore,
+    serialize=lambda v: float(v.value),
+    parse_value=lambda v: VelocityCore(float(v)),
+    description="Speed in meters per second (m/s). "
+                "Examples: Person walking speed = 1.4 m/s, elevator speed = 2.0 m/s"
+)   
+
+Time = strawberry.scalar(
+    TimeCore,
+    serialize=lambda v: float(v.value),
+    parse_value=lambda v: TimeCore(float(v)),
+    description="Time duration in seconds. "
+                "Examples: Elevator wait time = 30.0 seconds, person wait time = 120.0 seconds"
 )
