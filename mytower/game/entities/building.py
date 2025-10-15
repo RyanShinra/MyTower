@@ -1,6 +1,6 @@
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, Dict, List, Final, override
+from typing import Dict, List, Final, override
 
 from pygame import Surface
 
@@ -8,16 +8,16 @@ from mytower.game.core.units import Blocks, Time
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import FloorType
 from mytower.game.entities.floor import Floor
-from mytower.game.entities.entities_protocol import BuildingProtocol
-
-if TYPE_CHECKING:
-    from mytower.game.entities.entities_protocol import (
-        ElevatorProtocol,
-        PersonProtocol,
-        ElevatorBankProtocol,
-        FloorProtocol
-    )
-
+from mytower.game.entities.entities_protocol import (
+    BuildingProtocol,
+    ElevatorProtocol,
+    PersonProtocol,
+    ElevatorBankProtocol,
+    FloorProtocol,
+    ElevatorList,  # Use alias
+    ElevatorBankList,  # Use alias
+    FloorList  # Use alias
+)
 
 class Building(BuildingProtocol):
     """
@@ -81,7 +81,7 @@ class Building(BuildingProtocol):
         self._people.pop(person_id, None)
 
     @override
-    def get_elevator_banks_on_floor(self, floor_num: int) -> List[ElevatorBankProtocol]:
+    def get_elevator_banks_on_floor(self, floor_num: int) -> ElevatorBankList:  # ✅ Cleaner
         """Returns a list of all elevators that are currently on the specified floor"""
         return [
             bank
@@ -94,7 +94,7 @@ class Building(BuildingProtocol):
         ]
         
     @override
-    def get_floors(self) -> List[FloorProtocol]:
+    def get_floors(self) -> FloorList:  # ✅ Cleaner
         return [
             self._floors[floor_num]
             for floor_num in range(1, self.num_floors + 1)
@@ -109,7 +109,7 @@ class Building(BuildingProtocol):
         return self._elevator_banks
 
     @override
-    def get_elevators(self) -> List[ElevatorProtocol]:
+    def get_elevators(self) -> ElevatorList:  # ✅ Cleaner
         """Get all elevators from all banks"""
         elevators: Final[List[ElevatorProtocol]] = []
         for bank in self._elevator_banks:

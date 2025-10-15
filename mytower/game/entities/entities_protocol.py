@@ -4,12 +4,19 @@ Defines interfaces for game entities to avoid circular imports and improve testa
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Protocol, List, Sequence, Any
+from typing import TYPE_CHECKING, Protocol, List, Sequence, Any, TypeAlias
 from mytower.game.core.units import Blocks, Velocity, Time
 from mytower.game.core.types import HorizontalDirection, PersonState, ElevatorState, VerticalDirection, FloorType, Color
 
 if TYPE_CHECKING:
-    pass  # All references are now forward-references via string literals or protocol types
+    pass  # All references are now forward-references
+
+
+# Type aliases for common collections - makes code more readable
+PersonList: TypeAlias = List['PersonProtocol']
+ElevatorList: TypeAlias = List['ElevatorProtocol']
+ElevatorBankList: TypeAlias = List['ElevatorBankProtocol']
+FloorList: TypeAlias = List['FloorProtocol']
 
 
 class PersonProtocol(Protocol):
