@@ -8,7 +8,7 @@ from typing import Any, Protocol, Callable
 from unittest.mock import Mock, PropertyMock
 import pytest
 
-from mytower.game.entities.person import PersonProtocol
+from mytower.game.entities.entities_protocol import PersonProtocol
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.building import Building
 from mytower.game.entities.floor import Floor

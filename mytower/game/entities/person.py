@@ -12,12 +12,13 @@
 from __future__ import annotations  # Defer type evaluation
 
 import random
-from typing import TYPE_CHECKING, Final, List, Protocol, override  # Remove cast
+from typing import TYPE_CHECKING, Final, List, override  # Remove cast
 
-from mytower.game.core.config import GameConfig, PersonConfigProtocol, PersonCosmeticsProtocol
+from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
 from mytower.game.core.units import Blocks, Meters, Velocity, Time
 from mytower.game.utilities.logger import MyTowerLogger
 from mytower.game.core.types import HorizontalDirection, PersonState
+from mytower.game.entities.entities_protocol import PersonProtocol
 from mytower.game.core.id_generator import IDGenerator
 
 
@@ -29,78 +30,6 @@ if TYPE_CHECKING:
     from mytower.game.utilities.logger import LoggerProvider
 
 
-
-class PersonProtocol(Protocol):
-    """This is currently only for some of the elevator tests, expand it as needed"""
-    
-    @property
-    def current_floor_num(self) -> int: ...
-    
-    @property
-    def current_floor_float(self) -> Blocks: ...
-
-    @property
-    def destination_floor_num(self) -> int: ...
-    
-    @property
-    def current_block_float(self) -> Blocks: ...
-    
-    @property
-    def current_floor(self) -> Floor | None: ...
-    
-    
-    @property
-    def destination_block_num(self) -> Blocks: ...
-    
-    @property
-    def person_id(self) -> str: ...
-    
-    @property
-    def state(self) -> PersonState: ...
-    
-    # Let's keep this read-only for now
-    
-    @property
-    def direction(self) -> HorizontalDirection: ...
-    
-    @direction.setter
-    def direction(self, value: HorizontalDirection) -> None: ...
-    
-    @property
-    def max_velocity(self) -> Velocity: ...
-    
-    @property
-    def building(self) -> Building: ...
-    
-    @property
-    def waiting_time(self) -> Time: ...        
-
-    def set_destination(self, dest_floor_num: int, dest_block_num: Blocks) -> None: ...
-    
-    def find_nearest_elevator_bank(self) -> None | ElevatorBank: ...
-    
-    def board_elevator(self, elevator: Elevator) -> None: ...
-    
-    def disembark_elevator(self) -> None: ...
-
-    def update(self, dt: Time) -> None: ...
-
-    def update_idle(self, dt: Time) -> None: ...
-
-    def update_walking(self, dt: Time) -> None: ...
-
-    def testing_set_dest_floor_num(self, dest_floor: int) -> None: ...
-    
-
-    @property
-    def mad_fraction(self) -> float: ...
-    
-    @property
-    def draw_color(self) -> tuple[int, int, int]: ...   
-    
-    # End PersonProtocol
-
-    
 
 class Person(PersonProtocol):
     """

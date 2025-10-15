@@ -1,10 +1,9 @@
-
 from __future__ import annotations
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.models.model_snapshots import ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from typing import TYPE_CHECKING
 
-from mytower.game.entities.person import PersonProtocol
+from mytower.game.entities.entities_protocol import PersonProtocol
 
 if TYPE_CHECKING:
     from mytower.game.entities.floor import Floor

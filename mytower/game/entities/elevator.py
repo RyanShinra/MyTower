@@ -19,18 +19,18 @@ from __future__ import annotations  # Defer type evaluation
 
 from typing import TYPE_CHECKING, Final, List  # Remove cast import
 from typing import Optional as Opt
-from typing import Protocol, Sequence
+from typing import Sequence
 
 from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
 from mytower.game.core.config import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
 from mytower.game.utilities.logger import LoggerProvider
-from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
+from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
+from mytower.game.entities.entities_protocol import PersonProtocol
 
 if TYPE_CHECKING:
     from mytower.game.entities.elevator_bank import ElevatorBank
-    from mytower.game.utilities.logger import MyTowerLogger  
-    from mytower.game.entities.person import PersonProtocol
+    from mytower.game.utilities.logger import MyTowerLogger
 
 
 # flake8: noqa: E701
