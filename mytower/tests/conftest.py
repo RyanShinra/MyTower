@@ -16,6 +16,7 @@ from mytower.game.core.units import Blocks  # Add import
 
 # Import new type-safe test utilities
 from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
+from mytower.tests.test_protocols import TestableElevatorProtocol
 
 
 class PersonFactory(Protocol):
@@ -204,7 +205,8 @@ def elevator(
     mock_elevator_bank: MagicMock, 
     mock_elevator_config: MagicMock, 
     mock_cosmetics_config: MagicMock
-) -> Elevator:
+) -> TestableElevatorProtocol:
+    """Fixture returns type that supports both production and testing interfaces"""
     return Elevator(
         mock_logger_provider,
         mock_elevator_bank,

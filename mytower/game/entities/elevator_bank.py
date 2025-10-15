@@ -19,7 +19,7 @@
 from __future__ import annotations  # Defer type evaluation
 
 from collections import deque
-from typing import TYPE_CHECKING, Final, List, NamedTuple
+from typing import TYPE_CHECKING, Final, List, NamedTuple, override
 from typing import Optional as Opt
 
 import pygame
@@ -28,6 +28,7 @@ from mytower.game.core.units import Blocks, Pixels, rect_from_pixels
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
+from mytower.game.entities.entities_protocol import ElevatorBankProtocol
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -38,7 +39,7 @@ if TYPE_CHECKING:
 
 
 
-class ElevatorBank:
+class ElevatorBank(ElevatorBankProtocol):
     # Used in deciding if to move or not
     class ElevatorDestination(NamedTuple):
         has_destination: bool
@@ -106,6 +107,7 @@ class ElevatorBank:
         pass
 
     @property
+    @override
     def elevator_bank_id(self) -> str:
         return self._elevator_bank_id
 
@@ -114,18 +116,22 @@ class ElevatorBank:
         return self._building
 
     @property
+    @override
     def min_floor(self) -> int:
         return self._min_floor
 
     @property
+    @override
     def max_floor(self) -> int:
         return self._max_floor
 
     @property
+    @override
     def horizontal_block(self) -> Blocks:
         return self._horizontal_block
 
     @property
+    @override
     def elevators(self) -> List[Elevator]:
         return self._elevators
 
@@ -155,6 +161,7 @@ class ElevatorBank:
 
 
             
+    @override
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
         
@@ -171,7 +178,7 @@ class ElevatorBank:
         floor_request.add(direction)
 
 
-    # TODO: We may want to pass in the direction here, or target floor as an argument
+    @override
     def add_waiting_passenger(self, passenger: PersonProtocol) -> None:
         if passenger is None:  # pyright: ignore
             raise ValueError("PersonProtocol cannot be None") # pyright: ignore[reportUnreachable]
@@ -215,7 +222,7 @@ class ElevatorBank:
         current_queue.append(passenger)
 
 
-
+    @override
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[PersonProtocol]:
         self._logger.debug(f"Attempting to dequeue a waiting passenger on floor {floor} in direction {direction}")
         self._validate_floor(floor)
@@ -308,6 +315,7 @@ class ElevatorBank:
         return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, STATIONARY)
 
 
+    @override
     def get_waiting_block(self) -> Blocks:
         """The block where people wait for the elevator, it's just to the left of the elevator bank unless it's at the left edge of the building, then it's just to the right"""
         # TODO: Update this once we add building extents
