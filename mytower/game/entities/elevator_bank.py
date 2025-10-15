@@ -15,7 +15,6 @@
 # along with MyTower. If not, see <https://www.gnu.org/licenses/>.
 
 
-
 from __future__ import annotations  # Defer type evaluation
 
 from collections import deque
@@ -36,7 +35,6 @@ if TYPE_CHECKING:
     from mytower.game.entities.elevator import Elevator
     from mytower.game.entities.person import PersonProtocol
     from mytower.game.core.config import ElevatorCosmeticsProtocol
-
 
 
 class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
@@ -333,7 +331,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         return max(Blocks(1), self.horizontal_block - Blocks(1))
 
 
-
     def update(self, dt: float) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         for el in self.elevators:
@@ -344,7 +341,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             elif el.state == ElevatorState.READY_TO_MOVE:
                 self._update_ready_elevator(el)
         pass
-
 
 
     def _update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
@@ -375,7 +371,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         return
 
 
-
     def _update_ready_elevator(self, elevator: Elevator) -> None:
         floor: int = elevator.current_floor_int
         nom_direction: Final[VerticalDirection] = elevator.nominal_direction
@@ -404,7 +399,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         return
 
 
-
     def _get_next_destination(
         self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection
     ) -> ElevatorBank.ElevatorDestination:
@@ -431,10 +425,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         return ElevatorBank.Destination(False, current_floor, VerticalDirection.STATIONARY)
 
 
-
-
-
-
     def _collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
         destinations: Final[List[int]] = []
 
@@ -447,9 +437,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         return destinations
 
 
-
-
-
     def _select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
         if direction == VerticalDirection.UP:
             # Go to the lowest floor above us
@@ -457,7 +444,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         else:
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
-
 
 
     def _get_floor_requests_in_dir_from_floor(
@@ -490,7 +476,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             f"Final list of floor requests in Search direction {search_direction} from floor {start_floor} going {req_direction}: {answer}"
         )
         return answer
-
 
 
     def draw(self, surface: Surface) -> None:
