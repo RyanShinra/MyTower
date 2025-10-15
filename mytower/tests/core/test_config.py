@@ -9,7 +9,7 @@ class TestElevatorConfig:
         """Test that ElevatorConfig has expected default values"""
         config = ElevatorConfig()
         
-        assert config.MAX_SPEED == Velocity(0.75) 
+        assert config.MAX_SPEED == Velocity(3.5)  # This is just faster than 1 floor per second
         assert config.MAX_CAPACITY == 15
         assert config.PASSENGER_LOADING_TIME == Time(1.0)
         assert config.IDLE_WAIT_TIMEOUT == Time(0.5)
@@ -163,9 +163,8 @@ class TestGameConfig:
     def test_config_consistency(self) -> None:
         """Test that configurations are internally consistent"""
         config = GameConfig()
-        
-        # Both are now Velocity types - direct comparison!
-        assert config.person.MAX_SPEED > config.elevator.MAX_SPEED  # Person is faster (1.35 > 0.75)
+        assert config.person.MAX_SPEED < Velocity(5.0)  # Person speed should be reasonable (11 MPH)
+        assert config.elevator.MAX_SPEED < Velocity(10.0)  # Elevator speed should be reasonable (22 MPH)
         assert config.initial_speed > 0
         
         # Test that timeouts are reasonable

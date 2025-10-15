@@ -6,6 +6,7 @@ This file shows how to use TypedMockFactory, StateAssertions, and BoundaryTestMi
 
 from unittest.mock import Mock
 
+from mytower.game.entities.entities_protocol import BuildingProtocol
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState, ElevatorState
 from mytower.game.core.units import Blocks  # Add unit import
@@ -54,14 +55,14 @@ class TestTypedMockFactoryDemo:
 
     def test_create_building_mock(self, typed_mock_factory: TypedMockFactory) -> None:
         """Test creating a properly typed Building mock"""
-        building_mock = typed_mock_factory.create_building_mock(
+        building_mock: BuildingProtocol = typed_mock_factory.create_building_mock(
             num_floors=15,
             floor_width=25,
             has_floors=True
         )
         
         assert building_mock.num_floors == 15
-        assert building_mock.floor_width == 25
+        assert building_mock.floor_width == Blocks(25)
         assert building_mock.get_floor_by_number(1) is not None  # has_floors=True
 
 
