@@ -97,7 +97,7 @@ def mock_building_no_floor() -> Mock:  # ✅
     """Standard building mock - For tests where a person does not need to belong to a floor"""
     building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
+    building.building_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
     building.get_elevator_banks_on_floor.return_value = []
     building.get_floor_by_number.return_value = None
     return building
@@ -108,7 +108,7 @@ def mock_building_with_floor() -> Mock:  # ✅
     """Building mock that returns a floor (for tests where person should be on a floor)"""
     building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
+    building.building_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
     building.get_elevator_banks_on_floor.return_value = []
     mock_floor = MagicMock(spec=FloorProtocol)
     building.get_floor_by_number.return_value = mock_floor
@@ -170,7 +170,7 @@ def person_with_floor(
 @pytest.fixture
 def mock_elevator_bank() -> Mock:  # ✅
     mock_bank = MagicMock(spec=ElevatorBankProtocol)
-    mock_bank.horizontal_block = Blocks(5)
+    mock_bank.horizontal_position = Blocks(5)
     return mock_bank
 
 
@@ -189,7 +189,7 @@ def mock_elevator_config() -> MagicMock:
 @pytest.fixture
 def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
     elevator = MagicMock(spec=ElevatorProtocol)
-    elevator.state = ElevatorState.IDLE
+    elevator.elevator_state = ElevatorState.IDLE
     elevator.current_floor_int = 5
     elevator.idle_time = Time(0.0)
     elevator.nominal_direction = VerticalDirection.STATIONARY

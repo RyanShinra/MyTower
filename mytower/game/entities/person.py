@@ -66,8 +66,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if initial_floor_number < 0 or initial_floor_number > building.num_floors:
             raise ValueError(f"Initial floor {initial_floor_number} is out of bounds (0-{building.num_floors})")
 
-        if initial_block_float < 0 or initial_block_float > float(building.floor_width):
-            raise ValueError(f"Initial block {initial_block_float} is out of bounds (0-{building.floor_width})")
+        if initial_block_float < 0 or initial_block_float > float(building.building_width):
+            raise ValueError(f"Initial block {initial_block_float} is out of bounds (0-{building.building_width})")
 
         self._current_floor: FloorProtocol | None = None
         self._assign_floor(initial_floor_number)
@@ -107,17 +107,17 @@ class Person(PersonProtocol, PersonTestingProtocol):
     
     @property
     @override
-    def current_floor_float(self) -> Blocks:
+    def current_vertical_position(self) -> Blocks:
         return self._current_floor_blocks
 
     @property
     @override
-    def destination_block_num(self) -> Blocks:
+    def destination_horizontal_position(self) -> Blocks:
         return self._dest_block_blocks
 
     @property
     @override
-    def current_block_float(self) -> Blocks:
+    def current_horizontal_position(self) -> Blocks:
         return self._current_block_blocks
 
     @property
@@ -158,19 +158,19 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
 
     @override
-    def set_destination(self, dest_floor_num: int, dest_block_num: Blocks) -> None:
+    def set_destination(self, dest_floor_num: int, dest_horiz_pos: Blocks) -> None:
         # Check if destination values are out of bounds and raise warnings
         # TODO: This will need be revised if we ever have buildings with negative floor numbers
         if dest_floor_num < 0 or dest_floor_num > self.building.num_floors:
             raise ValueError(f"Destination floor {dest_floor_num} is out of bounds (0-{self.building.num_floors})")
     
         # TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
-        if dest_block_num < Blocks(0) or dest_block_num > self.building.floor_width:
-            raise ValueError(f"Destination block {dest_block_num} is out of bounds (0-{float(self.building.floor_width)})")
+        if dest_horiz_pos < Blocks(0) or dest_horiz_pos > self.building.building_width:
+            raise ValueError(f"Destination block {dest_horiz_pos} is out of bounds (0-{float(self.building.building_width)})")
 
         # Validation passed - set destinations directly
         self._dest_floor_num = dest_floor_num
-        self._dest_block_blocks = dest_block_num
+        self._dest_block_blocks = dest_horiz_pos
 
 
     @override
@@ -178,11 +178,11 @@ class Person(PersonProtocol, PersonTestingProtocol):
         elevator_list: Final[List[ElevatorBankProtocol]] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
         closest_el: ElevatorBankProtocol | None = None
     
-        closest_dist: Blocks = self.building.floor_width + Blocks(5)
+        closest_dist: Blocks = self.building.building_width + Blocks(5)
 
         for elevator in elevator_list:
             # TODO: Add logic to skip elevator banks that don't go to dest floor
-            dist: Blocks = abs(elevator.horizontal_block - self._current_block_blocks)
+            dist: Blocks = abs(elevator.horizontal_position - self._current_block_blocks)
             if dist < closest_dist:
                 closest_dist = dist
                 closest_el = elevator
@@ -223,7 +223,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if self.state != PersonState.IN_ELEVATOR:
             raise RuntimeError("Cannot disembark elevator: person must be in elevator state.")
 
-        self._current_block_blocks = self._current_elevator.parent_elevator_bank.get_waiting_block()
+        self._current_block_blocks = self._current_elevator.parent_elevator_bank.get_waiting_position()
         self._current_floor_blocks = Blocks(self._current_elevator.current_floor_int)
         
         try:
@@ -255,8 +255,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
             case PersonState.IN_ELEVATOR:
                 if self._current_elevator:
                     self._waiting_time += dt
-                    self._current_floor_blocks = self._current_elevator.fractional_floor
-                    self._current_block_blocks = self._current_elevator.parent_elevator_bank.horizontal_block
+                    self._current_floor_blocks = self._current_elevator.vertical_position
+                    self._current_block_blocks = self._current_elevator.parent_elevator_bank.horizontal_position
 
             case _:
                 self._logger.warning(f"Unknown state: {self.state}")  # type: ignore[unreachable]
@@ -277,7 +277,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
             # Find the nearest elevator, go in that direction
             self._next_elevator_bank = self.find_nearest_elevator_bank()
             if self._next_elevator_bank:
-                current_destination_block = self._next_elevator_bank.get_waiting_block()
+                current_destination_block = self._next_elevator_bank.get_waiting_position()
                 self._logger.trace(
                     f"IDLE Person: Destination fl. {self.destination_floor_num} != current fl. {self.current_floor_num} -> WALKING to Elevator block: {current_destination_block}"
                 )
@@ -313,7 +313,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         done: bool = False
 
         # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-        waypoint_block: Blocks = self._next_elevator_bank.get_waiting_block() if self._next_elevator_bank else self._dest_block_blocks        
+        waypoint_block: Blocks = self._next_elevator_bank.get_waiting_position() if self._next_elevator_bank else self._dest_block_blocks        
 
         if waypoint_block < self._current_block_blocks:
             self.direction = HorizontalDirection.LEFT
@@ -344,13 +344,13 @@ class Person(PersonProtocol, PersonTestingProtocol):
             )
 
         # TODO: Update these with floor extents, not building extents
-        if next_block < Blocks(0) or next_block > self.building.floor_width:
+        if next_block < Blocks(0) or next_block > self.building.building_width:
             # TODO: Consider raising an exception here instead of just clamping
             self._logger.warning(
                 f"WALKING Person: Attempted to walk out of bounds to block {next_block} on floor {self.current_floor_num}. Clamping to valid range."
             )
         
-        next_block = min(next_block, self.building.floor_width)
+        next_block = min(next_block, self.building.building_width)
         next_block = max(next_block, Blocks(0))
         self._current_block_blocks = next_block
 
@@ -363,7 +363,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._dest_floor_num = min(max(dest_floor, 0), self.building.num_floors)
 
     @override
-    def testing_confirm_dest_block_is(self, block: Blocks) -> bool:
+    def testing_confirm_horiz_dest_is(self, block: Blocks) -> bool:
         return self._dest_block_blocks == block
 
     @override
@@ -395,15 +395,15 @@ class Person(PersonProtocol, PersonTestingProtocol):
         return self._next_elevator_bank
     
     @override
-    def testing_set_current_floor_float(self, cur_floor: float) -> None:
+    def testing_set_current_vertical_position(self, cur_floor: float) -> None:
         self._current_floor_blocks = Blocks(cur_floor)
         
     @override
-    def testing_get_current_floor_float(self) -> float:
+    def testing_get_current_vertical_position(self) -> float:
         return float(self._current_floor_blocks)
 
     @override
-    def testing_set_current_block_float(self, cur_block: Blocks) -> None:
+    def testing_set_current_horiz_position(self, cur_block: Blocks) -> None:
         self._current_block_blocks = cur_block
 
     @override

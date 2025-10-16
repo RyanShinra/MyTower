@@ -18,7 +18,7 @@ class TestElevatorBasics:
         
     def test_initial_state(self, elevator: Elevator) -> None:
         """Test that elevator initializes with correct values"""
-        assert elevator.state == ElevatorState.IDLE
+        assert elevator.elevator_state == ElevatorState.IDLE
         assert elevator.current_floor_int == 1
         assert elevator.min_floor == 1
         assert elevator.max_floor == 10 # This should be at least 3 for a test below
@@ -65,20 +65,20 @@ class TestElevatorBasics:
 
 
 
-    def test_testing_set_current_floor(self, elevator: Elevator) -> None:
-        elevator.testing_set_current_floor(Blocks(2.0))
+    def test_testing_set_current_vertical_pos(self, elevator: Elevator) -> None:
+        elevator.testing_set_current_vertical_pos(Blocks(2.0))
         assert elevator.current_floor_int == 2
-        assert elevator.fractional_floor == Blocks(2.0)
+        assert elevator.vertical_position == Blocks(2.0)
 
-        elevator.testing_set_current_floor(Blocks(2.2))
+        elevator.testing_set_current_vertical_pos(Blocks(2.2))
         assert elevator.current_floor_int == 2
-        assert elevator.fractional_floor == Blocks(2.2)
+        assert elevator.vertical_position == Blocks(2.2)
 
         with pytest.raises(ValueError):
-            elevator.testing_set_current_floor(Blocks(float(elevator.min_floor - 2)))
+            elevator.testing_set_current_vertical_pos(Blocks(float(elevator.min_floor - 2)))
         
         with pytest.raises(ValueError):
-            elevator.testing_set_current_floor(Blocks(float(elevator.max_floor + 2)))
+            elevator.testing_set_current_vertical_pos(Blocks(float(elevator.max_floor + 2)))
 
     def test_idle_wait_timeout_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_wait_timeout property returns the value from config"""
