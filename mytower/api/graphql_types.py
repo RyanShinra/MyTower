@@ -81,8 +81,8 @@ class ColorGQL:
 class PersonSnapshotGQL:
     person_id: str
     current_floor_num: int
-    current_floor_float: Blocks  # Core type
-    current_block_float: Blocks  # Core type
+    current_vertical_position: Blocks  # Core type
+    current_horizontal_position: Blocks  # Core type
     destination_floor_num: int
     destination_block_float: Blocks  # Core type
     state: PersonStateGQL
@@ -121,7 +121,7 @@ class ElevatorSnapshotGQL:
 @strawberry.type
 class ElevatorBankSnapshotGQL:
     id: str
-    horizontal_block: Blocks  # Core type
+    horizontal_position: Blocks  # Core type
     min_floor: int
     max_floor: int
 
@@ -129,9 +129,9 @@ class ElevatorBankSnapshotGQL:
 class FloorSnapshotGQL:
     floor_type: FloorTypeGQL
     floor_number: int
-    floor_height_blocks: Blocks  # Core type
+    floor_height: Blocks  # Core type
     left_edge_block: Blocks      # Core type
-    floor_width_blocks: Blocks   # Core type
+    floor_width: Blocks   # Core type
     person_count: int 
     floor_color: ColorGQL
     floorboard_color: ColorGQL
@@ -139,7 +139,7 @@ class FloorSnapshotGQL:
     @strawberry.field
     def floor_height_meters(self) -> Meters:
         """Floor height in real-world units"""
-        return self.floor_height_blocks.in_meters  # Type-safe conversion
+        return self.floor_height.in_meters  # Type-safe conversion
 
 @strawberry.type
 class BuildingSnapshotGQL:

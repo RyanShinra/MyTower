@@ -15,10 +15,10 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
     return PersonSnapshotGQL(
         person_id=person.person_id,
         current_floor_num=person.current_floor_num,
-        current_floor_float=person.current_floor_float,  # Already Blocks, passes through
-        current_block_float=person.current_block_float,  # Already Blocks
+        current_floor_float=person.current_vertical_position,  # Already Blocks, passes through
+        current_block_float=person.current_horizontal_position,  # Already Blocks
         destination_floor_num=person.destination_floor_num,
-        destination_block_float=person.destination_block_float,  # Already Blocks
+        destination_horizontal_position=person.destination_horizontal_position,  # Already Blocks
         state=PersonStateGQL(person.state.value),
         waiting_time=person.waiting_time,
         mad_fraction=person.mad_fraction,
@@ -43,10 +43,10 @@ def convert_floor_snapshot(floor: FloorSnapshot) -> FloorSnapshotGQL:
     return FloorSnapshotGQL(
         floor_number=floor.floor_number,
         floor_type=FloorTypeGQL(floor.floor_type.value),
-        floor_height_blocks=floor.floor_height_blocks,  # Blocks type passes through
+        floor_height=floor.floor_height,  # Blocks type passes through
         person_count=floor.person_count,
         left_edge_block=floor.left_edge_block,  # Blocks type passes through
-        floor_width_blocks=floor.floor_width_blocks,  # Blocks type passes through
+        floor_width=floor.floor_width,  # Blocks type passes through
         floor_color=ColorGQL.from_tuple(floor.floor_color),
         floorboard_color=ColorGQL.from_tuple(floor.floorboard_color)
     )

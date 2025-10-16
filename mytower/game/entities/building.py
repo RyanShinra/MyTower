@@ -42,6 +42,11 @@ class Building(BuildingProtocol):
         """Return the number of floors in the building."""
         return len(self._floors)
 
+    @property
+    @override
+    def building_width(self) -> Blocks:
+        return self._floor_width
+
     @override
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""

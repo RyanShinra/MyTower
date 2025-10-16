@@ -57,7 +57,7 @@ class TestStateMachine:
         # Set up conditions for transition
         elevator.testing_set_state(ElevatorState.MOVING)
         elevator.set_destination_floor(2)  # Set a destination
-        elevator.testing_set_current_vertical_position(Blocks(1.9))  # Almost at destination
+        elevator.testing_set_current_vertical_pos(Blocks(1.9))  # Almost at destination
         elevator.testing_set_motion_direction(VerticalDirection.UP)
 
         # Update the elevator - should reach destination

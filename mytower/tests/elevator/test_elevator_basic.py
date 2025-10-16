@@ -66,19 +66,19 @@ class TestElevatorBasics:
 
 
     def test_testing_set_current_vertical_pos(self, elevator: Elevator) -> None:
-        elevator.testing_set_current_vertical_position(Blocks(2.0))
+        elevator.testing_set_current_vertical_pos(Blocks(2.0))
         assert elevator.current_floor_int == 2
         assert elevator.vertical_position == Blocks(2.0)
 
-        elevator.testing_set_current_vertical_position(Blocks(2.2))
+        elevator.testing_set_current_vertical_pos(Blocks(2.2))
         assert elevator.current_floor_int == 2
         assert elevator.vertical_position == Blocks(2.2)
 
         with pytest.raises(ValueError):
-            elevator.testing_set_current_vertical_position(Blocks(float(elevator.min_floor - 2)))
+            elevator.testing_set_current_vertical_pos(Blocks(float(elevator.min_floor - 2)))
         
         with pytest.raises(ValueError):
-            elevator.testing_set_current_vertical_position(Blocks(float(elevator.max_floor + 2)))
+            elevator.testing_set_current_vertical_pos(Blocks(float(elevator.max_floor + 2)))
 
     def test_idle_wait_timeout_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_wait_timeout property returns the value from config"""

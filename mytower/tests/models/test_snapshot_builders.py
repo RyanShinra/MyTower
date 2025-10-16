@@ -22,7 +22,7 @@ class TestBuildFloorSnapshot:
         mock_floor = MagicMock(spec=Floor)
         mock_floor.floor_type = FloorType.OFFICE
         mock_floor.floor_num = 5
-        mock_floor.height = 1
+        mock_floor.floor_height = 1
         mock_floor.left_edge = 0
         mock_floor.floor_width = 20
         mock_floor.color = (150, 200, 250)
@@ -33,9 +33,9 @@ class TestBuildFloorSnapshot:
         
         assert snapshot.floor_type == FloorType.OFFICE
         assert snapshot.floor_number == 5
-        assert snapshot.floor_height_blocks == 1
+        assert snapshot.floor_height == 1
         assert snapshot.left_edge_block == 0
-        assert snapshot.floor_width_blocks == 20
+        assert snapshot.floor_width == 20
         assert snapshot.floor_color == (150, 200, 250)
         assert snapshot.floorboard_color == (10, 10, 10)
         assert snapshot.person_count == 3
@@ -48,7 +48,7 @@ class TestBuildFloorSnapshot:
             mock_floor = MagicMock(spec=Floor)
             mock_floor.floor_type = floor_type
             mock_floor.floor_num = 1
-            mock_floor.height = 1
+            mock_floor.floor_height = 1
             mock_floor.left_edge = 0
             mock_floor.floor_width = 20
             mock_floor.color = (128, 128, 128)
@@ -68,7 +68,7 @@ class TestBuildElevatorSnapshot:
         mock_elevator = MagicMock(spec=Elevator)
         mock_elevator.elevator_id = "elevator_123"
         mock_elevator.vertical_position = 3.7
-        mock_elevator.current_horizontal_position = 14.2
+        mock_elevator.horizontal_position = 14.2
         mock_elevator.destination_floor = 8
         mock_elevator.elevator_state = ElevatorState.MOVING
         mock_elevator.nominal_direction = VerticalDirection.UP
@@ -80,10 +80,10 @@ class TestBuildElevatorSnapshot:
         snapshot = build_elevator_snapshot(mock_elevator)
         
         assert snapshot.id == "elevator_123"
-        assert snapshot.current_floor == 3.7
-        assert snapshot.current_block == 14.2
+        assert snapshot.vertical_position == 3.7
+        assert snapshot.horizontal_position == 14.2
         assert snapshot.destination_floor == 8
-        assert snapshot.state == ElevatorState.MOVING
+        assert snapshot.elevator_state == ElevatorState.MOVING
         assert snapshot.nominal_direction == VerticalDirection.UP
         assert snapshot.door_open is False
         assert snapshot.passenger_count == 5
@@ -98,7 +98,7 @@ class TestBuildElevatorSnapshot:
             mock_elevator = MagicMock(spec=Elevator)
             mock_elevator.elevator_id = f"elevator_{state.value}"
             mock_elevator.vertical_position = 1.0
-            mock_elevator.current_horizontal_position = 14.0
+            mock_elevator.horizontal_position = 14.0
             mock_elevator.destination_floor = 1
             mock_elevator.elevator_state = state
             mock_elevator.nominal_direction = VerticalDirection.STATIONARY
@@ -109,7 +109,7 @@ class TestBuildElevatorSnapshot:
             
             snapshot = build_elevator_snapshot(mock_elevator)
             
-            assert snapshot.state == state
+            assert snapshot.elevator_state == state
             assert snapshot.door_open == (state == ElevatorState.LOADING)
 
 
@@ -161,7 +161,7 @@ class TestBuildPersonSnapshot:
         mock_person.current_vertical_position = Blocks(3.0)
         mock_person.current_horizontal_position = Blocks(8.5)
         mock_person.destination_floor_num = 7
-        mock_person.destination_block_num = Blocks(12.0)
+        mock_person.destination_horizontal_position = Blocks(12.0)
         mock_person.state = PersonState.WALKING
         mock_person.waiting_time = Time(25.3)
         mock_person.mad_fraction = 0.4
@@ -174,7 +174,7 @@ class TestBuildPersonSnapshot:
         assert snapshot.current_vertical_position == Blocks(3.0)
         assert snapshot.current_horizontal_position == Blocks(8.5)
         assert snapshot.destination_floor_num == 7
-        assert snapshot.destination_block_float == Blocks(12.0)
+        assert snapshot.destination_horizontal_position == Blocks(12.0)
         assert snapshot.state == PersonState.WALKING
         assert snapshot.waiting_time == Time(25.3)
         assert snapshot.mad_fraction == 0.4
@@ -189,7 +189,7 @@ class TestBuildPersonSnapshot:
             mock_person.person_id = f"person_{state.value}"
             mock_person.current_floor_num = 1
             mock_person.current_vertical_position = 1.0
-            mock_person.current_horizontal_position = 5.0
+            mock_person.horizontal_position = 5.0
             mock_person.destination_floor_num = 5
             mock_person.destination_block_num = 10.0
             mock_person.state = state
@@ -211,7 +211,7 @@ class TestBuildPersonSnapshot:
             mock_person.person_id = "person_test"
             mock_person.current_floor_num = 1
             mock_person.current_vertical_position = 1.0
-            mock_person.current_horizontal_position = 5.0
+            mock_person.horizontal_position = 5.0
             mock_person.destination_floor_num = 2
             mock_person.destination_block_num = 10.0
             mock_person.state = PersonState.WAITING_FOR_ELEVATOR
@@ -239,7 +239,7 @@ class TestBuildPersonSnapshot:
             mock_person.person_id = "person_test"
             mock_person.current_floor_num = 1
             mock_person.current_vertical_position = 1.0
-            mock_person.current_horizontal_position = 5.0
+            mock_person.horizontal_position = 5.0
             mock_person.destination_floor_num = 2
             mock_person.destination_block_num = 10.0
             mock_person.state = PersonState.IDLE
@@ -261,7 +261,7 @@ class TestSnapshotBuilderIntegration:
         mock_floor = MagicMock(spec=Floor)
         mock_floor.floor_type = FloorType.OFFICE
         mock_floor.floor_num = 1
-        mock_floor.height = 1
+        mock_floor.floor_height = 1
         mock_floor.left_edge = 0
         mock_floor.floor_width = 20
         mock_floor.color = (128, 128, 128)
@@ -276,7 +276,7 @@ class TestSnapshotBuilderIntegration:
         mock_elevator = MagicMock(spec=Elevator)
         mock_elevator.elevator_id = "elevator_1"
         mock_elevator.vertical_position = 1.0
-        mock_elevator.current_horizontal_position = 14.0
+        mock_elevator.horizontal_position = 14.0
         mock_elevator.destination_floor = 1
         mock_elevator.elevator_state = ElevatorState.IDLE
         mock_elevator.nominal_direction = VerticalDirection.STATIONARY
@@ -287,7 +287,7 @@ class TestSnapshotBuilderIntegration:
         
         elevator_snapshot = build_elevator_snapshot(mock_elevator)
         assert hasattr(elevator_snapshot, 'id')
-        assert hasattr(elevator_snapshot, 'state')
+        assert hasattr(elevator_snapshot, 'elevator_state')
         
         # Bank
         mock_bank = MagicMock(spec=ElevatorBank)
@@ -296,7 +296,7 @@ class TestSnapshotBuilderIntegration:
         mock_bank.max_floor = 5
         
         bank_snapshot = build_elevator_bank_snapshot(mock_bank)
-        assert hasattr(bank_snapshot, 'horizontal_block')
+        assert hasattr(bank_snapshot, 'horizontal_position')
         assert hasattr(bank_snapshot, 'min_floor')
         
         # Person
@@ -304,7 +304,7 @@ class TestSnapshotBuilderIntegration:
         mock_person.person_id = "person_1"
         mock_person.current_floor_num = 1
         mock_person.current_vertical_position = 1.0
-        mock_person.current_horizontal_position = 5.0
+        mock_person.horizontal_position = 5.0
         mock_person.destination_floor_num = 2
         mock_person.destination_block_num = 10.0
         mock_person.state = PersonState.IDLE

@@ -19,7 +19,6 @@ class TestBuildingBasics:
         
         assert building.num_floors == 0
         assert building.building_width == Blocks(25)  # Compare to Blocks
-        assert building.people == []
 
     def test_default_width(self, mock_logger_provider: MagicMock) -> None:
         """Test Building with default width"""
@@ -72,23 +71,8 @@ class TestBuildingBasics:
         assert len(building.get_elevator_banks()) == 2
         assert mock_bank2 in building.get_elevator_banks()
 
-    def test_add_person(self, mock_logger_provider: MagicMock) -> None:
-        """Test adding people to building"""
-        building = Building(mock_logger_provider)
-        
-        mock_person1 = MagicMock(spec=PersonProtocol)
-        mock_person1.person_id = "person_1"
-        
-        mock_person2 = MagicMock(spec=PersonProtocol)
-        mock_person2.person_id = "person_2"
-        
-        building.add_person(mock_person1)
-        assert len(building.people) == 1
-        assert mock_person1 in building.people
-        
-        building.add_person(mock_person2)
-        assert len(building.people) == 2
-        assert mock_person2 in building.people
+    # test_add_person removed as Building no longer manages people directly
+    # People are now managed by GameModel
 
 
 class TestBuildingFloorRetrieval:
