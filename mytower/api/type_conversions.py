@@ -15,8 +15,8 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
     return PersonSnapshotGQL(
         person_id=person.person_id,
         current_floor_num=person.current_floor_num,
-        current_floor_float=person.current_vertical_position,  # Already Blocks, passes through
-        current_block_float=person.current_horizontal_position,  # Already Blocks
+        current_vertical_position=person.current_vertical_position,  # Already Blocks, passes through
+        current_horizontal_position=person.current_horizontal_position,  # Already Blocks
         destination_floor_num=person.destination_floor_num,
         destination_block_float=person.destination_horizontal_position,  # Already Blocks
         state=PersonStateGQL(person.state.value),
