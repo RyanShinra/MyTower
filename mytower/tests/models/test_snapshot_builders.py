@@ -189,9 +189,9 @@ class TestBuildPersonSnapshot:
             mock_person.person_id = f"person_{state.value}"
             mock_person.current_floor_num = 1
             mock_person.current_vertical_position = 1.0
-            mock_person.horizontal_position = 5.0
+            mock_person.current_horizontal_position = 5.0
             mock_person.destination_floor_num = 5
-            mock_person.destination_block_num = 10.0
+            mock_person.destination_horizontal_position = 10.0
             mock_person.state = state
             mock_person.waiting_time = 0.0 if state == PersonState.IDLE else 30.0
             mock_person.mad_fraction = 0.0 if state == PersonState.IDLE else 0.5
@@ -211,9 +211,9 @@ class TestBuildPersonSnapshot:
             mock_person.person_id = "person_test"
             mock_person.current_floor_num = 1
             mock_person.current_vertical_position = 1.0
-            mock_person.horizontal_position = 5.0
+            mock_person.current_horizontal_position = 5.0
             mock_person.destination_floor_num = 2
-            mock_person.destination_block_num = 10.0
+            mock_person.destination_horizontal_position = 10.0
             mock_person.state = PersonState.WAITING_FOR_ELEVATOR
             mock_person.waiting_time = mad_fraction * 100  # Correlate waiting time with madness
             mock_person.mad_fraction = mad_fraction
@@ -239,9 +239,9 @@ class TestBuildPersonSnapshot:
             mock_person.person_id = "person_test"
             mock_person.current_floor_num = 1
             mock_person.current_vertical_position = 1.0
-            mock_person.horizontal_position = 5.0
+            mock_person.current_horizontal_position = 5.0
             mock_person.destination_floor_num = 2
-            mock_person.destination_block_num = 10.0
+            mock_person.destination_horizontal_position = 10.0
             mock_person.state = PersonState.IDLE
             mock_person.waiting_time = 0.0
             mock_person.mad_fraction = 0.0
@@ -304,9 +304,9 @@ class TestSnapshotBuilderIntegration:
         mock_person.person_id = "person_1"
         mock_person.current_floor_num = 1
         mock_person.current_vertical_position = 1.0
-        mock_person.horizontal_position = 5.0
+        mock_person.current_horizontal_position = 5.0
         mock_person.destination_floor_num = 2
-        mock_person.destination_block_num = 10.0
+        mock_person.destination_horizontal_position = 10.0
         mock_person.state = PersonState.IDLE
         mock_person.waiting_time = 0.0
         mock_person.mad_fraction = 0.0
