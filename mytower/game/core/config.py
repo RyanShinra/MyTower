@@ -4,8 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final, Protocol
 
-from mytower.game.core.units import Blocks, Meters, Time, Velocity
 from mytower.game.core.types import RGB
+from mytower.game.core.units import Blocks, Meters, Time, Velocity
 
 if TYPE_CHECKING:
     from mytower.game.views.desktop_ui import UIConfigProtocol
@@ -134,7 +134,7 @@ class ElevatorCosmetics:
 @dataclass
 class PersonConfig:
     """Person behavior configuration with explicit units"""
-    MAX_SPEED: Velocity = Velocity(1.35)  # Explicit m/s
+    MAX_SPEED: Velocity = Velocity(1.35)  # Explicit m/s (approx 3 mph)
     WALKING_ACCELERATION: float = 0.5  # TODO: Make this Velocity/Time
     WALKING_DECELERATION: float = 0.5  # TODO: Make this Velocity/Time
     MAX_WAIT_TIME: Time = Time(90.0)   # Explicit seconds

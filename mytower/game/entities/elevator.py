@@ -17,16 +17,21 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, Final, List, override
+from typing import TYPE_CHECKING, Final, List
 from typing import Optional as Opt
-from typing import Sequence
+from typing import Sequence, override
 
-from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
-from mytower.game.core.config import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
-from mytower.game.utilities.logger import LoggerProvider
-from mytower.game.core.types import ElevatorState, VerticalDirection
+from mytower.game.core.config import (ElevatorConfigProtocol,
+                                      ElevatorCosmeticsProtocol)
 from mytower.game.core.id_generator import IDGenerator
-from mytower.game.entities.entities_protocol import PersonProtocol, ElevatorProtocol, ElevatorTestingProtocol, ElevatorBankProtocol
+from mytower.game.core.types import ElevatorState, VerticalDirection
+from mytower.game.core.units import (Blocks, Meters, Time,  # Add Velocity
+                                     Velocity)
+from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     ElevatorTestingProtocol,
+                                                     PersonProtocol)
+from mytower.game.utilities.logger import LoggerProvider
 
 if TYPE_CHECKING:
     from mytower.game.utilities.logger import MyTowerLogger
@@ -153,7 +158,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
     @override
     def testing_set_current_floor(self, floor: Blocks) -> None:
-        if not (self.min_floor <= float(floor) <= self.max_floor):
+        if not (self.min_floor <= int(floor) <= self.max_floor):
             raise ValueError(
                 f"Testing floor {floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}."
             )

@@ -6,6 +6,7 @@ import pytest
 
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.controllers.controller_commands import Command, CommandResult
+from mytower.game.core.units import Time
 from mytower.game.models.game_model import GameModel
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 
@@ -211,7 +212,7 @@ class TestSimulationManagement:
         
         controller.update(1.5)
         
-        mock_model.update.assert_called_once_with(1.5)
+        mock_model.update.assert_called_once_with(Time(1.5))
 
     def test_is_paused(self, mock_logger_provider: MagicMock) -> None:
         """Test checking if game is paused"""

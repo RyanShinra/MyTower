@@ -1,9 +1,9 @@
 import pytest
-from mytower.game.entities.person import Person
-from mytower.game.core.types import HorizontalDirection, PersonState
-from mytower.game.core.units import Blocks  # Add unit import
-from mytower.game.core.constants import BLOCK_FLOAT_TOLERANCE
 
+from mytower.game.core.types import HorizontalDirection, PersonState
+from mytower.game.core.units import Blocks, Time  # Add unit import
+from mytower.game.entities.entities_protocol import BuildingProtocol
+from mytower.game.entities.person import Person
 
 
 class TestPersonPhysics:
@@ -11,23 +11,68 @@ class TestPersonPhysics:
     
     def test_left_is_negative(self) -> None:
         assert 1 * HorizontalDirection.LEFT.value == -1
+        
+    def test_right_is_positive(self) -> None:
+        assert 1 * HorizontalDirection.RIGHT.value == 1
     
-    @pytest.mark.parametrize("direction,initial_block,dt,expected_block", [
-        (HorizontalDirection.RIGHT, 5, 2.0, 6),  # 5 + (2.0 * 0.5 * 1) = 6
-        (HorizontalDirection.LEFT, 10, 4.0, 8),  # 10 + (4.0 * 0.5 * -1) = 8  
-        (HorizontalDirection.STATIONARY, 7, 3.0, 7),  # No movement
+    def test_stationary_is_zero(self) -> None:
+        assert 1 * HorizontalDirection.STATIONARY.value == 0
+
+    @pytest.mark.parametrize("direction,initial_block,dt,target_block", [
+        (HorizontalDirection.RIGHT, Blocks(5), Time(2.0), Blocks(6)), # Either-or case, depends on speed
+        (HorizontalDirection.RIGHT, Blocks(1), Time(2.0), Blocks(9)), # Should move but not reach target
+        (HorizontalDirection.RIGHT, Blocks(1), Time(10.0), Blocks(3)), # Should reach target
+        (HorizontalDirection.LEFT, Blocks(10), Time(4.0), Blocks(8)),  # Either-or case, depends on speed
+        (HorizontalDirection.LEFT, Blocks(10), Time(2.0), Blocks(2)), # Should move but not reach target
+        (HorizontalDirection.LEFT, Blocks(10), Time(10.0), Blocks(7)), # Should reach target
+        (HorizontalDirection.STATIONARY, Blocks(7), Time(3.0), Blocks(7)),  # No movement
     ])
-    def test_walking_movement_calculation(
-        self, person_with_floor: Person, direction: HorizontalDirection, initial_block: int, dt: float, expected_block: int
+    def test_walking_moves_linear(
+        self, person_with_floor: Person, direction: HorizontalDirection, initial_block: Blocks, dt: Time, target_block: Blocks
     ) -> None:
-        """Test that walking movement calculations are correct"""
-        person_with_floor.testing_set_current_block_float(Blocks(initial_block))  # Wrap in Blocks
+        """Test that walking movement is linear and respects direction"""
+        person_with_floor.testing_set_current_block_float(initial_block)
         person_with_floor.direction = direction
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=5, dest_block_num=Blocks(float(expected_block)))  # Wrap in Blocks
-        
+        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_block_num=target_block)
+
         person_with_floor.update_walking(dt)
+        dx: Blocks = (person_with_floor.max_velocity * dt).in_blocks
+        total_distance: Blocks = abs(target_block - initial_block)
         
-        # Compare Blocks to Blocks
-        assert abs(float(person_with_floor.current_block_float - Blocks(expected_block))) < BLOCK_FLOAT_TOLERANCE
+        if total_distance <= dx:
+            # Should reach the target
+            assert person_with_floor.current_block_float == target_block
+        else:
+            # Should move in the correct direction but not reach the target
+            expected_block: Blocks = initial_block + (dx * direction.value)
+            assert person_with_floor.current_block_float == expected_block
+
+    def test_walking_stops_at_boundaries(self, person_with_floor: Person) -> None:
+        """Test that walking respects building boundaries"""
+        building: BuildingProtocol = person_with_floor.building
+        assert building is not None, "Building should be set in fixture"
+        
+        # Test left boundary
+        person_with_floor.testing_set_current_block_float(Blocks(0.5))
+        person_with_floor.direction = HorizontalDirection.LEFT
+        person_with_floor.testing_set_current_state(PersonState.WALKING)
+        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_block_num=Blocks(0))
+        
+        person_with_floor.update_walking(Time(5.0))
+        assert person_with_floor.current_block_float >= Blocks(0), "Person should not move past left boundary"
+        assert person_with_floor.direction == HorizontalDirection.STATIONARY
+        assert person_with_floor.state == PersonState.IDLE
+        
+        # Test right boundary
+        right_boundary: Blocks = building.floor_width
+        person_with_floor.testing_set_current_block_float(right_boundary - Blocks(0.5))
+        person_with_floor.direction = HorizontalDirection.RIGHT
+        person_with_floor.testing_set_current_state(PersonState.WALKING)
+        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_block_num=right_boundary)
+        
+        person_with_floor.update_walking(Time(5.0))
+        assert person_with_floor.current_block_float <= right_boundary, "Person should not move past right boundary"
+        assert person_with_floor.direction == HorizontalDirection.STATIONARY
+        assert person_with_floor.state == PersonState.IDLE
 

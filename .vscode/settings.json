@@ -85,4 +85,8 @@
     "github.copilot.nextEditSuggestions.enabled": true,
     "errorLens.messageEnabled": false,
     "errorLens.problemRangeDecorationEnabled": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "always",
+        "source.unusedImports": "always"
+    }
 }

@@ -1,12 +1,15 @@
 
 # pylint: disable=C0103 # Overrides snake case for `TESTING_H_CELL_VALUE` at the bottom
 
-import pytest
 from typing import Sequence
 from unittest.mock import MagicMock
+
+import pytest
+
+from mytower.game.core.types import VerticalDirection
+from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.elevator import Elevator, ElevatorState
 from mytower.game.entities.person import PersonProtocol
-from mytower.game.core.types import VerticalDirection
 from mytower.tests.conftest import PersonFactory
 
 
@@ -63,20 +66,20 @@ class TestElevatorBasics:
 
 
     def test_testing_set_current_floor(self, elevator: Elevator) -> None:
-        elevator.testing_set_current_floor(2.0)
-        assert elevator.current_floor_int == 2  
-        assert elevator.fractional_floor == 2.0
-        
-        elevator.testing_set_current_floor(2.2)
+        elevator.testing_set_current_floor(Blocks(2.0))
         assert elevator.current_floor_int == 2
-        assert elevator.fractional_floor == 2.2
+        assert elevator.fractional_floor == Blocks(2.0)
+
+        elevator.testing_set_current_floor(Blocks(2.2))
+        assert elevator.current_floor_int == 2
+        assert elevator.fractional_floor == Blocks(2.2)
+
+        with pytest.raises(ValueError):
+            elevator.testing_set_current_floor(Blocks(float(elevator.min_floor - 2)))
         
         with pytest.raises(ValueError):
-            elevator.testing_set_current_floor(elevator.min_floor - 2)
-        
-        with pytest.raises(ValueError):
-            elevator.testing_set_current_floor(elevator.max_floor + 2)
-            
+            elevator.testing_set_current_floor(Blocks(float(elevator.max_floor + 2)))
+
     def test_idle_wait_timeout_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_wait_timeout property returns the value from config"""
         assert elevator.idle_wait_timeout == mock_elevator_config.IDLE_WAIT_TIMEOUT
@@ -85,12 +88,12 @@ class TestElevatorBasics:
 
     def test_idle_time_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_time property returns the value in Elevator.py"""
-        assert elevator.idle_time == 0.0 # Default constant in the Elevator C'tor
+        assert elevator.idle_time == Time(0.0) # Default constant in the Elevator C'tor
         
         # Test the setter
-        elevator.idle_time = 5.5
-        assert elevator.idle_time == 5.5
+        elevator.idle_time = Time(5.5)
+        assert elevator.idle_time == Time(5.5)
         
         # Test setting back to zero
-        elevator.idle_time = 0.0
-        assert elevator.idle_time == 0.0
+        elevator.idle_time = Time(0.0)
+        assert elevator.idle_time == Time(0.0)

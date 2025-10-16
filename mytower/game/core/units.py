@@ -44,14 +44,20 @@ class Meters:
 
     @overload
     def __truediv__(self, divisor: Time) -> Velocity: ...
+    
+    @overload
+    def __truediv__(self, divisor: Velocity) -> Time: ...
 
-    def __truediv__(self, divisor: float | Time) -> Meters | Velocity:
+    def __truediv__(self, divisor: float | Time | Velocity) -> Meters | Velocity | Time:
         """
         Meters / scalar = Meters
         Meters / Time = Velocity (dimensional analysis!)
+        Meters / Velocity = Time (dimensional analysis!)
         """
         if isinstance(divisor, Time):
             return Velocity(self.value / divisor.value)
+        if isinstance(divisor, Velocity):
+            return Time(self.value / divisor.value)
         return Meters(self.value / divisor)
 
     @override

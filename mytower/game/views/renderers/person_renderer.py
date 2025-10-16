@@ -41,7 +41,7 @@ class PersonRenderer:
     def x_position(self, _: Surface, person: PersonSnapshot) -> Pixels:
         """Calculate the x position for the given person"""
         x_left: Pixels = person.current_block_float.in_pixels
-        block_half_width: Pixels = Pixels(int(float(BLOCK_WIDTH) / 2.0))
+        block_half_width: Pixels = Pixels(int(BLOCK_WIDTH.in_pixels / 2.0))
         x_centered: Pixels = x_left + block_half_width
         return x_centered
 

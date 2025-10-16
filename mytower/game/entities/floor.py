@@ -140,13 +140,14 @@ class Floor(FloorProtocol):
         self._people[person.person_id] = person
         
     @override
-    def remove_person(self, person_id: str) -> None:
+    def remove_person(self, person_id: str) -> PersonProtocol:
         """Remove a person from the floor, returns the person if found, throws if not"""
         # This is fairly reasonable since only a person should be removing themselves from the floor
         # If it throws, then it's a pretty serious problem
         person: PersonProtocol | None = self._people.pop(person_id, None)
         if not person:
             raise KeyError(f"Person not found: {person_id}")
+        return person
         
             
     def update(self, dt: float) -> None:

@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 import pytest
-from mytower.game.core.units import Blocks
+from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState
 from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
@@ -27,7 +27,7 @@ class TestPersonElevatorInteraction:
             person_with_floor, 
             expected_state=PersonState.IN_ELEVATOR
         )
-        assert person_with_floor.testing_get_wait_time() == 0.0
+        assert person_with_floor.testing_get_wait_time() == Time(0.0)
         assert person_with_floor.testing_get_current_elevator() == mock_elevator
 
 
@@ -66,7 +66,7 @@ class TestPersonElevatorInteraction:
         mock_floor.add_person.assert_called_once_with(person_with_floor)
         assert person_with_floor.testing_get_current_elevator() is None
         assert person_with_floor.testing_get_next_elevator_bank() is None
-        assert person_with_floor.testing_get_wait_time() == 0.0
+        assert person_with_floor.testing_get_wait_time() == Time(0.0)
 
 
     def test_disembark_elevator_not_in_elevator_raises_error(self, person_with_floor: Person) -> None:

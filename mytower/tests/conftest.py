@@ -1,33 +1,28 @@
 # /tests/conftest.py
 
+from typing import Callable, Final, Protocol
+from unittest.mock import MagicMock, Mock, PropertyMock
+
 import pytest
-from typing import Protocol, Callable, Final
-from unittest.mock import MagicMock, PropertyMock, Mock
 
-from mytower.game.entities.person import Person
-from mytower.game.entities.elevator import Elevator
 from mytower.game.core.config import ElevatorCosmeticsProtocol
-from mytower.game.entities.elevator_bank import ElevatorBank
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import ElevatorState, VerticalDirection
-from mytower.game.core.units import Blocks
-
+from mytower.game.core.units import Blocks, Meters, Time, Velocity
+from mytower.game.entities.elevator import Elevator
+from mytower.game.entities.elevator_bank import ElevatorBank
 # Import protocols for type hints in production code, not for Mock return types
-from mytower.game.entities.entities_protocol import (
-    PersonProtocol,
-    ElevatorProtocol,
-    BuildingProtocol,
-    FloorProtocol,
-    ElevatorBankProtocol
-)
-
+from mytower.game.entities.entities_protocol import (BuildingProtocol,
+                                                     ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     FloorProtocol,
+                                                     PersonProtocol)
+from mytower.game.entities.person import Person
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.tests.test_protocols import (TestableElevatorBankProtocol,
+                                          TestableElevatorProtocol,
+                                          TestablePersonProtocol)
 # Import new type-safe test utilities
-from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
-from mytower.tests.test_protocols import (
-    TestableElevatorProtocol,
-    TestablePersonProtocol,
-    TestableElevatorBankProtocol
-)
+from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
 
 class PersonFactory(Protocol):
@@ -123,16 +118,17 @@ def mock_building_with_floor() -> Mock:  # ✅
 @pytest.fixture
 def mock_game_config() -> MagicMock:
     """Standard game configuration for tests with real integer values"""
-    from mytower.game.core.config import GameConfig, PersonConfigProtocol, PersonCosmeticsProtocol
+    from mytower.game.core.config import (GameConfig, PersonConfigProtocol,
+                                          PersonCosmeticsProtocol)
     
     config = MagicMock(spec=GameConfig)
     
     # Create properly typed sub-mocks for person config
     person_config = MagicMock(spec=PersonConfigProtocol)
-    person_config.MAX_SPEED = 0.5
-    person_config.MAX_WAIT_TIME = 90.0
-    person_config.IDLE_TIMEOUT = 5.0
-    person_config.RADIUS = 5
+    person_config.MAX_SPEED = Velocity(1.35)  # Approx 3 mph
+    person_config.MAX_WAIT_TIME = Time(90.0)
+    person_config.IDLE_TIMEOUT = Time(5.0)
+    person_config.RADIUS = Meters(1.75)
     config.person = person_config
     
     # Create properly typed sub-mocks for person cosmetics - IMPORTANT: Use real integers for random.randint()
@@ -174,19 +170,19 @@ def person_with_floor(
 @pytest.fixture
 def mock_elevator_bank() -> Mock:  # ✅
     mock_bank = MagicMock(spec=ElevatorBankProtocol)
-    mock_bank.horizontal_block = 5
+    mock_bank.horizontal_block = Blocks(5)
     return mock_bank
 
 
 @pytest.fixture
 def mock_elevator_config() -> MagicMock:
     config = MagicMock()
-    config.MAX_SPEED = 0.75
+    config.MAX_SPEED = Velocity(3.5)
     config.MAX_CAPACITY = 15
-    config.PASSENGER_LOADING_TIME = 1.0
-    config.IDLE_LOG_TIMEOUT = 0.5
-    config.MOVING_LOG_TIMEOUT = 0.5
-    config.IDLE_WAIT_TIMEOUT = 0.5
+    config.PASSENGER_LOADING_TIME = Time(1.0)
+    config.IDLE_LOG_TIMEOUT = Time(0.5)
+    config.MOVING_LOG_TIMEOUT = Time(0.5)
+    config.IDLE_WAIT_TIMEOUT = Time(0.5)
     return config
 
 
@@ -195,9 +191,9 @@ def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
     elevator = MagicMock(spec=ElevatorProtocol)
     elevator.state = ElevatorState.IDLE
     elevator.current_floor_int = 5
-    elevator.idle_time = 0.0
+    elevator.idle_time = Time(0.0)
     elevator.nominal_direction = VerticalDirection.STATIONARY
-    elevator.idle_wait_timeout = 0.5
+    elevator.idle_wait_timeout = Time(0.5)
     elevator.get_passenger_destinations_in_direction.return_value = []
     return elevator
 

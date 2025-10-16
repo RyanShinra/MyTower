@@ -1,13 +1,12 @@
 from __future__ import annotations
+
 from typing import Final
 from unittest.mock import MagicMock
 
-from mytower.game.core.units import Blocks
-from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.core.types import HorizontalDirection, PersonState
+from mytower.game.core.units import Blocks, Time
+from mytower.game.entities.entities_protocol import ElevatorBankProtocol
 from mytower.game.entities.person import Person
-from mytower.game.core.types import PersonState, HorizontalDirection
-import math
-
 
 
 class TestPersonMovement:
@@ -22,9 +21,9 @@ class TestPersonMovement:
         original_block: Final[Blocks] = person_with_floor.current_block_float
         
         person_with_floor.set_destination(dest_floor_num=original_floor, dest_block_num=original_block)
-        
-        person_with_floor.update_idle(1.0)
-        
+
+        person_with_floor.update_idle(Time(1.0))
+
         # Should stay idle since already on correct floor
         assert person_with_floor.state == PersonState.IDLE
         assert person_with_floor.direction == HorizontalDirection.STATIONARY
@@ -37,7 +36,7 @@ class TestPersonMovement:
         mock_building_with_floor.get_elevator_banks_on_floor.return_value = []  # No elevators
 
         person_with_floor.set_destination(dest_floor_num=8, dest_block_num=Blocks(15.0))  # Wrap in Blocks
-        person_with_floor.update_idle(6.0)  # Past idle timeout
+        person_with_floor.update_idle(Time(6.0))  # Past idle timeout
         
         # Should stay idle since no elevator available
         assert person_with_floor.state == PersonState.IDLE
@@ -54,7 +53,7 @@ class TestPersonMovement:
         mock_building_with_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
 
         person_with_floor.set_destination(dest_floor_num=8, dest_block_num=Blocks(15.0))  # Wrap in Blocks
-        person_with_floor.update_idle(6.0)  # Past idle timeout
+        person_with_floor.update_idle(Time(6.0))  # Past idle timeout
         
         # Be sure to check the `config.person.max_speed = 0.5` in conftest
         # It's currently 0.5 blocks / second (the destination is elevator_waiting_block - initial_block blocks away)
@@ -66,13 +65,12 @@ class TestPersonMovement:
         """Test walking state reaches destination and becomes idle"""
 
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest
-        person_with_floor.set_destination(dest_floor_num=5, dest_block_num=Blocks(15.0))  # Already wrapped
+        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_block_num=Blocks(15.0))  # Already wrapped
         person_with_floor.testing_set_current_state(PersonState.WALKING)
         person_with_floor.direction = HorizontalDirection.RIGHT
         
         # Large dt to ensure we reach destination
-        # traverse 5 blocks in 15 seconds at 0.5 blocks / second
-        person_with_floor.update_walking(20.0)
+        person_with_floor.update_walking(Time(30.0))
         
         assert person_with_floor.current_block_float == Blocks(15)  # Wrap in Blocks
         assert person_with_floor.state == PersonState.IDLE
@@ -87,15 +85,14 @@ class TestPersonMovement:
         mock_building_with_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
         
         # Set up person walking toward elevator
-        # Person Initial floor: 5, initial block: 10 - be sure to double check conftest
-        person_with_floor.set_destination(dest_floor_num=8, dest_block_num=Blocks(15.0))  # Already wrapped
-        person_with_floor.testing_set_current_state(PersonState.WALKING)
+        # Person Initial floor: 6, initial block: 10 - be sure to double check conftest
+        person_with_floor.set_destination(dest_floor_num=8, dest_block_num=Blocks(15.0)) 
         person_with_floor.direction = HorizontalDirection.LEFT
-        person_with_floor.testing_set_current_block_float(Blocks(6.0))  # Already wrapped
+        person_with_floor.testing_set_current_block_float(Blocks(6.0)) 
         person_with_floor.testing_set_next_elevator_bank(mock_elevator_bank)  # Simulate finding elevator
-        
-        person_with_floor.update_walking(5.0)  # Large dt to reach destination
-        
+
+        person_with_floor.update_walking(Time(5.0))  # Large dt to reach destination
+
         # TODO: When we get more sophisticated, we should make sure the person is facing the elevator
         assert person_with_floor.state == PersonState.WAITING_FOR_ELEVATOR
         mock_elevator_bank.add_waiting_passenger.assert_called_once_with(person_with_floor)
@@ -114,7 +111,7 @@ class TestPersonMovement:
         mock_building_with_floor.get_elevator_banks_on_floor.return_value = [far_elevator, close_elevator]
         
         # Person Initial floor: 5, initial block: 10 - be sure to double check conftest 
-        result: None | ElevatorBank = person_with_floor.find_nearest_elevator_bank()
+        result: None | ElevatorBankProtocol = person_with_floor.find_nearest_elevator_bank()
         
         assert result == close_elevator
 
@@ -134,20 +131,20 @@ class TestPersonMovement:
         mock_elevator_bank.get_waiting_block.return_value = elevator_waiting_block
         mock_building_with_floor.get_elevator_banks_on_floor.return_value = [mock_elevator_bank]
         
-        person_with_floor.update_idle(6.0) # default idle timeout is 5.0 (verify conftest configuration)
+        person_with_floor.update_idle(Time(6.0)) # default idle timeout is 5.0 (verify conftest configuration)
         assert person_with_floor.state == PersonState.WALKING
         assert person_with_floor.direction == HorizontalDirection.LEFT
 
-        
-        person_with_floor.update_walking(2.0) # Person has to walk 8 blocks in total, should be 1.5 closer now
+
+        person_with_floor.update_walking(Time(2.0)) # Person has to walk 8 blocks in total, should be 1.5 closer now
         assert person_with_floor.state == PersonState.WALKING # Definitely shouldn't be there yet (unless you create super sprinters)
         assert person_with_floor.direction == HorizontalDirection.LEFT
 
         # Calculate time needed to walk to elevator: distance / speed (+ small buffer)
         blocks_to_walk: Blocks = abs(person_with_floor.current_block_float - elevator_waiting_block)  # Should be 8.0
-        
-        # TODO: Return here once we do velocity and time units
-        walking_time: float = float(blocks_to_walk) / person_with_floor.max_velocity + 2.0  # Add 2s buffer
+
+        assert float(person_with_floor.max_velocity) > 0.0  # Just to be sure we don't divide by zero
+        walking_time: Time = blocks_to_walk.in_meters / person_with_floor.max_velocity + Time(2.0)  # Add 2s buffer
         person_with_floor.update_walking(walking_time)
         mock_elevator_bank.add_waiting_passenger.assert_called_once_with(person_with_floor)
         assert person_with_floor.current_block_float == elevator_waiting_block

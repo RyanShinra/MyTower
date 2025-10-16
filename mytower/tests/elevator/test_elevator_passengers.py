@@ -1,14 +1,13 @@
-from typing import List, Sequence
+from typing import Final, List, Sequence
 from unittest.mock import MagicMock
 
-from typing import Final
 import pytest
 
-from mytower.game.entities.elevator import Elevator, ElevatorState
 from mytower.game.core.types import VerticalDirection
+from mytower.game.core.units import Blocks, Time
+from mytower.game.entities.elevator import Elevator, ElevatorState
 from mytower.game.entities.person import PersonProtocol
 from mytower.tests.conftest import PersonFactory
-
 
 
 class TestPassengers:
@@ -53,7 +52,7 @@ class TestPassengers:
         expected_floors: List[int],
     ) -> None:
         """Test getting sorted destinations in the direction of 'direction' """
-        elevator.testing_set_current_floor(current_floor)
+        elevator.testing_set_current_floor(Blocks(current_floor))
         dest_floors: Final[List[int]] = [1, 3, 5, 7]
 
         passengers: Sequence[PersonProtocol] = [mock_person_factory(current_floor, destination_floor) for destination_floor in dest_floors]
@@ -76,7 +75,7 @@ class TestPassengers:
         # Set elevator to loading state and update
         elevator.testing_set_state(ElevatorState.LOADING)
         elevator.testing_set_nominal_direction(VerticalDirection.UP)
-        elevator.update(1.1)  # Time > passenger_loading_time
+        elevator.update(Time(1.1))  # Time > passenger_loading_time
 
         # Check that the passenger was added
         current_passengers: Final[List[PersonProtocol]] = elevator.testing_get_passengers()
@@ -111,7 +110,7 @@ class TestPassengers:
     def test_update_arrived_with_passengers_wanting_off(self, elevator: Elevator, mock_person_factory: PersonFactory) -> None:
         # Setup: elevator arrives at floor 3 with passengers going to floor 3
         elevator.testing_set_state(ElevatorState.ARRIVED)
-        elevator.testing_set_current_floor(3.0)
+        elevator.testing_set_current_floor(Blocks(3.0))
         
         passengers: Final[List[PersonProtocol]] = [
             mock_person_factory(1,3),  # Wants off here
@@ -120,7 +119,7 @@ class TestPassengers:
         elevator.testing_set_passengers(passengers)
         
         # Act
-        elevator.update(0.1)  # dt doesn't matter for this method
+        elevator.update(Time(0.1))  # dt doesn't matter for this method
         
         # Assert
         assert elevator.state == ElevatorState.UNLOADING

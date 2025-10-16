@@ -15,19 +15,18 @@ import random
 from typing import TYPE_CHECKING, Final, List, override  # Remove cast
 
 from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
-from mytower.game.core.units import Blocks, Meters, Velocity, Time
-from mytower.game.utilities.logger import MyTowerLogger
-from mytower.game.core.types import HorizontalDirection, PersonState
-from mytower.game.entities.entities_protocol import BuildingProtocol, PersonProtocol, PersonTestingProtocol
 from mytower.game.core.id_generator import IDGenerator
-
+from mytower.game.core.types import HorizontalDirection, PersonState
+from mytower.game.core.units import Blocks, Meters, Time, Velocity
+from mytower.game.entities.entities_protocol import (BuildingProtocol,
+                                                     PersonProtocol,
+                                                     PersonTestingProtocol)
+from mytower.game.utilities.logger import MyTowerLogger
 
 if TYPE_CHECKING:
-    from mytower.game.entities.entities_protocol import (
-        ElevatorBankProtocol,
-        FloorProtocol,
-        ElevatorProtocol
-    )
+    from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
+                                                         ElevatorProtocol,
+                                                         FloorProtocol)
     from mytower.game.utilities.logger import LoggerProvider
 
 
@@ -343,7 +342,13 @@ class Person(PersonProtocol, PersonTestingProtocol):
                 f"WALKING Person: Arrived at destination (fl {self.current_floor_num}, bk {waypoint_block}) -> {self.state}"
             )
 
-        # TODO: Update these once we have building extents
+        # TODO: Update these with floor extents, not building extents
+        if next_block < Blocks(0) or next_block > self.building.floor_width:
+            # TODO: Consider raising an exception here instead of just clamping
+            self._logger.warning(
+                f"WALKING Person: Attempted to walk out of bounds to block {next_block} on floor {self.current_floor_num}. Clamping to valid range."
+            )
+        
         next_block = min(next_block, self.building.floor_width)
         next_block = max(next_block, Blocks(0))
         self._current_block_blocks = next_block
