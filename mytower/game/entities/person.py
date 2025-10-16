@@ -266,8 +266,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
     def update_idle(self, dt: Time) -> None:  # Changed parameter type
         self.direction = HorizontalDirection.STATIONARY
 
-        self._idle_timeout = Time(max(0, float(self._idle_timeout - dt)))  # Time arithmetic!
-        if self._idle_timeout > Time(0.0):
+        zero_seconds: Time = Time(0.0)
+        self._idle_timeout = max(zero_seconds, self._idle_timeout - dt)
+        if self._idle_timeout > zero_seconds:
             return
 
         current_destination_block: Blocks = self._dest_block_blocks

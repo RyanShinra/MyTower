@@ -1,10 +1,10 @@
 from enum import Enum
 from typing import List
+
 import strawberry
 
-from mytower.game.core.units import Blocks, Meters, Pixels, Time  # Use core types directly!
-import mytower.api.unit_scalars  # type: ignore # noqa: F401 # Ensure custom scalars are registered; leave the import in this file 
-
+from mytower.game.core.units import (Blocks,  # Use core types directly!
+                                     Meters, Pixels, Time)
 
 
 @strawberry.enum
@@ -120,6 +120,7 @@ class ElevatorSnapshotGQL:
 
 @strawberry.type
 class ElevatorBankSnapshotGQL:
+    id: str
     horizontal_block: Blocks  # Core type
     min_floor: int
     max_floor: int

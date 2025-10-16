@@ -13,12 +13,10 @@ Game configuration constants.
 
 from typing import Final
 
-from mytower.game.core.units import Blocks, Pixels
 from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import RGB, Money
-
-
+from mytower.game.core.units import Blocks, Pixels
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 # Re-export for backward compatibility
 __all__ = [
@@ -51,8 +49,8 @@ BACKGROUND_COLOR: Final[RGB] = (240, 240, 240)
 # Game grid constants
 # TODO: These are deprecated, or should be. We should refactor the code to use Blocks and Pixels directly.
 # They are left here for backward compatibility.
-BLOCK_WIDTH: Final[Blocks] = Blocks(1.0)  # Width of a grid cell in meters
-BLOCK_HEIGHT: Final[Blocks] = Blocks(1.0)  # Height of a grid cell in meters
+BLOCK_WIDTH: Final[Blocks] = Blocks(1.0)  # Width of a grid cell in blocks
+BLOCK_HEIGHT: Final[Blocks] = Blocks(1.0)  # Height of a grid cell in blocks
 
 # TODO: We should definitely re-imagine how the colors and heights are organized.
 # Floor colors

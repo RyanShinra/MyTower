@@ -1,8 +1,9 @@
 
-from mytower.game.core.types import RGB, FloorType, PersonState, ElevatorState, VerticalDirection, Color
 from dataclasses import dataclass
 from typing import List
 
+from mytower.game.core.types import (RGB, Color, ElevatorState, FloorType,
+                                     PersonState, VerticalDirection)
 from mytower.game.core.units import Blocks, Time
 
 
@@ -35,7 +36,7 @@ class ElevatorSnapshot:
     available_capacity: int
     max_capacity: int
 
-# TODO: Add ID field for lookup in the maps
+# TODO: Add Elevator references so that the GraphQL layer can resolve them
 @dataclass
 class ElevatorBankSnapshot:
     """Immutable snapshot of elevator bank state for API consumption"""

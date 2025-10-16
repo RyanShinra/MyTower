@@ -1,9 +1,14 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import override, overload  # Add overload
-import math
 
-from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE, METRIC_FLOAT_TOLERANCE, PIXELS_PER_METER, METERS_PER_BLOCK, TIME_FLOAT_TOLERANCE
+import math
+from dataclasses import dataclass, field
+from typing import overload, override  # Add overload
+
+from mytower.game.core.primitive_constants import (BLOCK_FLOAT_TOLERANCE,
+                                                   METERS_PER_BLOCK,
+                                                   METRIC_FLOAT_TOLERANCE,
+                                                   PIXELS_PER_METER,
+                                                   TIME_FLOAT_TOLERANCE)
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -352,7 +357,7 @@ class Velocity:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Velocity):
             return NotImplemented
-        return abs(self.value - other.value) < TIME_FLOAT_TOLERANCE
+        return abs(self.value - other.value) < METRIC_FLOAT_TOLERANCE
 
     @override
     def __repr__(self) -> str:

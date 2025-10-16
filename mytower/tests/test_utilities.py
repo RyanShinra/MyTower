@@ -4,20 +4,19 @@ Type-safe test utilities for MyTower tests.
 Provides mock factories and assertion helpers to improve test maintainability and type safety.
 """
 
-from typing import Any, Protocol, Callable, TypeVar
+from typing import Any, Callable, Protocol, TypeVar
 from unittest.mock import Mock, PropertyMock
+
 import pytest
 
-from mytower.game.entities.entities_protocol import (
-    PersonProtocol,
-    ElevatorProtocol,
-    BuildingProtocol,
-    FloorProtocol,
-    ElevatorBankProtocol
-)
-from mytower.game.core.types import PersonState, ElevatorState, VerticalDirection
+from mytower.game.core.types import (ElevatorState, PersonState,
+                                     VerticalDirection)
 from mytower.game.core.units import Blocks
-
+from mytower.game.entities.entities_protocol import (BuildingProtocol,
+                                                     ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     FloorProtocol,
+                                                     PersonProtocol)
 
 # Type variable for protocol types
 P = TypeVar('P')
@@ -276,7 +275,6 @@ class StateAssertions:
             assert person.current_floor_num == expected_floor, f"Expected floor {expected_floor}, got {person.current_floor_num}"
     
         if expected_block is not None:
-            # Convert to Blocks if needed for comparison
             assert person.current_block_float == expected_block, f"Expected block {expected_block}, got {person.current_block_float}"
     
         if expected_destination_floor is not None:

@@ -16,3 +16,25 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.coverage.run]
+# Enable branch measurement to match `--cov-branch`
+branch = true
+# Measure only the project package
+source = ["mytower"]
+# Allow parallel-mode (useful when tests run in parallel)
+parallel = true
+
+[tool.coverage.report]
+# Show missing lines in the terminal (matches --cov-report=term-missing)
+show_missing = true
+# Don't fail the build by default (adjust as needed)
+fail_under = 0
+
+[tool.coverage.html]
+# Match pytest-cov's html output target
+directory = "htmlcov"
+
+[tool.coverage.xml]
+# Match pytest-cov's xml output
+output = "coverage.xml"

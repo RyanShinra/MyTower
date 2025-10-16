@@ -1,15 +1,17 @@
 from unittest.mock import MagicMock
-import pytest
 
-from mytower.game.models.snapshot_builders import (
-    build_floor_snapshot, build_elevator_snapshot, 
-    build_elevator_bank_snapshot, build_person_snapshot
-)
-from mytower.game.entities.floor import Floor
+from mytower.game.core.types import (ElevatorState, FloorType, PersonState,
+                                     VerticalDirection)
+from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol
-from mytower.game.core.types import FloorType, PersonState, ElevatorState, VerticalDirection
+from mytower.game.models.model_snapshots import (ElevatorBankSnapshot,
+                                                 PersonSnapshot)
+from mytower.game.models.snapshot_builders import (
+    build_elevator_bank_snapshot, build_elevator_snapshot,
+    build_floor_snapshot, build_person_snapshot)
 
 
 class TestBuildFloorSnapshot:
@@ -121,7 +123,7 @@ class TestBuildElevatorBankSnapshot:
         mock_bank.min_floor = 1
         mock_bank.max_floor = 20
         
-        snapshot = build_elevator_bank_snapshot(mock_bank)
+        snapshot: ElevatorBankSnapshot = build_elevator_bank_snapshot(mock_bank)
         
         assert snapshot.horizontal_block == 14
         assert snapshot.min_floor == 1
@@ -129,7 +131,7 @@ class TestBuildElevatorBankSnapshot:
 
     def test_build_elevator_bank_snapshot_different_ranges(self) -> None:
         """Test building snapshots for different floor ranges"""
-        test_cases = [
+        test_cases: list[tuple[int, int, int]] = [
             (5, 1, 10),     # Small building
             (10, 5, 25),    # Mid-range
             (3, 15, 15),    # Single floor
@@ -156,31 +158,31 @@ class TestBuildPersonSnapshot:
         mock_person = MagicMock(spec=PersonProtocol)
         mock_person.person_id = "person_456"
         mock_person.current_floor_num = 3
-        mock_person.current_floor_float = 3.0
-        mock_person.current_block_float = 8.5
+        mock_person.current_floor_float = Blocks(3.0)
+        mock_person.current_block_float = Blocks(8.5)
         mock_person.destination_floor_num = 7
-        mock_person.destination_block_num = 12.0
+        mock_person.destination_block_num = Blocks(12.0)
         mock_person.state = PersonState.WALKING
-        mock_person.waiting_time = 25.3
+        mock_person.waiting_time = Time(25.3)
         mock_person.mad_fraction = 0.4
         mock_person.draw_color = (255, 128, 64)
         
-        snapshot = build_person_snapshot(mock_person)
+        snapshot: PersonSnapshot = build_person_snapshot(mock_person)
         
         assert snapshot.person_id == "person_456"
         assert snapshot.current_floor_num == 3
-        assert snapshot.current_floor_float == 3.0
-        assert snapshot.current_block_float == 8.5
+        assert snapshot.current_floor_float == Blocks(3.0)
+        assert snapshot.current_block_float == Blocks(8.5)
         assert snapshot.destination_floor_num == 7
-        assert snapshot.destination_block_float == 12.0
+        assert snapshot.destination_block_float == Blocks(12.0)
         assert snapshot.state == PersonState.WALKING
-        assert snapshot.waiting_time == 25.3
+        assert snapshot.waiting_time == Time(25.3)
         assert snapshot.mad_fraction == 0.4
         assert snapshot.draw_color == (255, 128, 64)
 
     def test_build_person_snapshot_different_states(self) -> None:
         """Test building snapshots for different person states"""
-        states = [PersonState.IDLE, PersonState.WAITING_FOR_ELEVATOR, PersonState.IN_ELEVATOR]
+        states: list[PersonState] = [PersonState.IDLE, PersonState.WAITING_FOR_ELEVATOR, PersonState.IN_ELEVATOR]
         
         for state in states:
             mock_person = MagicMock(spec=PersonProtocol)
@@ -195,14 +197,14 @@ class TestBuildPersonSnapshot:
             mock_person.mad_fraction = 0.0 if state == PersonState.IDLE else 0.5
             mock_person.draw_color = (128, 128, 128)
             
-            snapshot = build_person_snapshot(mock_person)
+            snapshot: PersonSnapshot = build_person_snapshot(mock_person)
             
             assert snapshot.state == state
             assert snapshot.person_id == f"person_{state.value}"
 
     def test_build_person_snapshot_mad_fraction_range(self) -> None:
         """Test building snapshots with different mad fraction values"""
-        mad_fractions = [0.0, 0.25, 0.5, 0.75, 1.0]
+        mad_fractions: list[float] = [0.0, 0.25, 0.5, 0.75, 1.0]
         
         for mad_fraction in mad_fractions:
             mock_person = MagicMock(spec=PersonProtocol)

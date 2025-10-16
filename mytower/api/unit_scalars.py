@@ -8,8 +8,12 @@ Design philosophy:
 - Self-documenting schema with physical meanings
 """
 import strawberry
-from mytower.game.core.units import Blocks as BlocksCore, Meters as MetersCore, Pixels as PixelsCore, Velocity as VelocityCore, Time as TimeCore
 
+from mytower.game.core.units import Blocks as BlocksCore
+from mytower.game.core.units import Meters as MetersCore
+from mytower.game.core.units import Pixels as PixelsCore
+from mytower.game.core.units import Time as TimeCore
+from mytower.game.core.units import Velocity as VelocityCore
 
 # Serialize the actual core types directly
 Blocks = strawberry.scalar( 
@@ -25,7 +29,7 @@ Meters = strawberry.scalar(
     serialize=lambda v: float(v.value),
     parse_value=lambda v: MetersCore(float(v)),
     description="Physical distance in SI units (meters). "
-                "Examples: Elevator shaft height = 64.0, person walking speed = 1.4 m/s"
+                "Examples: Elevator shaft height = 64.0"
 )
 
 Pixels = strawberry.scalar(

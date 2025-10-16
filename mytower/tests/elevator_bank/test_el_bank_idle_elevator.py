@@ -2,16 +2,10 @@
 
 from unittest.mock import MagicMock
 
-from annotated_types import T
-
-
-
-
+from mytower.game.core.types import VerticalDirection
 from mytower.game.core.units import Time
 from mytower.game.entities.elevator_bank import ElevatorBank
-from mytower.game.core.types import VerticalDirection
 from mytower.tests.conftest import PersonFactory
-
 
 
 class TestIdleElevatorLogic:
