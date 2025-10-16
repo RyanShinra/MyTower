@@ -4,16 +4,22 @@ Type-safe test utilities for MyTower tests.
 Provides mock factories and assertion helpers to improve test maintainability and type safety.
 """
 
-from typing import Any, Protocol, Callable
+from typing import Any, Callable, Protocol, TypeVar
 from unittest.mock import Mock, PropertyMock
+
 import pytest
 
-from mytower.game.entities.person import PersonProtocol
-from mytower.game.entities.elevator import Elevator
-from mytower.game.entities.building import Building
-from mytower.game.entities.floor import Floor
-from mytower.game.entities.elevator_bank import ElevatorBank
-from mytower.game.core.types import PersonState, ElevatorState, VerticalDirection
+from mytower.game.core.types import (ElevatorState, PersonState,
+                                     VerticalDirection)
+from mytower.game.core.units import Blocks
+from mytower.game.entities.entities_protocol import (BuildingProtocol,
+                                                     ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     FloorProtocol,
+                                                     PersonProtocol)
+
+# Type variable for protocol types
+P = TypeVar('P')
 
 
 class MockFactoryProtocol(Protocol):
@@ -26,7 +32,7 @@ class MockFactoryProtocol(Protocol):
         current_block: float = 10.0,
         person_id: str = "test_person_1",
         **overrides: Any
-    ) -> Mock: ...
+    ) -> Mock: ...  # Return Mock explicitly
     
     def create_elevator_mock(
         self,
@@ -34,7 +40,7 @@ class MockFactoryProtocol(Protocol):
         state: ElevatorState = ElevatorState.IDLE,
         elevator_id: str = "test_elevator_1",
         **overrides: Any
-    ) -> Mock: ...
+    ) -> Mock: ...  # Return Mock explicitly
     
     def create_building_mock(
         self,
@@ -42,13 +48,13 @@ class MockFactoryProtocol(Protocol):
         floor_width: int = 20,
         has_floors: bool = True,
         **overrides: Any
-    ) -> Mock: ...
+    ) -> Mock: ...  # Return Mock explicitly
 
     def create_floor_mock(
         self,
         floor_num: int = 1,
         **overrides: Any
-    ) -> Mock: ...
+    ) -> Mock: ...  # Return Mock explicitly
 
     def create_elevator_bank_mock(
         self,
@@ -56,11 +62,20 @@ class MockFactoryProtocol(Protocol):
         min_floor: int = 1,
         max_floor: int = 10,
         **overrides: Any
-    ) -> Mock: ...
+    ) -> Mock: ...  # Return Mock explicitly
 
 
 class TypedMockFactory:
-    """Type-safe mock creation factory"""
+    """
+    Type-safe mock creation factory.
+    
+    Returns Mock objects configured to match protocol interfaces.
+    Callers should cast to protocol types when needed for type checking.
+    
+    Example:
+        mock = factory.create_person_mock()
+        person: PersonProtocol = cast(PersonProtocol, mock)
+    """
     
     def create_person_mock(
         self, 
@@ -70,8 +85,13 @@ class TypedMockFactory:
         person_id: str = "test_person_1",
         state: PersonState = PersonState.IDLE,
         **overrides: Any
-    ) -> Mock:
-        """Create a properly typed Person mock"""
+    ) -> Mock:  # Honest return type
+        """
+        Create a properly typed Person mock.
+        
+        Returns a Mock configured to match PersonProtocol.
+        Use cast(PersonProtocol, mock) when type checking needs it.
+        """
         mock = Mock(spec=PersonProtocol)
         
         # Set up properties with PropertyMock for proper behavior
@@ -107,9 +127,13 @@ class TypedMockFactory:
         passenger_count: int = 0,
         max_capacity: int = 15,
         **overrides: Any
-    ) -> Mock:
-        """Create a properly typed Elevator mock"""
-        mock = Mock(spec=Elevator)
+    ) -> Mock:  # Honest return type
+        """
+        Create a properly typed Elevator mock.
+        
+        Returns a Mock configured to match ElevatorProtocol.
+        """
+        mock = Mock(spec=ElevatorProtocol)
         
         if fractional_floor is None:
             fractional_floor = float(current_floor)
@@ -131,9 +155,9 @@ class TypedMockFactory:
         mock.remove_passenger = Mock()
         
         # Mock parent elevator bank
-        mock.parent_elevator_bank = Mock()
-        mock.parent_elevator_bank.horizontal_block = 5
-        mock.parent_elevator_bank.get_waiting_block = Mock(return_value=5)
+        mock.parent_elevator_bank = Mock(spec=ElevatorBankProtocol)  # Use protocol
+        mock.parent_elevator_bank.horizontal_block = Blocks(5)
+        mock.parent_elevator_bank.get_waiting_block = Mock(return_value=Blocks(5))
         
         # Apply any overrides
         for key, value in overrides.items():
@@ -147,16 +171,16 @@ class TypedMockFactory:
     def create_building_mock(
         self,
         num_floors: int = 10,
-        floor_width: int = 20,
+        floor_width: float = 20.0,
         has_floors: bool = True,
         **overrides: Any
-    ) -> Mock:
+    ) -> Mock:  # Honest return type
         """Create a properly typed Building mock"""
-        mock = Mock(spec=Building)
+        mock = Mock(spec=BuildingProtocol)
         
-        # Set up properties
+        # Set up properties - wrap floor_width in Blocks
         mock.num_floors = num_floors
-        mock.floor_width = floor_width
+        mock.floor_width = Blocks(floor_width)  # Wrap in Blocks to match production code
         mock.people = []
         
         # Set up methods
@@ -180,9 +204,9 @@ class TypedMockFactory:
         self,
         floor_num: int = 1,
         **overrides: Any
-    ) -> Mock:
+    ) -> Mock:  # Honest return type
         """Create a properly typed Floor mock"""
-        mock = Mock(spec=Floor)
+        mock = Mock(spec=FloorProtocol)
         
         # Set up properties
         mock.floor_num = floor_num
@@ -207,9 +231,9 @@ class TypedMockFactory:
         min_floor: int = 1,
         max_floor: int = 10,
         **overrides: Any
-    ) -> Mock:
+    ) -> Mock:  # Honest return type
         """Create a properly typed ElevatorBank mock"""
-        mock = Mock(spec=ElevatorBank)
+        mock = Mock(spec=ElevatorBankProtocol)
         
         # Set up properties
         mock.horizontal_block = horizontal_block
@@ -234,27 +258,31 @@ class StateAssertions:
     
     @staticmethod
     def assert_person_state(
-        person: PersonProtocol,
+        person: PersonProtocol | Mock,  # Accept both for flexibility
         expected_state: PersonState,
         expected_floor: int | None = None,
-        expected_block: float | None = None,
+        expected_block: Blocks | None = None,
         expected_destination_floor: int | None = None
     ) -> None:
-        """Assert person is in expected state and position"""
-        assert person.state == expected_state, f"Expected state {expected_state}, got {person.state}"
+        """
+        Assert person is in expected state and position.
         
+        Accepts either a real PersonProtocol implementation or a Mock.
+        """
+        assert person.state == expected_state, f"Expected state {expected_state}, got {person.state}"
+    
         if expected_floor is not None:
             assert person.current_floor_num == expected_floor, f"Expected floor {expected_floor}, got {person.current_floor_num}"
-        
+    
         if expected_block is not None:
             assert person.current_block_float == expected_block, f"Expected block {expected_block}, got {person.current_block_float}"
-        
+    
         if expected_destination_floor is not None:
             assert person.destination_floor_num == expected_destination_floor, f"Expected destination floor {expected_destination_floor}, got {person.destination_floor_num}"
     
     @staticmethod
     def assert_elevator_state(
-        elevator: Elevator,
+        elevator: ElevatorProtocol | Mock,  # Accept both
         expected_state: ElevatorState,
         expected_floor: int | None = None,
         expected_passenger_count: int | None = None,
@@ -275,7 +303,7 @@ class StateAssertions:
     @staticmethod
     def assert_mock_called_with_person(
         mock_method: Mock,
-        expected_person: PersonProtocol,
+        expected_person: PersonProtocol | Mock,  # Accept both
         call_index: int = 0
     ) -> None:
         """Assert a mock method was called with a specific person"""

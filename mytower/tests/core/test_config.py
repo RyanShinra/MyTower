@@ -1,7 +1,5 @@
-import pytest
-
 from mytower.game.core.config import GameConfig, ElevatorConfig, ElevatorCosmetics, PersonConfig, PersonCosmetics, UIConfig
-from mytower.game.core.types import RGB
+from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
 
 
 class TestElevatorConfig:
@@ -11,22 +9,20 @@ class TestElevatorConfig:
         """Test that ElevatorConfig has expected default values"""
         config = ElevatorConfig()
         
-        assert config.MAX_SPEED == 0.75
+        assert config.MAX_SPEED == Velocity(3.5)  # This is just faster than 1 floor per second
         assert config.MAX_CAPACITY == 15
-        assert config.PASSENGER_LOADING_TIME == 1.0
-        assert config.IDLE_WAIT_TIMEOUT == 0.5
-        assert config.IDLE_LOG_TIMEOUT == 0.5
-        assert config.MOVING_LOG_TIMEOUT == 0.5
+        assert config.PASSENGER_LOADING_TIME == Time(1.0)
+        assert config.IDLE_WAIT_TIMEOUT == Time(0.5)
+        assert config.IDLE_LOG_TIMEOUT == Time(0.5)
+        assert config.MOVING_LOG_TIMEOUT == Time(0.5)
 
     def test_immutable_constants(self) -> None:
         """Test that config constants cannot be modified"""
         config = ElevatorConfig()
         
-        # These should be Final, so attempting to modify them would fail at type checking
-        # But we can at least verify they exist and have the right types
-        assert isinstance(config.MAX_SPEED, float)
+        assert isinstance(config.MAX_SPEED, Velocity)  # Type check for Velocity
         assert isinstance(config.MAX_CAPACITY, int)
-        assert isinstance(config.PASSENGER_LOADING_TIME, float)
+        assert isinstance(config.PASSENGER_LOADING_TIME, Time)
 
 
 class TestElevatorCosmetics:
@@ -40,8 +36,8 @@ class TestElevatorCosmetics:
         assert cosmetics.SHAFT_OVERHEAD_COLOR == (24, 24, 24)
         assert cosmetics.CLOSED_COLOR == (50, 50, 200)
         assert cosmetics.OPEN_COLOR == (200, 200, 50)
-        assert cosmetics.SHAFT_OVERHEAD_HEIGHT == 40  # BLOCK_HEIGHT
-        assert cosmetics.ELEVATOR_WIDTH == 40  # BLOCK_WIDTH
+        assert cosmetics.SHAFT_OVERHEAD_HEIGHT == Blocks(1.0).in_meters
+        assert cosmetics.ELEVATOR_WIDTH == Blocks(1.0).in_meters
 
     def test_color_types(self) -> None:
         """Test that all colors are RGB tuples"""
@@ -61,19 +57,21 @@ class TestPersonConfig:
         """Test that PersonConfig has expected default values"""
         config = PersonConfig()
         
-        assert config.MAX_SPEED == 0.5
-        assert config.MAX_WAIT_TIME == 90.0
-        assert config.IDLE_TIMEOUT == 5.0
-        assert config.RADIUS == 5
+        assert config.MAX_SPEED == Velocity(1.35)  # Updated value
+        assert config.WALKING_ACCELERATION == 0.5  # Will be Velocity/Time eventually
+        assert config.WALKING_DECELERATION == 0.5
+        assert config.MAX_WAIT_TIME == Time(90.0)
+        assert config.IDLE_TIMEOUT == Time(5.0)
+        assert config.RADIUS == Meters(1.75)
 
     def test_positive_values(self) -> None:
         """Test that all config values are positive"""
         config = PersonConfig()
         
-        assert config.MAX_SPEED > 0
-        assert config.MAX_WAIT_TIME > 0
-        assert config.IDLE_TIMEOUT > 0
-        assert config.RADIUS > 0
+        assert config.MAX_SPEED > Velocity(0.0)
+        assert config.MAX_WAIT_TIME > Time(0.0)
+        assert config.IDLE_TIMEOUT > Time(0.0)
+        assert config.RADIUS > Meters(0.0)
 
 
 class TestPersonCosmetics:
@@ -165,14 +163,13 @@ class TestGameConfig:
     def test_config_consistency(self) -> None:
         """Test that configurations are internally consistent"""
         config = GameConfig()
-        
-        # Test that speed values are reasonable
-        assert config.person.MAX_SPEED < config.elevator.MAX_SPEED  # Elevators should be faster than people
+        assert config.person.MAX_SPEED < Velocity(5.0)  # Person speed should be reasonable (11 MPH)
+        assert config.elevator.MAX_SPEED < Velocity(10.0)  # Elevator speed should be reasonable (22 MPH)
         assert config.initial_speed > 0
         
         # Test that timeouts are reasonable
-        assert config.elevator.IDLE_WAIT_TIMEOUT > 0
-        assert config.person.IDLE_TIMEOUT > 0
+        assert config.elevator.IDLE_WAIT_TIMEOUT > Time(0.0)
+        assert config.person.IDLE_TIMEOUT > Time(0.0)
         assert config.person.MAX_WAIT_TIME > config.person.IDLE_TIMEOUT  # Max wait should be longer than idle timeout
 
     def test_multiple_instances_independent(self) -> None:

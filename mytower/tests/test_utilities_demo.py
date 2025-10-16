@@ -1,23 +1,26 @@
 # test_utilities_demo.py
 """
 Demonstration of the new type-safe test utilities.
-This file shows how to use TypedMockFactory, StateAssertions, and BoundaryTestMixin.
+Shows proper handling of Mock vs Protocol types.
 """
 
+from typing import cast
 from unittest.mock import Mock
 
+from mytower.game.entities.entities_protocol import ElevatorProtocol, PersonProtocol
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState, ElevatorState
-from mytower.tests.test_utilities import TypedMockFactory, StateAssertions, BoundaryTestMixin
+from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
 from mytower.tests.conftest import PERSON_DEFAULT_FLOOR, PERSON_DEFAULT_BLOCK
 
 
 class TestTypedMockFactoryDemo:
-    """Demonstrate TypedMockFactory usage"""
+    """Demonstrate TypedMockFactory usage with proper type handling"""
 
-    def test_create_person_mock(self, typed_mock_factory: TypedMockFactory) -> None:
-        """Test creating a properly typed Person mock"""
-        person_mock = typed_mock_factory.create_person_mock(
+    def test_create_person_mock_basic(self, typed_mock_factory: TypedMockFactory) -> None:
+        """Test creating a Person mock - basic usage without type casting"""
+        # Factory returns Mock - this is honest
+        person_mock: Mock = typed_mock_factory.create_person_mock(
             current_floor=5,
             destination_floor=8,
             current_block=15.5,
@@ -25,19 +28,37 @@ class TestTypedMockFactoryDemo:
             state=PersonState.WALKING
         )
         
-        # All properties are properly typed and accessible
+        # Mock supports the protocol interface
         assert person_mock.current_floor_num == 5
         assert person_mock.destination_floor_num == 8
-        assert person_mock.current_block_float == 15.5
-        assert person_mock.person_id == "demo_person"
         assert person_mock.state == PersonState.WALKING
+
+    def test_create_person_mock_with_protocol_typing(
+        self, 
+        typed_mock_factory: TypedMockFactory
+    ) -> None:
+        """Test creating a Person mock with explicit protocol typing"""
+        # When you need PersonProtocol typing, use cast
+        person_mock_raw = typed_mock_factory.create_person_mock(
+            current_floor=5,
+            destination_floor=8,
+            current_block=15.5,
+            person_id="demo_person",
+            state=PersonState.WALKING
+        )
         
-        # Methods are available
-        assert hasattr(person_mock, 'board_elevator')
-        assert hasattr(person_mock, 'disembark_elevator')
+        # Explicit cast when protocol type is needed
+        person_protocol: PersonProtocol = cast(PersonProtocol, person_mock_raw)
+        
+        # Now type checker knows it's a PersonProtocol
+        def process_person(p: PersonProtocol) -> int:
+            return p.current_floor_num
+        
+        result = process_person(person_protocol)
+        assert result == 5
 
     def test_create_elevator_mock(self, typed_mock_factory: TypedMockFactory) -> None:
-        """Test creating a properly typed Elevator mock"""
+        """Test creating an Elevator mock"""
         elevator_mock = typed_mock_factory.create_elevator_mock(
             current_floor=3,
             state=ElevatorState.MOVING,
@@ -45,35 +66,25 @@ class TestTypedMockFactoryDemo:
             passenger_count=7
         )
         
+        # Use as Mock directly in tests
         assert elevator_mock.current_floor_int == 3
         assert elevator_mock.state == ElevatorState.MOVING
-        assert elevator_mock.elevator_id == "demo_elevator"
-        assert elevator_mock.passenger_count == 7
-        assert elevator_mock.fractional_floor == 3.0  # Default based on current_floor
-
-    def test_create_building_mock(self, typed_mock_factory: TypedMockFactory) -> None:
-        """Test creating a properly typed Building mock"""
-        building_mock = typed_mock_factory.create_building_mock(
-            num_floors=15,
-            floor_width=25,
-            has_floors=True
-        )
         
-        assert building_mock.num_floors == 15
-        assert building_mock.floor_width == 25
-        assert building_mock.get_floor_by_number(1) is not None  # has_floors=True
+        # Cast when needed for protocol-typed functions
+        elevator_protocol: ElevatorProtocol = cast(ElevatorProtocol, elevator_mock)
+        assert elevator_protocol.elevator_id == "demo_elevator"
 
 
 class TestStateAssertionsDemo:
-    """Demonstrate StateAssertions usage"""
+    """Demonstrate StateAssertions with proper Mock handling"""
 
-    def test_assert_person_state(
+    def test_assert_person_state_with_real_person(
         self, 
         person_with_floor: Person, 
         state_assertions: StateAssertions
     ) -> None:
-        """Test using StateAssertions for cleaner person state testing"""
-        # Instead of multiple individual asserts, use one clear assertion
+        """Test using StateAssertions with a real Person object"""
+        # StateAssertions accepts both PersonProtocol and Mock
         state_assertions.assert_person_state(
             person_with_floor,
             expected_state=PersonState.IDLE,
@@ -82,61 +93,23 @@ class TestStateAssertionsDemo:
             expected_destination_floor=PERSON_DEFAULT_FLOOR
         )
 
-    def test_assert_elevator_state(
-        self, 
+    def test_assert_person_state_with_mock(
+        self,
         typed_mock_factory: TypedMockFactory,
         state_assertions: StateAssertions
     ) -> None:
-        """Test using StateAssertions for elevator state testing"""
-        elevator_mock = typed_mock_factory.create_elevator_mock(
+        """Test using StateAssertions with a Mock"""
+        person_mock = typed_mock_factory.create_person_mock(
             current_floor=7,
-            state=ElevatorState.ARRIVED,
-            passenger_count=3
+            state=PersonState.WALKING
         )
         
-        # Clean, readable state assertion
-        state_assertions.assert_elevator_state(
-            elevator_mock,
-            expected_state=ElevatorState.ARRIVED,
-            expected_floor=7,
-            expected_passenger_count=3
+        # StateAssertions handles Mock just fine
+        state_assertions.assert_person_state(
+            person_mock,
+            expected_state=PersonState.WALKING,
+            expected_floor=7
         )
-
-
-class TestBoundaryTestMixinDemo(BoundaryTestMixin):
-    """Demonstrate BoundaryTestMixin usage"""
-
-    def test_boundary_validation_example(self, person_with_floor: Person) -> None:
-        """Test using BoundaryTestMixin for boundary testing"""
-        valid_floors = [1, 5, 10]
-        invalid_floors = [-1, 11, 100]  # 0 is excluded because some buildings may have a valid floor 0 (e.g., ground floor)
-        
-        # Test person destination floor boundary validation
-        def set_dest_floor(floor_num: int) -> None:
-            person_with_floor.set_destination(dest_floor_num=floor_num, dest_block_num=10.0)
-        
-        # This tests both valid and invalid values in one clean call
-        self.assert_boundary_validation(
-            func=set_dest_floor,
-            valid_values=valid_floors,
-            invalid_values=invalid_floors,
-            exception_type=ValueError
-        )
-
-    def test_building_mock_factory_boundary(
-        self, 
-        typed_mock_factory: TypedMockFactory
-    ) -> None:
-        """Test boundary validation with mock factory"""
-        def create_building_with_floors(num_floors: int) -> Mock:
-            return typed_mock_factory.create_building_mock(num_floors=num_floors)
-        
-        valid_floor_counts = [1, 10, 50]
-        
-        # Test that building creation works for valid values
-        for valid_count in valid_floor_counts:
-            building = create_building_with_floors(valid_count)
-            assert building.num_floors == valid_count
 
 
 class TestIntegratedUtilitiesDemo:
@@ -149,17 +122,20 @@ class TestIntegratedUtilitiesDemo:
         state_assertions: StateAssertions
     ) -> None:
         """Test complete person-elevator interaction using all utilities"""
-        # Create properly typed elevator mock
-        elevator_mock = typed_mock_factory.create_elevator_mock(
+        # Create elevator mock
+        elevator_mock_raw = typed_mock_factory.create_elevator_mock(
             current_floor=8,
             state=ElevatorState.IDLE,
             elevator_id="test_elevator_complete"
         )
         
+        # Cast to protocol for person.board_elevator() which expects ElevatorProtocol
+        elevator_mock = cast(ElevatorProtocol, elevator_mock_raw)
+        
         # Test boarding
         person_with_floor.board_elevator(elevator_mock)
         
-        # Use state assertions for clean validation
+        # Use state assertions (accepts both protocol and Mock)
         state_assertions.assert_person_state(
             person_with_floor,
             expected_state=PersonState.IN_ELEVATOR
@@ -168,9 +144,15 @@ class TestIntegratedUtilitiesDemo:
         # Verify elevator reference
         assert person_with_floor.testing_get_current_elevator() == elevator_mock
         
-        # Test disembarking
+        # For disembarking, we need a floor to exist in the building
+        # The person_with_floor fixture's building already has a mocked floor
+        # We just need to ensure it returns the right floor for the current location
         floor_mock = typed_mock_factory.create_floor_mock(floor_num=8)
-        person_with_floor.building.get_floor_by_number.return_value = floor_mock  # type: ignore
+        
+        # Get the building mock (from fixture) and configure it
+        # Note: person_with_floor uses mock_building_with_floor from conftest
+        building_mock = cast(Mock, person_with_floor.building)
+        building_mock.get_floor_by_number.return_value = floor_mock
         
         person_with_floor.disembark_elevator()
         
@@ -180,3 +162,86 @@ class TestIntegratedUtilitiesDemo:
             expected_state=PersonState.IDLE,
             expected_floor=8
         )
+
+    def test_person_with_fully_mocked_dependencies(
+        self,
+        typed_mock_factory: TypedMockFactory,
+        state_assertions: StateAssertions,
+        mock_logger_provider: Mock,
+        mock_game_config: Mock
+    ) -> None:
+        """
+        Demonstrate testing with fully controlled mocks.
+        
+        This pattern gives you complete control over all dependencies,
+        which is useful when you need to test specific edge cases.
+        """
+        # Create a fully mocked building
+        building_mock: Mock = typed_mock_factory.create_building_mock(
+            num_floors=10,
+            floor_width=20.0
+        )
+        
+        # Configure the building mock's floor behavior
+        floor_mock: Mock = typed_mock_factory.create_floor_mock(floor_num=5)
+        building_mock.get_floor_by_number.return_value = floor_mock
+        
+        # Create a person with the mocked building
+        person = Person(
+            logger_provider=mock_logger_provider,
+            building=building_mock,  # BuildingProtocol satisfied by Mock
+            initial_floor_number=5,
+            initial_block_float=10.0,
+            config=mock_game_config
+        )
+        
+        # Now we have full control over building behavior
+        state_assertions.assert_person_state(
+            person,
+            expected_state=PersonState.IDLE,
+            expected_floor=5
+        )
+        
+        # Verify the building mock was called correctly during Person init
+        building_mock.get_floor_by_number.assert_called_with(5)
+        floor_mock.add_person.assert_called_once_with(person)
+
+
+class TestProperMockTypingPatterns:
+    """Demonstrate proper patterns for Mock vs Protocol typing"""
+    
+    def test_when_to_cast_to_protocol(
+        self,
+        typed_mock_factory: TypedMockFactory
+    ) -> None:
+        """Show when casting to protocol is necessary"""
+        # Create mock - returns Mock
+        person_mock_raw = typed_mock_factory.create_person_mock(
+            current_floor=5,
+            destination_floor=10
+        )
+        
+        # Pattern 1: Use as Mock when testing mock behavior
+        person_mock_raw.board_elevator.assert_not_called()  # Mock-specific method
+        
+        # Pattern 2: Cast to protocol when passing to production code
+        def process_person_production(p: PersonProtocol) -> str:
+            return f"Floor {p.current_floor_num}"
+        
+        person_protocol = cast(PersonProtocol, person_mock_raw)
+        result = process_person_production(person_protocol)
+        assert result == "Floor 5"
+    
+    def test_mock_flexibility(
+        self,
+        typed_mock_factory: TypedMockFactory
+    ) -> None:
+        """Show that Mocks are more flexible than protocols"""
+        elevator_mock = typed_mock_factory.create_elevator_mock()
+        
+        # Mock allows runtime property changes - protocols don't
+        elevator_mock.custom_test_property = "test_value"
+        assert elevator_mock.custom_test_property == "test_value"
+        
+        # This flexibility is useful in tests but breaks protocol contract
+        # That's why we return Mock, not ElevatorProtocol

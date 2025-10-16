@@ -15,30 +15,35 @@
 # along with MyTower. If not, see <https://www.gnu.org/licenses/>.
 
 
-
 from __future__ import annotations  # Defer type evaluation
 
 from collections import deque
-from typing import TYPE_CHECKING, Final, List, NamedTuple
+from typing import TYPE_CHECKING, Final, List, NamedTuple, override
 from typing import Optional as Opt
 
 import pygame
 
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
+from mytower.game.core.units import Blocks, Pixels, Time, rect_from_pixels
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
+from mytower.game.entities.entities_protocol import (
+    ElevatorBankProtocol, 
+    ElevatorBankTestingProtocol, 
+    PersonProtocol,
+    ElevatorProtocol,
+    BuildingProtocol
+)
 
 if TYPE_CHECKING:
     from pygame import Surface
-
-    from mytower.game.entities.building import Building
-    from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
-    from mytower.game.entities.person import PersonProtocol
+    from mytower.game.core.config import ElevatorCosmeticsProtocol
 
 
-
-class ElevatorBank:
+class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
+    """
+    An elevator bank managing multiple elevators serving a range of floors.
+    """
     # Used in deciding if to move or not
     class ElevatorDestination(NamedTuple):
         has_destination: bool
@@ -60,7 +65,7 @@ class ElevatorBank:
     def __init__(
         self,
         logger_provider: LoggerProvider,
-        building: Building,
+        building: BuildingProtocol,  # Changed to protocol
         h_cell: int,
         min_floor: int,
         max_floor: int,
@@ -71,8 +76,8 @@ class ElevatorBank:
         self._elevator_bank_id: Final[str] = ElevatorBank._id_generator.get_next_id()
 
         # Passengers waiting for the elevator on each floor
-        self._building: Building = building
-        self._horizontal_block: int = h_cell
+        self._building: BuildingProtocol = building
+        self._horizontal_block: Blocks = Blocks(h_cell)
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
@@ -99,34 +104,39 @@ class ElevatorBank:
         self._downward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
             floor: deque() for floor in range(self._min_floor, self._max_floor + 1)
         }
-        self._elevators: List[Elevator] = []
+        self._elevators: List[ElevatorProtocol] = []  # Changed to protocol
         self._requests: dict[int, set[VerticalDirection]] = {
             floor: set() for floor in range(self._min_floor, self._max_floor + 1)
         }
         pass
 
     @property
+    @override
     def elevator_bank_id(self) -> str:
         return self._elevator_bank_id
 
     @property
-    def building(self) -> Building:
+    def building(self) -> BuildingProtocol:
         return self._building
 
     @property
+    @override
     def min_floor(self) -> int:
         return self._min_floor
 
     @property
+    @override
     def max_floor(self) -> int:
         return self._max_floor
 
     @property
-    def horizontal_block(self) -> int:
+    @override
+    def horizontal_block(self) -> Blocks:
         return self._horizontal_block
 
     @property
-    def elevators(self) -> List[Elevator]:
+    @override
+    def elevators(self) -> List[ElevatorProtocol]:
         return self._elevators
 
     @property
@@ -142,7 +152,7 @@ class ElevatorBank:
     def get_requests_for_floors(self, floors: List[int]) -> set[VerticalDirection]:
         return self._requests[floors[0]].copy()  # Return a copy to prevent modification
 
-    def add_elevator(self, elevator: Elevator) -> None:
+    def add_elevator(self, elevator: ElevatorProtocol) -> None:  # Changed to protocol
         if elevator is None:  # pyright: ignore
             raise ValueError("Elevator cannot be None")  # pyright: ignore[reportUnreachable]
 
@@ -155,6 +165,7 @@ class ElevatorBank:
 
 
             
+    @override
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
         
@@ -171,7 +182,7 @@ class ElevatorBank:
         floor_request.add(direction)
 
 
-    # TODO: We may want to pass in the direction here, or target floor as an argument
+    @override
     def add_waiting_passenger(self, passenger: PersonProtocol) -> None:
         if passenger is None:  # pyright: ignore
             raise ValueError("PersonProtocol cannot be None") # pyright: ignore[reportUnreachable]
@@ -215,7 +226,7 @@ class ElevatorBank:
         current_queue.append(passenger)
 
 
-
+    @override
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> Opt[PersonProtocol]:
         self._logger.debug(f"Attempting to dequeue a waiting passenger on floor {floor} in direction {direction}")
         self._validate_floor(floor)
@@ -236,7 +247,8 @@ class ElevatorBank:
         return passenger
 
 
-        # In ElevatorBank class
+    # In ElevatorBank class
+    @override
     def testing_get_upward_queue(self, floor: int) -> deque[PersonProtocol]:
         """
         Testing method to access the queue of passengers waiting on a specific floor
@@ -250,8 +262,7 @@ class ElevatorBank:
         """
         return self._upward_waiting_passengers[floor]
 
-
-
+    @override
     def testing_get_downward_queue(self, floor: int) -> deque[PersonProtocol]:
         """
         Testing method to access downward waiting passengers queue
@@ -263,16 +274,24 @@ class ElevatorBank:
         """
         return self._downward_waiting_passengers[floor]
 
-    def testing_update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
+    @override
+    def testing_update_idle_elevator(self, elevator: ElevatorProtocol, dt: Time) -> None:
         """Testing method to access idle elevator update logic"""
         self._update_idle_elevator(elevator, dt)
 
-    def testing_update_ready_elevator(self, elevator: Elevator) -> None:
+    @override
+    def testing_update_ready_elevator(self, elevator: ElevatorProtocol) -> None:
         """Testing method to access ready elevator update logic"""
         self._update_ready_elevator(elevator)
 
-    
-    
+    @override
+    def testing_collect_destinations(self, elevator: ElevatorProtocol, floor: int, direction: VerticalDirection) -> List[int]:
+        return self._collect_destinations(elevator, floor, direction)
+
+    @override
+    def testing_select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
+        return self._select_next_floor(destinations, direction)
+
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         self._logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
@@ -308,14 +327,17 @@ class ElevatorBank:
         return ElevatorBank.DirQueue(ElevatorBank.EMPTY_DEQUE, STATIONARY)
 
 
-    def get_waiting_block(self) -> int:
+    @override
+    def get_waiting_block(self) -> Blocks:
+        """The block where people wait for the elevator, it's just to the left of the elevator bank unless it's at the left edge of the building, then it's just to the right"""
         # TODO: Update this once we add building extents
-        return max(1, self.horizontal_block - 1)
+        return max(Blocks(1), self.horizontal_block - Blocks(1))
 
 
-
-    def update(self, dt: float) -> None:
+    def update(self, dt:Time) -> None:  # Accept both for now during transition
         """Update elevator status over time increment dt (in seconds)"""
+        # Convert to float for internal use
+        
         for el in self.elevators:
             # Need to actually update the thing
             # The elevators are all updated separately, now in GameModel
@@ -326,15 +348,14 @@ class ElevatorBank:
         pass
 
 
-
-    def _update_idle_elevator(self, elevator: Elevator, dt: float) -> None:
+    def _update_idle_elevator(self, elevator: ElevatorProtocol, dt: Time) -> None:
         """Idle means it arrived at this floor with nobody who wanted to disembark on this floor"""
         elevator.idle_time += dt
         # Access idle_wait_timeout from the elevator's public property
         if elevator.idle_time < elevator.idle_wait_timeout:  # Use public property
             return
 
-        elevator.idle_time = 0.0
+        elevator.idle_time = Time(0.0)
 
         # First, let's figure out if there is anybody here who wants to go UP or DOWN
         # This section is if the elevator was just waiting at a floor and somebody pushed the button
@@ -355,8 +376,7 @@ class ElevatorBank:
         return
 
 
-
-    def _update_ready_elevator(self, elevator: Elevator) -> None:
+    def _update_ready_elevator(self, elevator: ElevatorProtocol) -> None:
         floor: int = elevator.current_floor_int
         nom_direction: Final[VerticalDirection] = elevator.nominal_direction
 
@@ -384,9 +404,8 @@ class ElevatorBank:
         return
 
 
-
     def _get_next_destination(
-        self, elevator: Elevator, current_floor: int, current_direction: VerticalDirection
+        self, elevator: ElevatorProtocol, current_floor: int, current_direction: VerticalDirection
     ) -> ElevatorBank.ElevatorDestination:
         
         # Normalize STATIONARY direction before doing any searches
@@ -411,12 +430,7 @@ class ElevatorBank:
         return ElevatorBank.Destination(False, current_floor, VerticalDirection.STATIONARY)
 
 
-    def testing_collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
-        return self._collect_destinations(elevator, floor, direction)
-
-
-
-    def _collect_destinations(self, elevator: Elevator, floor: int, direction: VerticalDirection) -> List[int]:
+    def _collect_destinations(self, elevator: ElevatorProtocol, floor: int, direction: VerticalDirection) -> List[int]:
         destinations: Final[List[int]] = []
 
         # Passengers have higher priority
@@ -428,11 +442,6 @@ class ElevatorBank:
         return destinations
 
 
-    def testing_select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
-        return self._select_next_floor(destinations, direction)
-
-
-
     def _select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int:
         if direction == VerticalDirection.UP:
             # Go to the lowest floor above us
@@ -440,7 +449,6 @@ class ElevatorBank:
         else:
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
-
 
 
     def _get_floor_requests_in_dir_from_floor(
@@ -475,29 +483,31 @@ class ElevatorBank:
         return answer
 
 
-
     def draw(self, surface: Surface) -> None:
         """Draw the elevator Bank on the given surface"""
-        screen_height: int = surface.get_height()
+        screen_height: Pixels = Pixels(surface.get_height())
 
-        shaft_left: int = self._horizontal_block * BLOCK_WIDTH
-        width: int = BLOCK_WIDTH
+        shaft_left: Pixels = self._horizontal_block.in_pixels
+        width: Pixels = self._cosmetics_config.ELEVATOR_WIDTH.in_pixels
 
         # Draw shaft from min to max floor
-        #     420 = 480 - (3 * 20)
-        shaft_top: int = screen_height - (self._max_floor * BLOCK_HEIGHT)
-        shaft_overhead: int = screen_height - ((self._max_floor + 1) * BLOCK_HEIGHT)
-        #     480 = 480 - ((1 - 1) * 20)
-        shaft_bottom: int = screen_height - ((self._min_floor - 1) * BLOCK_HEIGHT)
+        shaft_top: Pixels = screen_height - Blocks(self._max_floor).in_pixels
+        shaft_overhead: Pixels = screen_height - Blocks(self._max_floor + 1).in_pixels
+        shaft_bottom: Pixels = screen_height - Blocks(self._min_floor - 1).in_pixels
         
+        elevator_shaft_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_top, width, shaft_bottom - shaft_top)
         pygame.draw.rect(
-            surface, self._cosmetics_config.SHAFT_COLOR, (shaft_left, shaft_top, width, shaft_bottom - shaft_top)
-        ) # pyright: ignore[reportUnusedCallResult]
+            surface,
+            self._cosmetics_config.SHAFT_COLOR,
+            elevator_shaft_rect
+        )
 
+        # Draw overhead part of shaft
+        elevator_overhead_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
         pygame.draw.rect(
             surface,
             self._cosmetics_config.SHAFT_OVERHEAD_COLOR,
-            (shaft_left, shaft_overhead, width, shaft_top - shaft_overhead),
-        ) # pyright: ignore[reportUnusedCallResult]
+            elevator_overhead_rect
+        )
 
 

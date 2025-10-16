@@ -1,13 +1,17 @@
 from typing import Any, List, Optional
 
 import strawberry
-from mytower.api.game_bridge import get_game_bridge
-from mytower.api.graphql_types import BuildingSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL
-from mytower.api.type_conversions import convert_building_snapshot, convert_person_snapshot
-from mytower.game.controllers.controller_commands import (Command, 
-    AddFloorCommand, AddPersonCommand, AddElevatorBankCommand, AddElevatorCommand)
 
+from mytower.api.game_bridge import get_game_bridge
+from mytower.api.graphql_types import (BuildingSnapshotGQL, FloorTypeGQL,
+                                       PersonSnapshotGQL)
+from mytower.api.type_conversions import (convert_building_snapshot,
+                                          convert_person_snapshot)
+from mytower.game.controllers.controller_commands import (
+    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
+    AddPersonCommand, Command)
 from mytower.game.core.types import FloorType
+from mytower.game.core.units import Time
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
 
@@ -26,9 +30,9 @@ class Query:
         return "Hello World from MyTower!"
     
     @strawberry.field
-    def game_time(self) -> float:
+    def game_time(self) -> Time:
         snapshot: BuildingSnapshot | None = get_building_state()
-        return snapshot.time if snapshot else 0.0
+        return snapshot.time if snapshot else Time(0.0)
 
     @strawberry.field
     def is_running(self) -> bool:

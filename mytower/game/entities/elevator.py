@@ -19,66 +19,27 @@ from __future__ import annotations  # Defer type evaluation
 
 from typing import TYPE_CHECKING, Final, List
 from typing import Optional as Opt
-from typing import Protocol, Sequence
+from typing import Sequence, override
 
-from mytower.game.utilities.logger import LoggerProvider
-from mytower.game.core.types import RGB, ElevatorState, VerticalDirection
+from mytower.game.core.config import (ElevatorConfigProtocol,
+                                      ElevatorCosmeticsProtocol)
 from mytower.game.core.id_generator import IDGenerator
+from mytower.game.core.types import ElevatorState, VerticalDirection
+from mytower.game.core.units import (Blocks, Meters, Time,  # Add Velocity
+                                     Velocity)
+from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     ElevatorTestingProtocol,
+                                                     PersonProtocol)
+from mytower.game.utilities.logger import LoggerProvider
 
 if TYPE_CHECKING:
-    from mytower.game.entities.elevator_bank import ElevatorBank
-    from mytower.game.utilities.logger import MyTowerLogger  
-    from mytower.game.entities.person import PersonProtocol
+    from mytower.game.utilities.logger import MyTowerLogger
 
 
 # flake8: noqa: E701
-# pylint: disable=invalid-name
-class ElevatorConfigProtocol(Protocol):
-    """Config requirements for Elevator class"""
 
-    @property
-    def MAX_SPEED(self) -> float: ...
-
-    @property
-    def MAX_CAPACITY(self) -> int: ...
-
-    @property
-    def PASSENGER_LOADING_TIME(self) -> float: ...
-
-    @property
-    def IDLE_LOG_TIMEOUT(self) -> float: ...
-
-    @property
-    def MOVING_LOG_TIMEOUT(self) -> float: ...
-
-    @property
-    def IDLE_WAIT_TIMEOUT(self) -> float: ...
-
-
-class ElevatorCosmeticsProtocol(Protocol):
-    """Visual appearance settings for Elevator class"""
-
-    @property
-    def SHAFT_COLOR(self) -> RGB: ...
-
-    @property
-    def SHAFT_OVERHEAD_COLOR(self) -> RGB: ...
-
-    @property
-    def CLOSED_COLOR(self) -> RGB: ...
-
-    @property
-    def OPEN_COLOR(self) -> RGB: ...
-
-    @property
-    def SHAFT_OVERHEAD_HEIGHT(self) -> int: ...
-    
-    @property
-    def ELEVATOR_WIDTH(self) -> int: ...
-# pylint: enable=invalid-name
-
-    
-class Elevator:
+class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     """
     An elevator in the building that transports people between floors.
     """
@@ -88,11 +49,12 @@ class Elevator:
     def __init__(
         self,
         logger_provider: LoggerProvider,
-        elevator_bank: ElevatorBank,
+        elevator_bank: ElevatorBankProtocol,  # Changed to protocol
         min_floor: int,
         max_floor: int,
         config: ElevatorConfigProtocol,
         cosmetics_config: ElevatorCosmeticsProtocol,
+        starting_floor: int | None = None,
     ) -> None:
         """
         Initialize a new elevator
@@ -110,7 +72,7 @@ class Elevator:
         self._elevator_id: str = Elevator._id_generator.get_next_id()
 
         self._logger: MyTowerLogger = logger_provider.get_logger("Elevator")
-        self._parent_elevator_bank: ElevatorBank = elevator_bank
+        self._parent_elevator_bank: ElevatorBankProtocol = elevator_bank
 
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
@@ -118,8 +80,8 @@ class Elevator:
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
 
         # Current state
-        self._current_floor_float: float = float(min_floor)  # Floor number (can be fractional when moving)
-        self._destination_floor: int = min_floor  # Let's not stop between floors
+        self._current_floor_in_blocks: Blocks = Blocks(min_floor if starting_floor is None else starting_floor)  # Floor number (can be fractional when moving)
+        self._destination_floor: int = min_floor if starting_floor is None else starting_floor  # Let's not stop between floors
         self._door_open: bool = False
         self._state: ElevatorState = ElevatorState.IDLE
         self._motion_direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
@@ -129,115 +91,140 @@ class Elevator:
         self._nominal_direction: VerticalDirection = VerticalDirection.STATIONARY
         self._passengers: List[PersonProtocol] = []  # People inside the elevator
 
-        self._unloading_timeout: float = 0.0
-        self._loading_timeout: float = 0.0
-        self._idle_time: float = 0.0
+        self._unloading_timeout: Time = Time(0.0)
+        self._loading_timeout: Time = Time(0.0)
+        self._idle_time: Time = Time(0.0)
         self._last_logged_state: Opt[ElevatorState] = None  # Track the last logged state
-        self._idle_log_timer: float = 0.0
-        self._moving_log_timer: float = 0.0
+        self._idle_log_timer: Time = Time(0.0)
+        self._moving_log_timer: Time = Time(0.0)
 
     @property
+    @override
     def elevator_id(self) -> str:
         """Get the unique elevator ID"""
         return self._elevator_id
 
     @property
+    @override
     def state(self) -> ElevatorState:
         return self._state
 
+    @override
     def testing_set_state(self, state: ElevatorState) -> None:
         self._state = state
 
     @property
+    @override
     def avail_capacity(self) -> int:
         return self._config.MAX_CAPACITY - len(self._passengers)
 
     @property
+    @override
     def max_capacity(self) -> int:
         return self._config.MAX_CAPACITY
     
     @property
+    @override
     def passenger_count(self) -> int:
         return len(self._passengers)
 
     @property
+    @override
     def is_empty(self) -> bool:
         return len(self._passengers) == 0
 
     @property
+    @override
     def motion_direction(self) -> VerticalDirection:
         return self._motion_direction
 
+    @override
     def testing_set_motion_direction(self, direction: VerticalDirection) -> None:
         self._motion_direction = direction
 
     @property
+    @override
     def nominal_direction(self) -> VerticalDirection:
         return self._nominal_direction
 
+    @override
     def testing_set_nominal_direction(self, direction: VerticalDirection) -> None:
         self._nominal_direction = direction
     
     @property
+    @override
     def current_floor_int(self) -> int:
-        return int(self._current_floor_float)
+        return int(self._current_floor_in_blocks)
 
-    def testing_set_current_floor(self, floor: float) -> None:
-        if not (self.min_floor <= floor <= self.max_floor):
+    @override
+    def testing_set_current_floor(self, floor: Blocks) -> None:
+        if not (self.min_floor <= int(floor) <= self.max_floor):
             raise ValueError(
                 f"Testing floor {floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}."
             )
-        self._current_floor_float = float(floor)
+        self._current_floor_in_blocks = floor
 
     @property
-    def fractional_floor(self) -> float:
-        return self._current_floor_float
+    @override
+    def fractional_floor(self) -> Blocks:
+        return self._current_floor_in_blocks
     
     @property
-    def current_block_float(self) -> float:
-        return float(self._parent_elevator_bank.horizontal_block)
+    @override
+    def current_block_float(self) -> Blocks:
+        return self._parent_elevator_bank.horizontal_block
 
     @property
-    def parent_elevator_bank(self) -> ElevatorBank:
+    @override
+    def parent_elevator_bank(self) -> ElevatorBankProtocol:
         return self._parent_elevator_bank
 
     @property
+    @override
     def door_open(self) -> bool:
         return self._door_open
 
     @door_open.setter
+    @override
     def door_open(self, value: bool) -> None:
         self._door_open = value
 
     @property
+    @override
     def min_floor(self) -> int:
         return self._min_floor
 
     @property
+    @override
     def max_floor(self) -> int:
         return self._max_floor
 
     @property
-    def max_velocity(self) -> float:
+    @override
+    def max_velocity(self) -> Velocity:  # Changed return type from float
         return self._config.MAX_SPEED
 
     @property
-    def idle_wait_timeout(self) -> float:  # Added public property for idle_wait_timeout
+    @override
+    def idle_wait_timeout(self) -> Time:  # Added public property for idle_wait_timeout
         return self._config.IDLE_WAIT_TIMEOUT
 
     @property
+    @override
     def destination_floor(self) -> int:
         return self._destination_floor
 
     @property
-    def idle_time(self) -> float:
+    @override
+    def idle_time(self) -> Time:
         return self._idle_time
 
     @idle_time.setter
-    def idle_time(self, value: float) -> None:
+    @override
+    def idle_time(self, value: Time) -> None:
         self._idle_time = value
 
-
+    @override
     def set_destination_floor(self, dest_floor: int) -> None:
         if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
             raise ValueError(
@@ -261,16 +248,18 @@ class Elevator:
             self._nominal_direction = VerticalDirection.STATIONARY
         self._destination_floor = dest_floor
 
+    @override
     def testing_set_passengers(self, passengers: Sequence[PersonProtocol]) -> None:
         """Set passengers directly for testing purposes."""
         if len(passengers) > self._config.MAX_CAPACITY:
             raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.MAX_CAPACITY}")
         self._passengers = list(passengers)  # Defensive copy
-        
+    
+    @override
     def testing_get_passengers(self) -> List[PersonProtocol]:
         return self._passengers.copy()
 
-
+    @override
     def request_load_passengers(self, direction: VerticalDirection) -> None:
         """Instructs an idle elevator to begin loading and sets it to nominally go in `direction`.
            The actual loading will happen on the next time step, after evaluating the state machine.
@@ -285,7 +274,7 @@ class Elevator:
             self._logger.warning(err_str)
             raise RuntimeError(err_str)
 
-
+    @override
     def passengers_who_want_off(self) -> List[PersonProtocol]:
         answer: Final[List[PersonProtocol]] = []
         for p in self._passengers:
@@ -294,7 +283,7 @@ class Elevator:
 
         return answer
 
-
+    @override
     def get_passenger_destinations_in_direction(self, floor: int, direction: VerticalDirection) -> List[int]:
         """Returns sorted list of floors in the direction of travel"""
 
@@ -318,8 +307,8 @@ class Elevator:
 
         return sorted_floors
 
-
-    def update(self, dt: float) -> None:
+    @override
+    def update(self, dt: Time) -> None:
         """Update elevator status over time increment dt (in seconds)"""
         if self._state != self._last_logged_state:
             self._logger.info(f"Elevator state changed to: {self._state}")
@@ -361,22 +350,26 @@ class Elevator:
 
                 raise ValueError(f"Unknown elevator state: {self._state}")
 
-    def _update_idle(self, dt: float) -> None:
+    def _update_idle(self, dt: Time) -> None:
         self._idle_log_timer += dt
         if self._idle_log_timer >= self._config.IDLE_LOG_TIMEOUT:
             self._logger.trace(f"{self.state} Elevator: Elevator is idle on floor {self.current_floor_int}")
-            self._idle_log_timer = 0.0
+            self._idle_log_timer = Time(0.0)
         self._motion_direction = VerticalDirection.STATIONARY
 
 
-    def _update_moving(self, dt: float) -> None:
-        dy: float = dt * self.max_velocity * self.motion_direction.value
-        cur_floor: float = self._current_floor_float + dy
+    def _update_moving(self, dt: Time) -> None:
+        # Physics with proper units - type checker now knows this is Meters!
+        distance: Meters = self.max_velocity * dt  # No cast needed!
+        dy_blocks: Blocks = distance.in_blocks
+        
+        cur_floor: float = float(self._current_floor_in_blocks) + float(dy_blocks) * self.motion_direction.value
+        
         if self._moving_log_timer >= self._config.MOVING_LOG_TIMEOUT:
             self._logger.trace(
-                f"{self.state} Elevator: Elevator moving {self.motion_direction} from floor {self._current_floor_float} to {cur_floor}"
+                f"{self.state} Elevator: Moving {self.motion_direction} from {self._current_floor_in_blocks} to {cur_floor}"
             )
-            self._moving_log_timer = 0.0
+            self._moving_log_timer = Time(0.0)
 
         done: bool = False
 
@@ -389,18 +382,18 @@ class Elevator:
 
         if done:
             self._logger.info(
-                f"{self.state} Elevator: The elevator has arrived from moving {self.motion_direction} -> ARRIVED"
+                f"{self.state} Elevator: Arrived from moving {self.motion_direction} -> ARRIVED"
             )
-            cur_floor = self.destination_floor
+            cur_floor = float(self.destination_floor)
             self._state = ElevatorState.ARRIVED
             self._motion_direction = VerticalDirection.STATIONARY
 
         cur_floor = min(self.max_floor, cur_floor)
         cur_floor = max(self.min_floor, cur_floor)
-        self._current_floor_float = cur_floor
+        self._current_floor_in_blocks = Blocks(cur_floor)
 
 
-    def _update_arrived(self, dt: float) -> None:
+    def _update_arrived(self, dt: Time) -> None:
         who_wants_off: Final[List[PersonProtocol]] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
@@ -412,12 +405,12 @@ class Elevator:
         )
 
 
-    def _update_unloading(self, dt: float) -> None:
+    def _update_unloading(self, dt: Time) -> None:
         self._unloading_timeout += dt
         if self._unloading_timeout < self._config.PASSENGER_LOADING_TIME:
             return
 
-        self._unloading_timeout = 0.0
+        self._unloading_timeout = Time(0.0)
         who_wants_off: Final[List[PersonProtocol]] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
@@ -431,12 +424,12 @@ class Elevator:
         return
 
 
-    def _update_loading(self, dt: float) -> None:
+    def _update_loading(self, dt: Time) -> None:
         self._loading_timeout += dt
         if self._loading_timeout < self._config.PASSENGER_LOADING_TIME:
             return
 
-        self._loading_timeout = 0.0
+        self._loading_timeout = Time(0.0)
 
         # We could have an "Overstuffed" option here in the future
         if self.avail_capacity <= 0:
@@ -462,7 +455,7 @@ class Elevator:
         return
 
 
-    def _update_ready_to_move(self, dt: float) -> None:
+    def _update_ready_to_move(self, dt: Time) -> None:
         self._logger.debug(
             f"{self.state} Elevator: Elevator ready to move from floor {self.current_floor_int} to {self.destination_floor}"
         )

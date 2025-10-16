@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock, patch
-import pytest
 
 from mytower.game.entities.building import Building
 from mytower.game.entities.floor import Floor
@@ -7,6 +6,7 @@ from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.person import PersonProtocol
 from mytower.game.core.types import FloorType
+from mytower.game.core.units import Blocks  # Add import
 from mytower.game.utilities.logger import LoggerProvider
 
 
@@ -18,14 +18,14 @@ class TestBuildingBasics:
         building = Building(mock_logger_provider, width=25)
         
         assert building.num_floors == 0
-        assert building.floor_width == 25
+        assert building.floor_width == Blocks(25)  # Compare to Blocks
         assert building.people == []
 
     def test_default_width(self, mock_logger_provider: MagicMock) -> None:
         """Test Building with default width"""
         building = Building(mock_logger_provider)
         
-        assert building.floor_width == 20  # Default width
+        assert building.floor_width == Blocks(20)  # Compare to Blocks - Default width
         assert building.num_floors == 0
 
     @patch('mytower.game.entities.building.Floor')
@@ -48,8 +48,8 @@ class TestBuildingBasics:
             building,
             1,  # floor_num
             FloorType.LOBBY,
-            0,  # left_edge (hardcoded)
-            30  # building width
+            Blocks(0),  # left_edge - now Blocks
+            Blocks(30)  # building width - now Blocks
         )
         
         # Add second floor
@@ -101,7 +101,7 @@ class TestBuildingFloorRetrieval:
         
         # Create mock floors
         mock_floors = []
-        for i in range(3):
+        for _i in range(3):  # Prefix with underscore to mark as intentionally unused
             mock_floor = MagicMock(spec=Floor)
             mock_floors.append(mock_floor)
             mock_floor_class.return_value = mock_floor

@@ -7,18 +7,24 @@ from typing import Dict, Final, List, Optional
 
 from pygame import Surface
 
+from mytower.game.core.units import Blocks, Time
+from mytower.game.entities.entities_protocol import (
+    ElevatorProtocol,
+    FloorProtocol,
+    PersonProtocol,
+    ElevatorBankProtocol
+)
 
-from mytower.game.entities.elevator import Elevator
-from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 from mytower.game.models.snapshot_builders import build_elevator_bank_snapshot, build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
-from mytower.game.entities.person import Person, PersonProtocol
+from mytower.game.entities.person import Person
 from mytower.game.core.types import FloorType
 from mytower.game.entities.building import Building
 from mytower.game.core.config import GameConfig
 from mytower.game.core.constants import STARTING_MONEY, MIN_TIME_MULTIPLIER, MAX_TIME_MULTIPLIER
 from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.entities.elevator import Elevator
 
 class GameModel:
     """
@@ -31,16 +37,17 @@ class GameModel:
         self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger('GameModel')
         
-        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the game with their id as the key
-        self._elevator_banks: Dict[str, ElevatorBank] = {}  # Dictionary of elevator banks in the game with their id as the key
-        self._elevators: Dict[str, Elevator] = {}  # Dictionary of elevators in the game with their id as the key
-        self._floors: Dict[int, Floor] = {}  # Dictionary of floors in the game with their floor number as the key
+        # Use protocols for internal storage - allows for future flexibility
+        self._people: Dict[str, PersonProtocol] = {}
+        self._elevator_banks: Dict[str, ElevatorBankProtocol] = {}
+        self._elevators: Dict[str, ElevatorProtocol] = {}
+        self._floors: Dict[int, FloorProtocol] = {}
         
         self._building: Building = Building(logger_provider, width=20)
         self._config: GameConfig = GameConfig()
 
         self._money: int = STARTING_MONEY  # Starting money
-        self._time: float = 0.0
+        self._time: Time = Time(0.0)
         self._speed: float = self._config.initial_speed
         self._paused: bool = False
         
@@ -51,7 +58,7 @@ class GameModel:
         return self._paused
     
     @property
-    def current_time(self) -> float:
+    def current_time(self) -> Time:
         return self._time
 
     @property
@@ -74,7 +81,7 @@ class GameModel:
         try:
             # The floor may be a different height depending on type, we'll need to account for that in the building function
             new_floor_num: int = self._building.add_floor(floor_type)
-            new_floor: Floor | None = self._building.get_floor_by_number(new_floor_num)
+            new_floor: FloorProtocol | None = self._building.get_floor_by_number(new_floor_num)
             
             if new_floor is None:
                 raise RuntimeError(f"Failed to retrieve newly added floor {new_floor_num}")
@@ -101,7 +108,7 @@ class GameModel:
             self._building.add_elevator_bank(elevator_bank)
             
             el_bank_id: Final[str] = elevator_bank.elevator_bank_id
-            self._elevator_banks[el_bank_id] = elevator_bank
+            self._elevator_banks[el_bank_id] = elevator_bank  # Stored as protocol
             return el_bank_id
 
         except Exception as e:
@@ -113,10 +120,11 @@ class GameModel:
     def add_elevator(self, el_bank_id: str) -> str:
         """Add a new elevator to the specified elevator bank"""
         try:
-            el_bank: ElevatorBank | None = self._elevator_banks.get(el_bank_id)
+            el_bank: ElevatorBankProtocol | None = self._elevator_banks.get(el_bank_id)  # Protocol type
             if el_bank is None:
                 raise ValueError(f"Elevator bank {el_bank_id} does not exist")
 
+            # Concrete construction still happens here
             elevator = Elevator(
                 logger_provider=self._logger_provider,
                 elevator_bank=el_bank,
@@ -127,7 +135,7 @@ class GameModel:
             )
             el_bank.add_elevator(elevator)
             
-            self._elevators[elevator.elevator_id] = elevator
+            self._elevators[elevator.elevator_id] = elevator  # Stored as protocol
             return elevator.elevator_id
 
         except Exception as e:
@@ -139,6 +147,7 @@ class GameModel:
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: float) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
+            # Concrete construction
             new_person: Final[Person] = Person(
                 logger_provider=self._logger_provider,
                 building=self._building,
@@ -146,10 +155,10 @@ class GameModel:
                 initial_block_float=block,
                 config=self._config
             )
-            
-            new_person.set_destination(dest_floor_num=dest_floor, dest_block_num=dest_block)
-            
-            self._people[new_person.person_id] = new_person
+
+            new_person.set_destination(dest_floor_num=dest_floor, dest_block_num=Blocks(dest_block))
+
+            self._people[new_person.person_id] = new_person  # Stored as protocol
             self._building.add_person(new_person)
             return new_person.person_id
 
@@ -240,24 +249,24 @@ class GameModel:
 
 
     # Simulation Methods
-    def update(self, dt: float) -> None:
+    def update(self, dt: Time) -> None:
         """Update game simulation"""
         try:
             if not self._paused:
-                game_dt: float = dt * self._speed
+                game_dt: Time = dt * self._speed
                 self._time += game_dt
-                
+
                 # First, we do the elevators
                 for elevator in self._elevators.values():
                     elevator.update(game_dt)
 
                 # Next the elevator banks, they will further modify the elevators
                 for bank in self._elevator_banks.values():
-                    bank.update(game_dt)
+                    bank.update(game_dt)  
                     
                 # Next, we update the people
                 for person in self._people.values():
-                    person.update(game_dt)
+                    person.update(game_dt)  # Now properly typed as Time
 
                 # Finally, we update the building
                 self._building.update(game_dt)
@@ -265,7 +274,6 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
-
 
 
     def get_building_snapshot(self) -> BuildingSnapshot:
@@ -302,7 +310,7 @@ class GameModel:
     def get_elevator_by_id(self, elevator_id: str) -> Optional[ElevatorSnapshot]:
         """Get specific elevator state by ID"""
         try:
-            elevators: Final[List[Elevator]] = self._building.get_elevators()
+            elevators: Final[List[ElevatorProtocol]] = self._building.get_elevators()
             for elevator in elevators:
                 if elevator.elevator_id == elevator_id:
                     return build_elevator_snapshot(elevator)
@@ -316,7 +324,7 @@ class GameModel:
     def get_floor_info(self, floor_number: int) -> Optional[FloorSnapshot]:
         """Get specific floor information"""
         try:
-            floor: Floor | None = self._building.get_floor_by_number(floor_number)
+            floor: FloorProtocol | None = self._building.get_floor_by_number(floor_number)
             if floor:
                 return build_floor_snapshot(floor)
             return None

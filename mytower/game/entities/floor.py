@@ -3,10 +3,11 @@ from __future__ import annotations  # Defer type evaluation
 
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, Final
+from typing import TYPE_CHECKING, Dict, Final, override
 
 
 
+from mytower.game.core.units import Blocks
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import Color, FloorType
 
@@ -28,15 +29,14 @@ from mytower.game.core.constants import (
     RETAIL_HEIGHT,
 )
 
+from mytower.game.entities.entities_protocol import FloorProtocol
 
 
 if TYPE_CHECKING:
-    from mytower.game.entities.building import Building
-    from mytower.game.entities.person import PersonProtocol
+    from mytower.game.entities.entities_protocol import PersonProtocol, BuildingProtocol
 
 
-# See FloorInfo below
-class Floor:
+class Floor(FloorProtocol):
     """
     A floor in the building that can contain various room types
     """
@@ -44,10 +44,10 @@ class Floor:
     @dataclass
     class FloorInfo:
         """
-        Struct
+        Struct to hold information about a floor's appearance and dimensions.
         """
         color: Color
-        height: int
+        height: Blocks
 
     # Available floor types
     LOBBY_INFO: Final = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
@@ -63,73 +63,83 @@ class Floor:
     def __init__(
         self, 
         logger_provider: LoggerProvider, 
-        building: Building, 
+        building: BuildingProtocol, 
         floor_num: int, 
         floor_type: FloorType, 
-        floor_left_edge: int = DEFAULT_FLOOR_LEFT_EDGE, 
-        floor_width: int = DEFAULT_FLOOR_WIDTH,   
+        floor_left_edge: Blocks = DEFAULT_FLOOR_LEFT_EDGE, 
+        floor_width: Blocks = DEFAULT_FLOOR_WIDTH,   
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("floor")
-        self._building: Building = building
+        self._building: BuildingProtocol = building
         # Floors are 1 indexed
         self._floor_num: int = floor_num
 
-        self._floor_left_edge: int = floor_left_edge
-        self._floor_width: int = floor_width
+        self._floor_left_edge: Blocks = floor_left_edge
+        self._floor_width: Blocks = floor_width
 
         self._floor_type: FloorType = floor_type
         self._color: Color = self.FLOOR_TYPES[floor_type].color
         self._floorboard_color: Color = FLOORBOARD_COLOR
-        self._height: int = self.FLOOR_TYPES[floor_type].height
+        self._height: Blocks = self.FLOOR_TYPES[floor_type].height
 
         self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor    
         
     # Grid of rooms/spaces on this floor
 
     @property
-    def building(self) -> Building:
+    def building(self) -> BuildingProtocol:
         return self._building
 
     @property
+    @override
     def floor_num(self) -> int:
         return self._floor_num
 
     @property
+    @override
     def floor_type(self) -> FloorType:
         return self._floor_type
 
     @property
+    @override
+    def width(self) -> Blocks:
+        return self._floor_width
+
+    @property
+    @override
+    def height(self) -> Blocks:
+        return self._height
+
+    @property
+    @override
+    def left_edge(self) -> Blocks:
+        return self._floor_left_edge
+
+    @property
+    @override
+    def number_of_people(self) -> int:
+        return len(self._people)
+
+    @property
+    @override
     def color(self) -> Color:
         return self._color
 
     @property
+    @override
     def floorboard_color(self) -> Color:
         return self._floorboard_color
-
-    @property
-    def height(self) -> int:
-        return self._height
-    
-    @property
-    def left_edge(self) -> int:
-        return self._floor_left_edge
-
-    @property
-    def width(self) -> int:
-        return self._floor_width
 
     @property
     def people(self) -> Dict[str, PersonProtocol]:
         return dict(self._people)
     
-    @property
-    def number_of_people(self) -> int:
-        return len(self._people)
-    
+    @override
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
         
+    @override
     def remove_person(self, person_id: str) -> PersonProtocol:
         """Remove a person from the floor, returns the person if found, throws if not"""
         # This is fairly reasonable since only a person should be removing themselves from the floor
@@ -138,6 +148,7 @@ class Floor:
         if not person:
             raise KeyError(f"Person not found: {person_id}")
         return person
+        
             
     def update(self, dt: float) -> None:
         """Update floor simulation"""

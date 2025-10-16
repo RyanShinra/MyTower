@@ -1,27 +1,37 @@
 # /tests/conftest.py
 
-import pytest
-from typing import Protocol, Callable, Final
-from unittest.mock import MagicMock, PropertyMock, Mock
-from mytower.game.entities.floor import Floor
-from mytower.game.entities.person import PersonProtocol, Person
-from mytower.game.entities.elevator import Elevator, ElevatorCosmeticsProtocol
-from mytower.game.entities.elevator_bank import ElevatorBank
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.game.entities.building import Building
-from mytower.game.core.types import ElevatorState, VerticalDirection
+from typing import Callable, Final, Protocol
+from unittest.mock import MagicMock, Mock, PropertyMock
 
+import pytest
+
+from mytower.game.core.config import ElevatorCosmeticsProtocol
+from mytower.game.core.types import ElevatorState, VerticalDirection
+from mytower.game.core.units import Blocks, Meters, Time, Velocity
+from mytower.game.entities.elevator import Elevator
+from mytower.game.entities.elevator_bank import ElevatorBank
+# Import protocols for type hints in production code, not for Mock return types
+from mytower.game.entities.entities_protocol import (BuildingProtocol,
+                                                     ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     FloorProtocol,
+                                                     PersonProtocol)
+from mytower.game.entities.person import Person
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+from mytower.tests.test_protocols import (TestableElevatorBankProtocol,
+                                          TestableElevatorProtocol,
+                                          TestablePersonProtocol)
 # Import new type-safe test utilities
-from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
+from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
 
 class PersonFactory(Protocol):
-    def __call__(self, cur_floor_num: int, dest_floor_num: int) -> PersonProtocol: ...
+    def __call__(self, cur_floor_num: int, dest_floor_num: int) -> Mock: ...  # ✅ Honest return type
 
 
 @pytest.fixture
 def mock_person_factory() -> PersonFactory:
-    def _person_gen(cur_floor_num: int, dest_floor_num: int) -> PersonProtocol:
+    def _person_gen(cur_floor_num: int, dest_floor_num: int) -> Mock:  # ✅ Returns Mock
         person: Final[MagicMock] = MagicMock(spec=PersonProtocol)
         type(person).current_floor_num = PropertyMock(return_value=cur_floor_num)
         type(person).destination_floor_num = PropertyMock(return_value=dest_floor_num)
@@ -49,7 +59,7 @@ def mock_logger_provider() -> MagicMock:
     return provider
 
 BUILDING_DEFAULT_NUM_FLOORS = 10
-BUILDING_DEFAULT_FLOOR_WIDTH = 20
+BUILDING_DEFAULT_FLOOR_WIDTH = 20.0 # Needs to be float for Person initial_block_float
 
 
 # New type-safe test utilities fixtures
@@ -66,10 +76,14 @@ def state_assertions() -> StateAssertions:
 
 
 @pytest.fixture
-def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:
+def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:  # ✅
     """Factory for creating building mocks with configurable floor behavior"""
     
-    def _create_building(has_floors: bool = True, num_floors: int = BUILDING_DEFAULT_NUM_FLOORS, floor_width: int = BUILDING_DEFAULT_FLOOR_WIDTH) -> Mock:
+    def _create_building(
+        has_floors: bool = True, 
+        num_floors: int = BUILDING_DEFAULT_NUM_FLOORS, 
+        floor_width: float = BUILDING_DEFAULT_FLOOR_WIDTH
+    ) -> Mock:  # ✅ Returns Mock
         return typed_mock_factory.create_building_mock(
             num_floors=num_floors,
             floor_width=floor_width,
@@ -79,24 +93,24 @@ def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock
     return _create_building
 
 @pytest.fixture
-def mock_building_no_floor() -> MagicMock:
+def mock_building_no_floor() -> Mock:  # ✅
     """Standard building mock - For tests where a person does not need to belong to a floor"""
-    building = MagicMock(spec=Building)
+    building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = BUILDING_DEFAULT_FLOOR_WIDTH
+    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
     building.get_elevator_banks_on_floor.return_value = []
     building.get_floor_by_number.return_value = None
     return building
 
 
 @pytest.fixture
-def mock_building_with_floor() -> MagicMock:
+def mock_building_with_floor() -> Mock:  # ✅
     """Building mock that returns a floor (for tests where person should be on a floor)"""
-    building = MagicMock(spec=Building)
+    building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
-    building.floor_width = BUILDING_DEFAULT_FLOOR_WIDTH
+    building.floor_width = Blocks(BUILDING_DEFAULT_FLOOR_WIDTH)
     building.get_elevator_banks_on_floor.return_value = []
-    mock_floor = MagicMock(spec=Floor)
+    mock_floor = MagicMock(spec=FloorProtocol)
     building.get_floor_by_number.return_value = mock_floor
     return building
 
@@ -104,17 +118,17 @@ def mock_building_with_floor() -> MagicMock:
 @pytest.fixture
 def mock_game_config() -> MagicMock:
     """Standard game configuration for tests with real integer values"""
-    from mytower.game.core.config import GameConfig
-    from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
+    from mytower.game.core.config import (GameConfig, PersonConfigProtocol,
+                                          PersonCosmeticsProtocol)
     
     config = MagicMock(spec=GameConfig)
     
     # Create properly typed sub-mocks for person config
     person_config = MagicMock(spec=PersonConfigProtocol)
-    person_config.MAX_SPEED = 0.5
-    person_config.MAX_WAIT_TIME = 90.0
-    person_config.IDLE_TIMEOUT = 5.0
-    person_config.RADIUS = 5
+    person_config.MAX_SPEED = Velocity(1.35)  # Approx 3 mph
+    person_config.MAX_WAIT_TIME = Time(90.0)
+    person_config.IDLE_TIMEOUT = Time(5.0)
+    person_config.RADIUS = Meters(1.75)
     config.person = person_config
     
     # Create properly typed sub-mocks for person cosmetics - IMPORTANT: Use real integers for random.randint()
@@ -133,59 +147,63 @@ def mock_game_config() -> MagicMock:
     return config
 
 
-PERSON_DEFAULT_FLOOR = 6
-PERSON_DEFAULT_BLOCK = 11.0
+PERSON_DEFAULT_FLOOR: Final[int] = 6
+PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)
 
 @pytest.fixture 
-def person_with_floor(mock_logger_provider: MagicMock, mock_building_with_floor: MagicMock, mock_game_config: MagicMock) -> Person:
+def person_with_floor(
+    mock_logger_provider: MagicMock, 
+    mock_building_with_floor: Mock,  # ✅ Changed - was BuildingProtocol
+    mock_game_config: MagicMock
+) -> TestablePersonProtocol:  # ✅ This is correct - returns real Person
     """Person fixture that starts on a floor"""
     return Person(
         logger_provider=mock_logger_provider,
         building=mock_building_with_floor,
         initial_floor_number=PERSON_DEFAULT_FLOOR,
-        initial_block_float=PERSON_DEFAULT_BLOCK,
+        initial_block_float=float(PERSON_DEFAULT_BLOCK),
         config=mock_game_config
     )
 
 
 # Elevator-specific fixtures
 @pytest.fixture
-def mock_elevator_bank() -> MagicMock:
-    mock_bank = MagicMock()
-    mock_bank.horizontal_block = 5
+def mock_elevator_bank() -> Mock:  # ✅
+    mock_bank = MagicMock(spec=ElevatorBankProtocol)
+    mock_bank.horizontal_block = Blocks(5)
     return mock_bank
 
 
 @pytest.fixture
 def mock_elevator_config() -> MagicMock:
     config = MagicMock()
-    config.MAX_SPEED = 0.75
+    config.MAX_SPEED = Velocity(3.5)
     config.MAX_CAPACITY = 15
-    config.PASSENGER_LOADING_TIME = 1.0
-    config.IDLE_LOG_TIMEOUT = 0.5
-    config.MOVING_LOG_TIMEOUT = 0.5
-    config.IDLE_WAIT_TIMEOUT = 0.5
+    config.PASSENGER_LOADING_TIME = Time(1.0)
+    config.IDLE_LOG_TIMEOUT = Time(0.5)
+    config.MOVING_LOG_TIMEOUT = Time(0.5)
+    config.IDLE_WAIT_TIMEOUT = Time(0.5)
     return config
 
 
 @pytest.fixture
-def mock_elevator(mock_logger_provider: MagicMock) -> MagicMock:
-    elevator = MagicMock(spec=Elevator)
+def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
+    elevator = MagicMock(spec=ElevatorProtocol)
     elevator.state = ElevatorState.IDLE
     elevator.current_floor_int = 5
-    elevator.idle_time = 0.0
+    elevator.idle_time = Time(0.0)
     elevator.nominal_direction = VerticalDirection.STATIONARY
-    elevator.idle_wait_timeout = 0.5
+    elevator.idle_wait_timeout = Time(0.5)
     elevator.get_passenger_destinations_in_direction.return_value = []
     return elevator
 
 
 @pytest.fixture
 def elevator_bank(
-    mock_building_no_floor: MagicMock, 
+    mock_building_no_floor: Mock,  # ✅ Changed - was BuildingProtocol
     mock_logger_provider: MagicMock, 
     mock_cosmetics_config: MagicMock
-) -> ElevatorBank:
+) -> TestableElevatorBankProtocol:  # ✅ This is correct - returns real ElevatorBank
     return ElevatorBank(
         building=mock_building_no_floor,
         logger_provider=mock_logger_provider,
@@ -199,10 +217,11 @@ def elevator_bank(
 @pytest.fixture
 def elevator(
     mock_logger_provider: MagicMock, 
-    mock_elevator_bank: MagicMock, 
+    mock_elevator_bank: Mock,  # ✅ Changed - was ElevatorBankProtocol
     mock_elevator_config: MagicMock, 
     mock_cosmetics_config: MagicMock
-) -> Elevator:
+) -> TestableElevatorProtocol:  # ✅ This is correct - returns real Elevator
+    """Fixture returns type that supports both production and testing interfaces"""
     return Elevator(
         mock_logger_provider,
         mock_elevator_bank,

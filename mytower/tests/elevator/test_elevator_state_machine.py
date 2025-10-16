@@ -1,5 +1,6 @@
 
 
+from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.elevator import Elevator, ElevatorState
 from mytower.game.core.types import VerticalDirection
 
@@ -16,7 +17,7 @@ class TestStateMachine:
         elevator.set_destination_floor(5)  # Set a destination above current floor
 
         # Update the elevator
-        elevator.update(1.0)
+        elevator.update(Time(1.0))
 
         # Check if state transitioned correctly
         assert elevator.state == ElevatorState.IDLE
@@ -30,7 +31,7 @@ class TestStateMachine:
         elevator.set_destination_floor(5)  # Set a destination above current floor
 
         # Update the elevator
-        elevator.update(1.0)
+        elevator.update(Time(1.0))
 
         # Check if state transitioned correctly
         assert elevator.state == ElevatorState.MOVING
@@ -44,7 +45,7 @@ class TestStateMachine:
         elevator.set_destination_floor(1)  # Set a destination at same floor
 
         # Update the elevator
-        elevator.update(1.0)
+        elevator.update(Time(1.0))
 
         # Check if state transitioned correctly
         assert elevator.state == ElevatorState.IDLE
@@ -56,11 +57,11 @@ class TestStateMachine:
         # Set up conditions for transition
         elevator.testing_set_state(ElevatorState.MOVING)
         elevator.set_destination_floor(2)  # Set a destination
-        elevator.testing_set_current_floor(1.9)  # Almost at destination
+        elevator.testing_set_current_floor(Blocks(1.9))  # Almost at destination
         elevator.testing_set_motion_direction(VerticalDirection.UP)
 
         # Update the elevator - should reach destination
-        elevator.update(0.2)
+        elevator.update(Time(0.2))
 
         # Check if state transitioned correctly
         assert elevator.state == ElevatorState.ARRIVED

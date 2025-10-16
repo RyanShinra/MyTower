@@ -2,28 +2,120 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, Protocol
 
-from mytower.game.core.constants import BLOCK_HEIGHT, BLOCK_WIDTH
 from mytower.game.core.types import RGB
-from mytower.game.views.desktop_ui import UIConfigProtocol
+from mytower.game.core.units import Blocks, Meters, Time, Velocity
 
 if TYPE_CHECKING:
-    from mytower.game.entities.elevator import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
-    from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
+    from mytower.game.views.desktop_ui import UIConfigProtocol
 
 # It can't seem to make up its mind whether to use snake_case because they are class properties or UPPER_CASE for constants
 # So, it gets neither
-# pylint: disable=invalid-name 
+# pylint: disable=invalid-name
+
+# flake8: noqa: E704
+# Protocol definitions for configuration
+class ElevatorConfigProtocol(Protocol):
+    """Config requirements for Elevator class"""
+
+    @property
+    def MAX_SPEED(self) -> Velocity: ...
+
+    @property
+    def MAX_CAPACITY(self) -> int: ...
+
+    @property
+    def PASSENGER_LOADING_TIME(self) -> Time: ...
+
+    @property
+    def IDLE_LOG_TIMEOUT(self) -> Time: ...
+
+    @property
+    def MOVING_LOG_TIMEOUT(self) -> Time: ...
+
+    @property
+    def IDLE_WAIT_TIMEOUT(self) -> Time: ...
+
+class ElevatorCosmeticsProtocol(Protocol):
+    """Visual appearance settings for Elevator class"""
+
+    @property
+    def SHAFT_COLOR(self) -> RGB: ...
+
+    @property
+    def SHAFT_OVERHEAD_COLOR(self) -> RGB: ...
+
+    @property
+    def CLOSED_COLOR(self) -> RGB: ...
+
+    @property
+    def OPEN_COLOR(self) -> RGB: ...
+
+    @property
+    def SHAFT_OVERHEAD_HEIGHT(self) -> Meters: ...
+    
+    @property
+    def ELEVATOR_WIDTH(self) -> Meters: ...
+    
+    @property
+    def ELEVATOR_HEIGHT(self) -> Meters: ...
+
+class PersonConfigProtocol(Protocol):
+    """Config requirements for Person class"""
+
+    @property
+    def MAX_SPEED(self) -> Velocity: ...
+
+    @property
+    def MAX_WAIT_TIME(self) -> Time: ...
+
+    @property
+    def IDLE_TIMEOUT(self) -> Time: ...
+
+    @property
+    def RADIUS(self) -> Meters: ...
+
+class PersonCosmeticsProtocol(Protocol):
+    """Visual appearance settings for Person class"""
+
+    @property
+    def ANGRY_MAX_RED(self) -> int: ...
+
+    @property
+    def ANGRY_MIN_GREEN(self) -> int: ...
+
+    @property
+    def ANGRY_MIN_BLUE(self) -> int: ...
+
+    @property
+    def INITIAL_MAX_RED(self) -> int: ...
+
+    @property
+    def INITIAL_MAX_GREEN(self) -> int: ...
+
+    @property
+    def INITIAL_MAX_BLUE(self) -> int: ...
+
+    @property
+    def INITIAL_MIN_RED(self) -> int: ...
+
+    @property
+    def INITIAL_MIN_GREEN(self) -> int: ...
+
+    @property
+    def INITIAL_MIN_BLUE(self) -> int: ...
+
+# Concrete configuration implementations
 @dataclass
 class ElevatorConfig:
     """Concrete implementation of Elevator configuration"""
-    MAX_SPEED: Final[float] = 0.75  # Floors per second
+    MAX_SPEED: Velocity = Velocity(3.5)  # Changed from float to Velocity (m/s)
     MAX_CAPACITY: Final[int] = 15  # Number of people who can fit on board
-    PASSENGER_LOADING_TIME: Final[float] = 1.0  # How long it takes a single passenger to board
-    IDLE_WAIT_TIMEOUT: Final[float] = 0.5  # Seconds: how often an idle elevator checks for passengers
-    IDLE_LOG_TIMEOUT: Final[float] = 0.5  # Seconds: how often to log status while Idle
-    MOVING_LOG_TIMEOUT: Final[float] = 0.5  # Seconds: how often to log status while Moving
+    PASSENGER_LOADING_TIME: Time = Time(1.0)  # Time to load one passenger
+    IDLE_WAIT_TIMEOUT: Time = Time(0.5)  # Seconds: how often an idle elevator checks for passengers
+    IDLE_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Idle
+    MOVING_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Moving
 
 
 @dataclass
@@ -34,18 +126,20 @@ class ElevatorCosmetics:
     SHAFT_OVERHEAD_COLOR: Final[RGB] = (24, 24, 24)
     CLOSED_COLOR: Final[RGB] = (50, 50, 200)
     OPEN_COLOR: Final[RGB] = (200, 200, 50)
-    SHAFT_OVERHEAD_HEIGHT: Final[int] = BLOCK_HEIGHT  # Pixels
-    ELEVATOR_WIDTH: Final[int] = BLOCK_WIDTH  # Pixels
+    SHAFT_OVERHEAD_HEIGHT: Final[Meters] = Blocks(1.0).in_meters
+    ELEVATOR_WIDTH: Final[Meters] = Blocks(1.0).in_meters
+    ELEVATOR_HEIGHT: Final[Meters] = Blocks(1.0).in_meters
 
 
 @dataclass
 class PersonConfig:
-    """Concrete implementation of Person configuration"""
-
-    MAX_SPEED: Final[float] = 0.5  # blocks per second
-    MAX_WAIT_TIME: Final[float] = 90.0  # seconds before getting very angry
-    IDLE_TIMEOUT: Final[float] = 5.0  # In person.py update_idle method
-    RADIUS: Final[int] = 5  # Visual size of person
+    """Person behavior configuration with explicit units"""
+    MAX_SPEED: Velocity = Velocity(1.35)  # Explicit m/s (approx 3 mph)
+    WALKING_ACCELERATION: float = 0.5  # TODO: Make this Velocity/Time
+    WALKING_DECELERATION: float = 0.5  # TODO: Make this Velocity/Time
+    MAX_WAIT_TIME: Time = Time(90.0)   # Explicit seconds
+    IDLE_TIMEOUT: Time = Time(5.0)     # Explicit seconds
+    RADIUS: Meters = Meters(1.75)      # Explicit meters
 
 
 @dataclass

@@ -5,10 +5,11 @@ from typing import TYPE_CHECKING
 import pygame
 
 from mytower.game.core.constants import (  # TODO: Move this into a config
-    BLOCK_HEIGHT,
     BLOCK_WIDTH,
+    DEFAULT_FLOOR_HEIGHT,
 )
-from mytower.game.entities.person import PersonConfigProtocol, PersonCosmeticsProtocol
+from mytower.game.core.units import Blocks, Pixels
+from mytower.game.core.config import PersonConfigProtocol, PersonCosmeticsProtocol
 
 if TYPE_CHECKING:
     from pygame import Surface
@@ -24,21 +25,24 @@ class PersonRenderer:
         self._config: PersonConfigProtocol = person_config
 
     # Someday this will be replaced with a proper transform system
-    def y_position(self, surface: Surface, person: PersonSnapshot) -> int:
+    def y_position(self, surface: Surface, person: PersonSnapshot) -> Pixels:
         """Calculate the y position for the given person"""
-        apparent_floor: float = person.current_floor_float - 1.0  # Floors are 1 indexed
-        z_bottom: float = apparent_floor * BLOCK_HEIGHT
-        z_centered: int = int(z_bottom + (BLOCK_HEIGHT / 2))
+        apparent_floor: Blocks = person.current_floor_float - Blocks(1.0)  # Floors are 1 indexed / Alternatively, we want the feet to be at the bottom of the block
+        z_bottom: Pixels = apparent_floor.in_pixels
+        
+        half_floor_height: Pixels = Pixels(int(float(DEFAULT_FLOOR_HEIGHT.in_pixels) / 2.0))
+        z_centered: Pixels = z_bottom + half_floor_height
 
-        screen_height: int = surface.get_height()
-        y_pos: int = screen_height - z_centered
-        return y_pos
+        screen_height: Pixels = Pixels(surface.get_height())
+        y_centered: Pixels = screen_height - z_centered
+        return y_centered
 
 
-    def x_position(self, _: Surface, person: PersonSnapshot) -> int:
+    def x_position(self, _: Surface, person: PersonSnapshot) -> Pixels:
         """Calculate the x position for the given person"""
-        x_left: float = person.current_block_float * BLOCK_WIDTH
-        x_centered: int = int(x_left + (BLOCK_WIDTH / 2))
+        x_left: Pixels = person.current_block_float.in_pixels
+        block_half_width: Pixels = Pixels(int(BLOCK_WIDTH.in_pixels / 2.0))
+        x_centered: Pixels = x_left + block_half_width
         return x_centered
 
 
@@ -47,8 +51,10 @@ class PersonRenderer:
         self._logger.debug(f"Drawing person: {person.person_id}")
 
         # Calculate position and draw a simple circle for now
-        y_pos: int = self.y_position(surface, person)
-        x_pos: int = self.x_position(surface, person)
-
+        y_center: Pixels = self.y_position(surface, person)
+        x_center: Pixels = self.x_position(surface, person)
+        draw_center: tuple[int, int] = (int(x_center), int(y_center))
+        draw_radius: int = int(self._config.RADIUS.in_pixels)
+        
         # Draw the person as a circle
-        pygame.draw.circle(surface, person.draw_color, (x_pos, y_pos), self._config.RADIUS)
+        pygame.draw.circle(surface, person.draw_color, draw_center, draw_radius)

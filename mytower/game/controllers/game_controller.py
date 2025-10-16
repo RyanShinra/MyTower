@@ -13,6 +13,7 @@ from mytower.game.controllers.controller_commands import Command, CommandResult
 from mytower.game.models.model_snapshots import ElevatorBankSnapshot, FloorSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
+from mytower.game.core.units import Time
 
 
 
@@ -86,7 +87,7 @@ class GameController:
     # Simulation management
     def update(self, dt: float) -> None:
         """Update the game simulation"""
-        self._model.update(dt)
+        self._model.update(Time(dt))
     
     def is_paused(self) -> bool:
         """Check if game is currently paused"""
@@ -107,7 +108,7 @@ class GameController:
 
     def get_game_time(self) -> float:
         """Get current game time"""
-        return self._model.current_time
+        return float(self._model.current_time)
     
     def get_command_history(self) -> List[str]:
         """Get history of executed commands (for debugging/undo)"""
