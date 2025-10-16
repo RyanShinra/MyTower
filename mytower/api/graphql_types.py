@@ -84,7 +84,7 @@ class PersonSnapshotGQL:
     current_vertical_position: Blocks  # Core type
     current_horizontal_position: Blocks  # Core type
     destination_floor_num: int
-    destination_block_float: Blocks  # Core type
+    destination_horizontal_position: Blocks  # Core type
     state: PersonStateGQL
     waiting_time: Time  # Core type
     mad_fraction: float
@@ -97,8 +97,8 @@ class PersonSnapshotGQL:
 @strawberry.type
 class ElevatorSnapshotGQL:
     id: str
-    current_floor: Blocks  # This is now mytower.game.core.units.Blocks
-    current_block: Blocks  # Same type, no conversion needed!
+    vertical_position: Blocks  # This is now mytower.game.core.units.Blocks
+    horizontal_position: Blocks  # Same type, no conversion needed!
     destination_floor: int
     state: ElevatorStateGQL
     nominal_direction: VerticalDirectionGQL

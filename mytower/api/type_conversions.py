@@ -18,7 +18,7 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
         current_vertical_position=person.current_vertical_position,  # Already Blocks, passes through
         current_horizontal_position=person.current_horizontal_position,  # Already Blocks
         destination_floor_num=person.destination_floor_num,
-        destination_block_float=person.destination_horizontal_position,  # Already Blocks
+        destination_horizontal_position=person.destination_horizontal_position,  # Already Blocks
         state=PersonStateGQL(person.state.value),
         waiting_time=person.waiting_time,
         mad_fraction=person.mad_fraction,
@@ -28,8 +28,8 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
 def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL:
     return ElevatorSnapshotGQL(
         id=elevator.id,
-        current_floor=elevator.vertical_position,  # Blocks type passes through
-        current_block=elevator.horizontal_position,  # Blocks type passes through
+        vertical_position=elevator.vertical_position,  # Blocks type passes through
+        horizontal_position=elevator.horizontal_position,  # Blocks type passes through
         destination_floor=elevator.destination_floor,
         state=ElevatorStateGQL(elevator.elevator_state.value),
         door_open=elevator.door_open,
