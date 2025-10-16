@@ -122,7 +122,7 @@ class TestElevatorBankSnapshot:
             max_floor=20
         )
         
-        assert snapshot.horizontal_block == Blocks(14)
+        assert snapshot.horizontal_position == Blocks(14)
         assert snapshot.min_floor == 1
         assert snapshot.max_floor == 20
 

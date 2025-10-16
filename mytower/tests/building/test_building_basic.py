@@ -18,14 +18,14 @@ class TestBuildingBasics:
         building = Building(mock_logger_provider, width=25)
         
         assert building.num_floors == 0
-        assert building.floor_width == Blocks(25)  # Compare to Blocks
+        assert building.building_width == Blocks(25)  # Compare to Blocks
         assert building.people == []
 
     def test_default_width(self, mock_logger_provider: MagicMock) -> None:
         """Test Building with default width"""
         building = Building(mock_logger_provider)
         
-        assert building.floor_width == Blocks(20)  # Compare to Blocks - Default width
+        assert building.building_width == Blocks(20)  # Compare to Blocks - Default width
         assert building.num_floors == 0
 
     @patch('mytower.game.entities.building.Floor')
