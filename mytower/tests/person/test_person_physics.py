@@ -31,10 +31,10 @@ class TestPersonPhysics:
         self, person_with_floor: Person, direction: HorizontalDirection, initial_block: Blocks, dt: Time, target_block: Blocks
     ) -> None:
         """Test that walking movement is linear and respects direction"""
-        person_with_floor.testing_set_current_block_float(initial_block)
+        person_with_floor.testing_set_current_horiz_position(initial_block)
         person_with_floor.direction = direction
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_block_num=target_block)
+        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_horiz_pos=target_block)
 
         person_with_floor.update_walking(dt)
         dx: Blocks = (person_with_floor.max_velocity * dt).in_blocks
@@ -42,11 +42,11 @@ class TestPersonPhysics:
         
         if total_distance <= dx:
             # Should reach the target
-            assert person_with_floor.current_block_float == target_block
+            assert person_with_floor.current_horizontal_position == target_block
         else:
             # Should move in the correct direction but not reach the target
             expected_block: Blocks = initial_block + (dx * direction.value)
-            assert person_with_floor.current_block_float == expected_block
+            assert person_with_floor.current_horizontal_position == expected_block
 
     def test_walking_stops_at_boundaries(self, person_with_floor: Person) -> None:
         """Test that walking respects building boundaries"""
@@ -54,25 +54,25 @@ class TestPersonPhysics:
         assert building is not None, "Building should be set in fixture"
         
         # Test left boundary
-        person_with_floor.testing_set_current_block_float(Blocks(0.5))
+        person_with_floor.testing_set_current_horiz_position(Blocks(0.5))
         person_with_floor.direction = HorizontalDirection.LEFT
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_block_num=Blocks(0))
+        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_horiz_pos=Blocks(0))
         
         person_with_floor.update_walking(Time(5.0))
-        assert person_with_floor.current_block_float >= Blocks(0), "Person should not move past left boundary"
+        assert person_with_floor.current_horizontal_position >= Blocks(0), "Person should not move past left boundary"
         assert person_with_floor.direction == HorizontalDirection.STATIONARY
         assert person_with_floor.state == PersonState.IDLE
         
         # Test right boundary
-        right_boundary: Blocks = building.floor_width
-        person_with_floor.testing_set_current_block_float(right_boundary - Blocks(0.5))
+        right_boundary: Blocks = building.building_width
+        person_with_floor.testing_set_current_horiz_position(right_boundary - Blocks(0.5))
         person_with_floor.direction = HorizontalDirection.RIGHT
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_block_num=right_boundary)
+        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_horiz_pos=right_boundary)
         
         person_with_floor.update_walking(Time(5.0))
-        assert person_with_floor.current_block_float <= right_boundary, "Person should not move past right boundary"
+        assert person_with_floor.current_horizontal_position <= right_boundary, "Person should not move past right boundary"
         assert person_with_floor.direction == HorizontalDirection.STATIONARY
         assert person_with_floor.state == PersonState.IDLE
 

@@ -34,10 +34,7 @@ class Building(BuildingProtocol):
 
         self._floor_width: Blocks = Blocks(width)  # Width in grid cells
         self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
-        self._elevator_banks: List[ElevatorBankProtocol] = []  # List of elevator objects
-        
-        # TODO: Remove this when fully migrating to GameModel and Floor ownership
-        self._people: Dict[str, PersonProtocol] = {}  # Dictionary of people in the building with their id as the key        
+        self._elevator_banks: List[ElevatorBankProtocol] = []  # List of elevator objects        
 
     @property
     @override
@@ -47,14 +44,8 @@ class Building(BuildingProtocol):
 
     @property
     @override
-    def floor_width(self) -> Blocks:
+    def building_width(self) -> Blocks:
         return self._floor_width
-    
-    # TODO: Remove this when fully migrating to GameModel and Floor ownership
-    @property
-    @override
-    def people(self) -> List[PersonProtocol]:
-        return list(self._people.values())
 
     @override
     def add_floor(self, floor_type: FloorType) -> int:
@@ -69,16 +60,6 @@ class Building(BuildingProtocol):
     def add_elevator_bank(self, elevator_bank: ElevatorBankProtocol) -> None:
         """Add a new elevator to the building"""
         self._elevator_banks.append(elevator_bank)
-
-    # TODO: Remove this when fully migrating to GameModel and Floor ownership
-    @override
-    def add_person(self, person: PersonProtocol) -> None:
-        self._people[person.person_id] = person
-
-    @override
-    def remove_person(self, person_id: str) -> None:
-        """Remove a person from the building by ID"""
-        self._people.pop(person_id, None)
 
     @override
     def get_elevator_banks_on_floor(self, floor_num: int) -> ElevatorBankList:  # ✅ Cleaner

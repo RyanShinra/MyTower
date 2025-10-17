@@ -27,7 +27,7 @@ class PersonRenderer:
     # Someday this will be replaced with a proper transform system
     def y_position(self, surface: Surface, person: PersonSnapshot) -> Pixels:
         """Calculate the y position for the given person"""
-        apparent_floor: Blocks = person.current_floor_float - Blocks(1.0)  # Floors are 1 indexed / Alternatively, we want the feet to be at the bottom of the block
+        apparent_floor: Blocks = person.current_vertical_position - Blocks(1.0)  # Floors are 1 indexed / Alternatively, we want the feet to be at the bottom of the block
         z_bottom: Pixels = apparent_floor.in_pixels
         
         half_floor_height: Pixels = Pixels(int(float(DEFAULT_FLOOR_HEIGHT.in_pixels) / 2.0))
@@ -40,7 +40,7 @@ class PersonRenderer:
 
     def x_position(self, _: Surface, person: PersonSnapshot) -> Pixels:
         """Calculate the x position for the given person"""
-        x_left: Pixels = person.current_block_float.in_pixels
+        x_left: Pixels = person.current_horizontal_position.in_pixels
         block_half_width: Pixels = Pixels(int(BLOCK_WIDTH.in_pixels / 2.0))
         x_centered: Pixels = x_left + block_half_width
         return x_centered

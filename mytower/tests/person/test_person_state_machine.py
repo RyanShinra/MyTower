@@ -36,14 +36,14 @@ class TestPersonStateMachine:
     def test_update_in_elevator_follows_elevator_position(self, person_with_floor: Person) -> None:
         """Test that person in elevator updates position based on elevator"""
         mock_elevator = MagicMock()
-        mock_elevator.fractional_floor = 6.7
-        mock_elevator.parent_elevator_bank.horizontal_block = 12
+        mock_elevator.vertical_position = 6.7
+        mock_elevator.parent_elevator_bank.horizontal_position = 12
         
         person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
         person_with_floor.testing_set_current_elevator(mock_elevator)
         
         person_with_floor.update(Time(1.0))
         
-        assert person_with_floor.testing_get_current_floor_float() == 6.7
-        assert person_with_floor.current_block_float == 12
+        assert person_with_floor.testing_get_current_vertical_position() == 6.7
+        assert person_with_floor.current_horizontal_position == 12
 

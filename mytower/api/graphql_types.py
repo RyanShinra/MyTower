@@ -3,8 +3,8 @@ from typing import List
 
 import strawberry
 
-from mytower.game.core.units import (Blocks,  # Use core types directly!
-                                     Meters, Pixels, Time)
+from mytower.game.core.units import Blocks  # Use core types directly!
+from mytower.game.core.units import Meters, Pixels, Time
 
 
 @strawberry.enum
@@ -81,10 +81,10 @@ class ColorGQL:
 class PersonSnapshotGQL:
     person_id: str
     current_floor_num: int
-    current_floor_float: Blocks  # Core type
-    current_block_float: Blocks  # Core type
+    current_vertical_position: Blocks  # Core type
+    current_horizontal_position: Blocks  # Core type
     destination_floor_num: int
-    destination_block_float: Blocks  # Core type
+    destination_horizontal_position: Blocks  # Core type
     state: PersonStateGQL
     waiting_time: Time  # Core type
     mad_fraction: float
@@ -97,8 +97,8 @@ class PersonSnapshotGQL:
 @strawberry.type
 class ElevatorSnapshotGQL:
     id: str
-    current_floor: Blocks  # This is now mytower.game.core.units.Blocks
-    current_block: Blocks  # Same type, no conversion needed!
+    vertical_position: Blocks  # This is now mytower.game.core.units.Blocks
+    horizontal_position: Blocks  # Same type, no conversion needed!
     destination_floor: int
     state: ElevatorStateGQL
     nominal_direction: VerticalDirectionGQL
@@ -109,19 +109,19 @@ class ElevatorSnapshotGQL:
     
     # Optional: Provide multiple unit representations
     @strawberry.field
-    def current_floor_meters(self) -> Meters:
+    def vertical_position_meters(self) -> Meters:
         """Current position in meters for physics calculations"""
-        return self.current_floor.in_meters  # Direct property access, type-safe!
+        return self.vertical_position.in_meters  # Direct property access, type-safe!
     
     @strawberry.field
-    def current_floor_pixels(self) -> Pixels:
+    def vertical_position_pixels(self) -> Pixels:
         """Current position in pixels for rendering hint"""
-        return self.current_floor.in_pixels  # Type checker knows this returns Pixels
+        return self.vertical_position.in_pixels  # Type checker knows this returns Pixels
 
 @strawberry.type
 class ElevatorBankSnapshotGQL:
     id: str
-    horizontal_block: Blocks  # Core type
+    horizontal_position: Blocks  # Core type
     min_floor: int
     max_floor: int
 
@@ -129,9 +129,9 @@ class ElevatorBankSnapshotGQL:
 class FloorSnapshotGQL:
     floor_type: FloorTypeGQL
     floor_number: int
-    floor_height_blocks: Blocks  # Core type
+    floor_height: Blocks  # Core type
     left_edge_block: Blocks      # Core type
-    floor_width_blocks: Blocks   # Core type
+    floor_width: Blocks   # Core type
     person_count: int 
     floor_color: ColorGQL
     floorboard_color: ColorGQL
@@ -139,7 +139,7 @@ class FloorSnapshotGQL:
     @strawberry.field
     def floor_height_meters(self) -> Meters:
         """Floor height in real-world units"""
-        return self.floor_height_blocks.in_meters  # Type-safe conversion
+        return self.floor_height.in_meters  # Type-safe conversion
 
 @strawberry.type
 class BuildingSnapshotGQL:

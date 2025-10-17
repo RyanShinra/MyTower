@@ -45,7 +45,7 @@ class MockFactoryProtocol(Protocol):
     def create_building_mock(
         self,
         num_floors: int = 10,
-        floor_width: int = 20,
+        building_width: int = 20,
         has_floors: bool = True,
         **overrides: Any
     ) -> Mock: ...  # Return Mock explicitly
@@ -58,7 +58,7 @@ class MockFactoryProtocol(Protocol):
 
     def create_elevator_bank_mock(
         self,
-        horizontal_block: int = 5,
+        horizontal_position: int = 5,
         min_floor: int = 1,
         max_floor: int = 10,
         **overrides: Any
@@ -97,7 +97,7 @@ class TypedMockFactory:
         # Set up properties with PropertyMock for proper behavior
         type(mock).current_floor_num = PropertyMock(return_value=current_floor)
         type(mock).destination_floor_num = PropertyMock(return_value=destination_floor)
-        type(mock).current_block_float = PropertyMock(return_value=current_block)
+        type(mock).current_horizontal_position = PropertyMock(return_value=current_block)
         type(mock).person_id = PropertyMock(return_value=person_id)
         type(mock).state = PropertyMock(return_value=state)
         
@@ -156,8 +156,8 @@ class TypedMockFactory:
         
         # Mock parent elevator bank
         mock.parent_elevator_bank = Mock(spec=ElevatorBankProtocol)  # Use protocol
-        mock.parent_elevator_bank.horizontal_block = Blocks(5)
-        mock.parent_elevator_bank.get_waiting_block = Mock(return_value=Blocks(5))
+        mock.parent_elevator_bank.horizontal_position = Blocks(5)
+        mock.parent_elevator_bank.get_waiting_position = Mock(return_value=Blocks(5))
         
         # Apply any overrides
         for key, value in overrides.items():
@@ -171,21 +171,19 @@ class TypedMockFactory:
     def create_building_mock(
         self,
         num_floors: int = 10,
-        floor_width: float = 20.0,
+        building_width: float = 20.0,
         has_floors: bool = True,
         **overrides: Any
     ) -> Mock:  # Honest return type
         """Create a properly typed Building mock"""
         mock = Mock(spec=BuildingProtocol)
         
-        # Set up properties - wrap floor_width in Blocks
+        # Set up properties - wrap building_width in Blocks
         mock.num_floors = num_floors
-        mock.floor_width = Blocks(floor_width)  # Wrap in Blocks to match production code
-        mock.people = []
+        mock.building_width = Blocks(building_width)  # Wrap in Blocks to match production code
         
         # Set up methods
         mock.get_elevator_banks_on_floor = Mock(return_value=[])
-        mock.add_person = Mock()
         mock.get_elevator_banks = Mock(return_value=[])
         
         if has_floors:
@@ -210,8 +208,8 @@ class TypedMockFactory:
         
         # Set up properties
         mock.floor_num = floor_num
-        mock.width = 20
-        mock.height = 1
+        mock.floor_width = 20
+        mock.floor_height = 1
         mock.left_edge = 0
         mock.number_of_people = 0
         
@@ -227,7 +225,7 @@ class TypedMockFactory:
     
     def create_elevator_bank_mock(
         self,
-        horizontal_block: int = 5,
+        horizontal_position: int = 5,
         min_floor: int = 1,
         max_floor: int = 10,
         **overrides: Any
@@ -236,12 +234,12 @@ class TypedMockFactory:
         mock = Mock(spec=ElevatorBankProtocol)
         
         # Set up properties
-        mock.horizontal_block = horizontal_block
+        mock.horizontal_position = horizontal_position
         mock.min_floor = min_floor
         mock.max_floor = max_floor
         
         # Set up methods
-        mock.get_waiting_block = Mock(return_value=horizontal_block)
+        mock.get_waiting_position = Mock(return_value=horizontal_position)
         mock.add_waiting_passenger = Mock()
         mock.request_elevator = Mock()
         mock.get_requests_for_floor = Mock(return_value=set())
@@ -275,7 +273,7 @@ class StateAssertions:
             assert person.current_floor_num == expected_floor, f"Expected floor {expected_floor}, got {person.current_floor_num}"
     
         if expected_block is not None:
-            assert person.current_block_float == expected_block, f"Expected block {expected_block}, got {person.current_block_float}"
+            assert person.current_horizontal_position == expected_block, f"Expected block {expected_block}, got {person.current_horizontal_position}"
     
         if expected_destination_floor is not None:
             assert person.destination_floor_num == expected_destination_floor, f"Expected destination floor {expected_destination_floor}, got {person.destination_floor_num}"
@@ -289,7 +287,7 @@ class StateAssertions:
         expected_destination: int | None = None
     ) -> None:
         """Assert elevator is in expected state"""
-        assert elevator.state == expected_state, f"Expected state {expected_state}, got {elevator.state}"
+        assert elevator.elevator_state == expected_state, f"Expected state {expected_state}, got {elevator.elevator_state}"
         
         if expected_floor is not None:
             assert elevator.current_floor_int == expected_floor, f"Expected floor {expected_floor}, got {elevator.current_floor_int}"

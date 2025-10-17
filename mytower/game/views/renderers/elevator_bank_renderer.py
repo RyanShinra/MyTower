@@ -31,7 +31,7 @@ class ElevatorBankRenderer:
         shaft_height: Pixels = Blocks(elevator_bank.max_floor - elevator_bank.min_floor + 1).in_pixels
         shaft_top_z: Pixels = Blocks(elevator_bank.max_floor).in_pixels
         shaft_top_y: Pixels = screen_height - shaft_top_z
-        shaft_left_x: Pixels = elevator_bank.horizontal_block.in_pixels
+        shaft_left_x: Pixels = elevator_bank.horizontal_position.in_pixels
         width: Pixels = self._cosmetics_config.ELEVATOR_WIDTH.in_pixels
 
         shaft_overhead_top_z: Pixels = shaft_top_z + self._cosmetics_config.SHAFT_OVERHEAD_HEIGHT.in_pixels

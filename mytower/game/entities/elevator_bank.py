@@ -131,7 +131,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
     @property
     @override
-    def horizontal_block(self) -> Blocks:
+    def horizontal_position(self) -> Blocks:
         return self._horizontal_block
 
     @property
@@ -328,10 +328,10 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
 
     @override
-    def get_waiting_block(self) -> Blocks:
+    def get_waiting_position(self) -> Blocks:
         """The block where people wait for the elevator, it's just to the left of the elevator bank unless it's at the left edge of the building, then it's just to the right"""
         # TODO: Update this once we add building extents
-        return max(Blocks(1), self.horizontal_block - Blocks(1))
+        return max(Blocks(1), self.horizontal_position - Blocks(1))
 
 
     def update(self, dt:Time) -> None:  # Accept both for now during transition
@@ -341,9 +341,9 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         for el in self.elevators:
             # Need to actually update the thing
             # The elevators are all updated separately, now in GameModel
-            if el.state == ElevatorState.IDLE:
+            if el.elevator_state == ElevatorState.IDLE:
                 self._update_idle_elevator(el, dt)
-            elif el.state == ElevatorState.READY_TO_MOVE:
+            elif el.elevator_state == ElevatorState.READY_TO_MOVE:
                 self._update_ready_elevator(el)
         pass
 

@@ -156,10 +156,9 @@ class GameModel:
                 config=self._config
             )
 
-            new_person.set_destination(dest_floor_num=dest_floor, dest_block_num=Blocks(dest_block))
+            new_person.set_destination(dest_floor_num=dest_floor, dest_horiz_pos=Blocks(dest_block))
 
             self._people[new_person.person_id] = new_person  # Stored as protocol
-            self._building.add_person(new_person)
             return new_person.person_id
 
         except Exception as e:

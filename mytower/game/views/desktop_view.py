@@ -1,17 +1,23 @@
 # game/game_state.py
 from typing import Final, List
+
 import pygame
 from pygame import Surface
 from pygame.font import Font
+
 from mytower.game.core.config import GameConfig
-from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+from mytower.game.core.units import Time
+from mytower.game.models.model_snapshots import (BuildingSnapshot,
+                                                 ElevatorBankSnapshot,
+                                                 ElevatorSnapshot,
+                                                 FloorSnapshot, PersonSnapshot)
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.views.desktop_ui import UIConfigProtocol
-from mytower.game.views.renderers.elevator_bank_renderer import ElevatorBankRenderer
+from mytower.game.views.renderers.elevator_bank_renderer import \
+    ElevatorBankRenderer
 from mytower.game.views.renderers.elevator_renderer import ElevatorRenderer
 from mytower.game.views.renderers.floor_renderer import FloorRenderer
 from mytower.game.views.renderers.person_renderer import PersonRenderer
-
 
 
 class DesktopView:
@@ -46,7 +52,6 @@ class DesktopView:
     def screen_height(self) -> int:
         return self._screen_height
 
-
     def draw(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw the entire game state"""
 
@@ -71,18 +76,16 @@ class DesktopView:
         # Draw UI elements
         self._draw_ui(surface, snapshot, speed)
 
-
     def _draw_ui(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw UI elements like time, money, etc."""
         # Draw time
         ui_config: Final[UIConfigProtocol] = self._config.ui_config
         font: Final[Font] = pygame.font.SysFont(ui_config.UI_FONT_NAME, ui_config.UI_FONT_SIZE)
 
-        # Convert time to hours:minutes
-        time: float = snapshot.time
-        hours: int = int(time // 3600) % 24
-        minutes: int = int(time // 60) % 60
-        seconds: int = int(time) % 60
+        time: Time = snapshot.time
+        hours: int = int(time.in_hours // 1) % 24
+        minutes: int = int(time.in_minutes // 1) % 60
+        seconds: int = int(time.in_seconds // 1) % 60
         time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
 
         text: Final[Surface] = font.render(time_str, True, (0, 0, 0))

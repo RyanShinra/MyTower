@@ -20,7 +20,7 @@ class TestStateMachine:
         elevator.update(Time(1.0))
 
         # Check if state transitioned correctly
-        assert elevator.state == ElevatorState.IDLE
+        assert elevator.elevator_state == ElevatorState.IDLE
 
 
 
@@ -34,7 +34,7 @@ class TestStateMachine:
         elevator.update(Time(1.0))
 
         # Check if state transitioned correctly
-        assert elevator.state == ElevatorState.MOVING
+        assert elevator.elevator_state == ElevatorState.MOVING
 
 
         
@@ -48,7 +48,7 @@ class TestStateMachine:
         elevator.update(Time(1.0))
 
         # Check if state transitioned correctly
-        assert elevator.state == ElevatorState.IDLE
+        assert elevator.elevator_state == ElevatorState.IDLE
 
 
 
@@ -57,11 +57,11 @@ class TestStateMachine:
         # Set up conditions for transition
         elevator.testing_set_state(ElevatorState.MOVING)
         elevator.set_destination_floor(2)  # Set a destination
-        elevator.testing_set_current_floor(Blocks(1.9))  # Almost at destination
+        elevator.testing_set_current_vertical_pos(Blocks(1.9))  # Almost at destination
         elevator.testing_set_motion_direction(VerticalDirection.UP)
 
         # Update the elevator - should reach destination
         elevator.update(Time(0.2))
 
         # Check if state transitioned correctly
-        assert elevator.state == ElevatorState.ARRIVED
+        assert elevator.elevator_state == ElevatorState.ARRIVED

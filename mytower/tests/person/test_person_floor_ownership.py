@@ -32,7 +32,7 @@ class TestPersonFloorOwnership:
         """Test that disembarking onto non-existent floor raises RuntimeError"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 99  # Non-existent floor
-        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
+        mock_elevator.parent_elevator_bank.get_waiting_position.return_value = 3
         
         # Building returns None for non-existent floor
         mock_building_with_floor.get_floor_by_number.return_value = None
@@ -49,7 +49,7 @@ class TestPersonFloorOwnership:
         """Test complete floor ownership transfer: floor A → elevator → floor B"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 7
-        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 5
+        mock_elevator.parent_elevator_bank.get_waiting_position.return_value = 5
         
         mock_origin_floor = MagicMock()
         mock_destination_floor = MagicMock()
@@ -81,7 +81,7 @@ class TestPersonFloorOwnership:
         """Test that remove_person is called exactly once on origin floor during elevator journey"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 7
-        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 5
+        mock_elevator.parent_elevator_bank.get_waiting_position.return_value = 5
 
         mock_origin_floor = MagicMock()
         mock_destination_floor = MagicMock()
@@ -120,7 +120,7 @@ class TestPersonFloorOwnershipEdgeCases:
         """Test behavior when floor addition fails during disembarking"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 8
-        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = 3
+        mock_elevator.parent_elevator_bank.get_waiting_position.return_value = 3
         
         mock_destination_floor = MagicMock()
         mock_destination_floor.add_person.side_effect = Exception("Floor is full")  # Hypothetical error

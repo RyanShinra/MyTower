@@ -42,7 +42,7 @@ class TestPersonElevatorInteraction:
         mock_elevator = typed_mock_factory.create_elevator_mock(
             current_floor=5
         )
-        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = Blocks(3)  # Return Blocks, not int!
+        mock_elevator.parent_elevator_bank.get_waiting_position.return_value = Blocks(3)  # Return Blocks, not int!
         
         # Set up person as if they're in elevator
         person_with_floor.testing_set_current_state(PersonState.IN_ELEVATOR)
@@ -73,7 +73,7 @@ class TestPersonElevatorInteraction:
         """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""                
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 8
-        mock_elevator.parent_elevator_bank.get_waiting_block.return_value = Blocks(3)  # Return Blocks!
+        mock_elevator.parent_elevator_bank.get_waiting_position.return_value = Blocks(3)  # Return Blocks!
         
         person_with_floor.testing_set_current_elevator(mock_elevator)
         person_with_floor.testing_set_current_state(PersonState.WALKING)  # Wrong state

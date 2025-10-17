@@ -102,12 +102,12 @@ class Floor(FloorProtocol):
 
     @property
     @override
-    def width(self) -> Blocks:
+    def floor_width(self) -> Blocks:
         return self._floor_width
 
     @property
     @override
-    def height(self) -> Blocks:
+    def floor_height(self) -> Blocks:
         return self._height
 
     @property
