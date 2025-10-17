@@ -15,26 +15,23 @@ from mytower.game.core.primitive_constants import (BLOCK_FLOAT_TOLERANCE,
 class Meters:
     """
     Physical distance measurement in SI units.
-    
+
     Design notes:
     - frozen=True: Immutable value semantics (like C++ const)
     - slots=True: No __dict__ overhead (~70% memory reduction)
     - order=True: Auto-generates __lt__, __le__, __gt__, __ge__
     - Custom __eq__: Floating-point tolerance for physics calculations
     """
+
     value: float = field(
-        metadata={
-            "unit": "meters",
-            "si_base": True,
-            "description": "Physical measurement for collision detection"
-        }
+        metadata={"unit": "meters", "si_base": True, "description": "Physical measurement for collision detection"}
     )
-    
+
     def __post_init__(self) -> None:
         """Validate finite value for physics safety"""
         if not math.isfinite(self.value):
             raise ValueError(f"Meters value must be finite, got {self.value}")
-    
+
     def __add__(self, other: Meters) -> Meters:
         return Meters(self.value + other.value)
 
@@ -49,7 +46,7 @@ class Meters:
 
     @overload
     def __truediv__(self, divisor: Time) -> Velocity: ...
-    
+
     @overload
     def __truediv__(self, divisor: Velocity) -> Time: ...
 
@@ -70,11 +67,11 @@ class Meters:
         if not isinstance(other, Meters):
             return NotImplemented
         return abs(self.value - other.value) < METRIC_FLOAT_TOLERANCE
-    
+
     @override
     def __repr__(self) -> str:
         return f"Meters({self.value})"
-    
+
     @property
     def in_pixels(self) -> Pixels:
         return Pixels(int(self.value * PIXELS_PER_METER))
@@ -99,13 +96,14 @@ class Meters:
 class Pixels:
     """
     Integer screen-space coordinate for rendering.
-    
+
     Design notes:
     - Integer precision (no floating-point tolerance needed)
     - order=True: Auto-generates __lt__, __le__, __gt__, __ge__
     - Optimized for high allocation rate during frame rendering
     - Converts to Meters/Blocks for physics calculations
     """
+
     value: int = field(
         metadata={
             "unit": "pixels",
@@ -113,12 +111,12 @@ class Pixels:
             "description": "Screen coordinate for UI/sprite positioning"
         }
     )
-    
+
     def __post_init__(self) -> None:
         """Validate pixel coordinates are reasonable"""
         if not isinstance(self.value, int):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError(f"Pixels requires int, got {type(self.value)}")
-    
+
     def __add__(self, other: Pixels) -> Pixels:
         return Pixels(self.value + other.value)
 
@@ -167,13 +165,14 @@ class Pixels:
 class Blocks:
     """
     Building grid coordinate system.
-    
+
     Design notes:
     - Logical game coordinate (not physical measurement)
     - order=True: Auto-generates __lt__, __le__, __gt__, __ge__
     - Floor numbers are discrete (int), positions are continuous (float)
     - Supports fractional values during elevator movement
     """
+
     value: float = field(
         metadata={
             "unit": "blocks",
@@ -181,12 +180,12 @@ class Blocks:
             "description": "Vertical position in building floor system"
         }
     )
-    
+
     def __post_init__(self) -> None:
         """Validate finite value for simulation safety"""
         if not math.isfinite(self.value):
             raise ValueError(f"Blocks value must be finite, got {self.value}")
-    
+
     def __add__(self, other: Blocks) -> Blocks:
         return Blocks(self.value + other.value)
 
@@ -195,7 +194,7 @@ class Blocks:
 
     def __mul__(self, factor: float) -> Blocks:
         return Blocks(self.value * factor)
-    
+
     def __truediv__(self, divisor: float) -> Blocks:
         return Blocks(self.value / divisor)
 
@@ -208,7 +207,7 @@ class Blocks:
     @override
     def __repr__(self) -> str:
         return f"Blocks({self.value})"
-    
+
     @property
     def in_meters(self) -> Meters:
         return Meters(self.value * METERS_PER_BLOCK)
@@ -228,6 +227,7 @@ class Blocks:
         """Return absolute value while preserving type"""
         return Blocks(abs(self.value))
 
+
 def rect_from_pixels(x: Pixels, y: Pixels, width: Pixels, height: Pixels) -> tuple[int, int, int, int]:
     """Convert Pixels to pygame rect tuple (int, int, int, int)"""
     return (int(x), int(y), int(width), int(height))
@@ -235,18 +235,13 @@ def rect_from_pixels(x: Pixels, y: Pixels, width: Pixels, height: Pixels) -> tup
 
 @dataclass(frozen=True, slots=True, order=True)
 class Time:
-    value: float = field(
-        metadata={
-            "unit": "seconds",
-            "description": "Time duration in seconds"
-        }
-    )
-    
+    value: float = field(metadata={"unit": "seconds", "description": "Time duration in seconds"})
+
     def __post_init__(self) -> None:
         """Validate finite value for simulation safety"""
         if not math.isfinite(self.value):
             raise ValueError(f"Time value must be finite, got {self.value}")
-    
+
     def __add__(self, other: Time) -> Time:
         return Time(self.value + other.value)
 
@@ -255,7 +250,7 @@ class Time:
 
     def __mul__(self, factor: float) -> Time:
         return Time(self.value * factor)
-    
+
     @overload
     def __truediv__(self, divisor: float) -> Time: ...
 
@@ -270,7 +265,7 @@ class Time:
         if isinstance(divisor, Time):
             return self.value / divisor.value  # Returns dimensionless float
         return Time(self.value / divisor)  # Returns scaled Time
-    
+
     @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Time):
@@ -280,7 +275,7 @@ class Time:
     @override
     def __repr__(self) -> str:
         return f"Time({self.value})"
-    
+
     def __int__(self) -> int:
         return int(self.value)
 
@@ -295,7 +290,7 @@ class Time:
     def in_milliseconds(self) -> int:
         """Convert time to integer milliseconds"""
         return int(self.value * 1000)
-    
+
     @property
     def in_seconds(self) -> float:
         """Return time in seconds as float"""
@@ -322,25 +317,22 @@ class Time:
 class Velocity:
     """
     Velocity measurement in meters per second.
-    
+
     Design notes:
     - Derived unit: meters/second
     - Used for person walking speed, elevator speed
     - Can be multiplied by Time to get Meters
     - Can be divided into Meters to get Time
     """
+
     value: float = field(
-        metadata={
-            "unit": "meters_per_second",
-            "derived": True,
-            "description": "Speed of movement (m/s)"
-        }
+        metadata={"unit": "meters_per_second", "derived": True, "description": "Speed of movement (m/s)"}
     )
-    
+
     def __post_init__(self) -> None:
         if not math.isfinite(self.value):
             raise ValueError(f"Velocity value must be finite, got {self.value}")
-    
+
     def __add__(self, other: Velocity) -> Velocity:
         return Velocity(self.value + other.value)
 
@@ -371,7 +363,7 @@ class Velocity:
     def __rmul__(self, time: Time | float) -> Meters | Velocity:
         """Support reversed multiplication: 2.0 * velocity"""
         return self.__mul__(time)
-    
+
     def __truediv__(self, divisor: float) -> Velocity:
         """Scale velocity"""
         return Velocity(self.value / divisor)
@@ -391,4 +383,3 @@ class Velocity:
 
     def __float__(self) -> float:
         return self.value
-

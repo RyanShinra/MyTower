@@ -13,8 +13,7 @@ from mytower.game.models.model_snapshots import (BuildingSnapshot,
                                                  FloorSnapshot, PersonSnapshot)
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.views.desktop_ui import UIConfigProtocol
-from mytower.game.views.renderers.elevator_bank_renderer import \
-    ElevatorBankRenderer
+from mytower.game.views.renderers.elevator_bank_renderer import ElevatorBankRenderer
 from mytower.game.views.renderers.elevator_renderer import ElevatorRenderer
 from mytower.game.views.renderers.floor_renderer import FloorRenderer
 from mytower.game.views.renderers.person_renderer import PersonRenderer
@@ -52,7 +51,6 @@ class DesktopView:
     def screen_height(self) -> int:
         return self._screen_height
 
-
     def draw(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw the entire game state"""
 
@@ -76,7 +74,6 @@ class DesktopView:
 
         # Draw UI elements
         self._draw_ui(surface, snapshot, speed)
-
 
     def _draw_ui(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw UI elements like time, money, etc."""
