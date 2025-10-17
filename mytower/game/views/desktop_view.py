@@ -13,7 +13,8 @@ from mytower.game.models.model_snapshots import (BuildingSnapshot,
                                                  FloorSnapshot, PersonSnapshot)
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.views.desktop_ui import UIConfigProtocol
-from mytower.game.views.renderers.elevator_bank_renderer import ElevatorBankRenderer
+from mytower.game.views.renderers.elevator_bank_renderer import \
+    ElevatorBankRenderer
 from mytower.game.views.renderers.elevator_renderer import ElevatorRenderer
 from mytower.game.views.renderers.floor_renderer import FloorRenderer
 from mytower.game.views.renderers.person_renderer import PersonRenderer
@@ -81,12 +82,10 @@ class DesktopView:
         ui_config: Final[UIConfigProtocol] = self._config.ui_config
         font: Final[Font] = pygame.font.SysFont(ui_config.UI_FONT_NAME, ui_config.UI_FONT_SIZE)
 
-        # Convert time to hours:minutes
-        # The implicit conversion here only works for positive times, for a countdown, use the // division or a math.floor
         time: Time = snapshot.time
-        hours: int = int(time.in_hours) % 24
-        minutes: int = int(time.in_minutes) % 60
-        seconds: int = int(time.in_seconds) % 60
+        hours: int = int(time.in_hours // 1) % 24
+        minutes: int = int(time.in_minutes // 1) % 60
+        seconds: int = int(time.in_seconds // 1) % 60
         time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
 
         text: Final[Surface] = font.render(time_str, True, (0, 0, 0))

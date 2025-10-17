@@ -296,7 +296,6 @@ class Time:
         """Return time in seconds as float"""
         return self.value
 
-    # The implicit conversion here only works for positive times, for a countdown, use the // division or a math.floor
     @property
     def in_minutes(self) -> float:
         """Return time in minutes as float"""
