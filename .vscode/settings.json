@@ -1,7 +1,7 @@
 {
     "git.suggestSmartCommit": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true,
         
     },
@@ -34,7 +34,7 @@
     "python.defaultInterpreterPath": ".\\venv\\Scripts\\python.exe",
 
     // New format for formatter settings
-    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.defaultFormatter": "ms-python.black-formatter",
     "autopep8.args": [
         "--max-line-length=120",
         "--aggressive",
