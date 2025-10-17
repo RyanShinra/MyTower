@@ -1,11 +1,12 @@
 {
     "git.suggestSmartCommit": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8",
-        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.flake8",
+        "editor.formatOnSave": false,
         
     },
     "editor.formatOnSaveMode": "file",
+    
     "python.analysis.autoImportCompletions": true,
     "python.analysis.autoIndent": true,
     "python.analysis.completeFunctionParens": false,
@@ -34,7 +35,7 @@
     "python.defaultInterpreterPath": ".\\venv\\Scripts\\python.exe",
 
     // New format for formatter settings
-    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.defaultFormatter": "ms-python.flake8",
     "autopep8.args": [
         "--max-line-length=120",
         "--aggressive",

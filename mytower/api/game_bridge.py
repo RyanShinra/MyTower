@@ -4,16 +4,18 @@ Thread-safe bridge between the GraphQL API and the game simulation.
 Provides the GameBridge class for safe command queuing and state retrieval,
 and exposes a singleton instance for use throughout the application.
 """
-from queue import Queue
 import queue
 import threading
+from queue import Queue
 from time import time
 from typing import Any, Dict, List, Optional, Tuple, TypeVar
-from mytower.game.controllers.controller_commands import AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand, AddPersonCommand, Command, CommandResult
+
+from mytower.game.controllers.controller_commands import (
+    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
+    AddPersonCommand, Command, CommandResult)
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
 from mytower.game.models.model_snapshots import BuildingSnapshot
-
 
 
 class GameBridge:
