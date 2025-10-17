@@ -27,7 +27,7 @@ class ElevatorRenderer:
         elevator_top_y: Pixels = screen_height - elevator_top_z
 
         elevator_width: Pixels = self._cosmetics_config.ELEVATOR_WIDTH.in_pixels
-        elevator_left_x: Pixels = elevator.vertical_position.in_pixels
+        elevator_left_x: Pixels = elevator.horizontal_position.in_pixels
 
         color = self._cosmetics_config.OPEN_COLOR if elevator.door_open else self._cosmetics_config.CLOSED_COLOR
 
