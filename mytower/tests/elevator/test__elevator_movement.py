@@ -1,15 +1,15 @@
 
 import pytest
 
-from mytower.game.entities.elevator import Elevator
 from mytower.game.core.types import VerticalDirection
-
+from mytower.game.core.units import Blocks
+from mytower.game.entities.elevator import Elevator
 
 
 class TestMovement:
     
     def test_set_destination_floor_down(self, elevator: Elevator) -> None:
-        elevator.testing_set_current_vertical_pos(4)
+        elevator.testing_set_current_vertical_pos(Blocks(4))
         elevator.set_destination_floor(2)
         assert elevator.destination_floor == 2
         assert elevator.nominal_direction == VerticalDirection.DOWN
@@ -22,7 +22,7 @@ class TestMovement:
         assert elevator.nominal_direction == VerticalDirection.UP
 
         # Test destination on same floor
-        elevator.testing_set_current_vertical_pos(2)
+        elevator.testing_set_current_vertical_pos(Blocks(2))
         elevator.set_destination_floor(2)  # Already on floor 2
         assert elevator.nominal_direction == VerticalDirection.STATIONARY
 

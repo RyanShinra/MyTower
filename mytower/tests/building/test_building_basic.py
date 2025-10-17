@@ -1,13 +1,11 @@
 from unittest.mock import MagicMock, patch
 
-from mytower.game.entities.building import Building
-from mytower.game.entities.floor import Floor
-from mytower.game.entities.elevator_bank import ElevatorBank
-from mytower.game.entities.elevator import Elevator
-from mytower.game.entities.person import PersonProtocol
 from mytower.game.core.types import FloorType
-from mytower.game.core.units import Blocks  # Add import
-from mytower.game.utilities.logger import LoggerProvider
+from mytower.game.core.units import Blocks, Time  # Add import
+from mytower.game.entities.building import Building
+from mytower.game.entities.elevator import Elevator
+from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.entities.floor import Floor
 
 
 class TestBuildingBasics:
@@ -205,9 +203,9 @@ class TestBuildingUpdateAndDraw:
         building = Building(mock_logger_provider)
         
         # Should not raise any exceptions
-        building.update(1.0)
-        building.update(0.5)
-        building.update(2.0)
+        building.update(Time(1.0))
+        building.update(Time(0.5))
+        building.update(Time(2.0))
 
     def test_draw(self, mock_logger_provider: MagicMock) -> None:
         """Test draw method (currently just passes)"""

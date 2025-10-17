@@ -291,6 +291,31 @@ class Time:
         """Return absolute value while preserving type"""
         return Time(abs(self.value))
 
+    @property
+    def in_milliseconds(self) -> int:
+        """Convert time to integer milliseconds"""
+        return int(self.value * 1000)
+    
+    @property
+    def in_seconds(self) -> float:
+        """Return time in seconds as float"""
+        return self.value
+
+    @property
+    def in_minutes(self) -> float:
+        """Return time in minutes as float"""
+        return self.value / 60.0
+
+    @property
+    def in_hours(self) -> float:
+        """Return time in hours as float"""
+        return self.value / 3600.0
+
+    @property
+    def in_days(self) -> float:
+        """Return time in days as float"""
+        return self.value / 86400.0  # 86400 seconds in a day
+
 
 @dataclass(frozen=True, slots=True, order=True)
 class Velocity:

@@ -287,7 +287,7 @@ class StateAssertions:
         expected_destination: int | None = None
     ) -> None:
         """Assert elevator is in expected state"""
-        assert elevator.state == expected_state, f"Expected state {expected_state}, got {elevator.state}"
+        assert elevator.elevator_state == expected_state, f"Expected state {expected_state}, got {elevator.elevator_state}"
         
         if expected_floor is not None:
             assert elevator.current_floor_int == expected_floor, f"Expected floor {expected_floor}, got {elevator.current_floor_int}"

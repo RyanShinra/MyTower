@@ -8,8 +8,9 @@ from mytower.game.core.units import Pixels, rect_from_pixels
 
 if TYPE_CHECKING:
     from pygame import Surface
-    from mytower.game.models.model_snapshots import ElevatorSnapshot
+
     from mytower.game.core.config import ElevatorCosmeticsProtocol
+    from mytower.game.models.model_snapshots import ElevatorSnapshot
     from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 
@@ -21,12 +22,12 @@ class ElevatorRenderer:
     def draw(self, surface: Surface, elevator: ElevatorSnapshot) -> None:
         screen_height: Pixels = Pixels(surface.get_height())
         elevator_height: Pixels = self._cosmetics_config.ELEVATOR_HEIGHT.in_pixels
-        
-        elevator_top_z: Pixels = elevator.current_floor.in_pixels
+
+        elevator_top_z: Pixels = elevator.vertical_position.in_pixels
         elevator_top_y: Pixels = screen_height - elevator_top_z
 
         elevator_width: Pixels = self._cosmetics_config.ELEVATOR_WIDTH.in_pixels
-        elevator_left_x: Pixels = elevator.current_block.in_pixels
+        elevator_left_x: Pixels = elevator.vertical_position.in_pixels
 
         color = self._cosmetics_config.OPEN_COLOR if elevator.door_open else self._cosmetics_config.CLOSED_COLOR
 

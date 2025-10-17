@@ -3,8 +3,8 @@ from typing import List
 
 import strawberry
 
-from mytower.game.core.units import (Blocks,  # Use core types directly!
-                                     Meters, Pixels, Time)
+from mytower.game.core.units import Blocks  # Use core types directly!
+from mytower.game.core.units import Meters, Pixels, Time
 
 
 @strawberry.enum
@@ -109,14 +109,14 @@ class ElevatorSnapshotGQL:
     
     # Optional: Provide multiple unit representations
     @strawberry.field
-    def current_floor_meters(self) -> Meters:
+    def vertical_position_meters(self) -> Meters:
         """Current position in meters for physics calculations"""
-        return self.current_floor.in_meters  # Direct property access, type-safe!
+        return self.vertical_position.in_meters  # Direct property access, type-safe!
     
     @strawberry.field
-    def current_floor_pixels(self) -> Pixels:
+    def vertical_position_pixels(self) -> Pixels:
         """Current position in pixels for rendering hint"""
-        return self.current_floor.in_pixels  # Type checker knows this returns Pixels
+        return self.vertical_position.in_pixels  # Type checker knows this returns Pixels
 
 @strawberry.type
 class ElevatorBankSnapshotGQL:
