@@ -85,6 +85,7 @@ class DesktopView:
         font: Final[Font] = pygame.font.SysFont(ui_config.UI_FONT_NAME, ui_config.UI_FONT_SIZE)
 
         # Convert time to hours:minutes
+        # The implicit conversion here only works for positive times, for a countdown, use the // division or a math.floor
         time: Time = snapshot.time
         hours: int = int(time.in_hours) % 24
         minutes: int = int(time.in_minutes) % 60
