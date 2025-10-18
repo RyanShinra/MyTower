@@ -29,6 +29,8 @@ class Meters:
 
     def __post_init__(self) -> None:
         """Validate finite value for physics safety"""
+        # Coerce to float to ensure consistent internal type (even if initialized with int)
+        object.__setattr__(self, "value", float(self.value))
         if not math.isfinite(self.value):
             raise ValueError(f"Meters value must be finite, got {self.value}")
 
@@ -85,7 +87,7 @@ class Meters:
         return int(self.value)
 
     def __float__(self) -> float:
-        return self.value
+        return float(self.value)
 
     def __abs__(self) -> Meters:
         """Return absolute value while preserving type"""
@@ -183,6 +185,8 @@ class Blocks:
 
     def __post_init__(self) -> None:
         """Validate finite value for simulation safety"""
+        # Coerce to float to ensure consistent internal type (even if initialized with int)
+        object.__setattr__(self, "value", float(self.value))
         if not math.isfinite(self.value):
             raise ValueError(f"Blocks value must be finite, got {self.value}")
 
@@ -221,7 +225,7 @@ class Blocks:
         return int(self.value)
 
     def __float__(self) -> float:
-        return self.value
+        return float(self.value)
 
     def __abs__(self) -> Blocks:
         """Return absolute value while preserving type"""
@@ -239,6 +243,8 @@ class Time:
 
     def __post_init__(self) -> None:
         """Validate finite value for simulation safety"""
+        # Coerce to float to ensure consistent internal type (even if initialized with int)
+        object.__setattr__(self, "value", float(self.value))
         if not math.isfinite(self.value):
             raise ValueError(f"Time value must be finite, got {self.value}")
 
@@ -280,7 +286,7 @@ class Time:
         return int(self.value)
 
     def __float__(self) -> float:
-        return self.value
+        return float(self.value)
 
     def __abs__(self) -> Time:
         """Return absolute value while preserving type"""
@@ -329,6 +335,8 @@ class Velocity:
     )
 
     def __post_init__(self) -> None:
+        # Coerce to float to ensure consistent internal type (even if initialized with int)
+        object.__setattr__(self, "value", float(self.value))
         if not math.isfinite(self.value):
             raise ValueError(f"Velocity value must be finite, got {self.value}")
 
@@ -381,4 +389,4 @@ class Velocity:
         return f"Velocity({self.value} m/s)"
 
     def __float__(self) -> float:
-        return self.value
+        return float(self.value)
