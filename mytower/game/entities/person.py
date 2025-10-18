@@ -313,46 +313,46 @@ class Person(PersonProtocol, PersonTestingProtocol):
         done: bool = False
 
         # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-        waypoint_block: Blocks = self._next_elevator_bank.get_waiting_position() if self._next_elevator_bank else self._dest_horiz_position        
+        horiz_waypoint: Blocks = self._next_elevator_bank.get_waiting_position() if self._next_elevator_bank else self._dest_horiz_position        
 
-        if waypoint_block < self._current_horiz_position:
+        if horiz_waypoint < self._current_horiz_position:
             self.direction = HorizontalDirection.LEFT
-        elif waypoint_block > self._current_horiz_position:
+        elif horiz_waypoint > self._current_horiz_position:
             self.direction = HorizontalDirection.RIGHT
 
         
         distance: Meters = self.max_velocity * dt
-        next_block: Blocks = self._current_horiz_position + distance.in_blocks * self.direction.value
+        next_horiz_position: Blocks = self._current_horiz_position + distance.in_blocks * self.direction.value
 
         if self.direction == HorizontalDirection.RIGHT:
-            if next_block >= waypoint_block:
+            if next_horiz_position >= horiz_waypoint:
                 done = True
         elif self.direction == HorizontalDirection.LEFT:
-            if next_block <= waypoint_block:
+            if next_horiz_position <= horiz_waypoint:
                 done = True
 
         if done:
             self.direction = HorizontalDirection.STATIONARY
-            next_block = waypoint_block
+            next_horiz_position = horiz_waypoint  # Snap to exact position
             if self._next_elevator_bank:
                 self._next_elevator_bank.add_waiting_passenger(self)
                 self._state = PersonState.WAITING_FOR_ELEVATOR
             else:
                 self._state = PersonState.IDLE
             self._logger.debug(
-                f"WALKING Person: Arrived at destination (fl {self.current_floor_num}, bk {waypoint_block}) -> {self.state}"
+                f"WALKING Person: Arrived at destination (fl {self.current_floor_num}, bk {horiz_waypoint}) -> {self.state}"
             )
 
         # TODO: Update these with floor extents, not building extents
-        if next_block < Blocks(0) or next_block > self.building.building_width:
+        if next_horiz_position < Blocks(0) or next_horiz_position > self.building.building_width:
             # TODO: Consider raising an exception here instead of just clamping
             self._logger.warning(
-                f"WALKING Person: Attempted to walk out of bounds to block {next_block} on floor {self.current_floor_num}. Clamping to valid range."
+                f"WALKING Person: Attempted to walk out of bounds to block {next_horiz_position} on floor {self.current_floor_num}. Clamping to valid range."
             )
         
-        next_block = min(next_block, self.building.building_width)
-        next_block = max(next_block, Blocks(0))
-        self._current_horiz_position = next_block
+        next_horiz_position = min(next_horiz_position, self.building.building_width)
+        next_horiz_position = max(next_horiz_position, Blocks(0))
+        self._current_horiz_position = next_horiz_position
 
     # TESTING ONLY: Set the destination floor directly (for unit tests)
     @override
