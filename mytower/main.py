@@ -129,8 +129,11 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     # Main pygame loop
     logger.info("Entering pygame main loop...")
     running = True
-    
-    while running:        
+
+    while running:
+        # Get latest snapshot from bridge
+        snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
+
         # Handle pygame events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -145,16 +148,13 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
                 elif event.key == pygame.K_DOWN:
                     game_controller.set_speed(game_controller.speed - 0.25)
                 else:
-                    input_handler.handle_keyboard_event(event)
+                    input_handler.handle_keyboard_event(event, snapshot)
 
         # Update mouse
         mouse.update()
         
         # Update input handler (handles button hover, clicks)
-        input_handler.update(mouse.get_pos(), mouse.get_pressed())
-        
-        # Get latest snapshot from bridge
-        snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
+        input_handler.update(mouse.get_pos(), mouse.get_pressed(), snapshot)
         
         # Render
         screen.fill(BACKGROUND_COLOR)
@@ -236,6 +236,8 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     running = True
     
     while running:        
+        snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -250,13 +252,11 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
                 elif event.key == pygame.K_DOWN:
                     game_controller.set_speed(game_controller.speed - 0.25)
                 else:
-                    input_handler.handle_keyboard_event(event)
-
+                    input_handler.handle_keyboard_event(event, snapshot)
+        
         mouse.update()
         # Update input handler (handles button hover, clicks)
-        input_handler.update(mouse.get_pos(), mouse.get_pressed())
-        
-        snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
+        input_handler.update(mouse.get_pos(), mouse.get_pressed(), snapshot)
         
         screen.fill(BACKGROUND_COLOR)
         if snapshot:

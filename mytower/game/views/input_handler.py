@@ -21,6 +21,7 @@ from mytower.game.controllers.controller_commands import (AddFloorCommand,
                                                           Command)
 from mytower.game.core.types import (FloorType, MouseButtons, MousePos,
                                      PygameSurface)
+from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.views.desktop_ui import Button, Toolbar, UIConfigProtocol
 
@@ -99,8 +100,13 @@ class InputHandler:
         
         return toolbar
     
-    def _on_add_floor_clicked(self) -> None:
+    def _on_add_floor_clicked(self, snapshot: BuildingSnapshot | None) -> None:
         """Handle 'Add Floor' button click"""
+        # This may come in handy later...
+        if snapshot is None:
+            self._logger.warning("Cannot add floor: no building snapshot available")
+            return
+
         command = AddFloorCommand(floor_type=self._current_floor_type)
         cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
         self._logger.info(
@@ -113,18 +119,26 @@ class InputHandler:
         # Update button text
         if self._add_floor_button:
             self._add_floor_button.set_text(f"Add {self._current_floor_type.value}")
-    
-    def _on_add_person_clicked(self) -> None:
+
+    def _on_add_person_clicked(self, snapshot: BuildingSnapshot | None) -> None:
         """Handle 'Add Person' button click"""
         import random
-
+        
+        if snapshot is None:
+            self._logger.warning("Cannot add person: no building snapshot available")
+            return
         # Random starting position (floor 1, random block)
+        left_bounds: int = int(snapshot.floors[0].left_edge_block)
+        right_bounds: int = int(snapshot.floors[0].floor_width) + left_bounds
         start_floor = 1
-        start_block: float = random.uniform(1.0, 15.0)
+        start_block: float = random.uniform(left_bounds, right_bounds)
         
         # Random destination (random floor 2-10, random block)
-        dest_floor: int = random.randint(2, 10)
-        dest_block: float = random.uniform(1.0, 15.0)
+        dest_floor: int = 1
+        if len(snapshot.floors) >= 2:
+            dest_floor = random.randint(2, len(snapshot.floors))
+        
+        dest_block: float = random.uniform(left_bounds, right_bounds)
         
         command = AddPersonCommand(
             floor=start_floor,
@@ -144,8 +158,8 @@ class InputHandler:
         current_index: int = floor_types.index(self._current_floor_type)
         next_index: int = (current_index + 1) % len(floor_types)
         self._current_floor_type = floor_types[next_index]
-    
-    def handle_keyboard_event(self, event: pygame.event.Event) -> bool:
+
+    def handle_keyboard_event(self, event: pygame.event.Event, snapshot: BuildingSnapshot | None) -> bool:
         """
         Handle a keyboard event.
         
@@ -157,18 +171,18 @@ class InputHandler:
         
         # Keyboard shortcuts
         if event.key == pygame.K_f:  # pylint: disable=no-member
-            self._on_add_floor_clicked()
+            self._on_add_floor_clicked(snapshot)
             return True
         elif event.key == pygame.K_p:  # pylint: disable=no-member
-            self._on_add_person_clicked()
+            self._on_add_person_clicked(snapshot)
             return True
         
         return False
-    
-    def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons) -> None:
+
+    def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons, building_snapshot: BuildingSnapshot | None) -> None:
         """Update toolbar and buttons (called every frame)"""
-        self._toolbar.update(mouse_pos, mouse_pressed)
-    
+        self._toolbar.update(mouse_pos, mouse_pressed, building_snapshot)
+
     def draw(self, surface: PygameSurface) -> None:
         """Draw the toolbar and all UI elements"""
         self._toolbar.draw(surface)
