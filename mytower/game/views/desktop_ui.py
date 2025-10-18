@@ -68,6 +68,7 @@ class Button:
         self._on_click: Callable[[BuildingSnapshot | None], None] = on_click
         self._is_hovered: bool = False
         self._is_clicked: bool = False
+        self._was_pressed: bool = False  # To track previous frame's pressed state
 
     @property
     def rect(self) -> pygame.Rect:
@@ -98,8 +99,8 @@ class Button:
         # Click = pressed now, hovering, and wasn't pressed last frame (rising edge)
         if self._is_hovered and is_pressed_now and not self._was_pressed:
             self._on_click(building_snapshot)  # Trigger callback
-        
-        self._was_pressed: bool = is_pressed_now
+
+        self._was_pressed = is_pressed_now
 
 
     def draw(self, surface: PygameSurface) -> None:
