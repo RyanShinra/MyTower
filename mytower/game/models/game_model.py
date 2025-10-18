@@ -101,7 +101,7 @@ class GameModel:
                 logger_provider=self._logger_provider,
                 cosmetics_config=self._config.elevator_cosmetics,
                 building=self._building,
-                h_cell=h_cell,
+                horizontal_position=h_cell,
                 min_floor=min_floor,
                 max_floor=max_floor
             )
