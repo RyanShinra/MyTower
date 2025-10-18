@@ -6,7 +6,8 @@
         
     },
     "editor.formatOnSaveMode": "file",
-    
+
+    "python.analysis.exclude": ["mytower/tests", "**/site-packages/**", "**/__pycache__/**", "**/tests/**", "**/venv/**"],
     "python.analysis.autoImportCompletions": true,
     "python.analysis.autoIndent": true,
     "python.analysis.completeFunctionParens": false,

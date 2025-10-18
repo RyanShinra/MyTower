@@ -1,3 +1,8 @@
+
+# pylint: skip-file
+# flake8: noqa
+# mypy: ignore-errors
+# pyright: basic, reportGeneralTypeIssues=false, reportPrivateUsage=false
 from unittest.mock import MagicMock, patch
 
 from mytower.game.utilities.input import MouseState
