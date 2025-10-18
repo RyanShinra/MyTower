@@ -18,25 +18,23 @@
 from __future__ import annotations  # Defer type evaluation
 
 from collections import deque
-from typing import TYPE_CHECKING, Final, List, NamedTuple, override
+from typing import TYPE_CHECKING, Final, List, NamedTuple
 from typing import Optional as Opt
+from typing import override
 
 import pygame
 
-from mytower.game.core.units import Blocks, Pixels, Time, rect_from_pixels
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.id_generator import IDGenerator
+from mytower.game.core.types import ElevatorState, VerticalDirection
+from mytower.game.core.units import Blocks, Pixels, Time, rect_from_pixels
 from mytower.game.entities.entities_protocol import (
-    ElevatorBankProtocol, 
-    ElevatorBankTestingProtocol, 
-    PersonProtocol,
-    ElevatorProtocol,
-    BuildingProtocol
-)
+    BuildingProtocol, ElevatorBankProtocol, ElevatorBankTestingProtocol,
+    ElevatorProtocol, PersonProtocol)
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 if TYPE_CHECKING:
     from pygame import Surface
+
     from mytower.game.core.config import ElevatorCosmeticsProtocol
 
 
@@ -152,6 +150,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     def get_requests_for_floors(self, floors: List[int]) -> set[VerticalDirection]:
         return self._requests[floors[0]].copy()  # Return a copy to prevent modification
 
+    @override
     def add_elevator(self, elevator: ElevatorProtocol) -> None:  # Changed to protocol
         if elevator is None:  # pyright: ignore
             raise ValueError("Elevator cannot be None")  # pyright: ignore[reportUnreachable]
@@ -334,6 +333,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         return max(Blocks(1), self.horizontal_position - Blocks(1))
 
 
+    @override
     def update(self, dt:Time) -> None:  # Accept both for now during transition
         """Update elevator status over time increment dt (in seconds)"""
         # Convert to float for internal use

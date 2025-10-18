@@ -21,11 +21,13 @@ from mytower.api.game_bridge import GameBridge, initialize_game_bridge
 from mytower.api.server import run_server
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
-from mytower.game.core.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SCREEN_WIDTH
+from mytower.game.core.constants import (BACKGROUND_COLOR, FPS, SCREEN_HEIGHT,
+                                         SCREEN_WIDTH)
 from mytower.game.models.game_model import GameModel
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities import demo_builder
-from mytower.game.utilities.cli_args import GameArgs, parse_args, print_startup_banner
+from mytower.game.utilities.cli_args import (GameArgs, parse_args,
+                                             print_startup_banner)
 from mytower.game.utilities.input import MouseState
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.utilities.simulation_loop import start_simulation_thread
@@ -110,6 +112,16 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     bridge, game_controller = setup_game(args, logger_provider)
     desktop_view = DesktopView(logger_provider, config, window_width, window_height)
     mouse = MouseState(logger_provider)
+        
+    # NEW: Create input handler (manages toolbar and keyboard)
+    from mytower.game.views.input_handler import InputHandler
+    input_handler = InputHandler(
+        logger_provider=logger_provider,
+        ui_config=config.ui_config,
+        screen_width=window_width,
+        screen_height=window_height,
+        enqueue_callback=bridge.queue_command
+    )
     
     # Start simulation in background thread
     start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
@@ -132,9 +144,14 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
                     game_controller.set_speed(game_controller.speed + 0.25)
                 elif event.key == pygame.K_DOWN:
                     game_controller.set_speed(game_controller.speed - 0.25)
-        
+                else:
+                    input_handler.handle_keyboard_event(event)
+
         # Update mouse
         mouse.update()
+        
+        # Update input handler (handles button hover, clicks)
+        input_handler.update(mouse.get_pos(), mouse.get_pressed())
         
         # Get latest snapshot from bridge
         snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
@@ -143,6 +160,9 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
         screen.fill(BACKGROUND_COLOR)
         if snapshot:
             desktop_view.draw(screen, snapshot, game_controller.speed)
+        
+        # Draw UI (toolbar, buttons)
+        input_handler.draw(screen)
         
         pygame.display.flip()
         clock.tick(FPS)
@@ -186,6 +206,16 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     desktop_view = DesktopView(logger_provider, config, window_width, window_height)
     mouse = MouseState(logger_provider)
     
+    # NEW: Create input handler (manages toolbar and keyboard)
+    from mytower.game.views.input_handler import InputHandler
+    input_handler = InputHandler(
+        logger_provider=logger_provider,
+        ui_config=config.ui_config,
+        screen_width=window_width,
+        screen_height=window_height,
+        enqueue_callback=bridge.queue_command
+    )
+    
     # Start simulation in background thread
     start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
     
@@ -219,13 +249,21 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
                     game_controller.set_speed(game_controller.speed + 0.25)
                 elif event.key == pygame.K_DOWN:
                     game_controller.set_speed(game_controller.speed - 0.25)
-        
+                else:
+                    input_handler.handle_keyboard_event(event)
+
         mouse.update()
+        # Update input handler (handles button hover, clicks)
+        input_handler.update(mouse.get_pos(), mouse.get_pressed())
+        
         snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
         
         screen.fill(BACKGROUND_COLOR)
         if snapshot:
             desktop_view.draw(screen, snapshot, game_controller.speed)
+        
+        # Draw UI (toolbar, buttons)
+        input_handler.draw(screen)
         
         pygame.display.flip()
         clock.tick(FPS)

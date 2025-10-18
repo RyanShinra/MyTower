@@ -1,7 +1,7 @@
 {
     "git.suggestSmartCommit": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.flake8",
+        "editor.defaultFormatter": "ms-python.autopep8",
         "editor.formatOnSave": false,
         
     },
