@@ -2,6 +2,10 @@ from typing import Any, List, Optional
 
 import strawberry
 
+import mytower.api.unit_scalars  # type: ignore  # Ensure custom scalars are registered
+
+mytower.api.unit_scalars  # noqa  # Ensure custom scalars are registered
+
 from mytower.api.game_bridge import get_game_bridge
 from mytower.api.graphql_types import (BuildingSnapshotGQL, FloorTypeGQL,
                                        PersonSnapshotGQL)
