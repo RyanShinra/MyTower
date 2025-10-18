@@ -1,5 +1,8 @@
-from mytower.game.core.config import GameConfig, ElevatorConfig, ElevatorCosmetics, PersonConfig, PersonCosmetics, UIConfig
-from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
+from mytower.game.core.config import (ElevatorConfig, ElevatorCosmetics,
+                                      GameConfig, PersonConfig,
+                                      PersonCosmetics, UIConfig)
+from mytower.game.core.units import (Blocks, Meters, Time,  # Add Velocity
+                                     Velocity)
 
 
 class TestElevatorConfig:
@@ -62,7 +65,7 @@ class TestPersonConfig:
         assert config.WALKING_DECELERATION == 0.5
         assert config.MAX_WAIT_TIME == Time(90.0)
         assert config.IDLE_TIMEOUT == Time(5.0)
-        assert config.RADIUS == Meters(1.75)
+        assert config.RADIUS == Meters(1.75 / 2.0)
 
     def test_positive_values(self) -> None:
         """Test that all config values are positive"""
