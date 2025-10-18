@@ -7,11 +7,12 @@ Shows proper handling of Mock vs Protocol types.
 from typing import cast
 from unittest.mock import Mock
 
-from mytower.game.entities.entities_protocol import ElevatorProtocol, PersonProtocol
+from mytower.game.core.types import ElevatorState, PersonState
+from mytower.game.entities.entities_protocol import (ElevatorProtocol,
+                                                     PersonProtocol)
 from mytower.game.entities.person import Person
-from mytower.game.core.types import PersonState, ElevatorState
-from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
-from mytower.tests.conftest import PERSON_DEFAULT_FLOOR, PERSON_DEFAULT_BLOCK
+from mytower.tests.conftest import PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR
+from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
 
 class TestTypedMockFactoryDemo:
@@ -191,7 +192,7 @@ class TestIntegratedUtilitiesDemo:
             logger_provider=mock_logger_provider,
             building=building_mock,  # BuildingProtocol satisfied by Mock
             initial_floor_number=5,
-            initial_block_float=10.0,
+            initial_horiz_position=10.0,
             config=mock_game_config
         )
         

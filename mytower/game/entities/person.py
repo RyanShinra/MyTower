@@ -42,7 +42,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         logger_provider: LoggerProvider,
         building: BuildingProtocol,
         initial_floor_number: int,
-        initial_block_float: float,
+        initial_horiz_position: float,
         config: GameConfig,
     ) -> None:
         # Assign unique ID and increment counter
@@ -50,9 +50,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
         
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: BuildingProtocol = building
-        self._current_floor_blocks: Blocks = Blocks(initial_floor_number)
-        self._current_block_blocks: Blocks = Blocks(initial_block_float)
-        self._dest_block_blocks: Blocks = Blocks(initial_block_float)
+        self._current_vert_position: Blocks = Blocks(initial_floor_number)
+        self._current_horiz_position: Blocks = Blocks(initial_horiz_position)
+        self._dest_horiz_position: Blocks = Blocks(initial_horiz_position)
         self._dest_floor_num: int = initial_floor_number
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
@@ -66,8 +66,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if initial_floor_number < 0 or initial_floor_number > building.num_floors:
             raise ValueError(f"Initial floor {initial_floor_number} is out of bounds (0-{building.num_floors})")
 
-        if initial_block_float < 0 or initial_block_float > float(building.building_width):
-            raise ValueError(f"Initial block {initial_block_float} is out of bounds (0-{building.building_width})")
+        if initial_horiz_position < 0 or initial_horiz_position > float(building.building_width):
+            raise ValueError(f"Initial block {initial_horiz_position} is out of bounds (0-{building.building_width})")
 
         self._current_floor: FloorProtocol | None = None
         self._assign_floor(initial_floor_number)
@@ -103,22 +103,22 @@ class Person(PersonProtocol, PersonTestingProtocol):
     @property
     @override
     def current_floor_num(self) -> int:
-        return int(self._current_floor_blocks)
+        return int(self._current_vert_position)
     
     @property
     @override
     def current_vertical_position(self) -> Blocks:
-        return self._current_floor_blocks
+        return self._current_vert_position
 
     @property
     @override
     def destination_horizontal_position(self) -> Blocks:
-        return self._dest_block_blocks
+        return self._dest_horiz_position
 
     @property
     @override
     def current_horizontal_position(self) -> Blocks:
-        return self._current_block_blocks
+        return self._current_horiz_position
 
     @property
     @override
@@ -170,7 +170,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
         # Validation passed - set destinations directly
         self._dest_floor_num = dest_floor_num
-        self._dest_block_blocks = dest_horiz_pos
+        self._dest_horiz_position = dest_horiz_pos
 
 
     @override
@@ -182,7 +182,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
         for elevator in elevator_list:
             # TODO: Add logic to skip elevator banks that don't go to dest floor
-            dist: Blocks = abs(elevator.horizontal_position - self._current_block_blocks)
+            dist: Blocks = abs(elevator.horizontal_position - self._current_horiz_position)
             if dist < closest_dist:
                 closest_dist = dist
                 closest_el = elevator
@@ -223,8 +223,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if self.state != PersonState.IN_ELEVATOR:
             raise RuntimeError("Cannot disembark elevator: person must be in elevator state.")
 
-        self._current_block_blocks = self._current_elevator.parent_elevator_bank.get_waiting_position()
-        self._current_floor_blocks = Blocks(self._current_elevator.current_floor_int)
+        self._current_horiz_position = self._current_elevator.parent_elevator_bank.get_waiting_position()
+        self._current_vert_position = Blocks(self._current_elevator.current_floor_int)
         
         try:
             self._assign_floor(self._current_elevator.current_floor_int)
@@ -255,8 +255,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
             case PersonState.IN_ELEVATOR:
                 if self._current_elevator:
                     self._waiting_time += dt
-                    self._current_floor_blocks = self._current_elevator.vertical_position
-                    self._current_block_blocks = self._current_elevator.parent_elevator_bank.horizontal_position
+                    self._current_vert_position = self._current_elevator.vertical_position
+                    self._current_horiz_position = self._current_elevator.parent_elevator_bank.horizontal_position
 
             case _:
                 self._logger.warning(f"Unknown state: {self.state}")  # type: ignore[unreachable]
@@ -271,7 +271,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if self._idle_timeout > zero_seconds:
             return
 
-        current_destination_block: Blocks = self._dest_block_blocks
+        current_destination_block: Blocks = self._dest_horiz_position
 
         if self._dest_floor_num != self.current_floor_num:
             # Find the nearest elevator, go in that direction
@@ -284,7 +284,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
                 self._state = PersonState.WALKING
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
-                current_destination_block = self._current_block_blocks  # why move? There's nowhere to go
+                current_destination_block = self._current_horiz_position  # why move? There's nowhere to go
                 self._logger.trace(
                     f"IDLE Person: Destination fl. {self.destination_floor_num} != current fl. {self.current_floor_num} -> IDLE b/c no Elevator on this floor"
                 )
@@ -292,7 +292,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
                 # Set a timer so that we don't run this constantly
                 self._idle_timeout = self._config.person.IDLE_TIMEOUT  # Already Time type
 
-        if current_destination_block < self._current_block_blocks:
+        if current_destination_block < self._current_horiz_position:
             # Already on the right floor (or walking to elevator?)
             self._logger.trace(
                 f"IDLE Person: Destination is on this floor: {self.destination_floor_num}, WALKING LEFT to block: {current_destination_block}"
@@ -300,7 +300,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
             self._state = PersonState.WALKING
             self.direction = HorizontalDirection.LEFT
 
-        elif current_destination_block > self._current_block_blocks:
+        elif current_destination_block > self._current_horiz_position:
             self._logger.trace(
                 f"IDLE Person: Destination is on this floor: {self.destination_floor_num}, WALKING RIGHT to block: {current_destination_block}"
             )
@@ -313,16 +313,16 @@ class Person(PersonProtocol, PersonTestingProtocol):
         done: bool = False
 
         # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-        waypoint_block: Blocks = self._next_elevator_bank.get_waiting_position() if self._next_elevator_bank else self._dest_block_blocks        
+        waypoint_block: Blocks = self._next_elevator_bank.get_waiting_position() if self._next_elevator_bank else self._dest_horiz_position        
 
-        if waypoint_block < self._current_block_blocks:
+        if waypoint_block < self._current_horiz_position:
             self.direction = HorizontalDirection.LEFT
-        elif waypoint_block > self._current_block_blocks:
+        elif waypoint_block > self._current_horiz_position:
             self.direction = HorizontalDirection.RIGHT
 
         
         distance: Meters = self.max_velocity * dt
-        next_block: Blocks = self._current_block_blocks + distance.in_blocks * self.direction.value
+        next_block: Blocks = self._current_horiz_position + distance.in_blocks * self.direction.value
 
         if self.direction == HorizontalDirection.RIGHT:
             if next_block >= waypoint_block:
@@ -352,7 +352,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         
         next_block = min(next_block, self.building.building_width)
         next_block = max(next_block, Blocks(0))
-        self._current_block_blocks = next_block
+        self._current_horiz_position = next_block
 
     # TESTING ONLY: Set the destination floor directly (for unit tests)
     @override
@@ -364,7 +364,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
     @override
     def testing_confirm_horiz_dest_is(self, block: Blocks) -> bool:
-        return self._dest_block_blocks == block
+        return self._dest_horiz_position == block
 
     @override
     def testing_set_next_elevator_bank(self, next_bank: ElevatorBankProtocol) -> None:
@@ -396,15 +396,15 @@ class Person(PersonProtocol, PersonTestingProtocol):
     
     @override
     def testing_set_current_vertical_position(self, cur_floor: float) -> None:
-        self._current_floor_blocks = Blocks(cur_floor)
+        self._current_vert_position = Blocks(cur_floor)
         
     @override
     def testing_get_current_vertical_position(self) -> float:
-        return float(self._current_floor_blocks)
+        return float(self._current_vert_position)
 
     @override
     def testing_set_current_horiz_position(self, cur_block: Blocks) -> None:
-        self._current_block_blocks = cur_block
+        self._current_horiz_position = cur_block
 
     @override
     def testing_set_current_state(self, state: PersonState) -> None:
