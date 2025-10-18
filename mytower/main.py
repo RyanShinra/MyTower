@@ -104,7 +104,7 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     window_height: int = min(SCREEN_HEIGHT, max_height)
     
     screen: Surface = pygame.display.set_mode((window_width, window_height), vsync=1)
-    pygame.display.set_caption("MyTower")
+    pygame.display.set_caption(f"MyTower: (Desktop Mode) - v.0.0.1 [{window_width}x{window_height}]")
     clock: Clock = pygame.time.Clock()
     
     # Setup game
@@ -197,7 +197,7 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     window_height: int = min(SCREEN_HEIGHT, max_height)
     
     screen: Surface = pygame.display.set_mode((window_width, window_height), vsync=1)
-    pygame.display.set_caption("MyTower - Hybrid Mode")
+    pygame.display.set_caption(f"MyTower: (Hybrid Mode) - v.0.0.1 [{window_width}x{window_height}]")
     clock: Clock = pygame.time.Clock()
     
     # Setup game

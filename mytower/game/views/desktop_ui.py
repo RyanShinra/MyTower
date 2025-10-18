@@ -149,7 +149,8 @@ class Toolbar:
 
     def add_button(self, text: str, on_click: Callable[[], None], width: int = 100, height: int = 30) -> Button:
         """Add a button to the toolbar"""
-        x: int = self._rect.x + 10 + len(self._buttons) * (width + 10)
+        # x: int = self._rect.x + 10 + len(self._buttons) * (width + 10)
+        x: int = self._buttons[-1].rect.right + 10 if self._buttons else self._rect.x + 10
         y: int = self._rect.y + (self._rect.height - height) // 2
 
         button = Button(self._logger_provider, x, y, width, height, text, self._ui_config, on_click)

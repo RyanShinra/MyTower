@@ -60,17 +60,17 @@ class InputHandler:
         
         # State for cycling floor types
         self._current_floor_type: FloorType = FloorType.OFFICE
+        # Keep references to buttons for updating text
+        self._add_floor_button: Button | None = None
         
         # Create toolbar with buttons
         self._toolbar: Toolbar = self._create_toolbar()
         
-        # Keep references to buttons for updating text
-        self._add_floor_button: Button | None = None
     
     # TODO: I think we may want to inject the toolbar rather than create it here...
     def _create_toolbar(self) -> Toolbar:
         """Create the toolbar and all its buttons"""
-        toolbar_height = 60
+        toolbar_height = 40
         toolbar = Toolbar(
             logger_provider=self._logger_provider,
             x=0,
@@ -85,8 +85,8 @@ class InputHandler:
         self._add_floor_button = toolbar.add_button(
             text=f"Add {self._current_floor_type.value}",
             on_click=self._on_add_floor_clicked,
-            width=120,
-            height=40
+            width=180,
+            height=30
         )
         
         # Add Person button
@@ -94,7 +94,7 @@ class InputHandler:
             text="Add Person",
             on_click=self._on_add_person_clicked,
             width=120,
-            height=40
+            height=30
         )
         
         return toolbar
