@@ -150,8 +150,7 @@ class InputHandler:
         )
         cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
         self._logger.info(
-            f"Enqueued AddPerson command: {cmd_id} "
-            f"(from floor {start_floor} to floor {dest_floor})"  # pyright: ignore[reportImplicitStringConcatenation]
+            f"Enqueued AddPerson command: {cmd_id} (from floor {start_floor} to floor {dest_floor})"
         )
     
     def _cycle_floor_type(self) -> None:
