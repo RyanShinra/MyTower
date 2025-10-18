@@ -64,7 +64,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         self,
         logger_provider: LoggerProvider,
         building: BuildingProtocol,  # Changed to protocol
-        h_cell: int,
+        horizontal_position: int,
         min_floor: int,
         max_floor: int,
         cosmetics_config: ElevatorCosmeticsProtocol,
@@ -75,7 +75,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         # Passengers waiting for the elevator on each floor
         self._building: BuildingProtocol = building
-        self._horizontal_block: Blocks = Blocks(h_cell)
+        self._horizontal_position: Blocks = Blocks(horizontal_position)
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
@@ -130,7 +130,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     @property
     @override
     def horizontal_position(self) -> Blocks:
-        return self._horizontal_block
+        return self._horizontal_position
 
     @property
     @override
@@ -487,7 +487,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         """Draw the elevator Bank on the given surface"""
         screen_height: Pixels = Pixels(surface.get_height())
 
-        shaft_left: Pixels = self._horizontal_block.in_pixels
+        shaft_left: Pixels = self._horizontal_position.in_pixels
         width: Pixels = self._cosmetics_config.ELEVATOR_WIDTH.in_pixels
 
         # Draw shaft from min to max floor

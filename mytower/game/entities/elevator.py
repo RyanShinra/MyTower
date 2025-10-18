@@ -80,7 +80,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
 
         # Current state
-        self._current_floor_in_blocks: Blocks = Blocks(min_floor if starting_floor is None else starting_floor)  # Floor number (can be fractional when moving)
+        self._vertical_position: Blocks = Blocks(min_floor if starting_floor is None else starting_floor)  # Floor number (can be fractional when moving)
         self._destination_floor: int = min_floor if starting_floor is None else starting_floor  # Let's not stop between floors
         self._door_open: bool = False
         self._state: ElevatorState = ElevatorState.IDLE
@@ -154,7 +154,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     @property
     @override
     def current_floor_int(self) -> int:
-        return int(self._current_floor_in_blocks)
+        return int(self._vertical_position)
 
     @override
     def testing_set_current_vertical_pos(self, floor: Blocks) -> None:
@@ -162,12 +162,12 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             raise ValueError(
                 f"Testing floor {floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}."
             )
-        self._current_floor_in_blocks = floor
+        self._vertical_position = floor
 
     @property
     @override
     def vertical_position(self) -> Blocks:
-        return self._current_floor_in_blocks
+        return self._vertical_position
     
     @property
     @override
@@ -363,11 +363,11 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         distance: Meters = self.max_velocity * dt  # No cast needed!
         dy_blocks: Blocks = distance.in_blocks
         
-        cur_floor: float = float(self._current_floor_in_blocks) + float(dy_blocks) * self.motion_direction.value
+        cur_floor: float = float(self._vertical_position) + float(dy_blocks) * self.motion_direction.value
         
         if self._moving_log_timer >= self._config.MOVING_LOG_TIMEOUT:
             self._logger.trace(
-                f"{self.elevator_state} Elevator: Moving {self.motion_direction} from {self._current_floor_in_blocks} to {cur_floor}"
+                f"{self.elevator_state} Elevator: Moving {self.motion_direction} from {self._vertical_position} to {cur_floor}"
             )
             self._moving_log_timer = Time(0.0)
 
@@ -390,7 +390,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
         cur_floor = min(self.max_floor, cur_floor)
         cur_floor = max(self.min_floor, cur_floor)
-        self._current_floor_in_blocks = Blocks(cur_floor)
+        self._vertical_position = Blocks(cur_floor)
 
 
     def _update_arrived(self, dt: Time) -> None:

@@ -208,7 +208,7 @@ def elevator_bank(
         building=mock_building_no_floor,
         logger_provider=mock_logger_provider,
         cosmetics_config=mock_cosmetics_config,
-        h_cell=5,
+        horizontal_position=5,
         max_floor=10,
         min_floor=1,
     )
