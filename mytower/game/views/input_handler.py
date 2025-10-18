@@ -127,16 +127,18 @@ class InputHandler:
         if snapshot is None:
             self._logger.warning("Cannot add person: no building snapshot available")
             return
+        
         # Random starting position (floor 1, random block)
+        if len(snapshot.floors) == 0:
+            self._logger.warning("Cannot add person: building has no floors")
+            return
+        
         left_bounds: int = int(snapshot.floors[0].left_edge_block)
         right_bounds: int = int(snapshot.floors[0].floor_width) + left_bounds
         start_floor = 1
         start_block: float = random.uniform(left_bounds, right_bounds)
         
-        # Random destination (random floor 2-10, random block)
-        dest_floor: int = 1
-        if len(snapshot.floors) >= 2:
-            dest_floor = random.randint(2, len(snapshot.floors))
+        dest_floor: int = random.randint(1, len(snapshot.floors))
         
         dest_block: float = random.uniform(left_bounds, right_bounds)
         
