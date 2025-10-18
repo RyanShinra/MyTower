@@ -67,13 +67,15 @@ class InputHandler:
         # Keep references to buttons for updating text
         self._add_floor_button: Button | None = None
     
+    # TODO: I think we may want to inject the toolbar rather than create it here...
     def _create_toolbar(self) -> Toolbar:
         """Create the toolbar and all its buttons"""
         toolbar_height = 60
         toolbar = Toolbar(
             logger_provider=self._logger_provider,
             x=0,
-            y=self._screen_height - toolbar_height,
+            # y=self._screen_height - toolbar_height,
+            y=0,
             width=self._screen_width,
             height=toolbar_height,
             ui_config=self._ui_config
