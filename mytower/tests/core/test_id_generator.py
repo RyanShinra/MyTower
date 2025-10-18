@@ -1,8 +1,5 @@
-import threading
-import time
 from concurrent.futures import ThreadPoolExecutor
-
-import pytest
+from concurrent.futures._base import Future
 
 from mytower.game.core.id_generator import IDGenerator
 
@@ -17,17 +14,17 @@ class TestIDGeneratorBasics:
         first_id: str = generator.get_next_id()
         assert first_id == "test_1"
         
-        second_id = generator.get_next_id()
+        second_id: str = generator.get_next_id()
         assert second_id == "test_2"
 
     def test_custom_prefix(self) -> None:
         """Test IDGenerator with custom prefix"""
         generator = IDGenerator("person", radix=1, first_id=100)
         
-        first_id = generator.get_next_id()
+        first_id: str = generator.get_next_id()
         assert first_id == "person_100"
         
-        second_id = generator.get_next_id()
+        second_id: str = generator.get_next_id()
         assert second_id == "person_101"
 
     def test_custom_radix(self) -> None:
@@ -61,15 +58,15 @@ class TestIDGeneratorBasics:
     def test_thread_safety(self) -> None:
         """Test that IDGenerator is thread-safe"""
         generator = IDGenerator("thread_test", radix=1, first_id=1)
-        generated_ids = []
+        generated_ids: list[str] = []
         
-        def generate_ids():
+        def generate_ids() -> None:
             for _ in range(100):
                 generated_ids.append(generator.get_next_id())
         
         # Run multiple threads concurrently
         with ThreadPoolExecutor(max_workers=5) as executor:
-            futures = [executor.submit(generate_ids) for _ in range(5)]
+            futures: list[Future[None]] = [executor.submit(generate_ids) for _ in range(5)]
             for future in futures:
                 future.result()
         

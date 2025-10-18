@@ -1,8 +1,7 @@
-import pytest
 
 from mytower.game.core import constants, primitive_constants
 from mytower.game.core.types import Money
-from mytower.game.core.units import Blocks, Meters, Pixels  # Add unit import
+from mytower.game.core.units import Blocks, Pixels  # Add unit import
 
 
 class TestDisplayConstants:
