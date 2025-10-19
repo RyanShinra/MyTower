@@ -99,3 +99,38 @@ class TestPersonBasics:
         """Test direction getter and setter"""  
         person_with_floor.direction = HorizontalDirection.LEFT
         assert person_with_floor.direction == HorizontalDirection.LEFT
+    
+    def test_color_palette_assignment(self, mock_building_with_floor: Mock, mock_logger_provider: MagicMock, mock_game_config: MagicMock) -> None:
+        """Test that people get colors from the palette in sequence"""
+        # Save initial color index
+        initial_color_index = Person._color_index
+        
+        # Create 15 people (more than the 10 colors in the palette)
+        people = []
+        for i in range(15):
+            person = Person(
+                config=mock_game_config,
+                logger_provider=mock_logger_provider,
+                building=mock_building_with_floor,
+                initial_floor_number=5,
+                initial_horiz_position=10.0
+            )
+            people.append(person)
+        
+        # Verify that the first 10 people have different colors
+        colors_first_10 = [p.draw_color for p in people[:10]]
+        assert len(set(colors_first_10)) == 10, "First 10 people should have unique colors"
+        
+        # Verify that colors loop around (person 0 and person 10 should have the same base color)
+        # Note: The colors may differ due to anger factor, so we check the base colors
+        assert people[0]._original_red == people[10]._original_red
+        assert people[0]._original_green == people[10]._original_green
+        assert people[0]._original_blue == people[10]._original_blue
+        
+        # Verify person 1 and person 11 have the same base color
+        assert people[1]._original_red == people[11]._original_red
+        assert people[1]._original_green == people[11]._original_green
+        assert people[1]._original_blue == people[11]._original_blue
+        
+        # Clean up: restore the color index
+        Person._color_index = initial_color_index

@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING, TypeVar, Generic, override
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar, override
 
 if TYPE_CHECKING:
-    from mytower.game.models.game_model import GameModel
     from mytower.game.core.types import FloorType
+    from mytower.game.models.game_model import GameModel
 
 T = TypeVar('T')
 
@@ -57,14 +58,14 @@ class AddPersonCommand(Command[str]):
             return CommandResult(success=False, error="Source and destination cannot be the same")
         # NOTE: We will need to revisit this validation if we add basement floors
         if self.floor < 1:
-            return CommandResult(success=False, error=f"Invalid source floor: {self.floor}")
+            return CommandResult(success=False, error=f"Invalid source floor: {self.floor:.1f}")
         if self.dest_floor < 1:
-            return CommandResult(success=False, error=f"Invalid destination floor: {self.dest_floor}")
+            return CommandResult(success=False, error=f"Invalid destination floor: {self.dest_floor:.1f}")
         if self.dest_block < 0.0:
-            return CommandResult(success=False, error=f"Invalid destination block: {self.dest_block}")
+            return CommandResult(success=False, error=f"Invalid destination block: {self.dest_block:.2f}")
         if self.block < 0.0:
-            return CommandResult(success=False, error=f"Invalid source block: {self.block}")
-        
+            return CommandResult(success=False, error=f"Invalid source block: {self.block:.2f}")
+
         person_id: str = model.add_person(
             floor=self.floor,
             block=self.block,
@@ -76,8 +77,8 @@ class AddPersonCommand(Command[str]):
     @override
     def get_description(self) -> str:
         return (
-            f"Add person at floor {self.floor}, block {self.block} "
-            f"with destination floor {self.dest_floor}, block {self.dest_block}"
+            f"Add person at floor {self.floor:.1f}, block {self.block:.2f} "
+            f"with destination floor {self.dest_floor:.1f}, block {self.dest_block:.2f}"
         )
 
 
@@ -90,13 +91,13 @@ class AddElevatorBankCommand(Command[str]):
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
         if self.h_cell < 0:
-            return CommandResult(success=False, error=f"Invalid horizontal cell: {self.h_cell}")
+            return CommandResult(success=False, error=f"Invalid horizontal cell: {self.h_cell:.6f}")
         
         # NOTE: This will need to be revisited if we add basement floors
         if self.min_floor < 1:
-            return CommandResult(success=False, error=f"Invalid min floor: {self.min_floor}")
+            return CommandResult(success=False, error=f"Invalid min floor: {self.min_floor:.1f}")
         if self.max_floor < self.min_floor:
-            return CommandResult(success=False, error=f"max_floor must be >= min_floor: {self.max_floor} < {self.min_floor}")
+            return CommandResult(success=False, error=f"max_floor must be >= min_floor: {self.max_floor:.1f} < {self.min_floor:.1f}")
         el_bank_id: str = model.add_elevator_bank(
             h_cell=self.h_cell,
             min_floor=self.min_floor,
@@ -107,8 +108,8 @@ class AddElevatorBankCommand(Command[str]):
     @override
     def get_description(self) -> str:
         return (
-            f"Add elevator bank at horizontal cell {self.h_cell} "
-            f"from floor {self.min_floor} to {self.max_floor}"
+            f"Add elevator bank at horizontal cell {self.h_cell:.2f} "
+            f"from floor {self.min_floor:.1f} to {self.max_floor:.1f}"
         )
 
 

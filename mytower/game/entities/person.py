@@ -11,7 +11,7 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-import random
+import threading
 from typing import TYPE_CHECKING, Final, List, override  # Remove cast
 
 from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
@@ -36,6 +36,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
     """
     NULL_PERSON_ID:Final[int] = 0
     _id_generator: IDGenerator = IDGenerator("person")
+    _color_index: int = 0  # Static counter for color palette
+    _color_lock: threading.Lock = threading.Lock()  # Thread safety for color index
 
     def __init__(
         self,
@@ -73,16 +75,14 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._assign_floor(initial_floor_number)
 
         # Appearance (for visualization)
-        # Use cosmetics_config for initial color ranges
-        self._original_red: Final[int] = random.randint(
-            self._cosmetics.INITIAL_MIN_RED, self._cosmetics.INITIAL_MAX_RED
-        )
-        self._original_green: Final[int] = random.randint(
-            self._cosmetics.INITIAL_MIN_GREEN, self._cosmetics.INITIAL_MAX_GREEN
-        )
-        self._original_blue: Final[int] = random.randint(
-            self._cosmetics.INITIAL_MIN_BLUE, self._cosmetics.INITIAL_MAX_BLUE
-        )
+        # Use palette color for this person (thread-safe)
+        with Person._color_lock:
+            palette_color: tuple[int, int, int] = self._cosmetics.COLOR_PALETTE[Person._color_index % len(self._cosmetics.COLOR_PALETTE)]
+            Person._color_index += 1  # Increment for next person
+        
+        self._original_red: Final[int] = palette_color[0]
+        self._original_green: Final[int] = palette_color[1]
+        self._original_blue: Final[int] = palette_color[2]
                 
         self._red_range: int = abs(self._cosmetics.ANGRY_MAX_RED - self._original_red)
         self._green_range: int = abs(self._cosmetics.ANGRY_MIN_GREEN - self._original_green)

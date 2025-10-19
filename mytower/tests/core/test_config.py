@@ -87,12 +87,14 @@ class TestPersonCosmetics:
         assert cosmetics.ANGRY_MAX_RED == 192
         assert cosmetics.ANGRY_MIN_GREEN == 0
         assert cosmetics.ANGRY_MIN_BLUE == 0
-        assert cosmetics.INITIAL_MAX_RED == 32
-        assert cosmetics.INITIAL_MAX_GREEN == 128
-        assert cosmetics.INITIAL_MAX_BLUE == 128
+        assert cosmetics.INITIAL_MAX_RED == 64
+        assert cosmetics.INITIAL_MAX_GREEN == 160
+        assert cosmetics.INITIAL_MAX_BLUE == 160
         assert cosmetics.INITIAL_MIN_RED == 0
         assert cosmetics.INITIAL_MIN_GREEN == 0
         assert cosmetics.INITIAL_MIN_BLUE == 0
+        assert len(cosmetics.COLOR_PALETTE) == 9
+        assert all(isinstance(color, tuple) and len(color) == 3 for color in cosmetics.COLOR_PALETTE)
 
     def test_color_ranges(self) -> None:
         """Test that color values are within valid RGB range"""

@@ -142,6 +142,18 @@ def mock_game_config() -> MagicMock:
     person_cosmetics.INITIAL_MIN_RED = 0
     person_cosmetics.INITIAL_MIN_GREEN = 0
     person_cosmetics.INITIAL_MIN_BLUE = 0
+    person_cosmetics.COLOR_PALETTE = (
+        (0, 0, 0),       # Black
+        (64, 0, 0),      # Dark Red
+        (0, 160, 0),     # Green
+        (0, 0, 160),     # Blue
+        (64, 160, 0),    # Yellow-Green
+        (64, 0, 160),    # Purple
+        (0, 160, 160),   # Cyan
+        (64, 160, 160),  # Light Cyan
+        (32, 80, 80),    # Teal
+        (16, 40, 120),   # Dark Blue
+    )
     config.person_cosmetics = person_cosmetics
     
     return config

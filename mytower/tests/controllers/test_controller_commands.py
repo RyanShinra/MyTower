@@ -1,13 +1,9 @@
-from unittest.mock import MagicMock
 from typing import Any, Final
+from unittest.mock import MagicMock
 
 from mytower.game.controllers.controller_commands import (
-    CommandResult, 
-    AddFloorCommand, 
-    AddPersonCommand, 
-    AddElevatorBankCommand, 
-    AddElevatorCommand
-)
+    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
+    AddPersonCommand, CommandResult)
 from mytower.game.core.types import FloorType
 from mytower.game.models.game_model import GameModel
 
@@ -103,8 +99,8 @@ class TestAddPersonCommand:
         command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4.0)
         
         description: Final[str] = command.get_description()
-        assert "Add person at floor 1, block 2.5" in description
-        assert "destination floor 3, block 4" in description
+        assert "Add person at floor 1.0, block 2.50" in description
+        assert "destination floor 3.0, block 4.00" in description
 
     def test_execute_success(self) -> None:
         """Test successful person addition"""
@@ -186,8 +182,8 @@ class TestAddElevatorBankCommand:
         command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(h_cell=3, min_floor=2, max_floor=8)
         
         description: Final[str] = command.get_description()
-        assert "Add elevator bank at horizontal cell 3" in description
-        assert "from floor 2 to 8" in description
+        assert "Add elevator bank at horizontal cell 3.0" in description
+        assert "from floor 2.0 to 8.0" in description
 
     def test_execute_success(self) -> None:
         """Test successful elevator bank addition"""
@@ -237,7 +233,7 @@ class TestAddElevatorBankCommand:
         
         assert result.success is False
         assert result.error is not None
-        assert "max_floor must be >= min_floor: 3 < 5" in result.error
+        assert "max_floor must be >= min_floor: 3.0 < 5.0" in result.error
         mock_model.add_elevator_bank.assert_not_called()
 
 
