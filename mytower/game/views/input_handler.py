@@ -16,11 +16,12 @@ from typing import Callable
 
 import pygame
 
-from mytower.game.controllers.controller_commands import (AddFloorCommand,
-                                                          AddPersonCommand,
-                                                          Command)
+from mytower.game.controllers.controller_commands import (
+    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
+    AddPersonCommand, Command)
 from mytower.game.core.types import (FloorType, MouseButtons, MousePos,
                                      PygameSurface)
+from mytower.game.core.units import Blocks
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.views.desktop_ui import Button, Toolbar, UIConfigProtocol
@@ -90,6 +91,20 @@ class InputHandler:
             height=30
         )
         
+        toolbar.add_button(
+            text="Add Elevator Bank",
+            on_click=self._on_add_elevator_bank_clicked,
+            width=180,
+            height=30
+        )
+        
+        toolbar.add_button(
+            text="Add Elevator Car",
+            on_click=self._on_add_elevator_car_clicked,
+            width=180,
+            height=30
+        )
+        
         # Add Person button
         toolbar.add_button(
             text="Add Person",
@@ -152,6 +167,62 @@ class InputHandler:
         self._logger.info(
             f"Enqueued AddPerson command: {cmd_id} (from floor {start_floor} to floor {dest_floor})"
         )
+        
+    def _on_add_elevator_bank_clicked(self, snapshot: BuildingSnapshot | None) -> None:
+        """Handle 'Add Elevator Bank' button click"""
+        if snapshot is None:
+            self._logger.warning("Cannot add elevator bank: no building snapshot available")
+            return
+
+        if len(snapshot.floors) == 0:
+            self._logger.warning("Cannot add elevator bank: building has no floors")
+            return
+
+        if len(snapshot.floors) < 2:
+            self._logger.warning("Cannot add elevator bank: building must have at least 2 floors")
+            return
+        
+        if snapshot.floors[0].floor_width < Blocks(3.0):
+            self._logger.warning("Cannot add elevator bank: floors must be at least 3 blocks wide")
+            return
+
+        if len(snapshot.elevator_banks) > 0:
+            self._logger.info("Only one elevator bank available during demo; skipping addition")
+            return
+
+        # For simplicity, add elevator bank at horizontal cell 0, spanning all floors
+        command = AddElevatorBankCommand(
+            h_cell=int(snapshot.floors[0].floor_width * 0.75),  # Place near right edge # TODO: Let's turn this into block units
+            min_floor=1,
+            max_floor=len(snapshot.floors)
+        )
+        cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
+        self._logger.info(
+            f"Enqueued AddElevatorBank command: {cmd_id} (floors 1 to {len(snapshot.floors)})"
+        )
+        
+    def _on_add_elevator_car_clicked(self, snapshot: BuildingSnapshot | None) -> None:
+        """Handle 'Add Elevator Car' button click"""
+        if snapshot is None:
+            self._logger.warning("Cannot add elevator car: no building snapshot available")
+            return
+
+        if len(snapshot.elevator_banks) == 0:
+            self._logger.warning("Cannot add elevator car: no elevator banks available")
+            return
+
+        if len(snapshot.elevators) == 8:
+            self._logger.info("Maximum of 8 elevators reached; cannot add more duing demo")
+            return
+
+        # For simplicity, add elevator car to first elevator bank at floor 1
+        command = AddElevatorCommand(
+            elevator_bank_id=snapshot.elevator_banks[0].id
+        )
+        cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
+        self._logger.info(
+            f"Enqueued AddElevator command: {cmd_id} (bank {snapshot.elevator_banks[0].id} at floor 1)"
+        )
     
     def _cycle_floor_type(self) -> None:
         """Cycle to the next floor type"""
@@ -176,6 +247,12 @@ class InputHandler:
             return True
         elif event.key == pygame.K_p:  # pylint: disable=no-member
             self._on_add_person_clicked(snapshot)
+            return True
+        elif event.key == pygame.K_e:  # pylint: disable=no-member
+            self._on_add_elevator_bank_clicked(snapshot)
+            return True
+        elif event.key == pygame.K_c:  # pylint: disable=no-member
+            self._on_add_elevator_car_clicked(snapshot)
             return True
         
         return False
