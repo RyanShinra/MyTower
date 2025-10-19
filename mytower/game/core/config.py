@@ -161,16 +161,15 @@ class PersonCosmetics:
     
     # Predefined color palette for people (10 colors using the clamped values)
     COLOR_PALETTE: Final[tuple[tuple[int, int, int], ...]] = (
-        (0, 0, 0),       # Black
+        (32, 32, 32),       # Black
         (64, 0, 0),      # Dark Red
-        (0, 160, 0),     # Green
-        (0, 0, 160),     # Blue
-        (64, 160, 0),    # Yellow-Green
-        (64, 0, 160),    # Purple
-        (0, 160, 160),   # Cyan
-        (64, 160, 160),  # Light Cyan
+        (64, 64, 0),    # Yellow-Green
+        (0, 128, 0),     # Green
+        (0, 128, 128),   # Cyan
         (32, 80, 80),    # Teal
-        (16, 40, 120),   # Dark Blue
+        (16, 16, 64),   # Dark Blue
+        (0, 0, 160),     # Blue
+        (64, 0, 128),    # Purple
     )
 
 
