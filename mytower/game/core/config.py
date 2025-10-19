@@ -106,6 +106,9 @@ class PersonCosmeticsProtocol(Protocol):
     @property
     def INITIAL_MIN_BLUE(self) -> int: ...
 
+    @property
+    def COLOR_PALETTE(self) -> tuple[tuple[int, int, int], ...]: ...
+
 # Concrete configuration implementations
 @dataclass
 class ElevatorConfig:
@@ -155,6 +158,20 @@ class PersonCosmetics:
     INITIAL_MIN_RED: Final[int] = 0
     INITIAL_MIN_GREEN: Final[int] = 0
     INITIAL_MIN_BLUE: Final[int] = 0
+    
+    # Predefined color palette for people (10 colors using the clamped values)
+    COLOR_PALETTE: Final[tuple[tuple[int, int, int], ...]] = (
+        (0, 0, 0),       # Black
+        (64, 0, 0),      # Dark Red
+        (0, 160, 0),     # Green
+        (0, 0, 160),     # Blue
+        (64, 160, 0),    # Yellow-Green
+        (64, 0, 160),    # Purple
+        (0, 160, 160),   # Cyan
+        (64, 160, 160),  # Light Cyan
+        (32, 80, 80),    # Teal
+        (16, 40, 120),   # Dark Blue
+    )
 
 
 @dataclass
