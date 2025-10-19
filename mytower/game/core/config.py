@@ -149,9 +149,9 @@ class PersonCosmetics:
     ANGRY_MAX_RED: Final[int] = 192
     ANGRY_MIN_GREEN: Final[int] = 0
     ANGRY_MIN_BLUE: Final[int] = 0
-    INITIAL_MAX_RED: Final[int] = 32
-    INITIAL_MAX_GREEN: Final[int] = 128
-    INITIAL_MAX_BLUE: Final[int] = 128
+    INITIAL_MAX_RED: Final[int] = 64
+    INITIAL_MAX_GREEN: Final[int] = 160
+    INITIAL_MAX_BLUE: Final[int] = 160
     INITIAL_MIN_RED: Final[int] = 0
     INITIAL_MIN_GREEN: Final[int] = 0
     INITIAL_MIN_BLUE: Final[int] = 0
