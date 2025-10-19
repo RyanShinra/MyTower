@@ -212,7 +212,7 @@ class InputHandler:
             return
 
         if len(snapshot.elevators) == 8:
-            self._logger.info("Maximum of 8 elevators reached; cannot add more duing demo")
+            self._logger.info("Maximum of 8 elevators reached; cannot add more during demo")
             return
 
         # For simplicity, add elevator car to first elevator bank at floor 1
