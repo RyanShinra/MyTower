@@ -93,7 +93,7 @@ class TestPersonCosmetics:
         assert cosmetics.INITIAL_MIN_RED == 0
         assert cosmetics.INITIAL_MIN_GREEN == 0
         assert cosmetics.INITIAL_MIN_BLUE == 0
-        assert len(cosmetics.COLOR_PALETTE) == 10
+        assert len(cosmetics.COLOR_PALETTE) == 9
         assert all(isinstance(color, tuple) and len(color) == 3 for color in cosmetics.COLOR_PALETTE)
 
     def test_color_ranges(self) -> None:
