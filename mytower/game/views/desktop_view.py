@@ -76,6 +76,7 @@ class DesktopView:
         # Draw UI elements
         self._draw_ui(surface, snapshot, speed)
 
+    # TODO: Right now we have to coordinate this with the tooolbar in InputHandler
     def _draw_ui(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw UI elements like time, money, etc."""
         # Draw time
@@ -89,9 +90,9 @@ class DesktopView:
         time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
 
         text: Final[Surface] = font.render(time_str, True, (0, 0, 0))
-        surface.blit(text, (10, 10))
+        surface.blit(text, (10, 60)) # OMG magic numbers
 
         # Draw money
         money_str: str = f"Money: ${snapshot.money:,}"
         money_text: Final[Surface] = font.render(money_str, True, (0, 0, 0))
-        surface.blit(money_text, (10, 40))
+        surface.blit(money_text, (10, 90)) # OMG magic numbers

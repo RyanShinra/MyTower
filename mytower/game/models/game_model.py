@@ -3,28 +3,33 @@ Model layer: Pure business logic and data management
 No pygame dependencies, no rendering logic
 """
 from __future__ import annotations
+
 from typing import Dict, Final, List, Optional
 
 from pygame import Surface
 
-from mytower.game.core.units import Blocks, Time
-from mytower.game.entities.entities_protocol import (
-    ElevatorProtocol,
-    FloorProtocol,
-    PersonProtocol,
-    ElevatorBankProtocol
-)
-
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
-from mytower.game.models.snapshot_builders import build_elevator_bank_snapshot, build_elevator_snapshot, build_floor_snapshot, build_person_snapshot
-from mytower.game.entities.person import Person
-from mytower.game.core.types import FloorType
-from mytower.game.entities.building import Building
 from mytower.game.core.config import GameConfig
-from mytower.game.core.constants import STARTING_MONEY, MIN_TIME_MULTIPLIER, MAX_TIME_MULTIPLIER
-from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.core.constants import (MAX_TIME_MULTIPLIER,
+                                         MIN_TIME_MULTIPLIER, STARTING_MONEY)
+from mytower.game.core.types import FloorType
+from mytower.game.core.units import Blocks, Time
+from mytower.game.entities.building import Building
 from mytower.game.entities.elevator import Elevator
+from mytower.game.entities.elevator_bank import ElevatorBank
+from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     FloorProtocol,
+                                                     PersonProtocol)
+from mytower.game.entities.person import Person
+from mytower.game.models.model_snapshots import (BuildingSnapshot,
+                                                 ElevatorBankSnapshot,
+                                                 ElevatorSnapshot,
+                                                 FloorSnapshot, PersonSnapshot)
+from mytower.game.models.snapshot_builders import (
+    build_elevator_bank_snapshot, build_elevator_snapshot,
+    build_floor_snapshot, build_person_snapshot)
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
+
 
 class GameModel:
     """
@@ -101,7 +106,7 @@ class GameModel:
                 logger_provider=self._logger_provider,
                 cosmetics_config=self._config.elevator_cosmetics,
                 building=self._building,
-                h_cell=h_cell,
+                horizontal_position=h_cell,
                 min_floor=min_floor,
                 max_floor=max_floor
             )
@@ -152,7 +157,7 @@ class GameModel:
                 logger_provider=self._logger_provider,
                 building=self._building,
                 initial_floor_number=floor,
-                initial_block_float=block,
+                initial_horiz_position=block,
                 config=self._config
             )
 

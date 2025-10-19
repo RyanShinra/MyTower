@@ -3,9 +3,11 @@ from typing import List
 
 import strawberry
 
+import mytower.api.unit_scalars  # Ensure custom scalars are registered
 from mytower.game.core.units import Blocks  # Use core types directly!
 from mytower.game.core.units import Meters, Pixels, Time
 
+mytower.api.unit_scalars  # noqa  # Prevent unused import warning
 
 @strawberry.enum
 class FloorTypeGQL(Enum):

@@ -1,4 +1,5 @@
-# pyright: ignore[reportUnknownMemberType]
+# type: ignore
+# TODO: There's some idioms in here that mypy / pyright doesn't like; fix them later.
 """
 GraphQL scalar types for dimensional units.
 
@@ -16,7 +17,7 @@ from mytower.game.core.units import Time as TimeCore
 from mytower.game.core.units import Velocity as VelocityCore
 
 # Serialize the actual core types directly
-Blocks = strawberry.scalar( 
+Blocks = strawberry.scalar(
     BlocksCore,
     serialize=lambda v: float(v.value),
     parse_value=lambda v: BlocksCore(float(v)),

@@ -1,13 +1,15 @@
-from unittest.mock import MagicMock, Mock
 from typing import Callable
+from unittest.mock import MagicMock, Mock
 
 import pytest
-from mytower.game.entities.person import Person
-from mytower.game.core.types import PersonState, HorizontalDirection
-from mytower.game.core.units import Blocks  # Add unit import
-from mytower.tests.conftest import BUILDING_DEFAULT_FLOOR_WIDTH, BUILDING_DEFAULT_NUM_FLOORS, PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR
-from mytower.tests.test_utilities import StateAssertions
 
+from mytower.game.core.types import HorizontalDirection, PersonState
+from mytower.game.core.units import Blocks  # Add unit import
+from mytower.game.entities.person import Person
+from mytower.tests.conftest import (BUILDING_DEFAULT_FLOOR_WIDTH,
+                                    BUILDING_DEFAULT_NUM_FLOORS,
+                                    PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR)
+from mytower.tests.test_utilities import StateAssertions
 
 
 class TestPersonBasics:
@@ -43,20 +45,20 @@ class TestPersonBasics:
         
         # Building has 10 floors (from fixture)
         with pytest.raises(ValueError, match=f"Initial floor {BUILDING_DEFAULT_NUM_FLOORS + 1} is out of bounds"):
-            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=BUILDING_DEFAULT_NUM_FLOORS + 1, initial_block_float=5)  # Floor too high
+            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=BUILDING_DEFAULT_NUM_FLOORS + 1, initial_horiz_position=5)  # Floor too high
     
         with pytest.raises(ValueError, match="Initial floor -1 is out of bounds"):
-            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=-1, initial_block_float=5)  # Floor too low
+            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=-1, initial_horiz_position=5)  # Floor too low
 
 
     def test_person_creation_invalid_block_raises_value_error(self, mock_building_with_floor: MagicMock, mock_logger_provider: MagicMock, mock_game_config: MagicMock) -> None:
         """Test that creating a person with invalid initial block raises ValueError"""
         # Building has 20 width (from fixture)
         with pytest.raises(ValueError, match=f"Initial block {BUILDING_DEFAULT_FLOOR_WIDTH + 2} is out of bounds"):
-            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=5, initial_block_float=BUILDING_DEFAULT_FLOOR_WIDTH + 2)  # Block too high
+            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=5, initial_horiz_position=BUILDING_DEFAULT_FLOOR_WIDTH + 2)  # Block too high
 
         with pytest.raises(ValueError, match=f"Initial block -5.0 is out of bounds"):
-            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=5, initial_block_float=-5.0)  # Block too low
+            Person(config=mock_game_config, logger_provider=mock_logger_provider, building=mock_building_with_floor, initial_floor_number=5, initial_horiz_position=-5.0)  # Block too low
         
         
     def test_set_destination_out_of_bounds_raises_value_error(self, person_with_floor: Person, mock_building_no_floor: MagicMock) -> None:

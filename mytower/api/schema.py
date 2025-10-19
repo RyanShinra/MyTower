@@ -2,6 +2,7 @@ from typing import Any, List, Optional
 
 import strawberry
 
+from mytower.api import unit_scalars  # Import the module to register scalars
 from mytower.api.game_bridge import get_game_bridge
 from mytower.api.graphql_types import (BuildingSnapshotGQL, FloorTypeGQL,
                                        PersonSnapshotGQL)
@@ -11,7 +12,7 @@ from mytower.game.controllers.controller_commands import (
     AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
     AddPersonCommand, Command)
 from mytower.game.core.types import FloorType
-from mytower.game.core.units import Time
+from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
 
@@ -98,4 +99,14 @@ class Mutation:
     def add_elevator_sync(self, elevator_bank_id: str) -> str:
         return get_game_bridge().execute_add_elevator_sync(elevator_bank_id)
 
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+schema = strawberry.Schema(
+    query=Query, 
+    mutation=Mutation,
+    scalar_overrides={
+        Time: unit_scalars.Time,
+        Blocks: unit_scalars.Blocks,
+        Meters: unit_scalars.Meters,
+        Pixels: unit_scalars.Pixels,
+        Velocity: unit_scalars.Velocity
+    }
+)

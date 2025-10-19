@@ -1,10 +1,12 @@
 # tests/person/test_person_floor_ownership.py
 from __future__ import annotations
+
 from unittest.mock import MagicMock
+
 import pytest
 
-from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState
+from mytower.game.entities.person import Person
 
 
 class TestPersonFloorOwnership:
@@ -149,7 +151,7 @@ class TestPersonCurrentFloorProperty:
             logger_provider=mock_logger_provider,
             building=mock_building_with_floor,
             initial_floor_number=5,
-            initial_block_float=10.0,
+            initial_horiz_position=10.0,
             config=mock_game_config
         )
         

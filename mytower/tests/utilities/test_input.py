@@ -1,8 +1,11 @@
+
+# pylint: skip-file
+# flake8: noqa
+# mypy: ignore-errors
+# pyright: basic, reportGeneralTypeIssues=false, reportPrivateUsage=false
 from unittest.mock import MagicMock, patch
-import pytest
 
 from mytower.game.utilities.input import MouseState
-from mytower.game.utilities.logger import LoggerProvider
 
 
 class TestMouseState:
@@ -12,7 +15,7 @@ class TestMouseState:
         """Test MouseState initialization"""
         mouse_state = MouseState(mock_logger_provider)
         
-        assert mouse_state._position == (0, 0)
+        assert mouse_state._position == (0, 0) 
         assert mouse_state._buttons == (False, False, False)
         assert mouse_state._extended_buttons == []
         assert mouse_state._wheel_y == 0

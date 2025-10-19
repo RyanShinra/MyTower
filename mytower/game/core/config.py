@@ -139,7 +139,7 @@ class PersonConfig:
     WALKING_DECELERATION: float = 0.5  # TODO: Make this Velocity/Time
     MAX_WAIT_TIME: Time = Time(90.0)   # Explicit seconds
     IDLE_TIMEOUT: Time = Time(5.0)     # Explicit seconds
-    RADIUS: Meters = Meters(1.75)      # Explicit meters
+    RADIUS: Meters = Meters(1.75 / 2)      # Explicit meters (divide by two so that the radius is half the average height of 175 cm)
 
 
 @dataclass

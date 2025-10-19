@@ -1,13 +1,14 @@
 # game/ui.py
 # flake8: noqa: E701
 
-from typing import List, Optional, Protocol
+from typing import Callable, List, Optional, Protocol
 
 import pygame
+from pygame.font import Font
 
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import RGB, MouseButtons, MousePos, PygameSurface
-
+from mytower.game.models.model_snapshots import BuildingSnapshot
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 
 # pylint: disable=invalid-name
@@ -58,13 +59,16 @@ class Button:
         height: int,
         text: str,
         ui_config: UIConfigProtocol,
+        on_click: Callable[[BuildingSnapshot | None], None],
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("ui")
-        self._rect = pygame.Rect(x, y, width, height)
-        self._text = text
+        self._rect: pygame.Rect = pygame.Rect(x, y, width, height)
+        self._text: str = text
         self._ui_config: UIConfigProtocol = ui_config
+        self._on_click: Callable[[BuildingSnapshot | None], None] = on_click
         self._is_hovered: bool = False
         self._is_clicked: bool = False
+        self._was_pressed: bool = False  # To track previous frame's pressed state
 
     @property
     def rect(self) -> pygame.Rect:
@@ -74,19 +78,29 @@ class Button:
     def text(self) -> str:
         return self._text
 
-    @property
-    def is_clicked(self) -> bool:
-        return self._is_clicked
-
+    def set_text(self, text: str) -> None:
+        """Update button text"""
+        self._text = text
+    
     @property
     def is_hovered(self) -> bool:
         return self._is_hovered
 
-    def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons) -> None:
-        """Update button state based on mouse position and clicks"""
+    def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons, building_snapshot: BuildingSnapshot | None) -> None:
+        """
+        Update button state and trigger callback on click.
+        
+        Detects click as: mouse pressed this frame AND hovering AND wasn't pressed last frame
+        This prevents multiple triggers while holding the button down.
+        """
         self._is_hovered = self._rect.collidepoint(mouse_pos)
-        self._is_clicked = self._is_hovered and mouse_pressed[0]
+        is_pressed_now: bool = mouse_pressed[0]
+        
+        # Click = pressed now, hovering, and wasn't pressed last frame (rising edge)
+        if self._is_hovered and is_pressed_now and not self._was_pressed:
+            self._on_click(building_snapshot)  # Trigger callback
 
+        self._was_pressed = is_pressed_now
 
 
     def draw(self, surface: PygameSurface) -> None:
@@ -97,9 +111,9 @@ class Button:
         pygame.draw.rect(surface, self._ui_config.TEXT_COLOR, self._rect, 2)  # Border
 
         # Draw text
-        font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(self._text, True, self._ui_config.TEXT_COLOR)
-        text_rect = text_surface.get_rect(center=self._rect.center)
+        font: Font = pygame.font.SysFont(None, 24)
+        text_surface: PygameSurface = font.render(self._text, True, self._ui_config.TEXT_COLOR)
+        text_rect: pygame.Rect = text_surface.get_rect(center=self._rect.center)
         surface.blit(text_surface, text_rect)
 
 
@@ -135,21 +149,20 @@ class Toolbar:
         self._active_tool = value
 
 
-
-    def add_button(self, text: str, width: int = 100, height: int = 30) -> Button:
+    def add_button(self, text: str, on_click: Callable[[BuildingSnapshot | None], None], width: int = 100, height: int = 30) -> Button:
         """Add a button to the toolbar"""
-        x: int = self._rect.x + 10 + len(self._buttons) * (width + 10)
+        # x: int = self._rect.x + 10 + len(self._buttons) * (width + 10)
+        x: int = self._buttons[-1].rect.right + 10 if self._buttons else self._rect.x + 10
         y: int = self._rect.y + (self._rect.height - height) // 2
 
-        button = Button(self._logger_provider, x, y, width, height, text, self._ui_config)
+        button = Button(self._logger_provider, x, y, width, height, text, self._ui_config, on_click)
         self._buttons.append(button)
         return button
 
-    def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons) -> None:
+    def update(self, mouse_pos: MousePos, mouse_pressed: MouseButtons, building_snapshot: BuildingSnapshot | None) -> None:
         """Update toolbar and its buttons"""
         for button in self._buttons:
-            button.update(mouse_pos, mouse_pressed)
-
+            button.update(mouse_pos, mouse_pressed, building_snapshot)
 
 
     def draw(self, surface: PygameSurface) -> None:

@@ -1,5 +1,8 @@
-from mytower.game.core.config import GameConfig, ElevatorConfig, ElevatorCosmetics, PersonConfig, PersonCosmetics, UIConfig
-from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
+from mytower.game.core.config import (ElevatorConfig, ElevatorCosmetics,
+                                      GameConfig, PersonConfig,
+                                      PersonCosmetics, UIConfig)
+from mytower.game.core.units import (Blocks, Meters, Time,  # Add Velocity
+                                     Velocity)
 
 
 class TestElevatorConfig:
@@ -44,7 +47,7 @@ class TestElevatorCosmetics:
         cosmetics = ElevatorCosmetics()
         
         for color_attr in ['SHAFT_COLOR', 'SHAFT_OVERHEAD_COLOR', 'CLOSED_COLOR', 'OPEN_COLOR']:
-            color = getattr(cosmetics, color_attr)
+            color: tuple[int, int, int] = getattr(cosmetics, color_attr)
             assert isinstance(color, tuple)
             assert len(color) == 3
             assert all(isinstance(c, int) and 0 <= c <= 255 for c in color)
@@ -62,7 +65,7 @@ class TestPersonConfig:
         assert config.WALKING_DECELERATION == 0.5
         assert config.MAX_WAIT_TIME == Time(90.0)
         assert config.IDLE_TIMEOUT == Time(5.0)
-        assert config.RADIUS == Meters(1.75)
+        assert config.RADIUS == Meters(1.75 / 2.0)
 
     def test_positive_values(self) -> None:
         """Test that all config values are positive"""
@@ -95,14 +98,14 @@ class TestPersonCosmetics:
         """Test that color values are within valid RGB range"""
         cosmetics = PersonCosmetics()
         
-        color_attrs = [
+        color_attrs: list[str] = [
             'ANGRY_MAX_RED', 'ANGRY_MIN_GREEN', 'ANGRY_MIN_BLUE',
             'INITIAL_MAX_RED', 'INITIAL_MAX_GREEN', 'INITIAL_MAX_BLUE',
             'INITIAL_MIN_RED', 'INITIAL_MIN_GREEN', 'INITIAL_MIN_BLUE'
         ]
         
         for attr in color_attrs:
-            value = getattr(cosmetics, attr)
+            value: int = getattr(cosmetics, attr)
             assert isinstance(value, int)
             assert 0 <= value <= 255
 
