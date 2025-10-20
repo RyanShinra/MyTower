@@ -356,6 +356,9 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             return
 
         elevator.idle_time = Time(0.0)
+        self._logger.debug(
+            f"Elevator at floor {elevator.current_floor_int} idle time expired, checking for waiting passengers or new destinations"
+        )
 
         # First, let's figure out if there is anybody here who wants to go UP or DOWN
         # This section is if the elevator was just waiting at a floor and somebody pushed the button
@@ -363,11 +366,20 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         nom_direction: Final[VerticalDirection] = elevator.nominal_direction
 
         result: Final[ElevatorBank.DirQueue] = self._get_waiting_passengers(floor, nom_direction)
-        who_wants_to_get_on: deque[PersonProtocol] = result[0]
+        who_wants_to_get_on: Final[deque[PersonProtocol]] = result[0]
         new_direction: Final[VerticalDirection] = result[1]
 
         if who_wants_to_get_on:
             elevator.request_load_passengers(new_direction)
+            return
+        
+        # Nope, nobody wants to get on in the nominal direction, how about the reverse direction?
+        reverse_result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, nom_direction.invert())
+        reverse_who_wants_to_get_on: Final[deque[PersonProtocol]] = reverse_result[0]
+        reverse_direction: Final[VerticalDirection] = reverse_result[1]
+        
+        if reverse_who_wants_to_get_on:
+            elevator.request_load_passengers(reverse_direction)
             return
 
         # OK, nobody wants to get on, let's see if the elevator has a reason to go UP or DOWN
@@ -438,6 +450,12 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         # Call requests come second
         destinations.extend(self._get_floor_requests_in_dir_from_floor(floor, direction, direction))
+        
+        # If nobody in the car wants to go this way, nor are there any calls going this way,
+        # then let's see if there are any calls in the opposite direction on the way
+        if not destinations:
+            opposite_dir: Final[VerticalDirection] = direction.invert()
+            destinations.extend(self._get_floor_requests_in_dir_from_floor(floor, direction, opposite_dir))
 
         return destinations
 
