@@ -455,7 +455,15 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
 
     def _select_next_floor(self, destinations: List[ElevatorDestination], direction: VerticalDirection) -> ElevatorDestination:
-        if direction == VerticalDirection.UP:
+        # Use the direction from the destinations themselves, as they may have been collected
+        # in a different direction than originally requested (e.g., when reversing)
+        # All destinations should have the same direction, so use the first one
+        if destinations:
+            actual_direction = destinations[0].direction
+        else:
+            actual_direction = direction
+            
+        if actual_direction == VerticalDirection.UP:
             # Go to the lowest floor above us
             return min(destinations)
         else:

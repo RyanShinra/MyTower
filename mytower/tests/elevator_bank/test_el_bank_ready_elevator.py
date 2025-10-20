@@ -7,6 +7,7 @@ import pytest
 
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.core.types import VerticalDirection
+from mytower.game.entities.entities_protocol import ElevatorDestination
 from mytower.tests.conftest import PersonFactory
 
 
@@ -305,13 +306,15 @@ class TestDestinationCollection:
         elevator_bank.request_elevator(8, VerticalDirection.UP)
         
         # Use the actual method (assuming you add a testing accessor)
-        destinations: Final[List[int]] = elevator_bank.testing_collect_destinations(mock_elevator, floor=5, direction=VerticalDirection.UP)
+        destinations: Final[List[ElevatorDestination]] = elevator_bank.testing_collect_destinations(mock_elevator, floor=5, direction=VerticalDirection.UP)
         
         # Should include both passenger destinations and call requests
-        assert 7 in destinations  # Passenger
-        assert 9 in destinations  # Passenger  
-        assert 6 in destinations  # Call request
-        assert 8 in destinations  # Call request
+        # Extract floors for easier checking
+        destination_floors = [dest.floor for dest in destinations]
+        assert 7 in destination_floors  # Passenger
+        assert 9 in destination_floors  # Passenger  
+        assert 6 in destination_floors  # Call request
+        assert 8 in destination_floors  # Call request
 
 
     @pytest.mark.parametrize("direction,floors,expected", [
@@ -323,8 +326,10 @@ class TestDestinationCollection:
         self, elevator_bank: ElevatorBank, direction: VerticalDirection, floors: List[int], expected: int
     ) -> None:
         """Test floor selection logic for different directions"""
-        result = elevator_bank.testing_select_next_floor(floors, direction)
-        assert result == expected
+        # Convert floors to ElevatorDestination objects
+        destinations = [ElevatorDestination(floor, direction, True) for floor in floors]
+        result = elevator_bank.testing_select_next_floor(destinations, direction)
+        assert result.floor == expected
 
 
 
