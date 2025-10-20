@@ -428,6 +428,11 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         if reverse_destinations:
             return self._select_next_floor(reverse_destinations, opposite_dir)
 
+        # Still nothing? Search ALL floors for ANY requests (fallback for idle elevators)
+        any_destination: ElevatorDestination | None = self._find_any_request(current_floor)
+        if any_destination:
+            return any_destination
+
         # Well, nobody seems to want to go anywhere, let's stay put
         return ElevatorDestination(current_floor, VerticalDirection.STATIONARY, False)
 
@@ -453,6 +458,34 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         return destinations
 
+
+    def _find_any_request(self, current_floor: int) -> ElevatorDestination | None:
+        """
+        Fallback search: find ANY request on ANY floor.
+        Returns the closest request to the current floor.
+        """
+        closest_floor: int | None = None
+        closest_distance: int = self.max_floor - self.min_floor + 1  # Max possible distance
+        closest_direction: VerticalDirection = VerticalDirection.STATIONARY
+        
+        for floor in range(self.min_floor, self.max_floor + 1):
+            requests: set[VerticalDirection] | None = self._requests.get(floor)
+            if requests and len(requests) > 0:
+                distance: int = abs(floor - current_floor)
+                if distance < closest_distance:
+                    closest_distance = distance
+                    closest_floor = floor
+                    # Pick a direction from the requests (prefer UP if both exist)
+                    if VerticalDirection.UP in requests:
+                        closest_direction = VerticalDirection.UP
+                    elif VerticalDirection.DOWN in requests:
+                        closest_direction = VerticalDirection.DOWN
+        
+        if closest_floor is not None:
+            self._logger.debug(f"Fallback search found request at floor {closest_floor} going {closest_direction}")
+            return ElevatorDestination(closest_floor, closest_direction, True)
+        
+        return None
 
     def _select_next_floor(self, destinations: List[ElevatorDestination], direction: VerticalDirection) -> ElevatorDestination:
         # Use the direction from the destinations themselves, as they may have been collected
