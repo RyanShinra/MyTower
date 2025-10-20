@@ -4,9 +4,14 @@ Defines interfaces for game entities to avoid circular imports and improve testa
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Protocol, List, Sequence, Any, TypeAlias
-from mytower.game.core.units import Blocks, Velocity, Time
-from mytower.game.core.types import HorizontalDirection, PersonState, ElevatorState, VerticalDirection, FloorType, Color
+
+from typing import (TYPE_CHECKING, Any, List, NamedTuple, Protocol, Sequence,
+                    TypeAlias)
+
+from mytower.game.core.types import (Color, ElevatorState, FloorType,
+                                     HorizontalDirection, PersonState,
+                                     VerticalDirection)
+from mytower.game.core.units import Blocks, Time, Velocity
 
 if TYPE_CHECKING:
     pass  # All references are now forward-references
@@ -176,7 +181,11 @@ class ElevatorTestingProtocol(Protocol):
     
     def testing_get_passengers(self) -> List[PersonProtocol]: ...
 
-
+class ElevatorDestination(NamedTuple):
+    floor: int
+    direction: VerticalDirection
+    has_destination: bool
+        
 class ElevatorBankProtocol(Protocol):
     """Protocol defining the interface for ElevatorBank entities"""
     
@@ -217,10 +226,10 @@ class ElevatorBankTestingProtocol(Protocol):
     def testing_update_idle_elevator(self, elevator: ElevatorProtocol, dt: Time) -> None: ...  # Changed
     
     def testing_update_ready_elevator(self, elevator: ElevatorProtocol) -> None: ...  # Changed
-    
-    def testing_collect_destinations(self, elevator: ElevatorProtocol, floor: int, direction: VerticalDirection) -> List[int]: ...  # Changed
-    
-    def testing_select_next_floor(self, destinations: List[int], direction: VerticalDirection) -> int: ...
+
+    def testing_collect_destinations(self, elevator: ElevatorProtocol, floor: int, direction: VerticalDirection) -> List[ElevatorDestination]: ...  # Changed
+
+    def testing_select_next_floor(self, destinations: List[ElevatorDestination], direction: VerticalDirection) -> ElevatorDestination: ...
 
 
 class FloorProtocol(Protocol):
