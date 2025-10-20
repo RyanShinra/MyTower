@@ -416,8 +416,10 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         if len(who_wants_off) > 0:
             self._logger.debug(f"{self.elevator_state} Elevator: Unloading Passenger")
             disembarking_passenger: Final[PersonProtocol] = who_wants_off.pop()
+            
             self._passengers.remove(disembarking_passenger)
             disembarking_passenger.disembark_elevator()
+        
         else:
             self._logger.debug(f"{self.elevator_state} Elevator: Unloading Complete -> LOADING")
             self._state = ElevatorState.LOADING
@@ -464,7 +466,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
                 f"{self.elevator_state} Elevator: Elevator starting to MOVE {self.nominal_direction} towards floor {self.destination_floor}"
             )
             self._state = ElevatorState.MOVING
-        else:
+        elif len(self._passengers) == 0:
             self._logger.info(f"{self.elevator_state} Elevator: No Destination -> IDLE")
             self._state = ElevatorState.IDLE
+        # Implicit Else, wait here for the bank to provide a new destination
 
