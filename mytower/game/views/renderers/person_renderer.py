@@ -48,7 +48,7 @@ class PersonRenderer:
 
     def draw(self, drawing_surface: Surface, person: PersonSnapshot) -> None:
         """Draw the person on the given surface"""
-        self._logger.debug(f"Drawing person: {person.person_id}")
+        self._logger.trace(f"Drawing person: {person.person_id}")
 
         # Calculate position and draw a simple circle for now
         y_center: Pixels = self.y_position(drawing_surface, person.current_vertical_position)
