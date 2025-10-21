@@ -57,7 +57,9 @@ class TestIdleElevatorLogic:
         # Should not try to load passengers locally
         mock_elevator.request_load_passengers.assert_not_called()
         # Should set destination to floor 8
-        mock_elevator.set_destination_floor.assert_called_once_with(8)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 8
 
 
         
@@ -72,7 +74,7 @@ class TestIdleElevatorLogic:
         elevator_bank.testing_update_idle_elevator(mock_elevator, Time(0.1))
         
         mock_elevator.request_load_passengers.assert_not_called()
-        mock_elevator.set_destination_floor.assert_not_called()
+        mock_elevator.set_destination.assert_not_called()
 
 
         

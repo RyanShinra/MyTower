@@ -9,6 +9,7 @@ import pytest
 from mytower.game.core.types import VerticalDirection
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.elevator import Elevator, ElevatorState
+from mytower.game.entities.entities_protocol import ElevatorDestination
 from mytower.game.entities.person import PersonProtocol
 from mytower.tests.conftest import PersonFactory
 
@@ -28,7 +29,8 @@ class TestElevatorBasics:
     def test_set_destination_floor_up(self, elevator: Elevator) -> None:
         """Test setting destination floor and direction updates"""
         # The elevator defaults to floor 1
-        elevator.set_destination_floor(5)
+        destination = ElevatorDestination(floor=5, direction=VerticalDirection.UP, has_destination=True)
+        elevator.set_destination(destination)
         assert elevator.destination_floor == 5
         assert elevator.nominal_direction == VerticalDirection.UP
 
