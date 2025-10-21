@@ -28,6 +28,7 @@ from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.units import (Blocks, Meters, Time,  # Add Velocity
                                      Velocity)
 from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
+                                                     ElevatorDestination,
                                                      ElevatorProtocol,
                                                      ElevatorTestingProtocol,
                                                      PersonProtocol)
@@ -225,28 +226,34 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         self._idle_time = value
 
     @override
-    def set_destination_floor(self, dest_floor: int) -> None:
-        if (dest_floor > self.max_floor) or (dest_floor < self.min_floor):
+    def set_destination(self, destination: ElevatorDestination) -> None:
+        if (destination.floor > self.max_floor) or (destination.floor < self.min_floor):
             raise ValueError(
-                f"Destination floor {dest_floor} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}."
+                f"Destination floor {destination} is out of bounds. Valid range: {self.min_floor} to {self.max_floor}."
             )
 
         self._logger.info(
-            f"{self.elevator_state} Elevator: Setting destination floor to {dest_floor} from current floor {self.current_floor_int}"
+            f"{self.elevator_state} Elevator: Setting destination floor to {destination} from current floor {self.current_floor_int}"
         )
-        if self.current_floor_int < dest_floor:
+        if self.current_floor_int < destination.floor:
             self._logger.info(f"{self.elevator_state} Elevator: Going UP")
             self._motion_direction = VerticalDirection.UP
-            self._nominal_direction = VerticalDirection.UP
-        elif self.current_floor_int > dest_floor:
+            self._nominal_direction = destination.direction
+            self._state = ElevatorState.READY_TO_MOVE
+        
+        elif self.current_floor_int > destination.floor:
             self._logger.info(f"{self.elevator_state} Elevator: Going DOWN")
             self._motion_direction = VerticalDirection.DOWN
-            self._nominal_direction = VerticalDirection.DOWN
+            self._nominal_direction = destination.direction
+            self._state = ElevatorState.READY_TO_MOVE
+
         else:
             self._logger.info(f"{self.elevator_state} Elevator: Going NOWHERE")
             self._motion_direction = VerticalDirection.STATIONARY
             self._nominal_direction = VerticalDirection.STATIONARY
-        self._destination_floor = dest_floor
+            self._state = ElevatorState.IDLE
+
+        self._destination_floor = destination.floor
 
     @override
     def testing_set_passengers(self, passengers: Sequence[PersonProtocol]) -> None:

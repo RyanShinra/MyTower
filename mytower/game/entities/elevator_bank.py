@@ -396,8 +396,8 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             self._logger.info(
                 f"Setting destination to {next_destination.floor} with direction {next_destination.direction}, has_destination={next_destination.has_destination}"
             )
-            elevator.set_destination_floor(next_destination.floor)
-
+            elevator.set_destination(next_destination)
+            
             # Oh, and we need to clear the request on that floor
             requests_at_destination: set[VerticalDirection] | None = self._requests.get(next_destination.floor)
             
