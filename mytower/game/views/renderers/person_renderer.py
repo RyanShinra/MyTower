@@ -50,9 +50,6 @@ class PersonRenderer:
         """Draw the person on the given surface"""
         self._logger.trace(f"Drawing person: {person.person_id}")
 
-        # FOR demo purposes only, Don't draw once they reach their destination
-                
-
         # Calculate position and draw a simple circle for now
         y_center: Pixels = self.y_position(drawing_surface, person.current_vertical_position)
         x_center: Pixels = self.x_position(drawing_surface, person.current_horizontal_position)
@@ -63,6 +60,7 @@ class PersonRenderer:
         y_dest_center: Pixels = self.y_position(drawing_surface, Blocks(person.destination_floor_num))
         draw_dest_center: tuple[int, int] = (int(x_dest_center), int(y_dest_center))
         
+        # FOR demo purposes only, Don't draw once they reach their destination
         if draw_center == draw_dest_center:
             return  # Don't draw if at destination
         

@@ -324,7 +324,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
 
     @override
-    def update(self, dt:Time) -> None:  # Accept both for now during transition
+    def update(self, dt: Time) -> None:  # Accept both for now during transition
         """Update elevator status over time increment dt (in seconds)"""
         # Convert to float for internal use
         
