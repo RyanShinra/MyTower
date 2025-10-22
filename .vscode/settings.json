@@ -36,7 +36,7 @@
     "python.defaultInterpreterPath": ".\\venv\\Scripts\\python.exe",
 
     // New format for formatter settings
-    "editor.defaultFormatter": "ms-python.flake8",
+    "editor.defaultFormatter": "ms-python.autopep8",
     "autopep8.args": [
         "--max-line-length=120",
         "--aggressive",

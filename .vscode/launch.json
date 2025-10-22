@@ -6,10 +6,11 @@
     "configurations": [
 
         {
-            "name": "MyTower: Desktop",
+            "name": "MyTower: Desktop (with Debug Logging)",
             "type": "debugpy",
             "request": "launch",
             "module": "mytower.main",
+            "args": ["--log-level", "DEBUG"],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": false

@@ -98,8 +98,8 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     
     # Calculate window size (75% of screen)
     display_info = pygame.display.Info()
-    max_width = int(display_info.current_w * 0.75)
-    max_height = int(display_info.current_h * 0.75)
+    max_width = int(display_info.current_w * 0.9)
+    max_height = int(display_info.current_h * 0.9)
     window_width: int = min(SCREEN_WIDTH, max_width)
     window_height: int = min(SCREEN_HEIGHT, max_height)
     
@@ -191,8 +191,8 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     pygame.init()  # pylint: disable=no-member
     
     display_info = pygame.display.Info()
-    max_width = int(display_info.current_w * 0.75)
-    max_height = int(display_info.current_h * 0.75)
+    max_width = int(display_info.current_w * 0.90)
+    max_height = int(display_info.current_h * 0.90)
     window_width: int = min(SCREEN_WIDTH, max_width)
     window_height: int = min(SCREEN_HEIGHT, max_height)
     

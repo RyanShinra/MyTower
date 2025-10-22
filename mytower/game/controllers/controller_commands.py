@@ -17,7 +17,6 @@ class CommandResult(Generic[T]):
     data: Optional[T] = None
     error: Optional[str] = None
 
-    
 
 class Command(ABC, Generic[T]):
     @abstractmethod

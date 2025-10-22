@@ -150,11 +150,11 @@ class InputHandler:
         
         left_bounds: int = int(snapshot.floors[0].left_edge_block)
         right_bounds: int = int(snapshot.floors[0].floor_width) + left_bounds
-        start_floor = 1
+        
+        start_floor: int = random.randint(1, len(snapshot.floors))
         start_block: float = random.uniform(left_bounds, right_bounds)
         
         dest_floor: int = random.randint(1, len(snapshot.floors))
-        
         dest_block: float = random.uniform(left_bounds, right_bounds)
         
         command = AddPersonCommand(

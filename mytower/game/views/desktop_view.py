@@ -6,6 +6,7 @@ from pygame import Surface
 from pygame.font import Font
 
 from mytower.game.core.config import GameConfig
+from mytower.game.core.types import PersonState
 from mytower.game.core.units import Time
 from mytower.game.models.model_snapshots import (BuildingSnapshot,
                                                  ElevatorBankSnapshot,
@@ -61,6 +62,11 @@ class DesktopView:
         for floor in all_floors:
             self._floor_renderer.draw(surface, floor)
 
+        all_people: Final[List[PersonSnapshot]] = snapshot.people
+        for person in all_people:
+            if person.state != PersonState.IN_ELEVATOR:
+                self._person_renderer.draw(surface, person)
+
         all_elevator_banks: Final[List[ElevatorBankSnapshot]] = snapshot.elevator_banks
         for bank in all_elevator_banks:
             self._elevator_bank_renderer.draw(surface, bank)
@@ -69,14 +75,14 @@ class DesktopView:
         for elevator in all_elevators:
             self._elevator_renderer.draw(surface, elevator)
 
-        all_people: Final[List[PersonSnapshot]] = snapshot.people
         for person in all_people:
-            self._person_renderer.draw(surface, person)
+            if person.state == PersonState.IN_ELEVATOR:
+                self._person_renderer.draw(surface, person)
 
         # Draw UI elements
         self._draw_ui(surface, snapshot, speed)
 
-    # TODO: Right now we have to coordinate this with the tooolbar in InputHandler
+    # TODO: Right now we have to coordinate this with the toolbar in InputHandler
     def _draw_ui(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw UI elements like time, money, etc."""
         # Draw time
@@ -90,9 +96,9 @@ class DesktopView:
         time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
 
         text: Final[Surface] = font.render(time_str, True, (0, 0, 0))
-        surface.blit(text, (10, 60)) # OMG magic numbers
+        surface.blit(text, (10, 60))  # OMG magic numbers
 
         # Draw money
         money_str: str = f"Money: ${snapshot.money:,}"
         money_text: Final[Surface] = font.render(money_str, True, (0, 0, 0))
-        surface.blit(money_text, (10, 90)) # OMG magic numbers
+        surface.blit(money_text, (10, 90))  # OMG magic numbers

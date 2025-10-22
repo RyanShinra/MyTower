@@ -7,6 +7,7 @@ import pytest
 
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.core.types import VerticalDirection
+from mytower.game.entities.entities_protocol import ElevatorDestination
 from mytower.tests.conftest import PersonFactory
 
 
@@ -33,7 +34,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should choose passenger destination (7) over farther call request (9)
-        mock_elevator.set_destination_floor.assert_called_once_with(7)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 7
 
 
 
@@ -55,7 +58,9 @@ class TestReadyElevatorLogic:
         
         # Assert: Should choose closest destination first (7), not skip to passenger destination (8)
         # This is correct elevator behavior - service requests along the way
-        mock_elevator.set_destination_floor.assert_called_once_with(7)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 7
         
         # Should clear the request we're fulfilling
         requests_floor_7 = elevator_bank.get_requests_for_floor(7)
@@ -84,7 +89,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Assert: Should now continue to passenger destination
-        mock_elevator.set_destination_floor.assert_called_once_with(8)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 8
 
 
 
@@ -105,7 +112,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should choose closest floor in travel direction (7, not 9)
-        mock_elevator.set_destination_floor.assert_called_once_with(7)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 7
         
         # Should clear the request for floor 7
         requests_floor_7: set[VerticalDirection] = elevator_bank.get_requests_for_floor(7)
@@ -134,7 +143,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should choose highest floor below us when going down (5, not 3)
-        mock_elevator.set_destination_floor.assert_called_once_with(5)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 5
 
 
 
@@ -153,7 +164,7 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should not set any destination
-        mock_elevator.set_destination_floor.assert_not_called()
+        mock_elevator.set_destination.assert_not_called()
 
     
     
@@ -174,7 +185,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should choose closest above (6), ignore request below (2)
-        mock_elevator.set_destination_floor.assert_called_once_with(6)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 6
         
         # Should clear only the request we're fulfilling
         requests_floor_6 = elevator_bank.get_requests_for_floor(6)
@@ -204,7 +217,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should choose closest below (5), ignore request above (10)
-        mock_elevator.set_destination_floor.assert_called_once_with(5)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 5
         
         # Should clear only the request we're fulfilling
         requests_floor_5 = elevator_bank.get_requests_for_floor(5)
@@ -234,7 +249,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should choose closest overall destination (6 - call request)
-        mock_elevator.set_destination_floor.assert_called_once_with(6)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 6
         
         # Should clear the request we're fulfilling
         requests_floor_6 = elevator_bank.get_requests_for_floor(6)
@@ -256,7 +273,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should find the DOWN request even though we started STATIONARY
-        mock_elevator.set_destination_floor.assert_called_once_with(3)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 3
 
         
 
@@ -276,7 +295,9 @@ class TestReadyElevatorLogic:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Should go to floor 7 (closest)
-        mock_elevator.set_destination_floor.assert_called_once_with(7)
+        mock_elevator.set_destination.assert_called_once()
+        call_args = mock_elevator.set_destination.call_args[0][0]
+        assert call_args.floor == 7
         
         # Should clear UP request for floor 7, but not DOWN request
         requests_floor_7: set[VerticalDirection] = elevator_bank.get_requests_for_floor(7)
@@ -305,13 +326,15 @@ class TestDestinationCollection:
         elevator_bank.request_elevator(8, VerticalDirection.UP)
         
         # Use the actual method (assuming you add a testing accessor)
-        destinations: Final[List[int]] = elevator_bank.testing_collect_destinations(mock_elevator, floor=5, direction=VerticalDirection.UP)
+        destinations: Final[List[ElevatorDestination]] = elevator_bank.testing_collect_destinations(mock_elevator, floor=5, direction=VerticalDirection.UP)
         
         # Should include both passenger destinations and call requests
-        assert 7 in destinations  # Passenger
-        assert 9 in destinations  # Passenger  
-        assert 6 in destinations  # Call request
-        assert 8 in destinations  # Call request
+        # Extract floors for easier checking
+        destination_floors = [dest.floor for dest in destinations]
+        assert 7 in destination_floors  # Passenger
+        assert 9 in destination_floors  # Passenger  
+        assert 6 in destination_floors  # Call request
+        assert 8 in destination_floors  # Call request
 
 
     @pytest.mark.parametrize("direction,floors,expected", [
@@ -323,8 +346,10 @@ class TestDestinationCollection:
         self, elevator_bank: ElevatorBank, direction: VerticalDirection, floors: List[int], expected: int
     ) -> None:
         """Test floor selection logic for different directions"""
-        result = elevator_bank.testing_select_next_floor(floors, direction)
-        assert result == expected
+        # Convert floors to ElevatorDestination objects
+        destinations = [ElevatorDestination(floor, direction, True) for floor in floors]
+        result = elevator_bank.testing_select_next_floor(destinations, direction)
+        assert result.floor == expected
 
 
 
