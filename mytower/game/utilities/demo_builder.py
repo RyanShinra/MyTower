@@ -4,11 +4,12 @@
 
 from typing import Final
 
+from mytower.game.controllers.controller_commands import (
+    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
+    AddPersonCommand, CommandResult)
+from mytower.game.controllers.game_controller import GameController
 from mytower.game.entities.floor import FloorType
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-
-from mytower.game.controllers.controller_commands import AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand, AddPersonCommand, CommandResult
-from mytower.game.controllers.game_controller import GameController
 
 
 def build_model_building(controller: GameController, logger_provider: LoggerProvider) -> None:
@@ -84,7 +85,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
     elevator_bank_id: str = add_elevator_bank(h_cell=14, min_floor=1, max_floor=top_floor)
     add_elevator(elevator_bank_id)
 
-    add_person(current_floor_num=1, current_block_float=1.0, dest_floor_num=9, dest_block_num=7.0)
+    add_person(current_floor_num=1, current_block_float=1.0, dest_floor_num=12, dest_block_num=7.0)
     add_person(current_floor_num=1, current_block_float=3.0, dest_floor_num=3, dest_block_num=7.0)
     add_person(current_floor_num=1, current_block_float=6.0, dest_floor_num=7, dest_block_num=7.0)
     add_person(current_floor_num=12, current_block_float=1.0, dest_floor_num=1, dest_block_num=1.0)
