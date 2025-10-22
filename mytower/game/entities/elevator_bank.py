@@ -422,7 +422,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         # Now search in the normalized direction
         destinations: Final[List[ElevatorDestination]] = self._collect_destinations_in_direction(elevator, floor=current_floor, direction=search_direction)
         if destinations:
-            return  self._select_next_floor(destinations, search_direction)
+            return self._select_next_floor(destinations, search_direction)
 
         # No? Shall we turn around?
         opposite_dir: Final[VerticalDirection] = search_direction.invert()
