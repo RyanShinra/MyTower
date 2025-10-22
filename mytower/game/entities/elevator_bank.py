@@ -368,17 +368,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             elevator.request_load_passengers(reverse_direction)
             return
 
-        # Nope, nobody wants to get on in the nominal direction, how about the reverse direction?
-        reverse_result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, nom_direction.invert())
-        reverse_who_wants_to_get_on: Final[deque[PersonProtocol]] = reverse_result[0]
-        reverse_direction: Final[VerticalDirection] = reverse_result[1]
-
-        if reverse_who_wants_to_get_on:
-            self._logger.debug(f"IDLE elevator Found {len(reverse_who_wants_to_get_on)} passengers waiting on floor {floor} in direction {reverse_direction}")
-            self._requests[floor].discard(reverse_direction)  # Clear the request since we're responding to it
-            elevator.request_load_passengers(reverse_direction)
-            return
-
         # OK, nobody wants to get on, let's see if the elevator has a reason to go UP or DOWN
         self._update_ready_elevator(elevator)
 
@@ -455,14 +444,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         return destinations
 
-    def _select_next_floor(self, destinations: List[ElevatorDestination], direction: VerticalDirection) -> ElevatorDestination:
-        # Use the direction from the destinations themselves, as they may have been collected
-        # in a different direction than originally requested (e.g., when reversing)
-        # All destinations should have the same direction, so use the first one
-        if destinations:
-            actual_direction: VerticalDirection = destinations[0].direction
-        else:
-            actual_direction = direction
 
     def _select_next_floor(self, destinations: List[ElevatorDestination], direction: VerticalDirection) -> ElevatorDestination:
         # Use the direction from the destinations themselves, as they may have been collected
