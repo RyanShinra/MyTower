@@ -1,13 +1,14 @@
 from __future__ import annotations
-from mytower.game.models.model_snapshots import ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+
 from typing import TYPE_CHECKING
 
-from mytower.game.entities.entities_protocol import (
-    PersonProtocol,
-    ElevatorProtocol,
-    FloorProtocol,
-    ElevatorBankProtocol
-)
+from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     FloorProtocol,
+                                                     PersonProtocol)
+from mytower.game.models.model_snapshots import (ElevatorBankSnapshot,
+                                                 ElevatorSnapshot,
+                                                 FloorSnapshot, PersonSnapshot)
 
 if TYPE_CHECKING:
     pass  # No longer need concrete imports
@@ -26,6 +27,7 @@ def build_floor_snapshot(floor: FloorProtocol) -> FloorSnapshot:
         person_count=floor.number_of_people
     )
 
+
 def build_elevator_snapshot(elevator: ElevatorProtocol) -> ElevatorSnapshot:
     """Build a snapshot for a single elevator"""
     return ElevatorSnapshot(
@@ -41,6 +43,7 @@ def build_elevator_snapshot(elevator: ElevatorProtocol) -> ElevatorSnapshot:
         max_capacity=elevator.max_capacity,
     )
 
+
 def build_elevator_bank_snapshot(elevator_bank: ElevatorBankProtocol) -> ElevatorBankSnapshot:
     """Build a snapshot for a single elevator bank"""
     return ElevatorBankSnapshot(
@@ -48,7 +51,9 @@ def build_elevator_bank_snapshot(elevator_bank: ElevatorBankProtocol) -> Elevato
         horizontal_position=elevator_bank.horizontal_position,
         min_floor=elevator_bank.min_floor,
         max_floor=elevator_bank.max_floor,
+        floor_requests=elevator_bank.floor_requests,
     )
+
 
 def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
     """Build a snapshot for a single person"""

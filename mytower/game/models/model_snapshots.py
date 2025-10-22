@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from typing import List
 
@@ -36,6 +35,7 @@ class ElevatorSnapshot:
     available_capacity: int
     max_capacity: int
 
+
 # TODO: Add Elevator references so that the GraphQL layer can resolve them
 @dataclass
 class ElevatorBankSnapshot:
@@ -44,14 +44,15 @@ class ElevatorBankSnapshot:
     horizontal_position: Blocks
     min_floor: int
     max_floor: int
-    
+    floor_requests: dict[int, set[VerticalDirection]]  # floor number to set of requests
+
 
 @dataclass
 class FloorSnapshot:
     """Immutable snapshot of floor state for API consumption"""
     floor_type: FloorType
     floor_number: int  # NOTE: We'll need to think about what this means with multiple height floors
-    floor_height: Blocks  
+    floor_height: Blocks
     left_edge_block: Blocks
     floor_width: Blocks
     person_count: int
