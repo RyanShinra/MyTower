@@ -166,8 +166,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         
         if floor_request is None:
             # This indicates a serious internal consistency bug
-            raise RuntimeError(f"Internal error: Floor {floor} missing from requests dict. " +\
-                            f"This should never happen after validation.")
+            raise RuntimeError(f"Internal error: Floor {floor} missing from requests dict. This should never happen after validation.")
 
         floor_request.add(direction)
 
