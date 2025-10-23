@@ -65,6 +65,7 @@ class ElevatorBankRenderer:
             floor_top_y: Pixels = screen_height - floor_top_z  # This will need adjustment if floors are taller than 1 Block
 
             # Draw the floorboard at the top of the floor
+            # TODO: #52 This should come from the FloorSnapshot instead of being hardcoded
             pygame.draw.rect(surface, self._cosmetics_config.SHAFT_OVERHEAD_COLOR, rect_from_pixels(shaft_left_x, floor_top_y, width, FLOORBOARD_HEIGHT))
 
             #  TODO: Make the line thickness a config option
@@ -75,6 +76,7 @@ class ElevatorBankRenderer:
             if VerticalDirection.UP in active_directions:
                 up_arrow = arrow_font.render('▲', True, (0, 255, 0))  # Green
                 # arrow_width, arrow_height = up_arrow.get_size()
+                # TODO: #53 Create a centering function
                 # up_text_x: Pixels = shaft_left_x + (width - Pixels(arrow_width)) / 2.0
                 up_text_x: Pixels = shaft_left_x
                 up_text_z: Pixels = floor_top_z + Pixels(int(PIXELS_PER_METER / 3.0))
