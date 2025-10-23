@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import pygame
 
 from mytower.game.core.constants import FLOORBOARD_HEIGHT
+from mytower.game.core.primitive_constants import PIXELS_PER_METER
 from mytower.game.core.types import VerticalDirection
 from mytower.game.core.units import Blocks, Pixels, rect_from_pixels
 
@@ -55,7 +56,7 @@ class ElevatorBankRenderer:
         )
 
         # Calculate font size based on shaft width for crisp rendering
-        arrow_font_size: int = max(12, int(width.value * 0.6))
+        arrow_font_size: int = max(12, int(width.value * 0.65))
         arrow_font = pygame.font.SysFont('Arial', arrow_font_size)
 
         for floor_number in range(elevator_bank.min_floor, elevator_bank.max_floor + 1):
@@ -73,19 +74,19 @@ class ElevatorBankRenderer:
             # Draw up arrow if requested
             if VerticalDirection.UP in active_directions:
                 up_arrow = arrow_font.render('▲', True, (0, 255, 0))  # Green
-                arrow_width, arrow_height = up_arrow.get_size()
+                # arrow_width, arrow_height = up_arrow.get_size()
                 # up_text_x: Pixels = shaft_left_x + (width - Pixels(arrow_width)) / 2.0
                 up_text_x: Pixels = shaft_left_x
-                up_text_z: Pixels = floor_top_z
+                up_text_z: Pixels = floor_top_z + Pixels(int(PIXELS_PER_METER / 3.0))
                 up_text_y: Pixels = screen_height - up_text_z
                 surface.blit(up_arrow, (up_text_x.value, up_text_y.value))
 
             # Draw down arrow if requested
             if VerticalDirection.DOWN in active_directions:
                 down_arrow = arrow_font.render('▼', True, (255, 0, 0))  # Red
-                arrow_width, arrow_height = down_arrow.get_size()
+                # arrow_width, arrow_height = down_arrow.get_size()
                 # down_text_x: Pixels = shaft_left_x + (width - Pixels(arrow_width)) / 2.0
                 down_text_x: Pixels = shaft_left_x
-                down_text_z: Pixels = floor_bottom_z + Blocks(1).in_pixels / 2.0
+                down_text_z: Pixels = floor_bottom_z + Blocks(1).in_pixels / 2.0 + Pixels(int(PIXELS_PER_METER / 3.0))
                 down_text_y: Pixels = screen_height - down_text_z
                 surface.blit(down_arrow, (down_text_x.value, down_text_y.value))
