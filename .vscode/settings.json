@@ -33,7 +33,7 @@
     "python.terminal.activateEnvironment": true,
     
     // Python interpreter path (update this to your actual venv path)
-    "python.defaultInterpreterPath": ".\\venv\\Scripts\\python.exe",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
 
     // New format for formatter settings
     "editor.defaultFormatter": "ms-python.autopep8",
