@@ -505,31 +505,3 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     #     shaft_bottom: Pixels = screen_height - Blocks(self._min_floor - 1).in_pixels
 
     #     elevator_shaft_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_top, width, shaft_bottom - shaft_top)
-    #     pygame.draw.rect(
-    #         surface,
-    #         self._cosmetics_config.SHAFT_COLOR,
-    #         elevator_shaft_rect
-    #     )
-
-    #     # Draw overhead part of shaft
-    #     elevator_overhead_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
-    #     pygame.draw.rect(
-    #         surface,
-    #         self._cosmetics_config.SHAFT_OVERHEAD_COLOR,
-    #         elevator_overhead_rect
-    #     )
-    #     pygame.draw.rect(
-    #         surface,
-    #         self._cosmetics_config.SHAFT_COLOR,
-    #         elevator_shaft_rect
-    #     )
-
-    #     # Draw overhead part of shaft
-    #     elevator_overhead_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_overhead, width, shaft_top - shaft_overhead)
-    #     pygame.draw.rect(
-    #         surface,
-    #         self._cosmetics_config.SHAFT_OVERHEAD_COLOR,
-    #         elevator_overhead_rect
-    #     )
-
-
