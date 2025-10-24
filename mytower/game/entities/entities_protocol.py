@@ -23,7 +23,7 @@ ElevatorList: TypeAlias = List['ElevatorProtocol']
 ElevatorBankList: TypeAlias = List['ElevatorBankProtocol']
 FloorList: TypeAlias = List['FloorProtocol']
 
-
+# flake8: noqa: E704
 class PersonProtocol(Protocol):
     """Protocol defining the interface for Person entities"""
     
@@ -203,6 +203,9 @@ class ElevatorBankProtocol(Protocol):
     
     @property
     def elevators(self) -> List[ElevatorProtocol]: ...  # Changed
+
+    @property
+    def floor_requests(self) -> dict[int, set[VerticalDirection]]: ...
 
     def get_waiting_position(self) -> Blocks: ...
     
