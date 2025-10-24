@@ -248,7 +248,7 @@ class TestBuildingSnapshot:
             id="bank_1",
             horizontal_position=Blocks(14),
             min_floor=1,
-            max_floor=20,  # Add missing ID  # Wrap in Blocks
+            max_floor=20,
         )
 
         building_snapshot = BuildingSnapshot(
