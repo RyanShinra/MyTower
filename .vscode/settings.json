@@ -1,11 +1,26 @@
 {
     "git.suggestSmartCommit": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8",
-        "editor.formatOnSave": false,
-        
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
     },
     "editor.formatOnSaveMode": "file",
+
+    // Black formatter settings
+    "black-formatter.args": ["--line-length=120"],
+
+    // Flake8 linter settings
+    "flake8.args": ["--config=.flake8"],
+    "flake8.importStrategy": "fromEnvironment",
+    "flake8.cwd": "${workspaceFolder}",
+    "flake8.severity": {
+        "E": "Warning",
+        "F": "Error",
+        "W": "Warning"
+    },
 
     "python.analysis.exclude": ["mytower/tests", "**/site-packages/**", "**/__pycache__/**", "**/tests/**", "**/venv/**"],
     "python.analysis.autoImportCompletions": true,
@@ -21,7 +36,7 @@
     "python.analysis.inlayHints.callArgumentNames": "off",
     "python.analysis.generateWithTypeAnnotation": true,
     "python.analysis.typeEvaluation.strictDictionaryInference": true,
-    
+
     // Terminal settings for Git Bash
     "terminal.integrated.defaultProfile.windows": "Git Bash",
     "terminal.integrated.profiles.windows": {
@@ -31,28 +46,41 @@
         }
     },
     "python.terminal.activateEnvironment": true,
-    
-    // Python interpreter path (update this to your actual venv path)
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
 
-    // New format for formatter settings
-    "editor.defaultFormatter": "ms-python.autopep8",
-    "autopep8.args": [
-        "--max-line-length=120",
-        "--aggressive",
-        "--aggressive", 
-        "--indent-size=4",
-        "--spaces-around-default-or-named-assign"
-    ],
+    // Python interpreter path (update this to your actual venv path)
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "cSpell.words": [
         "blit",
         "collidepoint",
+        "htmlcov",
+        "isort",
         "levelname",
         "msecs",
+        "mypy",
         "mytower",
         "popleft",
         "pycache",
+        "pytest",
         "venv"
+    ],
+    "cSpell.ignorePaths": [
+        "package-lock.json",
+        "node_modules",
+        "vscode-extension",
+        ".git/{info,lfs,logs,refs,objects}/**",
+        ".git/{index,*refs,*HEAD}",
+        ".vscode",
+        ".vscode-insiders",
+        ".history",
+        "pyproject.toml",
+        "typings",
+        ".venv/**",
+        "**/__pycache__/**",
+        "**/*.pyc",
+        "coverage.xml",
+        "cov.xml",
+        "htmlcov/**",
+        "requirements.txt"
     ],
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
@@ -77,7 +105,10 @@
     "coverage-gutters.showRulerCoverage": true,
     "coverage-gutters.coverageReportFileName": "coverage.xml",
     "python.analysis.typeCheckingMode": "strict",
-    "python.analysis.languageServerMode": "default",
+    "python.analysis.languageServerMode": "full",
+    "python.analysis.diagnosticMode": "workspace",  // Scan all workspace files
+    "python.analysis.enablePytestSupport": true,
+
     "editor.inlineSuggest.enabled": true,
     "editor.inlineSuggest.experimental.triggerCommandOnProviderChange": false,
     "C_Cpp.default.compilerPath": "c:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Tools\\MSVC\\14.29.30133\\bin\\Hostx64\\x64\\cl.exe",
@@ -90,5 +121,12 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "always",
         "source.unusedImports": "always"
-    }
+    },
+    "makefile.configureOnOpen": false,
+
+    // Ruff settings (native language server)
+    "ruff.enable": true,
+    "ruff.organizeImports": true,
+    "ruff.fixAll": true,
+    "ruff.configurationPreference": "filesystemFirst"
 }

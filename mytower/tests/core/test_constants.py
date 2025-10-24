@@ -1,4 +1,3 @@
-
 from mytower.game.core import constants, primitive_constants
 from mytower.game.core.types import Money
 from mytower.game.core.units import Blocks, Pixels  # Add unit import
@@ -18,7 +17,7 @@ class TestDisplayConstants:
         """Test performance-related constants"""
         assert constants.FPS == 60
         assert constants.FPS > 0
-        
+
         assert constants.MIN_TIME_MULTIPLIER == 0.1
         assert constants.MAX_TIME_MULTIPLIER == 10.0
         assert constants.MIN_TIME_MULTIPLIER < constants.MAX_TIME_MULTIPLIER
@@ -56,15 +55,15 @@ class TestFloorConstants:
         """Test that all floor colors are valid RGB tuples"""
         floor_colors = [
             constants.LOBBY_COLOR,
-            constants.OFFICE_COLOR, 
+            constants.OFFICE_COLOR,
             constants.APARTMENT_COLOR,
             constants.HOTEL_COLOR,
             constants.RESTAURANT_COLOR,
             constants.RETAIL_COLOR,
             constants.FLOORBOARD_COLOR,
-            constants.DEFAULT_FLOOR_COLOR
+            constants.DEFAULT_FLOOR_COLOR,
         ]
-        
+
         for color in floor_colors:
             assert isinstance(color, tuple)
             assert len(color) == 3
@@ -76,7 +75,7 @@ class TestFloorConstants:
         assert constants.DEFAULT_FLOOR_HEIGHT == Blocks(1)  # Wrap in Blocks
         assert constants.DEFAULT_FLOOR_LEFT_EDGE == Blocks(0)  # Wrap in Blocks
         assert constants.DEFAULT_FLOOR_WIDTH == Blocks(20)  # Wrap in Blocks
-        
+
         # All dimensions should be positive (except left edge which can be 0)
         assert constants.FLOORBOARD_HEIGHT > Pixels(0)  # Compare Pixels to Pixels
         assert constants.DEFAULT_FLOOR_HEIGHT > Blocks(0)  # Compare Blocks to Blocks
@@ -91,9 +90,9 @@ class TestFloorConstants:
             constants.APARTMENT_HEIGHT,
             constants.HOTEL_HEIGHT,
             constants.RESTAURANT_HEIGHT,
-            constants.RETAIL_HEIGHT
+            constants.RETAIL_HEIGHT,
         ]
-        
+
         for height in floor_heights:
             assert height == Blocks(1)  # All are 1 block high for now - compare to Blocks
             assert height > Blocks(0)  # Compare Blocks to Blocks
@@ -129,10 +128,10 @@ class TestConstantTypes:
             constants.SCREEN_HEIGHT,
             constants.FPS,
         ]
-        
+
         for const in int_constants:
             assert isinstance(const, int)
-        
+
         # Unit types are not plain integers - test separately
         assert isinstance(constants.BLOCK_WIDTH, Blocks)  # Changed from Pixels
         assert isinstance(constants.BLOCK_HEIGHT, Blocks)  # Changed from Pixels
@@ -146,9 +145,9 @@ class TestConstantTypes:
         float_constants = [
             constants.MIN_TIME_MULTIPLIER,
             constants.MAX_TIME_MULTIPLIER,
-            constants.BLOCK_FLOAT_TOLERANCE
+            constants.BLOCK_FLOAT_TOLERANCE,
         ]
-        
+
         for const in float_constants:
             assert isinstance(const, float)
 
@@ -163,9 +162,9 @@ class TestConstantTypes:
             constants.RESTAURANT_COLOR,
             constants.RETAIL_COLOR,
             constants.FLOORBOARD_COLOR,
-            constants.DEFAULT_FLOOR_COLOR
+            constants.DEFAULT_FLOOR_COLOR,
         ]
-        
+
         for rgb in rgb_constants:
             assert isinstance(rgb, tuple)
             assert len(rgb) == 3

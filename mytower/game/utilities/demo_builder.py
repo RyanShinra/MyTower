@@ -5,8 +5,12 @@
 from typing import Final
 
 from mytower.game.controllers.controller_commands import (
-    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
-    AddPersonCommand, CommandResult)
+    AddElevatorBankCommand,
+    AddElevatorCommand,
+    AddFloorCommand,
+    AddPersonCommand,
+    CommandResult,
+)
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.entities.floor import FloorType
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
@@ -14,9 +18,9 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 def build_model_building(controller: GameController, logger_provider: LoggerProvider) -> None:
     """Build a demo instance of the game building."""
-    
+
     demo_logger: Final[MyTowerLogger] = logger_provider.get_logger("DemoBuilder")
-    
+
     def add_floor(floor_type: FloorType) -> int:
         result: Final[CommandResult[int]] = controller.execute_command(AddFloorCommand(floor_type=floor_type))
         if result.success and result.data is not None:
@@ -45,13 +49,12 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             demo_logger.error(f"Failed to add elevator: {result.error}")
             return ""
 
-    def add_person(current_floor_num: int, current_block_float: float, dest_floor_num: int, dest_block_num: float) -> str:
+    def add_person(
+        current_floor_num: int, current_block_float: float, dest_floor_num: int, dest_block_num: float
+    ) -> str:
         result: Final[CommandResult[str]] = controller.execute_command(
             AddPersonCommand(
-                floor=current_floor_num,
-                block=current_block_float,
-                dest_floor=dest_floor_num,
-                dest_block=dest_block_num
+                floor=current_floor_num, block=current_block_float, dest_floor=dest_floor_num, dest_block=dest_block_num
             )
         )
         if result.success and result.data is not None:
@@ -59,9 +62,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
         else:
             demo_logger.error(f"Failed to add person: {result.error}")
             return ""
-      
 
-    
     # Initialize with some basic floors and an elevator
     add_floor(FloorType.LOBBY)
     add_floor(FloorType.RETAIL)

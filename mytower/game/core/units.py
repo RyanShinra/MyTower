@@ -4,11 +4,13 @@ import math
 from dataclasses import dataclass, field
 from typing import overload, override  # Add overload
 
-from mytower.game.core.primitive_constants import (BLOCK_FLOAT_TOLERANCE,
-                                                   METERS_PER_BLOCK,
-                                                   METRIC_FLOAT_TOLERANCE,
-                                                   PIXELS_PER_METER,
-                                                   TIME_FLOAT_TOLERANCE)
+from mytower.game.core.primitive_constants import (
+    BLOCK_FLOAT_TOLERANCE,
+    METERS_PER_BLOCK,
+    METRIC_FLOAT_TOLERANCE,
+    PIXELS_PER_METER,
+    TIME_FLOAT_TOLERANCE,
+)
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -108,11 +110,7 @@ class Pixels:
     """
 
     value: int = field(
-        metadata={
-            "unit": "pixels",
-            "rendering": True,
-            "description": "Screen coordinate for UI/sprite positioning"
-        }
+        metadata={"unit": "pixels", "rendering": True, "description": "Screen coordinate for UI/sprite positioning"}
     )
 
     def __post_init__(self) -> None:
@@ -177,11 +175,7 @@ class Blocks:
     """
 
     value: float = field(
-        metadata={
-            "unit": "blocks",
-            "grid_based": True,
-            "description": "Vertical position in building floor system"
-        }
+        metadata={"unit": "blocks", "grid_based": True, "description": "Vertical position in building floor system"}
     )
 
     def __post_init__(self) -> None:

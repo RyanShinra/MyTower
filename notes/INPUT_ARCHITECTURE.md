@@ -130,7 +130,7 @@ class AddElevatorBankCommand(Command[str]):
     h_cell: int
     min_floor: int
     max_floor: int
-    
+
     def execute(self, model: GameModel) -> CommandResult[str]:
         bank_id = model.add_elevator_bank(...)
         return CommandResult(success=True, data=bank_id)
@@ -140,7 +140,7 @@ class AddElevatorBankCommand(Command[str]):
 ```python
 def _create_toolbar(self):
     # ... existing buttons ...
-    
+
     add_elevator_btn = Button(
         x=button_x, y=toolbar_y,
         width=120, height=40,
@@ -169,17 +169,17 @@ Because input is decoupled, you can test each layer independently:
 def test_button_click():
     commands_enqueued = []
     handler = InputHandler(enqueue_callback=commands_enqueued.append)
-    
+
     # Simulate button click
     handler._on_button_clicked(0)
-    
+
     assert len(commands_enqueued) == 1
     assert isinstance(commands_enqueued[0], AddFloorCommand)
 
 # Test with mock callback
 def test_floor_cycling():
     handler = InputHandler(enqueue_callback=lambda cmd: "mock-id")
-    
+
     assert handler._current_floor_type == FloorType.OFFICE
     handler._add_floor()
     assert handler._current_floor_type == FloorType.APARTMENT  # Cycled
@@ -224,17 +224,17 @@ When you build the web frontend, it will look remarkably similar:
 // Exact same flow, different UI toolkit
 function AddFloorButton() {
     const [floorType, setFloorType] = useState('OFFICE');
-    
+
     const handleClick = async () => {
         await graphqlClient.mutate({
             mutation: ADD_FLOOR,
             variables: { floorType }
         });
-        
+
         // Cycle to next type (same logic!)
         setFloorType(nextFloorType(floorType));
     };
-    
+
     return <button onClick={handleClick}>Add {floorType}</button>;
 }
 ```

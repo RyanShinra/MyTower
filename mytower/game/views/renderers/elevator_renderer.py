@@ -31,4 +31,6 @@ class ElevatorRenderer:
 
         color = self._cosmetics_config.OPEN_COLOR if elevator.door_open else self._cosmetics_config.CLOSED_COLOR
 
-        pygame.draw.rect(surface, color, rect_from_pixels(elevator_left_x, elevator_top_y, elevator_width, elevator_height))
+        pygame.draw.rect(
+            surface, color, rect_from_pixels(elevator_left_x, elevator_top_y, elevator_width, elevator_height)
+        )
