@@ -131,7 +131,7 @@ class TestElevatorBankSnapshot:
             id="bank_1",
             horizontal_position=Blocks(14),
             min_floor=1,
-            max_floor=20,  # Add missing ID  # Wrap in Blocks
+            max_floor=20,
         )
 
         assert snapshot.horizontal_position == Blocks(14)
