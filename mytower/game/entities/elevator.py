@@ -17,21 +17,20 @@
 
 from __future__ import annotations  # Defer type evaluation
 
-from typing import TYPE_CHECKING, Final, List
-from typing import Optional as Opt
-from typing import Sequence, override
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Final, override
 
-from mytower.game.core.config import (ElevatorConfigProtocol,
-                                      ElevatorCosmeticsProtocol)
+from mytower.game.core.config import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
 from mytower.game.core.id_generator import IDGenerator
 from mytower.game.core.types import ElevatorState, VerticalDirection
-from mytower.game.core.units import (Blocks, Meters, Time,  # Add Velocity
-                                     Velocity)
-from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
-                                                     ElevatorDestination,
-                                                     ElevatorProtocol,
-                                                     ElevatorTestingProtocol,
-                                                     PersonProtocol)
+from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
+from mytower.game.entities.entities_protocol import (
+    ElevatorBankProtocol,
+    ElevatorDestination,
+    ElevatorProtocol,
+    ElevatorTestingProtocol,
+    PersonProtocol,
+)
 from mytower.game.utilities.logger import LoggerProvider
 
 if TYPE_CHECKING:
@@ -39,6 +38,7 @@ if TYPE_CHECKING:
 
 
 # flake8: noqa: E701
+
 
 class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     """
@@ -81,8 +81,12 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
 
         # Current state
-        self._vertical_position: Blocks = Blocks(min_floor if starting_floor is None else starting_floor)  # Floor number (can be fractional when moving)
-        self._destination_floor: int = min_floor if starting_floor is None else starting_floor  # Let's not stop between floors
+        self._vertical_position: Blocks = Blocks(
+            min_floor if starting_floor is None else starting_floor
+        )  # Floor number (can be fractional when moving)
+        self._destination_floor: int = (
+            min_floor if starting_floor is None else starting_floor
+        )  # Let's not stop between floors
         self._door_open: bool = False
         self._state: ElevatorState = ElevatorState.IDLE
         self._motion_direction: VerticalDirection = VerticalDirection.STATIONARY  # -1 for down, 0 for stopped, 1 for up
@@ -90,12 +94,12 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         # Used for assignments; What people say: "is this elevator going up or down?"
         # It's only updated when a new destination is assigned
         self._nominal_direction: VerticalDirection = VerticalDirection.STATIONARY
-        self._passengers: List[PersonProtocol] = []  # People inside the elevator
+        self._passengers: list[PersonProtocol] = []  # People inside the elevator
 
         self._unloading_timeout: Time = Time(0.0)
         self._loading_timeout: Time = Time(0.0)
         self._idle_time: Time = Time(0.0)
-        self._last_logged_state: Opt[ElevatorState] = None  # Track the last logged state
+        self._last_logged_state: ElevatorState | None = None  # Track the last logged state
         self._idle_log_timer: Time = Time(0.0)
         self._moving_log_timer: Time = Time(0.0)
 
@@ -123,7 +127,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     @override
     def max_capacity(self) -> int:
         return self._config.MAX_CAPACITY
-    
+
     @property
     @override
     def passenger_count(self) -> int:
@@ -151,7 +155,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     @override
     def testing_set_nominal_direction(self, direction: VerticalDirection) -> None:
         self._nominal_direction = direction
-    
+
     @property
     @override
     def current_floor_int(self) -> int:
@@ -169,7 +173,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     @override
     def vertical_position(self) -> Blocks:
         return self._vertical_position
-    
+
     @property
     @override
     def horizontal_position(self) -> Blocks:
@@ -240,7 +244,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._motion_direction = VerticalDirection.UP
             self._nominal_direction = destination.direction
             self._state = ElevatorState.READY_TO_MOVE
-        
+
         elif self.current_floor_int > destination.floor:
             self._logger.info(f"{self.elevator_state} Elevator: Going DOWN")
             self._motion_direction = VerticalDirection.DOWN
@@ -259,18 +263,20 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     def testing_set_passengers(self, passengers: Sequence[PersonProtocol]) -> None:
         """Set passengers directly for testing purposes."""
         if len(passengers) > self._config.MAX_CAPACITY:
-            raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.MAX_CAPACITY}")
+            raise ValueError(
+                f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.MAX_CAPACITY}"
+            )
         self._passengers = list(passengers)  # Defensive copy
-    
+
     @override
-    def testing_get_passengers(self) -> List[PersonProtocol]:
+    def testing_get_passengers(self) -> list[PersonProtocol]:
         return self._passengers.copy()
 
     @override
     def request_load_passengers(self, direction: VerticalDirection) -> None:
         """Instructs an idle elevator to begin loading and sets it to nominally go in `direction`.
-           The actual loading will happen on the next time step, after evaluating the state machine.
-           Other valid loading states may become possible in the future.
+        The actual loading will happen on the next time step, after evaluating the state machine.
+        Other valid loading states may become possible in the future.
         """
         if self.elevator_state == ElevatorState.IDLE:
             self._state = ElevatorState.LOADING
@@ -282,8 +288,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             raise RuntimeError(err_str)
 
     @override
-    def passengers_who_want_off(self) -> List[PersonProtocol]:
-        answer: Final[List[PersonProtocol]] = []
+    def passengers_who_want_off(self) -> list[PersonProtocol]:
+        answer: Final[list[PersonProtocol]] = []
         for p in self._passengers:
             if p.destination_floor_num == self.current_floor_int:
                 answer.append(p)
@@ -291,7 +297,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         return answer
 
     @override
-    def get_passenger_destinations_in_direction(self, floor: int, direction: VerticalDirection) -> List[int]:
+    def get_passenger_destinations_in_direction(self, floor: int, direction: VerticalDirection) -> list[int]:
         """Returns sorted list of floors in the direction of travel"""
 
         if direction == VerticalDirection.STATIONARY:
@@ -306,7 +312,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             elif direction == VerticalDirection.DOWN and p.destination_floor_num < floor:
                 floors_set.add(p.destination_floor_num)
 
-        sorted_floors: Final[List[int]] = list(floors_set)
+        sorted_floors: Final[list[int]] = list(floors_set)
         if direction == VerticalDirection.UP:
             sorted_floors.sort()
         elif direction == VerticalDirection.DOWN:
@@ -364,14 +370,13 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._idle_log_timer = Time(0.0)
         self._motion_direction = VerticalDirection.STATIONARY
 
-
     def _update_moving(self, dt: Time) -> None:
         # Physics with proper units - type checker now knows this is Meters!
         distance: Meters = self.max_velocity * dt  # No cast needed!
         dy_blocks: Blocks = distance.in_blocks
-        
+
         cur_floor: float = float(self._vertical_position) + float(dy_blocks) * self.motion_direction.value
-        
+
         if self._moving_log_timer >= self._config.MOVING_LOG_TIMEOUT:
             self._logger.trace(
                 f"{self.elevator_state} Elevator: Moving {self.motion_direction} from {self._vertical_position} to {cur_floor}"
@@ -388,9 +393,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
                 done = True
 
         if done:
-            self._logger.info(
-                f"{self.elevator_state} Elevator: Arrived from moving {self.motion_direction} -> ARRIVED"
-            )
+            self._logger.info(f"{self.elevator_state} Elevator: Arrived from moving {self.motion_direction} -> ARRIVED")
             cur_floor = float(self.destination_floor)
             self._state = ElevatorState.ARRIVED
             self._motion_direction = VerticalDirection.STATIONARY
@@ -399,9 +402,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         cur_floor = max(self.min_floor, cur_floor)
         self._vertical_position = Blocks(cur_floor)
 
-
     def _update_arrived(self, dt: Time) -> None:
-        who_wants_off: Final[List[PersonProtocol]] = self.passengers_who_want_off()
+        who_wants_off: Final[list[PersonProtocol]] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
             self._state = ElevatorState.UNLOADING
@@ -411,27 +413,25 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             f"{self.elevator_state} Elevator: Having arrived, elevator has {len(who_wants_off)} passengers to disembark -> {self._state}"
         )
 
-
     def _update_unloading(self, dt: Time) -> None:
         self._unloading_timeout += dt
         if self._unloading_timeout < self._config.PASSENGER_LOADING_TIME:
             return
 
         self._unloading_timeout = Time(0.0)
-        who_wants_off: Final[List[PersonProtocol]] = self.passengers_who_want_off()
+        who_wants_off: Final[list[PersonProtocol]] = self.passengers_who_want_off()
 
         if len(who_wants_off) > 0:
             self._logger.debug(f"{self.elevator_state} Elevator: Unloading Passenger")
             disembarking_passenger: Final[PersonProtocol] = who_wants_off.pop()
-            
+
             self._passengers.remove(disembarking_passenger)
             disembarking_passenger.disembark_elevator()
-        
+
         else:
             self._logger.debug(f"{self.elevator_state} Elevator: Unloading Complete -> LOADING")
             self._state = ElevatorState.LOADING
         return
-
 
     def _update_loading(self, dt: Time) -> None:
         self._loading_timeout += dt
@@ -458,11 +458,12 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             who_wants_on.board_elevator(self)
             self._passengers.append(who_wants_on)
         else:
-            self._logger.debug(f"{self.elevator_state} Elevator: Loading Complete: No more willing passengers -> READY_TO_MOVE")
+            self._logger.debug(
+                f"{self.elevator_state} Elevator: Loading Complete: No more willing passengers -> READY_TO_MOVE"
+            )
             self._state = ElevatorState.READY_TO_MOVE  # Nobody else wants to get on
             self.door_open = False
         return
-
 
     def _update_ready_to_move(self, dt: Time) -> None:
         self._logger.debug(
@@ -477,4 +478,3 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._logger.info(f"{self.elevator_state} Elevator: No Destination -> IDLE")
             self._state = ElevatorState.IDLE
         # Implicit Else, wait here for the bank to provide a new destination
-

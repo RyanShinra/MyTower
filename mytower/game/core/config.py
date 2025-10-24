@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 # So, it gets neither
 # pylint: disable=invalid-name
 
+
 # flake8: noqa: E704
 # Protocol definitions for configuration
 class ElevatorConfigProtocol(Protocol):
@@ -37,6 +38,7 @@ class ElevatorConfigProtocol(Protocol):
     @property
     def IDLE_WAIT_TIMEOUT(self) -> Time: ...
 
+
 class ElevatorCosmeticsProtocol(Protocol):
     """Visual appearance settings for Elevator class"""
 
@@ -54,12 +56,13 @@ class ElevatorCosmeticsProtocol(Protocol):
 
     @property
     def SHAFT_OVERHEAD_HEIGHT(self) -> Meters: ...
-    
+
     @property
     def ELEVATOR_WIDTH(self) -> Meters: ...
-    
+
     @property
     def ELEVATOR_HEIGHT(self) -> Meters: ...
+
 
 class PersonConfigProtocol(Protocol):
     """Config requirements for Person class"""
@@ -75,6 +78,7 @@ class PersonConfigProtocol(Protocol):
 
     @property
     def RADIUS(self) -> Meters: ...
+
 
 class PersonCosmeticsProtocol(Protocol):
     """Visual appearance settings for Person class"""
@@ -109,10 +113,12 @@ class PersonCosmeticsProtocol(Protocol):
     @property
     def COLOR_PALETTE(self) -> tuple[tuple[int, int, int], ...]: ...
 
+
 # Concrete configuration implementations
 @dataclass
 class ElevatorConfig:
     """Concrete implementation of Elevator configuration"""
+
     MAX_SPEED: Velocity = Velocity(3.5)  # Changed from float to Velocity (m/s)
     MAX_CAPACITY: Final[int] = 15  # Number of people who can fit on board
     PASSENGER_LOADING_TIME: Time = Time(1.0)  # Time to load one passenger
@@ -137,12 +143,15 @@ class ElevatorCosmetics:
 @dataclass
 class PersonConfig:
     """Person behavior configuration with explicit units"""
+
     MAX_SPEED: Velocity = Velocity(1.35)  # Explicit m/s (approx 3 mph)
     WALKING_ACCELERATION: float = 0.5  # TODO: Make this Velocity/Time
     WALKING_DECELERATION: float = 0.5  # TODO: Make this Velocity/Time
-    MAX_WAIT_TIME: Time = Time(90.0)   # Explicit seconds
-    IDLE_TIMEOUT: Time = Time(5.0)     # Explicit seconds
-    RADIUS: Meters = Meters(1.75 / 2)      # Explicit meters (divide by two so that the radius is half the average height of 175 cm)
+    MAX_WAIT_TIME: Time = Time(90.0)  # Explicit seconds
+    IDLE_TIMEOUT: Time = Time(5.0)  # Explicit seconds
+    RADIUS: Meters = Meters(
+        1.75 / 2
+    )  # Explicit meters (divide by two so that the radius is half the average height of 175 cm)
 
 
 @dataclass
@@ -158,18 +167,18 @@ class PersonCosmetics:
     INITIAL_MIN_RED: Final[int] = 0
     INITIAL_MIN_GREEN: Final[int] = 0
     INITIAL_MIN_BLUE: Final[int] = 0
-    
+
     # Predefined color palette for people (10 colors using the clamped values)
     COLOR_PALETTE: Final[tuple[tuple[int, int, int], ...]] = (
-        (32, 32, 32),       # Black
-        (64, 0, 0),      # Dark Red
-        (64, 64, 0),    # Yellow-Green
-        (0, 128, 0),     # Green
-        (0, 128, 128),   # Cyan
-        (32, 80, 80),    # Teal
-        (16, 16, 64),   # Dark Blue
-        (0, 0, 160),     # Blue
-        (64, 0, 128),    # Purple
+        (32, 32, 32),  # Black
+        (64, 0, 0),  # Dark Red
+        (64, 64, 0),  # Yellow-Green
+        (0, 128, 0),  # Green
+        (0, 128, 128),  # Cyan
+        (32, 80, 80),  # Teal
+        (16, 16, 64),  # Dark Blue
+        (0, 0, 160),  # Blue
+        (64, 0, 128),  # Purple
     )
 
 
@@ -184,10 +193,16 @@ class UIConfig:
     BUTTON_HOVER_COLOR: Final[RGB] = (180, 180, 180)
     UI_FONT_NAME: Final[tuple[str, ...]] = ("Garamond", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
     UI_FONT_SIZE: Final[int] = 20  # Default font size for UI elements
-    FLOOR_LABEL_FONT_NAME: Final[tuple[str, ...]] = ("Century Gothic", "Menlo", "Lucida Sans Typewriter")  # List of preferred fonts
+    FLOOR_LABEL_FONT_NAME: Final[tuple[str, ...]] = (
+        "Century Gothic",
+        "Menlo",
+        "Lucida Sans Typewriter",
+    )  # List of preferred fonts
     FLOOR_LABEL_FONT_SIZE: Final[int] = 18  # Font size for floor labels
 
+
 # pylint: enable=invalid-name
+
 
 class GameConfig:
     def __init__(self) -> None:
@@ -196,7 +211,7 @@ class GameConfig:
         self._person_cosmetics: PersonCosmeticsProtocol = PersonCosmetics()
         self._elevator_cosmetics: ElevatorCosmeticsProtocol = ElevatorCosmetics()
         self._ui_config: UIConfigProtocol = UIConfig()
-        self._initial_speed: float = 2.0 # TODO: Change this back to 1.0
+        self._initial_speed: float = 2.0  # TODO: Change this back to 1.0
         # etc.
 
     @property

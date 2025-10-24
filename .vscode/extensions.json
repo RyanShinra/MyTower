@@ -8,6 +8,8 @@
         "ms-python.pylint",
         "njpwerner.autodocstring",
         "streetsidesoftware.code-spell-checker",
-        "kevinrose.vsc-python-indent"
+        "kevinrose.vsc-python-indent",
+        "microsoft.vscode-ruff",
+        "charliermarsh.ruff"
     ]
 }

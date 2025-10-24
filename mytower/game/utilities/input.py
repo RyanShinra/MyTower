@@ -7,30 +7,24 @@
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
-from typing import List
 
 import pygame
 
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import MouseButtons, MousePos
-
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 
 class MouseState:
     """Class to store and manage mouse state"""
-
-
 
     def __init__(self, logger_provider: LoggerProvider) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("input")
         self._position: MousePos = (0, 0)
         self._buttons: MouseButtons = (False, False, False)
         # Store additional button states if needed
-        self._extended_buttons: List[bool] = []
+        self._extended_buttons: list[bool] = []
         self._wheel_y: int = 0  # Vertical scroll
         self._wheel_x: int = 0  # Horizontal scroll (if supported)
-
-
 
     def update(self) -> None:
         """Update mouse state from pygame"""
@@ -55,15 +49,13 @@ class MouseState:
         """Get the current state of the mouse buttons"""
         return self._buttons
 
-    def get_extended_pressed(self) -> List[bool]:
+    def get_extended_pressed(self) -> list[bool]:
         """Get the state of additional mouse buttons beyond the standard three"""
         return self._extended_buttons
 
     def get_pos(self) -> MousePos:
         """Get the current mouse position"""
         return self._position
-
-
 
     def is_button_pressed(self, button_idx: int) -> bool:
         """

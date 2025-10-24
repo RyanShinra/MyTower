@@ -6,14 +6,14 @@ max-line-length = 120
 extend-select = X303
 
 # Ignore specific errors/warnings:
-ignore = 
+ignore =
     # Line too long
     E501,
     # Line break before binary operator
     W503,
     # Missing docstring
     D100, D101, D102, D103, D104,
-    # Whitespace before ':' 
+    # Whitespace before ':'
     E203,
     # Too many local variables
     R101,
@@ -35,5 +35,8 @@ exclude =
 
 # Per-file-ignores
 # You can ignore specific errors for specific files:
-# per-file-ignores =
-#    mytower/main.py:E302
+per-file-ignores =
+    mytower/game/entities/entities_protocol.py:E704
+    mytower/game/core/units.py:E704
+    mytower/tests/conftest.py:E704
+    mytower/tests/test_utilities.py:E704

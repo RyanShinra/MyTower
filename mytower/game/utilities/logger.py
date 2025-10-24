@@ -2,7 +2,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 # Define log levels with descriptive names
 TRACE = 5  # Even more detailed than DEBUG
@@ -16,11 +16,9 @@ CRITICAL = logging.CRITICAL  # A serious error that might prevent the program fr
 logging.addLevelName(TRACE, "TRACE")
 
 
-
 class MyTowerLogger(logging.Logger):
     """Custom logger class with TRACE level support."""
 
-    
     def trace(self, msg: object, *args: Any, **kwargs: Any) -> None:  # type: ignore[explicit-any]
         """
         Log a message with severity 'TRACE'.
@@ -32,7 +30,7 @@ class MyTowerLogger(logging.Logger):
         """
         if self.isEnabledFor(TRACE):
             self._log(TRACE, msg, args, **kwargs)
-    
+
     def get_level_name(self, level: int) -> str:
         """Get the string name of a log level."""
         return logging.getLevelName(level)
@@ -42,14 +40,13 @@ class MyTowerLogger(logging.Logger):
 logging.setLoggerClass(MyTowerLogger)
 
 
-
 def setup_logger(
     name: str = "mytower",
     level: int = logging.INFO,
-    log_file: Optional[str] = None,
+    log_file: str | None = None,
     console: bool = True,
-    file_level: Optional[int] = None,
-    console_level: Optional[int] = None,
+    file_level: int | None = None,
+    console_level: int | None = None,
 ) -> logging.Logger:
     """
     Set up a logger with console and optional file handlers.
@@ -120,7 +117,7 @@ def get_logger(module_name: str) -> MyTowerLogger:
 
 # Create a LoggerProvider:
 class LoggerProvider:
-    def __init__(self, root_logger: Optional[MyTowerLogger] = None, log_level: int = logging.INFO):
+    def __init__(self, root_logger: MyTowerLogger | None = None, log_level: int = logging.INFO):
         if root_logger:
             self._root_logger = root_logger
         else:
@@ -130,7 +127,7 @@ class LoggerProvider:
                 level=log_level,
                 log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
                 file_level=TRACE,  # Always log everything to file
-                console_level=log_level  # Use specified level for console
+                console_level=log_level,  # Use specified level for console
             )
         self._loggers: dict[str, MyTowerLogger] = {}
 

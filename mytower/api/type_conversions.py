@@ -1,4 +1,14 @@
-from mytower.api.graphql_types import BuildingSnapshotGQL, ColorGQL, ElevatorSnapshotGQL, ElevatorStateGQL, FloorSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL, PersonStateGQL, VerticalDirectionGQL
+from mytower.api.graphql_types import (
+    BuildingSnapshotGQL,
+    ColorGQL,
+    ElevatorSnapshotGQL,
+    ElevatorStateGQL,
+    FloorSnapshotGQL,
+    FloorTypeGQL,
+    PersonSnapshotGQL,
+    PersonStateGQL,
+    VerticalDirectionGQL,
+)
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 
 
@@ -8,8 +18,9 @@ def convert_building_snapshot(snapshot: BuildingSnapshot) -> BuildingSnapshotGQL
         money=snapshot.money,
         floors=[convert_floor_snapshot(f) for f in snapshot.floors],
         elevators=[convert_elevator_snapshot(e) for e in snapshot.elevators],
-        people=[convert_person_snapshot(p) for p in snapshot.people]
+        people=[convert_person_snapshot(p) for p in snapshot.people],
     )
+
 
 def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
     return PersonSnapshotGQL(
@@ -22,8 +33,9 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
         state=PersonStateGQL(person.state.value),
         waiting_time=person.waiting_time,
         mad_fraction=person.mad_fraction,
-        _draw_color=person.draw_color
+        _draw_color=person.draw_color,
     )
+
 
 def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL:
     return ElevatorSnapshotGQL(
@@ -36,8 +48,9 @@ def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL
         passenger_count=elevator.passenger_count,
         available_capacity=elevator.available_capacity,
         max_capacity=elevator.max_capacity,
-        nominal_direction=VerticalDirectionGQL(elevator.nominal_direction.value)
+        nominal_direction=VerticalDirectionGQL(elevator.nominal_direction.value),
     )
+
 
 def convert_floor_snapshot(floor: FloorSnapshot) -> FloorSnapshotGQL:
     return FloorSnapshotGQL(
@@ -48,5 +61,5 @@ def convert_floor_snapshot(floor: FloorSnapshot) -> FloorSnapshotGQL:
         left_edge_block=floor.left_edge_block,  # Blocks type passes through
         floor_width=floor.floor_width,  # Blocks type passes through
         floor_color=ColorGQL.from_tuple(floor.floor_color),
-        floorboard_color=ColorGQL.from_tuple(floor.floorboard_color)
+        floorboard_color=ColorGQL.from_tuple(floor.floorboard_color),
     )

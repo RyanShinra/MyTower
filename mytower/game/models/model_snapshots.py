@@ -1,14 +1,13 @@
 from dataclasses import dataclass
-from typing import List
 
-from mytower.game.core.types import (RGB, Color, ElevatorState, FloorType,
-                                     PersonState, VerticalDirection)
+from mytower.game.core.types import RGB, Color, ElevatorState, FloorType, PersonState, VerticalDirection
 from mytower.game.core.units import Blocks, Time
 
 
 @dataclass
 class PersonSnapshot:
     """Immutable snapshot of person state for API consumption"""
+
     person_id: str
     current_floor_num: int
     current_vertical_position: Blocks
@@ -24,6 +23,7 @@ class PersonSnapshot:
 @dataclass
 class ElevatorSnapshot:
     """Immutable snapshot of elevator state for API consumption"""
+
     id: str
     vertical_position: Blocks
     horizontal_position: Blocks
@@ -40,6 +40,7 @@ class ElevatorSnapshot:
 @dataclass
 class ElevatorBankSnapshot:
     """Immutable snapshot of elevator bank state for API consumption"""
+
     id: str
     horizontal_position: Blocks
     min_floor: int
@@ -50,6 +51,7 @@ class ElevatorBankSnapshot:
 @dataclass
 class FloorSnapshot:
     """Immutable snapshot of floor state for API consumption"""
+
     floor_type: FloorType
     floor_number: int  # NOTE: We'll need to think about what this means with multiple height floors
     floor_height: Blocks
@@ -63,10 +65,10 @@ class FloorSnapshot:
 @dataclass
 class BuildingSnapshot:
     """Complete building state snapshot for API consumption"""
+
     time: Time
     money: int
-    floors: List[FloorSnapshot]
-    elevators: List[ElevatorSnapshot]
-    elevator_banks: List[ElevatorBankSnapshot]
-    people: List[PersonSnapshot]
-
+    floors: list[FloorSnapshot]
+    elevators: list[ElevatorSnapshot]
+    elevator_banks: list[ElevatorBankSnapshot]
+    people: list[PersonSnapshot]

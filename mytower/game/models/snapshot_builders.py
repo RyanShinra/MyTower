@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
-                                                     ElevatorProtocol,
-                                                     FloorProtocol,
-                                                     PersonProtocol)
-from mytower.game.models.model_snapshots import (ElevatorBankSnapshot,
-                                                 ElevatorSnapshot,
-                                                 FloorSnapshot, PersonSnapshot)
+from mytower.game.entities.entities_protocol import (
+    ElevatorBankProtocol,
+    ElevatorProtocol,
+    FloorProtocol,
+    PersonProtocol,
+)
+from mytower.game.models.model_snapshots import ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 
 if TYPE_CHECKING:
     pass  # No longer need concrete imports
@@ -24,7 +24,7 @@ def build_floor_snapshot(floor: FloorProtocol) -> FloorSnapshot:
         floor_width=floor.floor_width,
         floor_color=floor.color,
         floorboard_color=floor.floorboard_color,
-        person_count=floor.number_of_people
+        person_count=floor.number_of_people,
     )
 
 

@@ -1,6 +1,7 @@
 # /tests/conftest.py
 
-from typing import Callable, Final, Protocol
+from collections.abc import Callable
+from typing import Final, Protocol
 from unittest.mock import MagicMock, Mock, PropertyMock
 
 import pytest
@@ -10,17 +11,19 @@ from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.units import Blocks, Meters, Time, Velocity
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.elevator_bank import ElevatorBank
+
 # Import protocols for type hints in production code, not for Mock return types
-from mytower.game.entities.entities_protocol import (BuildingProtocol,
-                                                     ElevatorBankProtocol,
-                                                     ElevatorProtocol,
-                                                     FloorProtocol,
-                                                     PersonProtocol)
+from mytower.game.entities.entities_protocol import (
+    BuildingProtocol,
+    ElevatorBankProtocol,
+    ElevatorProtocol,
+    FloorProtocol,
+    PersonProtocol,
+)
 from mytower.game.entities.person import Person
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.tests.test_protocols import (TestableElevatorBankProtocol,
-                                          TestableElevatorProtocol,
-                                          TestablePersonProtocol)
+from mytower.tests.test_protocols import TestableElevatorBankProtocol, TestableElevatorProtocol, TestablePersonProtocol
+
 # Import new type-safe test utilities
 from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
@@ -38,6 +41,7 @@ def mock_person_factory() -> PersonFactory:
         person.board_elevator = MagicMock()
         person.disembark_elevator = MagicMock()
         return person
+
     return _person_gen
 
 
@@ -58,8 +62,9 @@ def mock_logger_provider() -> MagicMock:
     provider.get_logger.return_value = mock_logger
     return provider
 
+
 BUILDING_DEFAULT_NUM_FLOORS = 10
-BUILDING_DEFAULT_FLOOR_WIDTH = 20.0 # Needs to be float for Person initial_block_float
+BUILDING_DEFAULT_FLOOR_WIDTH = 20.0  # Needs to be float for Person initial_block_float
 
 
 # New type-safe test utilities fixtures
@@ -69,7 +74,7 @@ def typed_mock_factory() -> TypedMockFactory:
     return TypedMockFactory()
 
 
-@pytest.fixture  
+@pytest.fixture
 def state_assertions() -> StateAssertions:
     """Fixture providing common state assertion helpers"""
     return StateAssertions()
@@ -78,19 +83,18 @@ def state_assertions() -> StateAssertions:
 @pytest.fixture
 def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:  # ✅
     """Factory for creating building mocks with configurable floor behavior"""
-    
+
     def _create_building(
-        has_floors: bool = True, 
-        num_floors: int = BUILDING_DEFAULT_NUM_FLOORS, 
-        floor_width: float = BUILDING_DEFAULT_FLOOR_WIDTH
+        has_floors: bool = True,
+        num_floors: int = BUILDING_DEFAULT_NUM_FLOORS,
+        floor_width: float = BUILDING_DEFAULT_FLOOR_WIDTH,
     ) -> Mock:  # ✅ Returns Mock
         return typed_mock_factory.create_building_mock(
-            num_floors=num_floors,
-            floor_width=floor_width,
-            has_floors=has_floors
+            num_floors=num_floors, floor_width=floor_width, has_floors=has_floors
         )
-    
+
     return _create_building
+
 
 @pytest.fixture
 def mock_building_no_floor() -> Mock:  # ✅
@@ -118,11 +122,10 @@ def mock_building_with_floor() -> Mock:  # ✅
 @pytest.fixture
 def mock_game_config() -> MagicMock:
     """Standard game configuration for tests with real integer values"""
-    from mytower.game.core.config import (GameConfig, PersonConfigProtocol,
-                                          PersonCosmeticsProtocol)
-    
+    from mytower.game.core.config import GameConfig, PersonConfigProtocol, PersonCosmeticsProtocol
+
     config = MagicMock(spec=GameConfig)
-    
+
     # Create properly typed sub-mocks for person config
     person_config = MagicMock(spec=PersonConfigProtocol)
     person_config.MAX_SPEED = Velocity(1.35)  # Approx 3 mph
@@ -130,7 +133,7 @@ def mock_game_config() -> MagicMock:
     person_config.IDLE_TIMEOUT = Time(5.0)
     person_config.RADIUS = Meters(1.75)
     config.person = person_config
-    
+
     # Create properly typed sub-mocks for person cosmetics - IMPORTANT: Use real integers for random.randint()
     person_cosmetics = MagicMock(spec=PersonCosmeticsProtocol)
     person_cosmetics.ANGRY_MAX_RED = 192
@@ -143,30 +146,31 @@ def mock_game_config() -> MagicMock:
     person_cosmetics.INITIAL_MIN_GREEN = 0
     person_cosmetics.INITIAL_MIN_BLUE = 0
     person_cosmetics.COLOR_PALETTE = (
-        (0, 0, 0),       # Black
-        (64, 0, 0),      # Dark Red
-        (0, 160, 0),     # Green
-        (0, 0, 160),     # Blue
-        (64, 160, 0),    # Yellow-Green
-        (64, 0, 160),    # Purple
-        (0, 160, 160),   # Cyan
+        (0, 0, 0),  # Black
+        (64, 0, 0),  # Dark Red
+        (0, 160, 0),  # Green
+        (0, 0, 160),  # Blue
+        (64, 160, 0),  # Yellow-Green
+        (64, 0, 160),  # Purple
+        (0, 160, 160),  # Cyan
         (64, 160, 160),  # Light Cyan
-        (32, 80, 80),    # Teal
-        (16, 40, 120),   # Dark Blue
+        (32, 80, 80),  # Teal
+        (16, 40, 120),  # Dark Blue
     )
     config.person_cosmetics = person_cosmetics
-    
+
     return config
 
 
 PERSON_DEFAULT_FLOOR: Final[int] = 6
 PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)
 
-@pytest.fixture 
+
+@pytest.fixture
 def person_with_floor(
-    mock_logger_provider: MagicMock, 
+    mock_logger_provider: MagicMock,
     mock_building_with_floor: Mock,  # ✅ Changed - was BuildingProtocol
-    mock_game_config: MagicMock
+    mock_game_config: MagicMock,
 ) -> TestablePersonProtocol:  # ✅ This is correct - returns real Person
     """Person fixture that starts on a floor"""
     return Person(
@@ -174,7 +178,7 @@ def person_with_floor(
         building=mock_building_with_floor,
         initial_floor_number=PERSON_DEFAULT_FLOOR,
         initial_horiz_position=float(PERSON_DEFAULT_BLOCK),
-        config=mock_game_config
+        config=mock_game_config,
     )
 
 
@@ -213,8 +217,8 @@ def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
 @pytest.fixture
 def elevator_bank(
     mock_building_no_floor: Mock,  # ✅ Changed - was BuildingProtocol
-    mock_logger_provider: MagicMock, 
-    mock_cosmetics_config: MagicMock
+    mock_logger_provider: MagicMock,
+    mock_cosmetics_config: MagicMock,
 ) -> TestableElevatorBankProtocol:  # ✅ This is correct - returns real ElevatorBank
     return ElevatorBank(
         building=mock_building_no_floor,
@@ -228,10 +232,10 @@ def elevator_bank(
 
 @pytest.fixture
 def elevator(
-    mock_logger_provider: MagicMock, 
+    mock_logger_provider: MagicMock,
     mock_elevator_bank: Mock,  # ✅ Changed - was ElevatorBankProtocol
-    mock_elevator_config: MagicMock, 
-    mock_cosmetics_config: MagicMock
+    mock_elevator_config: MagicMock,
+    mock_cosmetics_config: MagicMock,
 ) -> TestableElevatorProtocol:  # ✅ This is correct - returns real Elevator
     """Fixture returns type that supports both production and testing interfaces"""
     return Elevator(
@@ -242,11 +246,12 @@ def elevator(
         config=mock_elevator_config,
         cosmetics_config=mock_cosmetics_config,
     )
-    
+
+
 # TODO: Fix Person construction with building floor dependencies (#thisIsAProblemForFutureRyan)
 # PROBLEM: Real Person objects call building.get_floor_by_number() during __init__
 # - person_without_floor needs building mock to return None during construction
-# - person_with_floor needs building mock to return mock_floor during construction  
+# - person_with_floor needs building mock to return mock_floor during construction
 # - Current approach requires separate building fixtures pre-configured for each case
 # - PersonFactory creates mock persons, but we need real Person objects for integration tests
 #
@@ -265,5 +270,5 @@ def elevator(
 #     return Person(logger_provider, building, cur_floor_num, current_block_float, config)
 #
 # IMPACT: High - eliminates fixture duplication, makes test intent clearer
-# EFFORT: ~45 minutes to refactor fixtures and update all test files  
+# EFFORT: ~45 minutes to refactor fixtures and update all test files
 # DEPENDENCIES: Complete MVC refactor first - this is test infrastructure cleanup
