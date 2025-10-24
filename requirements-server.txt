@@ -1,0 +1,7 @@
+# MyTower Server Requirements
+# For AWS deployment (no pygame, no dev tools)
+
+-r requirements-base.txt
+
+# Production server enhancements
+uvicorn[standard]==0.34.0  # Full uvicorn with better performance
