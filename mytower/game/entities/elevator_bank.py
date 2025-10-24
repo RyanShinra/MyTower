@@ -133,8 +133,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     def waiting_passengers(self) -> dict[int, deque[PersonProtocol]]:
         return self._upward_waiting_passengers
 
-    # I'm deprecating this, we should use a better accessor below.
-
     @property
     @override
     def floor_requests(self) -> dict[int, set[VerticalDirection]]:
