@@ -9,7 +9,6 @@
         "njpwerner.autodocstring",
         "streetsidesoftware.code-spell-checker",
         "kevinrose.vsc-python-indent",
-        "microsoft.vscode-ruff",
         "charliermarsh.ruff"
     ]
 }
