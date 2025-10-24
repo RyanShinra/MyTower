@@ -181,7 +181,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     def add_waiting_passenger(self, passenger: PersonProtocol) -> None:
         if passenger is None:  # pyright: ignore
             raise ValueError("PersonProtocol cannot be None")  # pyright: ignore[reportUnreachable]
-            raise ValueError("PersonProtocol cannot be None")  # pyright: ignore[reportUnreachable]
 
         if passenger.current_floor_num < self.min_floor or passenger.current_floor_num > self.max_floor:
             raise ValueError(
