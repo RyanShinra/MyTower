@@ -90,7 +90,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         # Passengers waiting on each floor who want to go DOWN
 
-        # Passengers waiting on each floor who want to go DOWN
         # Key: floor number, Value: queue of people waiting to go downward from that floor
         self._downward_waiting_passengers: dict[int, deque[PersonProtocol]] = {
             floor: deque() for floor in range(self._min_floor, self._max_floor + 1)
