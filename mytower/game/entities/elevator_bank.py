@@ -129,12 +129,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     def waiting_passengers(self) -> dict[int, deque[PersonProtocol]]:
         return self._upward_waiting_passengers
 
-    # I'm deprecating this, we should use a better accessor below.
-
-    def get_requests_for_floor(self, floor: int) -> set[VerticalDirection]:
-        """Testing method to check what elevator requests exist for a floor"""
-        return self._requests[floor].copy()  # Return a copy to prevent modification
-
     @property
     @override
     def floor_requests(self) -> dict[int, set[VerticalDirection]]:
