@@ -136,13 +136,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
     # I'm deprecating this, we should use a better accessor below.
 
-    def get_requests_for_floor(self, floor: int) -> set[VerticalDirection]:
-        """Testing method to check what elevator requests exist for a floor"""
-        return self._requests[floor].copy()  # Return a copy to prevent modification
-
-    def get_requests_for_floors(self, floors: list[int]) -> set[VerticalDirection]:
-        return self._requests[floors[0]].copy()  # Return a copy to prevent modification
-
     @property
     @override
     def floor_requests(self) -> dict[int, set[VerticalDirection]]:
