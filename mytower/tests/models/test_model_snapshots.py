@@ -132,6 +132,7 @@ class TestElevatorBankSnapshot:
             horizontal_position=Blocks(14),
             min_floor=1,
             max_floor=20,
+            floor_requests={1: {VerticalDirection.UP}, 2: set(), 3: {VerticalDirection.DOWN}},
         )
 
         assert snapshot.horizontal_position == Blocks(14)
@@ -144,7 +145,8 @@ class TestElevatorBankSnapshot:
             id="bank_2",
             horizontal_position=Blocks(5),
             min_floor=10,
-            max_floor=10,  # Add missing ID  # Wrap in Blocks
+            max_floor=10,
+            floor_requests={1: {VerticalDirection.UP}, 2: set(), 3: {VerticalDirection.DOWN}},
         )
 
         assert snapshot.min_floor == snapshot.max_floor
@@ -249,6 +251,7 @@ class TestBuildingSnapshot:
             horizontal_position=Blocks(14),
             min_floor=1,
             max_floor=20,
+            floor_requests={1: {VerticalDirection.UP}, 2: set(), 3: {VerticalDirection.DOWN}},
         )
 
         building_snapshot = BuildingSnapshot(
@@ -285,20 +288,20 @@ class TestBuildingSnapshot:
             FloorSnapshot(
                 floor_type=FloorType.LOBBY,
                 floor_number=1,
-                floor_height=Blocks(1),  # Wrap in Blocks
+                floor_height=Blocks(1),
                 left_edge_block=Blocks(0),
                 floor_width=Blocks(20),
-                person_count=0,  # Wrap in Blocks
+                person_count=0,
                 floor_color=(200, 200, 200),
                 floorboard_color=(10, 10, 10),
             ),
             FloorSnapshot(
                 floor_type=FloorType.OFFICE,
                 floor_number=2,
-                floor_height=Blocks(1),  # Wrap in Blocks
+                floor_height=Blocks(1),
                 left_edge_block=Blocks(0),
                 floor_width=Blocks(20),
-                person_count=2,  # Wrap in Blocks
+                person_count=2,
                 floor_color=(150, 200, 250),
                 floorboard_color=(10, 10, 10),
             ),
@@ -308,7 +311,7 @@ class TestBuildingSnapshot:
             ElevatorSnapshot(
                 id="elevator_1",
                 vertical_position=Blocks(1.0),
-                horizontal_position=Blocks(14.0),  # Wrap in Blocks
+                horizontal_position=Blocks(14.0),
                 destination_floor=2,
                 elevator_state=ElevatorState.MOVING,
                 nominal_direction=VerticalDirection.UP,
@@ -348,16 +351,18 @@ class TestBuildingSnapshot:
 
         el_banks: list[ElevatorBankSnapshot] = [
             ElevatorBankSnapshot(
-                id="bank_1",  # Add missing ID
+                id="bank_1",
                 horizontal_position=Blocks(14),
                 min_floor=1,
-                max_floor=20,  # Wrap in Blocks
+                max_floor=20,
+                floor_requests={1: {VerticalDirection.UP}, 2: set(), 3: {VerticalDirection.DOWN}},
             ),
             ElevatorBankSnapshot(
-                id="bank_2",  # Add missing ID
+                id="bank_2",
                 horizontal_position=Blocks(18),
                 min_floor=1,
-                max_floor=10,  # Wrap in Blocks
+                max_floor=10,
+                floor_requests={1: {VerticalDirection.UP}, 2: set(), 3: {VerticalDirection.DOWN}},
             ),
         ]
 
