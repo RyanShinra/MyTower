@@ -119,12 +119,14 @@ class TestElevatorBankSnapshot:
             id="bank_1",  # Add missing ID
             horizontal_position=Blocks(14),  # Wrap in Blocks
             min_floor=1,
-            max_floor=20
+            max_floor=20,
+            floor_requests={1: set(), 5: {VerticalDirection.UP}, 20: {VerticalDirection.DOWN}}
         )
         
         assert snapshot.horizontal_position == Blocks(14)
         assert snapshot.min_floor == 1
         assert snapshot.max_floor == 20
+        assert VerticalDirection.UP in snapshot.floor_requests[5]
 
     def test_single_floor_bank(self) -> None:
         """Test elevator bank serving single floor"""
@@ -132,7 +134,8 @@ class TestElevatorBankSnapshot:
             id="bank_2",  # Add missing ID
             horizontal_position=Blocks(5),  # Wrap in Blocks
             min_floor=10,
-            max_floor=10
+            max_floor=10,
+            floor_requests={10: set()}
         )
         
         assert snapshot.min_floor == snapshot.max_floor
@@ -213,7 +216,8 @@ class TestBuildingSnapshot:
         
         elevator_bank_snapshot = ElevatorBankSnapshot(
             id="bank_1",  # Add missing ID
-            horizontal_position=Blocks(14), min_floor=1, max_floor=20  # Wrap in Blocks
+            horizontal_position=Blocks(14), min_floor=1, max_floor=20,  # Wrap in Blocks
+            floor_requests={}
         )
         
         building_snapshot = BuildingSnapshot(
@@ -293,11 +297,13 @@ class TestBuildingSnapshot:
         el_banks: list[ElevatorBankSnapshot] = [
             ElevatorBankSnapshot(
                 id="bank_1",  # Add missing ID
-                horizontal_position=Blocks(14), min_floor=1, max_floor=20  # Wrap in Blocks
+                horizontal_position=Blocks(14), min_floor=1, max_floor=20,  # Wrap in Blocks
+                floor_requests={}
             ),
             ElevatorBankSnapshot(
                 id="bank_2",  # Add missing ID
-                horizontal_position=Blocks(18), min_floor=1, max_floor=10  # Wrap in Blocks
+                horizontal_position=Blocks(18), min_floor=1, max_floor=10,  # Wrap in Blocks
+                floor_requests={}
             )
         ]
         

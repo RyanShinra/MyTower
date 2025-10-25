@@ -242,7 +242,9 @@ class TypedMockFactory:
         mock.get_waiting_position = Mock(return_value=horizontal_position)
         mock.add_waiting_passenger = Mock()
         mock.request_elevator = Mock()
-        mock.get_requests_for_floor = Mock(return_value=set())
+        
+        # Set up the new floor_requests property that returns a dict
+        type(mock).floor_requests = PropertyMock(return_value={floor: set() for floor in range(min_floor, max_floor + 1)})
         
         # Apply any overrides
         for key, value in overrides.items():

@@ -63,11 +63,11 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 7
         
         # Should clear the request we're fulfilling
-        requests_floor_7 = elevator_bank.get_requests_for_floor(7)
+        requests_floor_7 = elevator_bank.floor_requests[7]
         assert VerticalDirection.UP not in requests_floor_7
         
         # No request exists for floor 8 (passenger destination), so nothing to clear there
-        requests_floor_8 = elevator_bank.get_requests_for_floor(8)
+        requests_floor_8 = elevator_bank.floor_requests[8]
         assert len(requests_floor_8) == 0
 
 
@@ -117,11 +117,11 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 7
         
         # Should clear the request for floor 7
-        requests_floor_7: set[VerticalDirection] = elevator_bank.get_requests_for_floor(7)
+        requests_floor_7: set[VerticalDirection] = elevator_bank.floor_requests[7]
         assert VerticalDirection.UP not in requests_floor_7
         
         # Should not clear the request for floor 9
-        requests_floor_9: set[VerticalDirection] = elevator_bank.get_requests_for_floor(9)
+        requests_floor_9: set[VerticalDirection] = elevator_bank.floor_requests[9]
         assert VerticalDirection.UP in requests_floor_9
 
 
@@ -190,13 +190,13 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 6
         
         # Should clear only the request we're fulfilling
-        requests_floor_6 = elevator_bank.get_requests_for_floor(6)
+        requests_floor_6 = elevator_bank.floor_requests[6]
         assert VerticalDirection.UP not in requests_floor_6
         
         # Other requests should remain
-        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(2)
-        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(7)
-        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(8)
+        assert VerticalDirection.UP in elevator_bank.floor_requests[2]
+        assert VerticalDirection.UP in elevator_bank.floor_requests[7]
+        assert VerticalDirection.UP in elevator_bank.floor_requests[8]
 
 
     
@@ -222,13 +222,13 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 5
         
         # Should clear only the request we're fulfilling
-        requests_floor_5 = elevator_bank.get_requests_for_floor(5)
+        requests_floor_5 = elevator_bank.floor_requests[5]
         assert VerticalDirection.DOWN not in requests_floor_5
         
         # Other requests should remain
-        assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(10)
-        assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(3)
-        assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(2)
+        assert VerticalDirection.DOWN in elevator_bank.floor_requests[10]
+        assert VerticalDirection.DOWN in elevator_bank.floor_requests[3]
+        assert VerticalDirection.DOWN in elevator_bank.floor_requests[2]
 
 
     
@@ -254,7 +254,7 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 6
         
         # Should clear the request we're fulfilling
-        requests_floor_6 = elevator_bank.get_requests_for_floor(6)
+        requests_floor_6 = elevator_bank.floor_requests[6]
         assert VerticalDirection.UP not in requests_floor_6
 
 
@@ -300,12 +300,12 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 7
         
         # Should clear UP request for floor 7, but not DOWN request
-        requests_floor_7: set[VerticalDirection] = elevator_bank.get_requests_for_floor(7)
+        requests_floor_7: set[VerticalDirection] = elevator_bank.floor_requests[7]
         assert VerticalDirection.UP not in requests_floor_7
         assert VerticalDirection.DOWN in requests_floor_7  # Should still exist
         
         # Floor 8 request should be untouched
-        requests_floor_8: set[VerticalDirection] = elevator_bank.get_requests_for_floor(8)
+        requests_floor_8: set[VerticalDirection] = elevator_bank.floor_requests[8]
         assert VerticalDirection.UP in requests_floor_8
 
 
@@ -368,13 +368,13 @@ class TestRequestClearing:
         
         # Set up request
         elevator_bank.request_elevator(5, VerticalDirection.UP)
-        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(5)
+        assert VerticalDirection.UP in elevator_bank.floor_requests[5]
         
         # Process the ready elevator
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Request should be cleared
-        requests: set[VerticalDirection] = elevator_bank.get_requests_for_floor(5)
+        requests: set[VerticalDirection] = elevator_bank.floor_requests[5]
         assert VerticalDirection.UP not in requests
         assert len(requests) == 0
 
@@ -395,6 +395,6 @@ class TestRequestClearing:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
         
         # Only UP request should be cleared (that's the direction we're going)
-        requests: set[VerticalDirection] = elevator_bank.get_requests_for_floor(5)
+        requests: set[VerticalDirection] = elevator_bank.floor_requests[5]
         assert VerticalDirection.UP not in requests
         assert VerticalDirection.DOWN in requests
