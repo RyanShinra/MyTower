@@ -82,6 +82,7 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
 
     # Start HTTP server on main thread (blocks)
     logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
+    logger.info("If running in Docker: Use the port from your -p flag")
     run_server(host="0.0.0.0", port=args.port)
 
     # Never reaches here (uvicorn.run blocks)
@@ -248,6 +249,7 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     # Start GraphQL server in background thread
     def graphql_thread_target() -> None:
         logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
+        logger.info("If running in Docker: Use the port from your -p flag")
         run_server(host="127.0.0.1", port=args.port)
 
     graphql_thread = threading.Thread(target=graphql_thread_target, daemon=True, name="GraphQLServer")
