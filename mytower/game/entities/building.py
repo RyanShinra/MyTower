@@ -2,18 +2,18 @@ from __future__ import annotations  # Defer type evaluation
 
 from typing import Dict, Final, List, override
 
-from pygame import Surface
 
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Time
-from mytower.game.entities.entities_protocol import \
-    ElevatorBankList  # Use alias
-from mytower.game.entities.entities_protocol import ElevatorList  # Use alias
-from mytower.game.entities.entities_protocol import FloorList  # Use alias
-from mytower.game.entities.entities_protocol import (BuildingProtocol,
-                                                     ElevatorBankProtocol,
-                                                     ElevatorProtocol,
-                                                     FloorProtocol)
+from mytower.game.entities.entities_protocol import (
+    BuildingProtocol,
+    ElevatorBankList,  # Use alias
+    ElevatorBankProtocol,
+    ElevatorList,  # Use alias
+    ElevatorProtocol,
+    FloorList,  # Use alias
+    FloorProtocol,
+)
 from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
@@ -33,7 +33,7 @@ class Building(BuildingProtocol):
 
         self._floor_width: Blocks = Blocks(width)  # Width in grid cells
         self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
-        self._elevator_banks: List[ElevatorBankProtocol] = []  # List of elevator objects        
+        self._elevator_banks: List[ElevatorBankProtocol] = []  # List of elevator objects
 
     @property
     @override
@@ -52,7 +52,9 @@ class Building(BuildingProtocol):
         next_floor_num: int = self.num_floors + 1
         # TODO: Left extent is hardcoded to 0 for now
         left_edge: Blocks = Blocks(0)
-        self._floors[next_floor_num] = Floor(self._logger_provider, self, next_floor_num, floor_type, left_edge, self._floor_width)
+        self._floors[next_floor_num] = Floor(
+            self._logger_provider, self, next_floor_num, floor_type, left_edge, self._floor_width
+        )
         return next_floor_num
 
     @override
@@ -72,13 +74,10 @@ class Building(BuildingProtocol):
                 and (bank.min_floor <= floor_num <= bank.max_floor)
             )
         ]
-        
+
     @override
     def get_floors(self) -> FloorList:  # ✅ Cleaner
-        return [
-            self._floors[floor_num]
-            for floor_num in range(1, self.num_floors + 1)
-        ]
+        return [self._floors[floor_num] for floor_num in range(1, self.num_floors + 1)]
 
     @override
     def get_floor_by_number(self, floor_num: int) -> FloorProtocol | None:
@@ -99,8 +98,4 @@ class Building(BuildingProtocol):
     @override
     def update(self, dt: Time) -> None:
         """Update the building state by time increment dt"""
-        pass        
-
-    def draw(self, surface: Surface) -> None:
-        """Draw the building on the given surface"""
-        pass  # To be implemented when the building needs to be drawn
+        pass

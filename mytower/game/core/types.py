@@ -10,8 +10,6 @@
 from enum import Enum
 from typing import NewType, Tuple, TypeAlias, Union
 
-import pygame
-
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 # We'll initialize the logger properly in main.py
@@ -30,7 +28,6 @@ Color: TypeAlias = Union[RGB, RGBA]
 # Pygame-specific types
 MousePos: TypeAlias = Tuple[int, int]
 MouseButtons: TypeAlias = Tuple[bool, bool, bool]
-PygameSurface: TypeAlias = pygame.Surface
 
 
 # Floor types as an Enum
