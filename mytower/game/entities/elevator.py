@@ -37,7 +37,6 @@ from mytower.game.utilities.logger import LoggerProvider
 if TYPE_CHECKING:
     from mytower.game.utilities.logger import MyTowerLogger
 
-
 # flake8: noqa: E701
 
 class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
@@ -123,7 +122,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     @override
     def max_capacity(self) -> int:
         return self._config.MAX_CAPACITY
-    
+
     @property
     @override
     def passenger_count(self) -> int:
@@ -151,7 +150,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     @override
     def testing_set_nominal_direction(self, direction: VerticalDirection) -> None:
         self._nominal_direction = direction
-    
+
     @property
     @override
     def current_floor_int(self) -> int:
@@ -169,7 +168,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     @override
     def vertical_position(self) -> Blocks:
         return self._vertical_position
-    
+
     @property
     @override
     def horizontal_position(self) -> Blocks:
@@ -240,7 +239,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._motion_direction = VerticalDirection.UP
             self._nominal_direction = destination.direction
             self._state = ElevatorState.READY_TO_MOVE
-        
+
         elif self.current_floor_int > destination.floor:
             self._logger.info(f"{self.elevator_state} Elevator: Going DOWN")
             self._motion_direction = VerticalDirection.DOWN
@@ -261,7 +260,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         if len(passengers) > self._config.MAX_CAPACITY:
             raise ValueError(f"Cannot set {len(passengers)} passengers: exceeds max capacity of {self._config.MAX_CAPACITY}")
         self._passengers = list(passengers)  # Defensive copy
-    
+
     @override
     def testing_get_passengers(self) -> List[PersonProtocol]:
         return self._passengers.copy()
@@ -364,14 +363,13 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._idle_log_timer = Time(0.0)
         self._motion_direction = VerticalDirection.STATIONARY
 
-
     def _update_moving(self, dt: Time) -> None:
         # Physics with proper units - type checker now knows this is Meters!
         distance: Meters = self.max_velocity * dt  # No cast needed!
         dy_blocks: Blocks = distance.in_blocks
-        
+
         cur_floor: float = float(self._vertical_position) + float(dy_blocks) * self.motion_direction.value
-        
+
         if self._moving_log_timer >= self._config.MOVING_LOG_TIMEOUT:
             self._logger.trace(
                 f"{self.elevator_state} Elevator: Moving {self.motion_direction} from {self._vertical_position} to {cur_floor}"
@@ -399,7 +397,6 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         cur_floor = max(self.min_floor, cur_floor)
         self._vertical_position = Blocks(cur_floor)
 
-
     def _update_arrived(self, dt: Time) -> None:
         who_wants_off: Final[List[PersonProtocol]] = self.passengers_who_want_off()
 
@@ -410,7 +407,6 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         self._logger.debug(
             f"{self.elevator_state} Elevator: Having arrived, elevator has {len(who_wants_off)} passengers to disembark -> {self._state}"
         )
-
 
     def _update_unloading(self, dt: Time) -> None:
         self._unloading_timeout += dt
@@ -423,15 +419,14 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         if len(who_wants_off) > 0:
             self._logger.debug(f"{self.elevator_state} Elevator: Unloading Passenger")
             disembarking_passenger: Final[PersonProtocol] = who_wants_off.pop()
-            
+
             self._passengers.remove(disembarking_passenger)
             disembarking_passenger.disembark_elevator()
-        
+
         else:
             self._logger.debug(f"{self.elevator_state} Elevator: Unloading Complete -> LOADING")
             self._state = ElevatorState.LOADING
         return
-
 
     def _update_loading(self, dt: Time) -> None:
         self._loading_timeout += dt
@@ -462,7 +457,6 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._state = ElevatorState.READY_TO_MOVE  # Nobody else wants to get on
             self.door_open = False
         return
-
 
     def _update_ready_to_move(self, dt: Time) -> None:
         self._logger.debug(

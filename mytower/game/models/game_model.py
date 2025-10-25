@@ -39,12 +39,10 @@ from mytower.game.models.snapshot_builders import (
 )
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
-
 class GameModel:
     """
     Pure business logic layer - manages game state
     Provides clean interfaces for external consumption
-
 
     """
 

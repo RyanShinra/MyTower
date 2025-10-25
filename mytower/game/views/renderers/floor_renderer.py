@@ -8,7 +8,6 @@ from mytower.game.core.units import Blocks, Pixels, rect_from_pixels
 from mytower.game.models.model_snapshots import FloorSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
-
 class FloorRenderer:
     def __init__(self, logger_provider: LoggerProvider, font: Font) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("FloorRenderer")

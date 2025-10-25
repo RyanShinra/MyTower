@@ -36,7 +36,6 @@ from mytower.game.utilities.cli_args import GameArgs, parse_args, print_startup_
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.utilities.simulation_loop import start_simulation_thread
 
-
 def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBridge, GameController]:
     """
     Common game setup for all modes.
@@ -62,7 +61,6 @@ def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBri
 
     return bridge, game_controller
 
-
 def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Headless mode: GraphQL server only (for AWS deployment).
@@ -87,7 +85,6 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
 
     # Never reaches here (uvicorn.run blocks)
     sys.exit(0)
-
 
 # pylint: disable=no-member
 def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
@@ -187,7 +184,6 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
 
     pygame.quit()
     sys.exit(0)
-
 
 def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
@@ -295,7 +291,6 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     pygame.quit()
     sys.exit(0)
 
-
 def run_remote_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Remote mode: Desktop connected to remote server (future implementation).
@@ -316,7 +311,6 @@ def run_remote_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
         f"Future: Connect to {args.remote_url} via WebSocket\n"
         f"and render remote game state locally."  # pyright: ignore[reportImplicitStringConcatenation]
     )
-
 
 def main() -> NoReturn:
     """
@@ -345,7 +339,6 @@ def main() -> NoReturn:
         run_remote_mode(args, logger_provider)
     else:  # desktop
         run_desktop_mode(args, logger_provider)
-
 
 if __name__ == "__main__":
     main()

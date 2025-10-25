@@ -47,7 +47,7 @@ Velocity = strawberry.scalar(
     parse_value=lambda v: VelocityCore(float(v)),
     description="Speed in meters per second (m/s). "
                 "Examples: Person walking speed = 1.4 m/s, elevator speed = 2.0 m/s"
-)   
+)
 
 Time = strawberry.scalar(
     TimeCore,

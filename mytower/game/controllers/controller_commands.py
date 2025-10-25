@@ -10,13 +10,11 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
-
 @dataclass
 class CommandResult(Generic[T]):
     success: bool
     data: Optional[T] = None
     error: Optional[str] = None
-
 
 class Command(ABC, Generic[T]):
     @abstractmethod
@@ -29,21 +27,19 @@ class Command(ABC, Generic[T]):
         """Get human-readable description of the command"""
         pass
 
-
 @dataclass
 class AddFloorCommand(Command[int]):
     floor_type: FloorType
-    
+
     @override
     def execute(self, model: GameModel) -> CommandResult[int]:
         new_floor_num: int = model.add_floor(self.floor_type)
         return CommandResult(success=True, data=new_floor_num)
-    
+
     @override
     def get_description(self) -> str:
         return f"Add a floor of type {self.floor_type}"
 
-    
 @dataclass
 class AddPersonCommand(Command[str]):
     floor: int
@@ -72,14 +68,13 @@ class AddPersonCommand(Command[str]):
             dest_block=self.dest_block
         )
         return CommandResult(success=True, data=person_id)
-    
+
     @override
     def get_description(self) -> str:
         return (
             f"Add person at floor {self.floor:.1f}, block {self.block:.2f} "
             f"with destination floor {self.dest_floor:.1f}, block {self.dest_block:.2f}"
         )
-
 
 @dataclass
 class AddElevatorBankCommand(Command[str]):
@@ -91,7 +86,7 @@ class AddElevatorBankCommand(Command[str]):
     def execute(self, model: GameModel) -> CommandResult[str]:
         if self.h_cell < 0:
             return CommandResult(success=False, error=f"Invalid horizontal cell: {self.h_cell:.6f}")
-        
+
         # NOTE: This will need to be revisited if we add basement floors
         if self.min_floor < 1:
             return CommandResult(success=False, error=f"Invalid min floor: {self.min_floor:.1f}")
@@ -111,7 +106,6 @@ class AddElevatorBankCommand(Command[str]):
             f"from floor {self.min_floor:.1f} to {self.max_floor:.1f}"
         )
 
-
 @dataclass
 class AddElevatorCommand(Command[str]):
     elevator_bank_id: str
@@ -121,11 +115,11 @@ class AddElevatorCommand(Command[str]):
         stripped_id: str = self.elevator_bank_id.strip()
         if not stripped_id:
             return CommandResult(success=False, error="elevator_bank_id cannot be empty")
-        
+
         # TODO: #29 Make 64 a config value somewhere
         if len(stripped_id) > 64:
             return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {len(stripped_id)} characters")
-        
+
         el_id: str = model.add_elevator(stripped_id)
         return CommandResult(success=True, data=el_id)
 
