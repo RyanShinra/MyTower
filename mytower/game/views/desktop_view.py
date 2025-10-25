@@ -20,7 +20,6 @@ from mytower.game.views.renderers.elevator_renderer import ElevatorRenderer
 from mytower.game.views.renderers.floor_renderer import FloorRenderer
 from mytower.game.views.renderers.person_renderer import PersonRenderer
 
-
 class DesktopView:
     """
     Manages the overall game state including the building, UI, and game controls.

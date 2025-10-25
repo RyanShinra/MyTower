@@ -2,7 +2,6 @@ from __future__ import annotations  # Defer type evaluation
 
 from typing import Dict, Final, List, override
 
-
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.entities_protocol import (
@@ -16,7 +15,6 @@ from mytower.game.entities.entities_protocol import (
 )
 from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-
 
 class Building(BuildingProtocol):
     """

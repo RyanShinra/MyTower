@@ -13,7 +13,6 @@ from mytower.game.models.model_snapshots import (ElevatorBankSnapshot,
 if TYPE_CHECKING:
     pass  # No longer need concrete imports
 
-
 def build_floor_snapshot(floor: FloorProtocol) -> FloorSnapshot:
     """Build a snapshot for a single floor"""
     return FloorSnapshot(
@@ -26,7 +25,6 @@ def build_floor_snapshot(floor: FloorProtocol) -> FloorSnapshot:
         floorboard_color=floor.floorboard_color,
         person_count=floor.number_of_people
     )
-
 
 def build_elevator_snapshot(elevator: ElevatorProtocol) -> ElevatorSnapshot:
     """Build a snapshot for a single elevator"""
@@ -43,7 +41,6 @@ def build_elevator_snapshot(elevator: ElevatorProtocol) -> ElevatorSnapshot:
         max_capacity=elevator.max_capacity,
     )
 
-
 def build_elevator_bank_snapshot(elevator_bank: ElevatorBankProtocol) -> ElevatorBankSnapshot:
     """Build a snapshot for a single elevator bank"""
     return ElevatorBankSnapshot(
@@ -53,7 +50,6 @@ def build_elevator_bank_snapshot(elevator_bank: ElevatorBankProtocol) -> Elevato
         max_floor=elevator_bank.max_floor,
         floor_requests=elevator_bank.floor_requests,
     )
-
 
 def build_person_snapshot(person: PersonProtocol) -> PersonSnapshot:
     """Build a snapshot for a single person"""

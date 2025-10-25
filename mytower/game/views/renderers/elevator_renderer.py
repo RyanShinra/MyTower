@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from mytower.game.models.model_snapshots import ElevatorSnapshot
     from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
-
 class ElevatorRenderer:
     def __init__(self, logger_provider: LoggerProvider, cosmetics_config: ElevatorCosmeticsProtocol) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("ElevatorRenderer")

@@ -24,7 +24,7 @@ class PersonStateGQL(Enum):
     WALKING = "WALKING"
     WAITING_FOR_ELEVATOR = "WAITING_FOR_ELEVATOR"
     IN_ELEVATOR = "IN_ELEVATOR"
-    
+
 @strawberry.enum
 class ElevatorStateGQL(Enum):
     IDLE = "IDLE"
@@ -33,7 +33,7 @@ class ElevatorStateGQL(Enum):
     LOADING = "LOADING"
     UNLOADING = "UNLOADING"
     READY_TO_MOVE = "READY_TO_MOVE"
-    
+
 @strawberry.enum
 class VerticalDirectionGQL(Enum):
     DOWN = -1
@@ -60,7 +60,7 @@ class ColorGQL:
     green: int
     blue: int
     alpha: int = 255  # Default to fully opaque
-    
+
     @classmethod
     def from_tuple(cls, color: tuple[int, ...]) -> "ColorGQL":
         if len(color) == 3:
@@ -71,13 +71,12 @@ class ColorGQL:
         else:
             raise ValueError("Color tuple must have 3 (RGB) or 4 (RGBA) elements.")
         return cls(red=r, green=g, blue=b, alpha=a)
-    
+
     def as_rgba_tuple(self) -> tuple[int, int, int, int]:
         return (self.red, self.green, self.blue, self.alpha)
-    
+
     def as_rgb_tuple(self) -> tuple[int, int, int]:
         return (self.red, self.green, self.blue)
-
 
 @strawberry.type
 class PersonSnapshotGQL:
@@ -91,7 +90,7 @@ class PersonSnapshotGQL:
     waiting_time: Time  # Core type
     mad_fraction: float
     _draw_color: tuple[int, int, int]
-    
+
     @strawberry.field
     def draw_color(self) -> ColorGQL:
         return ColorGQL.from_tuple(self._draw_color)
@@ -108,13 +107,13 @@ class ElevatorSnapshotGQL:
     passenger_count: int
     available_capacity: int
     max_capacity: int
-    
+
     # Optional: Provide multiple unit representations
     @strawberry.field
     def vertical_position_meters(self) -> Meters:
         """Current position in meters for physics calculations"""
         return self.vertical_position.in_meters  # Direct property access, type-safe!
-    
+
     @strawberry.field
     def vertical_position_pixels(self) -> Pixels:
         """Current position in pixels for rendering hint"""
@@ -134,10 +133,10 @@ class FloorSnapshotGQL:
     floor_height: Blocks  # Core type
     left_edge_block: Blocks      # Core type
     floor_width: Blocks   # Core type
-    person_count: int 
+    person_count: int
     floor_color: ColorGQL
     floorboard_color: ColorGQL
-    
+
     @strawberry.field
     def floor_height_meters(self) -> Meters:
         """Floor height in real-world units"""

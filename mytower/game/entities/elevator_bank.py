@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with MyTower. If not, see <https://www.gnu.org/licenses/>.
 
-
 from __future__ import annotations  # Defer type evaluation
 
 from collections import deque
@@ -32,7 +31,6 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 if TYPE_CHECKING:
     from mytower.game.core.config import ElevatorCosmeticsProtocol
-
 
 class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     """
@@ -146,7 +144,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         if floor < self._min_floor or floor > self._max_floor:
             raise ValueError(f"Floor {floor} out of range {self._min_floor}-{self._max_floor}")
 
-            
     @override
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
@@ -344,13 +341,13 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         result: Final[ElevatorBank.DirQueue] = self._get_waiting_passengers(floor, nom_direction)
         who_wants_to_get_on: Final[deque[PersonProtocol]] = result[0]
         new_direction: Final[VerticalDirection] = result[1]
-        
+
         if who_wants_to_get_on:
             self._logger.debug(f"IDLE elevator Found {len(who_wants_to_get_on)} passengers waiting on floor {floor} in direction {new_direction}")
             self._requests[floor].discard(new_direction)  # Clear the request since we're responding to it
             elevator.request_load_passengers(new_direction)
             return
-        
+
         # Nope, nobody wants to get on in the nominal direction, how about the reverse direction?
         reverse_result: ElevatorBank.DirQueue = self._get_waiting_passengers(floor, nom_direction.invert())
         reverse_who_wants_to_get_on: Final[deque[PersonProtocol]] = reverse_result[0]
@@ -375,13 +372,13 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             f"Finding next destination for elevator at floor {floor} with nominal direction {nom_direction}"
         )
         next_destination: Final[ElevatorDestination] = self._get_next_destination(elevator, floor, nom_direction)
-        
+
         if next_destination.has_destination:
             self._logger.info(
                 f"Setting destination to {next_destination.floor} with direction {next_destination.direction}, has_destination={next_destination.has_destination}"
             )
             elevator.set_destination(next_destination)
-            
+
             # Oh, and we need to clear the request on that floor
             requests_at_destination: set[VerticalDirection] | None = self._requests.get(next_destination.floor)
 
@@ -397,7 +394,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     def _get_next_destination(
         self, elevator: ElevatorProtocol, current_floor: int, current_direction: VerticalDirection
     ) -> ElevatorDestination:
-        
+
         # Normalize STATIONARY direction before doing any searches
         search_direction: VerticalDirection = current_direction
         if search_direction == VerticalDirection.STATIONARY:
@@ -438,7 +435,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         return destinations
 
-
     def _select_next_floor(self, destinations: List[ElevatorDestination], direction: VerticalDirection) -> ElevatorDestination:
         # Use the direction from the destinations themselves, as they may have been collected
         # in a different direction than originally requested (e.g., when reversing)
@@ -447,7 +443,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             actual_direction: VerticalDirection = destinations[0].direction
         else:
             actual_direction = direction
-            
+
         if actual_direction == VerticalDirection.UP:
             # Go to the lowest floor above us
             return min(destinations)

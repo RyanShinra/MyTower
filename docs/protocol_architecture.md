@@ -13,7 +13,7 @@ Define interfaces for production code. Never depend on concrete implementations.
 class PersonProtocol(Protocol):
     @property
     def current_floor_num(self) -> int: ...
-    
+
     def board_elevator(self, elevator: ElevatorProtocol) -> None: ...
 ```
 

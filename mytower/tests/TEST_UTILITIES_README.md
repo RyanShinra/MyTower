@@ -7,7 +7,7 @@ This document describes the type-safe test utilities introduced to improve test 
 The test utilities provide three main components:
 
 1. **TypedMockFactory** - Creates properly typed mocks with consistent interfaces
-2. **StateAssertions** - Provides clean, readable state validation helpers  
+2. **StateAssertions** - Provides clean, readable state validation helpers
 3. **BoundaryTestMixin** - Simplifies boundary condition testing
 
 ## TypedMockFactory
@@ -26,13 +26,13 @@ def test_with_typed_mocks(typed_mock_factory: TypedMockFactory):
         person_id="test_person",
         state=PersonState.WALKING
     )
-    
+
     elevator_mock = typed_mock_factory.create_elevator_mock(
         current_floor=3,
         state=ElevatorState.MOVING,
         passenger_count=7
     )
-    
+
     building_mock = typed_mock_factory.create_building_mock(
         num_floors=15,
         floor_width=25,
@@ -59,7 +59,7 @@ def test_with_state_assertions(person: Person, state_assertions: StateAssertions
     # assert person.state == PersonState.IDLE
     # assert person.current_floor_num == 5
     # assert person.current_block_float == 10.0
-    
+
     # Use one clear assertion:
     state_assertions.assert_person_state(
         person,
@@ -67,7 +67,7 @@ def test_with_state_assertions(person: Person, state_assertions: StateAssertions
         expected_floor=5,
         expected_block=10.0
     )
-    
+
     # Similar for elevators:
     state_assertions.assert_elevator_state(
         elevator,
@@ -95,10 +95,10 @@ class MyTestClass(BoundaryTestMixin):
     def test_boundary_conditions(self, person: Person):
         valid_floors = [1, 5, 10]
         invalid_floors = [-1, 11, 100]
-        
+
         def set_dest_floor(floor_num: int) -> None:
             person.set_destination(dest_floor_num=floor_num, dest_block_num=10)
-        
+
         # Tests both valid and invalid values in one call
         self.assert_boundary_validation(
             func=set_dest_floor,
@@ -125,9 +125,9 @@ def test_old_way(self):
     mock_person.current_floor_num = 5
     mock_person.destination_floor_num = 8
     mock_person.state = PersonState.WALKING
-    
+
     # ... test logic ...
-    
+
     assert mock_person.state == PersonState.IDLE
     assert mock_person.current_floor_num == 5
     assert mock_person.current_block_float == 10.0
@@ -142,9 +142,9 @@ def test_new_way(self, typed_mock_factory: TypedMockFactory, state_assertions: S
         destination_floor=8,
         state=PersonState.WALKING
     )
-    
+
     # ... test logic ...
-    
+
     state_assertions.assert_person_state(
         person_mock,
         expected_state=PersonState.IDLE,

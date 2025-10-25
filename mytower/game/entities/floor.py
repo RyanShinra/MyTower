@@ -1,11 +1,8 @@
 # game/floor.py
 from __future__ import annotations  # Defer type evaluation
 
-
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, Final, override
-
-
 
 from mytower.game.core.units import Blocks
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
@@ -31,10 +28,8 @@ from mytower.game.core.constants import (
 
 from mytower.game.entities.entities_protocol import FloorProtocol
 
-
 if TYPE_CHECKING:
     from mytower.game.entities.entities_protocol import PersonProtocol, BuildingProtocol
-
 
 class Floor(FloorProtocol):
     """
@@ -61,13 +56,13 @@ class Floor(FloorProtocol):
     }
 
     def __init__(
-        self, 
-        logger_provider: LoggerProvider, 
-        building: BuildingProtocol, 
-        floor_num: int, 
-        floor_type: FloorType, 
-        floor_left_edge: Blocks = DEFAULT_FLOOR_LEFT_EDGE, 
-        floor_width: Blocks = DEFAULT_FLOOR_WIDTH,   
+        self,
+        logger_provider: LoggerProvider,
+        building: BuildingProtocol,
+        floor_num: int,
+        floor_type: FloorType,
+        floor_left_edge: Blocks = DEFAULT_FLOOR_LEFT_EDGE,
+        floor_width: Blocks = DEFAULT_FLOOR_WIDTH,
     ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("floor")
         self._building: BuildingProtocol = building
@@ -82,8 +77,8 @@ class Floor(FloorProtocol):
         self._floorboard_color: Color = FLOORBOARD_COLOR
         self._height: Blocks = self.FLOOR_TYPES[floor_type].height
 
-        self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor    
-        
+        self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor
+
     # Grid of rooms/spaces on this floor
 
     @property
@@ -133,12 +128,12 @@ class Floor(FloorProtocol):
     @property
     def people(self) -> Dict[str, PersonProtocol]:
         return dict(self._people)
-    
+
     @override
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
-        
+
     @override
     def remove_person(self, person_id: str) -> PersonProtocol:
         """Remove a person from the floor, returns the person if found, throws if not"""
@@ -148,8 +143,7 @@ class Floor(FloorProtocol):
         if not person:
             raise KeyError(f"Person not found: {person_id}")
         return person
-        
-            
+
     def update(self, dt: float) -> None:
         """Update floor simulation"""
         pass  # To be implemented

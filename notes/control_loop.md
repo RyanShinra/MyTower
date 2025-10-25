@@ -1,12 +1,11 @@
 This actually kinda goes way back to the idea of frame time and how you can't update the state and view it at the same time. In old-school, actually, really, any, video games you compute your updates during the V-blank interval. You have to push your video data to the buffer before the refresh time is over. In this way, all the mutations have to be collected and processed before the get methods and the draw methods are called. For the web-client, we'll have some really interesting problems to solve...
 
-
 That's a sharp insight about the frame-based execution model. You're right that this mirrors the classic video game pattern where you have distinct phases:
 
 ```
 Frame N:
 1. Collect input (commands from all sources)
-2. Process all mutations atomically 
+2. Process all mutations atomically
 3. Generate snapshots (immutable state for this frame)
 4. Render/respond based on snapshots
 
@@ -22,17 +21,17 @@ For your architecture, this suggests:
 def game_frame():
     # Phase 1: Drain command queue
     commands = collect_all_pending_commands()
-    
+
     # Phase 2: Execute mutations atomically
     for cmd in commands:
         controller.execute_command(cmd)
-    
+
     # Phase 3: Advance simulation
     controller.update(dt)
-    
+
     # Phase 4: Generate snapshots
     current_snapshot = controller.get_building_state()
-    
+
     # Phase 5: All reads happen from this snapshot
     # Desktop renders, GraphQL queries respond, etc.
 ```
@@ -67,10 +66,10 @@ The WebSocket slipstream approach feels more aligned with the frame-based model.
 ```python
 def game_frame():
     # Phases 1-3: Commands, mutations, simulation update
-    
+
     # Phase 4: Generate frame snapshot
     current_snapshot = controller.get_building_state()
-    
+
     # Phase 5: Broadcast to all connected clients
     websocket_manager.broadcast_frame_update({
         "frame_id": current_frame,
@@ -84,7 +83,7 @@ This treats GraphQL queries more like subscriptions. Instead of immediate reques
 
 **Client flow:**
 1. Client sends GraphQL query: `{ building { floors { floorNumber } } }`
-2. Server queues the query structure  
+2. Server queues the query structure
 3. Next frame processes all queries against the snapshot
 4. Results get pushed via WebSocket with frame data
 
@@ -94,12 +93,11 @@ This treats GraphQL queries more like subscriptions. Instead of immediate reques
 - Natural fit for real-time multiplayer later
 - Queries automatically become "live" - clients get updates when relevant data changes
 
-**Drawback:** 
+**Drawback:**
 - HTTP-style request-response becomes more complex
 - Clients need to correlate query IDs with responses
 
 The promise-stashing approach would work too, but it fights against the frame model by trying to maintain synchronous semantics in an asynchronous system.
-
 
 Yeah, the primary HTTP call, which would be abstracted by the GraphQL engine and resolvers, just returns a 200 something, and maybe a unique response id? The correlated response would then get dumped into slipstream (that's a fun name, I like it). The client then would reorder the responses in whatever way makes sense
 
@@ -127,7 +125,7 @@ POST /graphql
   "building": { ... },
   "queryResponses": [
     {
-      "queryId": "q_789abc", 
+      "queryId": "q_789abc",
       "data": { "building": { "floors": [...] } }
     }
   ]
@@ -154,32 +152,32 @@ class FrameQueryManager:
         self._lock = threading.RLock()
         self._current_frame = 0
         self._pending_queries: Dict[str, PendingQuery] = {}
-    
+
     def get_current_frame(self) -> int:
         """GraphQL threads call this to get frame number for new queries"""
         with self._lock:
             return self._current_frame + 1  # Next frame that will process
-    
+
     def register_query(self, query_id: str, query_data: Any, target_frame: int) -> None:
         """GraphQL threads register queries to be processed"""
         with self._lock:
             self._pending_queries[query_id] = PendingQuery(query_data, target_frame)
-    
+
     def advance_frame(self) -> Tuple[int, List[PendingQuery]]:
         """Main thread calls this each frame"""
         with self._lock:
             self._current_frame += 1
-            
+
             # Collect queries for this frame
             frame_queries = [
-                (qid, query) for qid, query in self._pending_queries.items() 
+                (qid, query) for qid, query in self._pending_queries.items()
                 if query.target_frame <= self._current_frame
             ]
-            
+
             # Remove processed queries
             for qid, _ in frame_queries:
                 del self._pending_queries[qid]
-                
+
             return self._current_frame, [q for _, q in frame_queries]
 ```
 
@@ -200,11 +198,11 @@ Want to step back to the simpler goal of just getting those command classes impl
 Yes, next 3 things:
 1. Rename GameState to DesktopView
 2. Test the updated DemoCreator to see if the game still works.
-3. Refactor the folder structure. 
+3. Refactor the folder structure.
 4. Yank out the update code from the building hierarchy into the GameController so that it has the only real update loop.
 5. Refactor Update out of GameState / DesktopView into main since it will be shared amongst the various views (dear gods, what would the 3rd kind even be???).
 6. Move all the drawing code out of the various object types and the building object hierarchy into the DesktopView.
-7. Create the "Mutation Queue" in main and pass it to DesktopView, that's how the external commands from the desktop view will be processed (for now, it's just the DemoBuilder and pause, speed change). 
+7. Create the "Mutation Queue" in main and pass it to DesktopView, that's how the external commands from the desktop view will be processed (for now, it's just the DemoBuilder and pause, speed change).
 8. Pray
 9. See if it runs
 
@@ -252,7 +250,7 @@ main -> game_state -> game_controller -> game_model -> building
 
 You recognized this felt like "one too many layers" and we discussed the proper separation:
 - **GameModel**: Simulation state (people positions, elevator states, time, money)
-- **GameController**: Command handling and API boundary  
+- **GameController**: Command handling and API boundary
 - **GameState → DesktopView**: Platform-specific rendering and input
 
 **Key Decision**: Keep the controller layer despite it being a "thin wrapper" because:
@@ -270,7 +268,7 @@ Recognized duplicate ID generation code across Person and Elevator classes. Deci
 ```python
 class Person:
     _id_generator = IDGenerator("person")
-    
+
     def __init__(self, ...):
         self._person_id = Person._id_generator.get_next_id()
 ```
@@ -278,17 +276,17 @@ class Person:
 ### Frame-Based Execution Model
 You made a crucial insight connecting this to video game rendering patterns - mutations must be processed atomically before any reads occur, similar to V-blank timing in graphics programming.
 
-**Architecture**: 
+**Architecture**:
 ```
 Frame N:
 1. Collect commands from all sources
-2. Process mutations atomically  
+2. Process mutations atomically
 3. Generate immutable snapshots
 4. All reads/renders use these snapshots
 ```
 
 ### GraphQL Async Challenge
-Identified the fundamental mismatch between synchronous frame-based execution and asynchronous GraphQL requests. 
+Identified the fundamental mismatch between synchronous frame-based execution and asynchronous GraphQL requests.
 
 **Solution**: HTTP returns acknowledgment + query ID, actual data flows through WebSocket "slipstream" with frame updates. This handles web latency as a "universal constant" rather than fighting it.
 

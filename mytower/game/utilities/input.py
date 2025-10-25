@@ -14,12 +14,8 @@ import pygame
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import MouseButtons, MousePos
 
-
-
 class MouseState:
     """Class to store and manage mouse state"""
-
-
 
     def __init__(self, logger_provider: LoggerProvider) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("input")
@@ -29,8 +25,6 @@ class MouseState:
         self._extended_buttons: List[bool] = []
         self._wheel_y: int = 0  # Vertical scroll
         self._wheel_x: int = 0  # Horizontal scroll (if supported)
-
-
 
     def update(self) -> None:
         """Update mouse state from pygame"""
@@ -63,8 +57,6 @@ class MouseState:
         """Get the current mouse position"""
         return self._position
 
-
-
     def is_button_pressed(self, button_idx: int) -> bool:
         """
         Check if a specific button is pressed
@@ -84,7 +76,6 @@ class MouseState:
         elif button_idx - 3 < len(self._extended_buttons):
             return self._extended_buttons[button_idx - 3]
         return False
-
 
 # Global mouse state instance
 # This will be initialized properly in main.py

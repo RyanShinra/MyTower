@@ -54,10 +54,10 @@ class ElevatorCosmeticsProtocol(Protocol):
 
     @property
     def SHAFT_OVERHEAD_HEIGHT(self) -> Meters: ...
-    
+
     @property
     def ELEVATOR_WIDTH(self) -> Meters: ...
-    
+
     @property
     def ELEVATOR_HEIGHT(self) -> Meters: ...
 
@@ -120,7 +120,6 @@ class ElevatorConfig:
     IDLE_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Idle
     MOVING_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Moving
 
-
 @dataclass
 class ElevatorCosmetics:
     """Implements Elevator Cosmetics Protocol"""
@@ -133,7 +132,6 @@ class ElevatorCosmetics:
     ELEVATOR_WIDTH: Final[Meters] = Blocks(1.0).in_meters
     ELEVATOR_HEIGHT: Final[Meters] = Blocks(1.0).in_meters
 
-
 @dataclass
 class PersonConfig:
     """Person behavior configuration with explicit units"""
@@ -143,7 +141,6 @@ class PersonConfig:
     MAX_WAIT_TIME: Time = Time(90.0)   # Explicit seconds
     IDLE_TIMEOUT: Time = Time(5.0)     # Explicit seconds
     RADIUS: Meters = Meters(1.75 / 2)      # Explicit meters (divide by two so that the radius is half the average height of 175 cm)
-
 
 @dataclass
 class PersonCosmetics:
@@ -158,7 +155,7 @@ class PersonCosmetics:
     INITIAL_MIN_RED: Final[int] = 0
     INITIAL_MIN_GREEN: Final[int] = 0
     INITIAL_MIN_BLUE: Final[int] = 0
-    
+
     # Predefined color palette for people (10 colors using the clamped values)
     COLOR_PALETTE: Final[tuple[tuple[int, int, int], ...]] = (
         (32, 32, 32),       # Black
@@ -171,7 +168,6 @@ class PersonCosmetics:
         (0, 0, 160),     # Blue
         (64, 0, 128),    # Purple
     )
-
 
 @dataclass
 class UIConfig:

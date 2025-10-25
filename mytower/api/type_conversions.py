@@ -1,7 +1,6 @@
 from mytower.api.graphql_types import BuildingSnapshotGQL, ColorGQL, ElevatorSnapshotGQL, ElevatorStateGQL, FloorSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL, PersonStateGQL, VerticalDirectionGQL
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 
-
 def convert_building_snapshot(snapshot: BuildingSnapshot) -> BuildingSnapshotGQL:
     return BuildingSnapshotGQL(
         time=snapshot.time,

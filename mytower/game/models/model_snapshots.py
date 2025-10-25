@@ -5,7 +5,6 @@ from mytower.game.core.types import (RGB, Color, ElevatorState, FloorType,
                                      PersonState, VerticalDirection)
 from mytower.game.core.units import Blocks, Time
 
-
 @dataclass
 class PersonSnapshot:
     """Immutable snapshot of person state for API consumption"""
@@ -19,7 +18,6 @@ class PersonSnapshot:
     waiting_time: Time
     mad_fraction: float  # 0.0 to 1.0
     draw_color: RGB  # RGB color for rendering
-
 
 @dataclass
 class ElevatorSnapshot:
@@ -35,7 +33,6 @@ class ElevatorSnapshot:
     available_capacity: int
     max_capacity: int
 
-
 # TODO: Add Elevator references so that the GraphQL layer can resolve them
 @dataclass
 class ElevatorBankSnapshot:
@@ -45,7 +42,6 @@ class ElevatorBankSnapshot:
     min_floor: int
     max_floor: int
     floor_requests: dict[int, set[VerticalDirection]]  # floor number to set of requests
-
 
 @dataclass
 class FloorSnapshot:
@@ -58,7 +54,6 @@ class FloorSnapshot:
     person_count: int
     floor_color: Color  # RGB color for rendering
     floorboard_color: Color  # RGB color for rendering
-
 
 @dataclass
 class BuildingSnapshot:

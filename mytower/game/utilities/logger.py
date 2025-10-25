@@ -15,12 +15,9 @@ CRITICAL = logging.CRITICAL  # A serious error that might prevent the program fr
 # Register the TRACE level with the logging system
 logging.addLevelName(TRACE, "TRACE")
 
-
-
 class MyTowerLogger(logging.Logger):
     """Custom logger class with TRACE level support."""
 
-    
     def trace(self, msg: object, *args: Any, **kwargs: Any) -> None:  # type: ignore[explicit-any]
         """
         Log a message with severity 'TRACE'.
@@ -32,16 +29,13 @@ class MyTowerLogger(logging.Logger):
         """
         if self.isEnabledFor(TRACE):
             self._log(TRACE, msg, args, **kwargs)
-    
+
     def get_level_name(self, level: int) -> str:
         """Get the string name of a log level."""
         return logging.getLevelName(level)
 
-
 # Register our custom logger class with the logging system BEFORE creating any loggers
 logging.setLoggerClass(MyTowerLogger)
-
-
 
 def setup_logger(
     name: str = "mytower",
@@ -100,7 +94,6 @@ def setup_logger(
 
     return logger
 
-
 # Create a root logger for the game
 root_logger = setup_logger(
     name="mytower",
@@ -110,13 +103,11 @@ root_logger = setup_logger(
     console_level=DEBUG,  # Only show DEBUG and higher in console
 )
 
-
 # Create function to get module-specific loggers
 def get_logger(module_name: str) -> MyTowerLogger:
     """Get a logger for a specific module."""
     # Prepend mytower to create a hierarchy
     return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
-
 
 # Create a LoggerProvider:
 class LoggerProvider:
