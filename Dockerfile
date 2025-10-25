@@ -61,7 +61,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Run the application (server mode = headless in code)
 CMD ["python", "-m", "mytower.main", \
-     "--mode", "headless", \
+     "--with-graphql", "--headless", \
      "--demo", \
      "--port", "8000", \
      "--log-level", "INFO"]
