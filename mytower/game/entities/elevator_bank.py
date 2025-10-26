@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with MyTower. If not, see <https://www.gnu.org/licenses/>.
 
-
 from __future__ import annotations  # Defer type evaluation
 
 from collections import deque
@@ -24,13 +23,8 @@ from mytower.game.core.id_generator import IDGenerator
 from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.entities_protocol import (
-    BuildingProtocol,
-    ElevatorBankProtocol,
-    ElevatorBankTestingProtocol,
-    ElevatorDestination,
-    ElevatorProtocol,
-    PersonProtocol,
-)
+    BuildingProtocol, ElevatorBankProtocol, ElevatorBankTestingProtocol,
+    ElevatorDestination, ElevatorProtocol, PersonProtocol)
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 if TYPE_CHECKING:
@@ -413,6 +407,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     def _get_next_destination(
         self, elevator: ElevatorProtocol, current_floor: int, current_direction: VerticalDirection
     ) -> ElevatorDestination:
+
         # Normalize STATIONARY direction before doing any searches
         search_direction: VerticalDirection = current_direction
         if search_direction == VerticalDirection.STATIONARY:
@@ -435,6 +430,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         # Well, nobody seems to want to go anywhere, let's stay put
         return ElevatorDestination(current_floor, VerticalDirection.STATIONARY, False)
+
 
     def _collect_destinations_in_direction(
         self, elevator: ElevatorProtocol, floor: int, direction: VerticalDirection

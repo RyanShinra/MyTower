@@ -3,12 +3,8 @@ from enum import Enum
 import strawberry
 
 import mytower.api.unit_scalars  # Ensure custom scalars are registered
-from mytower.game.core.units import (
-    Blocks,  # Use core types directly!
-    Meters,
-    Pixels,
-    Time,
-)
+from mytower.game.core.units import Blocks  # Use core types directly!
+from mytower.game.core.units import Meters, Pixels, Time
 
 mytower.api.unit_scalars  # noqa  # Prevent unused import warning
 

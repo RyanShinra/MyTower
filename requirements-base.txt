@@ -1,0 +1,12 @@
+# MyTower Base Requirements
+# Shared dependencies for all environments
+
+# Core dependencies
+strawberry-graphql>=0.234.0
+uvicorn>=0.24.0
+fastapi>=0.104.0
+typing_extensions==4.13.2
+
+# Optional but recommended for production
+python-multipart==0.0.20  # For form data handling
+python-dotenv==1.0.1      # For environment variable management

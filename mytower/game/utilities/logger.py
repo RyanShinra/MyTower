@@ -35,7 +35,6 @@ class MyTowerLogger(logging.Logger):
         """Get the string name of a log level."""
         return logging.getLevelName(level)
 
-
 # Register our custom logger class with the logging system BEFORE creating any loggers
 logging.setLoggerClass(MyTowerLogger)
 
@@ -96,7 +95,6 @@ def setup_logger(
         logger.addHandler(file_handler)
 
     return logger
-
 
 # Create a root logger for the game
 root_logger = setup_logger(

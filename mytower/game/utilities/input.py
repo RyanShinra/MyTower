@@ -13,7 +13,6 @@ import pygame
 from mytower.game.core.types import MouseButtons, MousePos
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
-
 class MouseState:
     """Class to store and manage mouse state"""
 
@@ -76,7 +75,6 @@ class MouseState:
         elif button_idx - 3 < len(self._extended_buttons):
             return self._extended_buttons[button_idx - 3]
         return False
-
 
 # Global mouse state instance
 # This will be initialized properly in main.py

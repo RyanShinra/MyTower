@@ -161,7 +161,6 @@ def mock_game_config() -> MagicMock:
 
     return config
 
-
 PERSON_DEFAULT_FLOOR: Final[int] = 6
 PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)
 

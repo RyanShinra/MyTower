@@ -1,15 +1,19 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v4.4.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: mixed-line-ending
-      - id: check-toml
-      - id: check-yaml
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.4
-    hooks:
-      - id: ruff
-        args: ["--fix"]
-      - id: ruff-format
+    #   - id: check-toml
+    #   - id: check-yaml
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: v0.14.2  # Use the latest compatible version
+  #   hooks:
+  #     - id: ruff
+  #       args: ["--fix"]
+  # - repo: https://github.com/psf/black
+  #   rev: 23.9.1  # Use the latest compatible version
+  #   hooks:
+  #     - id: black
+  #       language_version: python3

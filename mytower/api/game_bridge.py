@@ -12,13 +12,8 @@ from time import time
 from typing import Any, TypeVar
 
 from mytower.game.controllers.controller_commands import (
-    AddElevatorBankCommand,
-    AddElevatorCommand,
-    AddFloorCommand,
-    AddPersonCommand,
-    Command,
-    CommandResult,
-)
+    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
+    AddPersonCommand, Command, CommandResult)
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
 from mytower.game.models.model_snapshots import BuildingSnapshot
@@ -46,6 +41,7 @@ class GameBridge:
     """
 
     def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
+
         self._controller: GameController = controller
 
         self._update_lock = threading.Lock()
@@ -161,7 +157,6 @@ class GameBridge:
         if result.success and result.data is not None:
             return result.data  # Type checker knows this is str
         raise RuntimeError(f"Failed to add elevator: {result.error}")
-
 
 # Module-level singleton
 _bridge: GameBridge | None = None

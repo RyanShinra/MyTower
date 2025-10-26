@@ -16,6 +16,7 @@ NOT responsible for:
 from collections.abc import Callable
 
 import pygame
+from pygame.surface import Surface as PygameSurface
 
 from mytower.game.controllers.controller_commands import (
     AddElevatorBankCommand,
@@ -24,7 +25,7 @@ from mytower.game.controllers.controller_commands import (
     AddPersonCommand,
     Command,
 )
-from mytower.game.core.types import FloorType, MouseButtons, MousePos, PygameSurface
+from mytower.game.core.types import FloorType, MouseButtons, MousePos
 from mytower.game.core.units import Blocks
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
@@ -73,6 +74,7 @@ class InputHandler:
         self._toolbar: Toolbar = self._create_toolbar()
 
     # TODO: I think we may want to inject the toolbar rather than create it here...
+
     def _create_toolbar(self) -> Toolbar:
         """Create the toolbar and all its buttons"""
         toolbar_height = 40

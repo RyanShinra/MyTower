@@ -5,9 +5,10 @@ from collections.abc import Callable
 from typing import Protocol
 
 import pygame
+from pygame import Surface as PygameSurface
 from pygame.font import Font
 
-from mytower.game.core.types import RGB, MouseButtons, MousePos, PygameSurface
+from mytower.game.core.types import RGB, MouseButtons, MousePos
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
@@ -17,16 +18,20 @@ class UIConfigProtocol(Protocol):
     """Config requirements for UI elements"""
 
     @property
-    def BACKGROUND_COLOR(self) -> RGB: ...
+    def BACKGROUND_COLOR(self) -> RGB:
+        ...
 
     @property
-    def BORDER_COLOR(self) -> RGB: ...
+    def BORDER_COLOR(self) -> RGB:
+        ...
 
     @property
-    def TEXT_COLOR(self) -> RGB: ...
+    def TEXT_COLOR(self) -> RGB:
+        ...
 
     @property
-    def BUTTON_COLOR(self) -> RGB: ...
+    def BUTTON_COLOR(self) -> RGB:
+        ...
 
     @property
     def BUTTON_HOVER_COLOR(self) -> RGB: ...
@@ -39,7 +44,8 @@ class UIConfigProtocol(Protocol):
 
     # TODO: #23 This should be moved into its own config protocol
     @property
-    def FLOOR_LABEL_FONT_NAME(self) -> tuple[str, ...]: ...
+    def FLOOR_LABEL_FONT_NAME(self) -> tuple[str, ...]:
+        ...
 
     @property
     def FLOOR_LABEL_FONT_SIZE(self) -> int: ...

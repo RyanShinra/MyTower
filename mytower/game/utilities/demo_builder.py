@@ -1,7 +1,6 @@
 # demo_builder.py
 # Creates a demo instance of the game
 
-
 from typing import Final
 
 from mytower.game.controllers.controller_commands import (

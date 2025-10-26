@@ -1,6 +1,5 @@
 This actually kinda goes way back to the idea of frame time and how you can't update the state and view it at the same time. In old-school, actually, really, any, video games you compute your updates during the V-blank interval. You have to push your video data to the buffer before the refresh time is over. In this way, all the mutations have to be collected and processed before the get methods and the draw methods are called. For the web-client, we'll have some really interesting problems to solve...
 
-
 That's a sharp insight about the frame-based execution model. You're right that this mirrors the classic video game pattern where you have distinct phases:
 
 ```
@@ -99,7 +98,6 @@ This treats GraphQL queries more like subscriptions. Instead of immediate reques
 - Clients need to correlate query IDs with responses
 
 The promise-stashing approach would work too, but it fights against the frame model by trying to maintain synchronous semantics in an asynchronous system.
-
 
 Yeah, the primary HTTP call, which would be abstracted by the GraphQL engine and resolvers, just returns a 200 something, and maybe a unique response id? The correlated response would then get dumped into slipstream (that's a fun name, I like it). The client then would reorder the responses in whatever way makes sense
 

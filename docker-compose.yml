@@ -1,0 +1,54 @@
+# MyTower Docker Compose
+# For local testing before AWS deployment
+
+version: '3.8'
+
+services:
+  mytower-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Port mapping: host:container
+    ports:
+      - "8000:8000"
+
+    # Environment variables (override defaults)
+    environment:
+      - MYTOWER_MODE=headless
+      - MYTOWER_PORT=8000
+      - MYTOWER_LOG_LEVEL=DEBUG  # More verbose for local testing
+      - PYTHONUNBUFFERED=1
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Resource limits (similar to AWS Fargate smallest size)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    # Mount logs directory for easy access
+    volumes:
+      - ./logs:/app/logs
+
+    # Container name
+    container_name: mytower-server
+
+    # Health check (same as Dockerfile)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Optional: Add network for future multi-container setup
+networks:
+  default:
+    name: mytower-network

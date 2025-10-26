@@ -7,8 +7,6 @@ from __future__ import annotations
 
 from typing import Final
 
-from pygame import Surface
-
 from mytower.game.core.config import GameConfig
 from mytower.game.core.constants import MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER, STARTING_MONEY
 from mytower.game.core.types import FloorType
@@ -43,7 +41,6 @@ class GameModel:
     """
     Pure business logic layer - manages game state
     Provides clean interfaces for external consumption
-
 
     """
 
@@ -172,7 +169,7 @@ class GameModel:
             raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
 
     # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.
-    def remove_person(self, person_id: str) -> None:
+    def remove_person(self, person_id: str) -> None:  # noqa: E301
         """Remove a person from the building"""
         try:
             self._people.pop(person_id, None)
@@ -247,7 +244,7 @@ class GameModel:
             raise RuntimeError(f"Failed to toggle pause state: {str(e)}") from e
 
     # Simulation Methods
-    def update(self, dt: Time) -> None:
+    def update(self, dt: Time) -> None:  # noqa: E301
         """Update game simulation"""
         try:
             if not self._paused:
@@ -324,7 +321,3 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get floor info for floor {floor_number}: {e}")
             raise RuntimeError(f"Failed to get floor info for floor {floor_number}: {str(e)}") from e
-
-    def temp_draw_building(self, surface: Surface) -> None:
-        """Draw the building on the given surface"""
-        self._building.draw(surface)

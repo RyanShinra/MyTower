@@ -36,7 +36,6 @@ from mytower.game.utilities.logger import LoggerProvider
 if TYPE_CHECKING:
     from mytower.game.utilities.logger import MyTowerLogger
 
-
 # flake8: noqa: E701
 
 

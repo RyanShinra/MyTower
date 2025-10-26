@@ -82,7 +82,6 @@ class ElevatorState(Enum):
     UNLOADING = "UNLOADING"
     READY_TO_MOVE = "READY_TO_MOVE"
 
-
 # Money type (for stronger typing)
 Money = NewType("Money", int)
 

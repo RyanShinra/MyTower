@@ -2,12 +2,12 @@
     "git.suggestSmartCommit": false,
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
+            "source.organizeImports": "never"
         }
     },
-    "editor.formatOnSaveMode": "file",
+    "editor.formatOnSaveMode": "modifications",
 
     // Black formatter settings
     "black-formatter.args": ["--line-length=120"],
@@ -119,7 +119,7 @@
     "errorLens.messageEnabled": false,
     "errorLens.problemRangeDecorationEnabled": true,
     "editor.codeActionsOnSave": {
-        "source.organizeImports": "always",
+        "source.organizeImports": "never",
         "source.unusedImports": "always"
     },
     "makefile.configureOnOpen": false,

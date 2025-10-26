@@ -11,11 +11,13 @@ Supports multiple execution modes:
 
 import sys
 import threading
-from typing import NoReturn
+from typing import TYPE_CHECKING, NoReturn
 
-import pygame
-from pygame.surface import Surface
-from pygame.time import Clock
+# noqa: F401
+if TYPE_CHECKING:
+    import pygame  # type: ignore # noqa: F401
+    from pygame.surface import Surface  # type: ignore # noqa: F401
+    from pygame.time import Clock  # type: ignore # noqa: F401
 
 from mytower.api.game_bridge import GameBridge, initialize_game_bridge
 from mytower.api.server import run_server
@@ -26,10 +28,8 @@ from mytower.game.models.game_model import GameModel
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities import demo_builder
 from mytower.game.utilities.cli_args import GameArgs, parse_args, print_startup_banner
-from mytower.game.utilities.input import MouseState
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.utilities.simulation_loop import start_simulation_thread
-from mytower.game.views.desktop_view import DesktopView
 
 
 def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBridge, GameController]:
@@ -77,6 +77,7 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
 
     # Start HTTP server on main thread (blocks)
     logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
+    logger.info("If running in Docker: Use the port from your -p flag")
     run_server(host="0.0.0.0", port=args.port)
 
     # Never reaches here (uvicorn.run blocks)
@@ -88,10 +89,18 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     """
     Desktop mode: Pygame rendering with local simulation.
 
+
     Thread architecture:
     - Main thread: Pygame event loop + rendering (must be main on macOS)
     - Background thread: Game simulation loop
     """
+    # Import pygame only when needed for desktop mode
+    import pygame  # type: ignore # noqa: F811
+    from pygame.surface import Surface  # type: ignore # noqa: F811
+    from pygame.time import Clock  # type: ignore # noqa: F811
+
+    from mytower.game.utilities.input import MouseState
+    from mytower.game.views.desktop_view import DesktopView
 
     logger: MyTowerLogger = logger_provider.get_logger("Main")
 
@@ -188,6 +197,14 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     Both desktop and GraphQL share the same GameBridge,
     so mutations from GraphQL are immediately visible in the desktop view.
     """
+    # Import pygame only when needed for hybrid mode
+    import pygame  # type: ignore # noqa: F811
+    from pygame.surface import Surface  # type: ignore # noqa: F811
+    from pygame.time import Clock  # type: ignore # noqa: F811
+
+    from mytower.game.utilities.input import MouseState
+    from mytower.game.views.desktop_view import DesktopView
+
     logger: MyTowerLogger = logger_provider.get_logger("Main")
 
     logger.info("Starting hybrid mode (Desktop + GraphQL)...")
@@ -228,6 +245,7 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     # Start GraphQL server in background thread
     def graphql_thread_target() -> None:
         logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
+        logger.info("If running in Docker: Use the port from your -p flag")
         run_server(host="127.0.0.1", port=args.port)
 
     graphql_thread = threading.Thread(target=graphql_thread_target, daemon=True, name="GraphQLServer")
@@ -323,7 +341,6 @@ def main() -> NoReturn:
         run_remote_mode(args, logger_provider)
     else:  # desktop
         run_desktop_mode(args, logger_provider)
-
 
 if __name__ == "__main__":
     main()
