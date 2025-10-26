@@ -226,9 +226,6 @@ class ElevatorTestingProtocol(Protocol):
     def testing_get_passengers(self) -> list[PersonProtocol]: ...
 
 
-    def testing_get_passengers(self) -> List[PersonProtocol]: ...
-
-
 class ElevatorDestination(NamedTuple):
     floor: int
     direction: VerticalDirection
