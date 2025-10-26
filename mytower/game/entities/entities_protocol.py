@@ -205,9 +205,6 @@ class ElevatorProtocol(Protocol):
 
     def passengers_who_want_off(self) -> list[PersonProtocol]: ...
 
-    def passengers_who_want_off(self) -> List[PersonProtocol]: ...
-
-
 class ElevatorTestingProtocol(Protocol):
     """Testing-only protocol for Elevator - provides internal state access for unit tests"""
 
