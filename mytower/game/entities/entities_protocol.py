@@ -372,14 +372,6 @@ class BuildingProtocol(Protocol):
     def get_floors(self) -> list[FloorProtocol]: ...  # Add this
 
 
-    def get_elevator_banks(self) -> List[ElevatorBankProtocol]: ...
-
-    def get_elevator_banks_on_floor(self, floor_num: int) -> List[ElevatorBankProtocol]: ...
-
-    def get_elevators(self) -> List[ElevatorProtocol]: ...
-
-    def get_floors(self) -> List[FloorProtocol]: ...  # Add this
-
     def update(self, dt: Time) -> None: ...  # Changed from float to Time
 
 
