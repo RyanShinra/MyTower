@@ -13,7 +13,6 @@ from mytower.game.models.snapshot_builders import (
     build_elevator_bank_snapshot, build_elevator_snapshot,
     build_floor_snapshot, build_person_snapshot)
 
-
 class TestBuildFloorSnapshot:
     """Test build_floor_snapshot function"""
 
@@ -28,9 +27,9 @@ class TestBuildFloorSnapshot:
         mock_floor.color = (150, 200, 250)
         mock_floor.floorboard_color = (10, 10, 10)
         mock_floor.number_of_people = 3
-        
+
         snapshot = build_floor_snapshot(mock_floor)
-        
+
         assert snapshot.floor_type == FloorType.OFFICE
         assert snapshot.floor_number == 5
         assert snapshot.floor_height == 1
@@ -43,7 +42,7 @@ class TestBuildFloorSnapshot:
     def test_build_floor_snapshot_different_types(self) -> None:
         """Test building snapshots for different floor types"""
         floor_types = [FloorType.LOBBY, FloorType.APARTMENT, FloorType.HOTEL]
-        
+
         for floor_type in floor_types:
             mock_floor = MagicMock(spec=Floor)
             mock_floor.floor_type = floor_type
@@ -54,11 +53,10 @@ class TestBuildFloorSnapshot:
             mock_floor.color = (128, 128, 128)
             mock_floor.floorboard_color = (64, 64, 64)
             mock_floor.number_of_people = 0
-            
-            snapshot = build_floor_snapshot(mock_floor)
-            
-            assert snapshot.floor_type == floor_type
 
+            snapshot = build_floor_snapshot(mock_floor)
+
+            assert snapshot.floor_type == floor_type
 
 class TestBuildElevatorSnapshot:
     """Test build_elevator_snapshot function"""
@@ -76,9 +74,9 @@ class TestBuildElevatorSnapshot:
         mock_elevator.passenger_count = 5
         mock_elevator.avail_capacity = 10
         mock_elevator.max_capacity = 15
-        
+
         snapshot = build_elevator_snapshot(mock_elevator)
-        
+
         assert snapshot.id == "elevator_123"
         assert snapshot.vertical_position == 3.7
         assert snapshot.horizontal_position == 14.2
@@ -93,7 +91,7 @@ class TestBuildElevatorSnapshot:
     def test_build_elevator_snapshot_different_states(self) -> None:
         """Test building snapshots for different elevator states"""
         states = [ElevatorState.IDLE, ElevatorState.LOADING, ElevatorState.ARRIVED]
-        
+
         for state in states:
             mock_elevator = MagicMock(spec=Elevator)
             mock_elevator.elevator_id = f"elevator_{state.value}"
@@ -106,12 +104,11 @@ class TestBuildElevatorSnapshot:
             mock_elevator.passenger_count = 0
             mock_elevator.avail_capacity = 15
             mock_elevator.max_capacity = 15
-            
+
             snapshot = build_elevator_snapshot(mock_elevator)
-            
+
             assert snapshot.elevator_state == state
             assert snapshot.door_open == (state == ElevatorState.LOADING)
-
 
 class TestBuildElevatorBankSnapshot:
     """Test build_elevator_bank_snapshot function"""
@@ -122,9 +119,9 @@ class TestBuildElevatorBankSnapshot:
         mock_bank.horizontal_position = 14
         mock_bank.min_floor = 1
         mock_bank.max_floor = 20
-        
+
         snapshot: ElevatorBankSnapshot = build_elevator_bank_snapshot(mock_bank)
-        
+
         assert snapshot.horizontal_position == 14
         assert snapshot.min_floor == 1
         assert snapshot.max_floor == 20
@@ -136,19 +133,18 @@ class TestBuildElevatorBankSnapshot:
             (10, 5, 25),    # Mid-range
             (3, 15, 15),    # Single floor
         ]
-        
+
         for h_block, min_floor, max_floor in test_cases:
             mock_bank = MagicMock(spec=ElevatorBank)
             mock_bank.horizontal_position = h_block
             mock_bank.min_floor = min_floor
             mock_bank.max_floor = max_floor
-            
+
             snapshot = build_elevator_bank_snapshot(mock_bank)
-            
+
             assert snapshot.horizontal_position == h_block
             assert snapshot.min_floor == min_floor
             assert snapshot.max_floor == max_floor
-
 
 class TestBuildPersonSnapshot:
     """Test build_person_snapshot function"""
@@ -166,9 +162,9 @@ class TestBuildPersonSnapshot:
         mock_person.waiting_time = Time(25.3)
         mock_person.mad_fraction = 0.4
         mock_person.draw_color = (255, 128, 64)
-        
+
         snapshot: PersonSnapshot = build_person_snapshot(mock_person)
-        
+
         assert snapshot.person_id == "person_456"
         assert snapshot.current_floor_num == 3
         assert snapshot.current_vertical_position == Blocks(3.0)
@@ -183,7 +179,7 @@ class TestBuildPersonSnapshot:
     def test_build_person_snapshot_different_states(self) -> None:
         """Test building snapshots for different person states"""
         states: list[PersonState] = [PersonState.IDLE, PersonState.WAITING_FOR_ELEVATOR, PersonState.IN_ELEVATOR]
-        
+
         for state in states:
             mock_person = MagicMock(spec=PersonProtocol)
             mock_person.person_id = f"person_{state.value}"
@@ -196,16 +192,16 @@ class TestBuildPersonSnapshot:
             mock_person.waiting_time = 0.0 if state == PersonState.IDLE else 30.0
             mock_person.mad_fraction = 0.0 if state == PersonState.IDLE else 0.5
             mock_person.draw_color = (128, 128, 128)
-            
+
             snapshot: PersonSnapshot = build_person_snapshot(mock_person)
-            
+
             assert snapshot.state == state
             assert snapshot.person_id == f"person_{state.value}"
 
     def test_build_person_snapshot_mad_fraction_range(self) -> None:
         """Test building snapshots with different mad fraction values"""
         mad_fractions: list[float] = [0.0, 0.25, 0.5, 0.75, 1.0]
-        
+
         for mad_fraction in mad_fractions:
             mock_person = MagicMock(spec=PersonProtocol)
             mock_person.person_id = "person_test"
@@ -218,9 +214,9 @@ class TestBuildPersonSnapshot:
             mock_person.waiting_time = mad_fraction * 100  # Correlate waiting time with madness
             mock_person.mad_fraction = mad_fraction
             mock_person.draw_color = (int(255 * mad_fraction), 128, 128)  # Redder when angrier
-            
+
             snapshot = build_person_snapshot(mock_person)
-            
+
             assert snapshot.mad_fraction == mad_fraction
             assert snapshot.waiting_time == mad_fraction * 100
 
@@ -233,7 +229,7 @@ class TestBuildPersonSnapshot:
             (255, 255, 0),    # Yellow
             (128, 64, 192),   # Purple-ish
         ]
-        
+
         for color in colors:
             mock_person = MagicMock(spec=PersonProtocol)
             mock_person.person_id = "person_test"
@@ -246,11 +242,10 @@ class TestBuildPersonSnapshot:
             mock_person.waiting_time = 0.0
             mock_person.mad_fraction = 0.0
             mock_person.draw_color = color
-            
-            snapshot = build_person_snapshot(mock_person)
-            
-            assert snapshot.draw_color == color
 
+            snapshot = build_person_snapshot(mock_person)
+
+            assert snapshot.draw_color == color
 
 class TestSnapshotBuilderIntegration:
     """Test integration between different snapshot builders"""
@@ -267,11 +262,11 @@ class TestSnapshotBuilderIntegration:
         mock_floor.color = (128, 128, 128)
         mock_floor.floorboard_color = (64, 64, 64)
         mock_floor.number_of_people = 0
-        
+
         floor_snapshot = build_floor_snapshot(mock_floor)
         assert hasattr(floor_snapshot, 'floor_type')
         assert hasattr(floor_snapshot, 'floor_number')
-        
+
         # Elevator
         mock_elevator = MagicMock(spec=Elevator)
         mock_elevator.elevator_id = "elevator_1"
@@ -284,21 +279,21 @@ class TestSnapshotBuilderIntegration:
         mock_elevator.passenger_count = 0
         mock_elevator.avail_capacity = 15
         mock_elevator.max_capacity = 15
-        
+
         elevator_snapshot = build_elevator_snapshot(mock_elevator)
         assert hasattr(elevator_snapshot, 'id')
         assert hasattr(elevator_snapshot, 'elevator_state')
-        
+
         # Bank
         mock_bank = MagicMock(spec=ElevatorBank)
         mock_bank.horizontal_position = 14
         mock_bank.min_floor = 1
         mock_bank.max_floor = 5
-        
+
         bank_snapshot = build_elevator_bank_snapshot(mock_bank)
         assert hasattr(bank_snapshot, 'horizontal_position')
         assert hasattr(bank_snapshot, 'min_floor')
-        
+
         # Person
         mock_person = MagicMock(spec=PersonProtocol)
         mock_person.person_id = "person_1"
@@ -311,7 +306,7 @@ class TestSnapshotBuilderIntegration:
         mock_person.waiting_time = 0.0
         mock_person.mad_fraction = 0.0
         mock_person.draw_color = (128, 128, 128)
-        
+
         person_snapshot = build_person_snapshot(mock_person)
         assert hasattr(person_snapshot, 'person_id')
         assert hasattr(person_snapshot, 'state')

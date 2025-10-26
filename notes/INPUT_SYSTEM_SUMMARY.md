@@ -93,7 +93,7 @@ class ClearAllPeopleCommand(Command[int]):
         count = len(model._people)
         model._people.clear()
         return CommandResult(success=True, data=count)
-    
+
     def get_description(self) -> str:
         return "Clear all people from building"
 ```
@@ -155,10 +155,10 @@ Because input is decoupled via callback, you can test without GameBridge:
 def test_add_floor_button():
     commands = []
     handler = InputHandler(enqueue_callback=commands.append)
-    
+
     # Simulate button click
     handler._on_button_clicked(0)  # Add Floor button
-    
+
     assert len(commands) == 1
     assert isinstance(commands[0], AddFloorCommand)
     assert commands[0].floor_type == FloorType.OFFICE

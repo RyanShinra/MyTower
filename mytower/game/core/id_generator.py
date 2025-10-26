@@ -1,6 +1,5 @@
 import threading
 
-
 class IDGenerator:
     def __init__(self, prefix: str, radix: int = 4, first_id: int = 1) -> None:
         self._prefix: str = prefix
@@ -13,7 +12,7 @@ class IDGenerator:
             current_id: str = f"{self._prefix}_{self._next_id}"
             self._next_id += self._radix
             return current_id
-    
+
     def reset(self, first_id: int = 1) -> None:
         with self._lock:
             self._next_id = first_id
