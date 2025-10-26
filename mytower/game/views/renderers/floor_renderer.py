@@ -1,5 +1,6 @@
-import pygame
 from typing import Final
+
+import pygame
 from pygame import Surface
 from pygame.font import Font
 
@@ -33,10 +34,14 @@ class FloorRenderer:
         floor_width: Pixels = floor.floor_width.in_pixels
 
         # Draw the main floor rectangle
-        pygame.draw.rect(surface, floor.floor_color, rect_from_pixels(left_edge, floor_top_y, floor_width, floor_height))
+        pygame.draw.rect(
+            surface, floor.floor_color, rect_from_pixels(left_edge, floor_top_y, floor_width, floor_height)
+        )
 
         # Draw the floorboard at the top of the floor
-        pygame.draw.rect(surface, floor.floorboard_color, rect_from_pixels(left_edge, floor_top_y, floor_width, FLOORBOARD_HEIGHT))
+        pygame.draw.rect(
+            surface, floor.floorboard_color, rect_from_pixels(left_edge, floor_top_y, floor_width, FLOORBOARD_HEIGHT)
+        )
 
         # Optionally draw the floor number for debugging
         text_surface: Final[Surface] = self._font.render(f"Floor {floor.floor_number}", True, (0, 0, 0))

@@ -1,4 +1,3 @@
-
 import pytest
 
 from mytower.game.core.types import VerticalDirection
@@ -8,7 +7,6 @@ from mytower.game.entities.entities_protocol import ElevatorDestination
 
 
 class TestMovement:
-
     def test_set_destination_floor_down(self, elevator: Elevator) -> None:
         elevator.testing_set_current_vertical_pos(Blocks(4))
         destination = ElevatorDestination(floor=2, direction=VerticalDirection.DOWN, has_destination=True)

@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from mytower.game.core.types import VerticalDirection
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.entities.person import PersonProtocol
-from mytower.game.core.types import VerticalDirection
 
 
 class TestPassengerQueueing:
@@ -66,18 +66,20 @@ class TestPassengerQueueing:
         assert upward_queue[0] is up_person
         assert downward_queue[0] is down_person
 
-    @pytest.mark.parametrize("current_floor_num,dest_floor_num,direction,queue_getter", [
-        (4, 8, VerticalDirection.UP, "testing_get_upward_queue"),
-        (8, 3, VerticalDirection.DOWN, "testing_get_downward_queue"),
-
-    ])
+    @pytest.mark.parametrize(
+        "current_floor_num,dest_floor_num,direction,queue_getter",
+        [
+            (4, 8, VerticalDirection.UP, "testing_get_upward_queue"),
+            (8, 3, VerticalDirection.DOWN, "testing_get_downward_queue"),
+        ],
+    )
     def test_dequeue_passenger_success(
         self,
         elevator_bank: ElevatorBank,
         current_floor_num: int,
         dest_floor_num: int,
         direction: VerticalDirection,
-        queue_getter: str
+        queue_getter: str,
     ) -> None:
         """Test successfully dequeuing passengers in both directions"""
         mock_person = MagicMock()
@@ -141,9 +143,15 @@ class TestPassengerQueueing:
         elevator_bank.add_waiting_passenger(third_person)
 
         # Dequeue should return them in the same order
-        dequeued_1: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor_num, VerticalDirection.UP)
-        dequeued_2: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor_num, VerticalDirection.UP)
-        dequeued_3: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(current_floor_num, VerticalDirection.UP)
+        dequeued_1: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(
+            current_floor_num, VerticalDirection.UP
+        )
+        dequeued_2: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(
+            current_floor_num, VerticalDirection.UP
+        )
+        dequeued_3: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(
+            current_floor_num, VerticalDirection.UP
+        )
 
         assert dequeued_1 is first_person
         assert dequeued_2 is second_person

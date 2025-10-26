@@ -1,5 +1,6 @@
 import threading
 import time
+
 from mytower.api.game_bridge import GameBridge
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
@@ -31,13 +32,12 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
             pass
 
 
-def start_simulation_thread(bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60) -> threading.Thread:
+def start_simulation_thread(
+    bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60
+) -> threading.Thread:
     """Start the simulation in a background thread"""
     thread = threading.Thread(
-        target=run_simulation_loop,
-        args=(bridge, logger_provider, target_fps),
-        daemon=True,
-        name="GameSimulation"
+        target=run_simulation_loop, args=(bridge, logger_provider, target_fps), daemon=True, name="GameSimulation"
     )
     thread.start()
 

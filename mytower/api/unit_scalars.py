@@ -8,6 +8,7 @@ Design philosophy:
 - Type annotations use actual game types
 - Self-documenting schema with physical meanings
 """
+
 import strawberry
 
 from mytower.game.core.units import Blocks as BlocksCore
@@ -22,15 +23,14 @@ Blocks = strawberry.scalar(
     serialize=lambda v: float(v.value),
     parse_value=lambda v: BlocksCore(float(v)),
     description="Vertical position in building grid coordinates (1 block ≈ 3.2 meters). "
-                "Examples: Floor 1 = 1.0, elevator between floors = 2.5"
+    "Examples: Floor 1 = 1.0, elevator between floors = 2.5",
 )
 
 Meters = strawberry.scalar(
     MetersCore,
     serialize=lambda v: float(v.value),
     parse_value=lambda v: MetersCore(float(v)),
-    description="Physical distance in SI units (meters). "
-                "Examples: Elevator shaft height = 64.0"
+    description="Physical distance in SI units (meters). " "Examples: Elevator shaft height = 64.0",
 )
 
 Pixels = strawberry.scalar(
@@ -38,15 +38,14 @@ Pixels = strawberry.scalar(
     serialize=lambda v: int(v.value),
     parse_value=lambda v: PixelsCore(int(v)),
     description="Screen-space coordinates for rendering (integer pixels). "
-                "Note: Clients may compute their own screen positions."
+    "Note: Clients may compute their own screen positions.",
 )
 
 Velocity = strawberry.scalar(
     VelocityCore,
     serialize=lambda v: float(v.value),
     parse_value=lambda v: VelocityCore(float(v)),
-    description="Speed in meters per second (m/s). "
-                "Examples: Person walking speed = 1.4 m/s, elevator speed = 2.0 m/s"
+    description="Speed in meters per second (m/s). Examples: Person walking speed = 1.4 m/s, elevator speed = 2.0 m/s",
 )
 
 Time = strawberry.scalar(
@@ -54,5 +53,5 @@ Time = strawberry.scalar(
     serialize=lambda v: float(v.value),
     parse_value=lambda v: TimeCore(float(v)),
     description="Time duration in seconds. "
-                "Examples: Elevator wait time = 30.0 seconds, person wait time = 120.0 seconds"
+    "Examples: Elevator wait time = 30.0 seconds, person wait time = 120.0 seconds",
 )

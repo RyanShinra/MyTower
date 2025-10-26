@@ -12,21 +12,17 @@
 from __future__ import annotations  # Defer type evaluation
 
 import threading
-from typing import TYPE_CHECKING, Final, List, override  # Remove cast
+from typing import TYPE_CHECKING, Final, override  # Remove cast
 
 from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
 from mytower.game.core.id_generator import IDGenerator
 from mytower.game.core.types import HorizontalDirection, PersonState
 from mytower.game.core.units import Blocks, Meters, Time, Velocity
-from mytower.game.entities.entities_protocol import (BuildingProtocol,
-                                                     PersonProtocol,
-                                                     PersonTestingProtocol)
+from mytower.game.entities.entities_protocol import BuildingProtocol, PersonProtocol, PersonTestingProtocol
 from mytower.game.utilities.logger import MyTowerLogger
 
 if TYPE_CHECKING:
-    from mytower.game.entities.entities_protocol import (ElevatorBankProtocol,
-                                                         ElevatorProtocol,
-                                                         FloorProtocol)
+    from mytower.game.entities.entities_protocol import ElevatorBankProtocol, ElevatorProtocol, FloorProtocol
     from mytower.game.utilities.logger import LoggerProvider
 
 
@@ -34,7 +30,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
     """
     A person in the building who moves between floors and has needs.
     """
-    NULL_PERSON_ID:Final[int] = 0
+
+    NULL_PERSON_ID: Final[int] = 0
     _id_generator: IDGenerator = IDGenerator("person")
     _color_index: int = 0  # Static counter for color palette
     _color_lock: threading.Lock = threading.Lock()  # Thread safety for color index
@@ -77,7 +74,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
         # Appearance (for visualization)
         # Use palette color for this person (thread-safe)
         with Person._color_lock:
-            palette_color: tuple[int, int, int] = self._cosmetics.COLOR_PALETTE[Person._color_index % len(self._cosmetics.COLOR_PALETTE)]
+            palette_color: tuple[int, int, int] = self._cosmetics.COLOR_PALETTE[
+                Person._color_index % len(self._cosmetics.COLOR_PALETTE)
+            ]
             Person._color_index += 1  # Increment for next person
 
         self._original_red: Final[int] = palette_color[0]
@@ -162,7 +161,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
         # TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
         if dest_horiz_pos < Blocks(0) or dest_horiz_pos > self.building.building_width:
-            raise ValueError(f"Destination block {dest_horiz_pos} is out of bounds (0-{float(self.building.building_width)})")
+            raise ValueError(
+                f"Destination block {dest_horiz_pos} is out of bounds (0-{float(self.building.building_width)})"
+            )
 
         # Validation passed - set destinations directly
         self._dest_floor_num = dest_floor_num
@@ -170,7 +171,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
     @override
     def find_nearest_elevator_bank(self) -> None | ElevatorBankProtocol:
-        elevator_list: Final[List[ElevatorBankProtocol]] = self.building.get_elevator_banks_on_floor(self.current_floor_num)
+        elevator_list: Final[list[ElevatorBankProtocol]] = self.building.get_elevator_banks_on_floor(
+            self.current_floor_num
+        )
         closest_el: ElevatorBankProtocol | None = None
 
         closest_dist: Blocks = self.building.building_width + Blocks(5)
@@ -223,7 +226,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
         try:
             self._assign_floor(self._current_elevator.current_floor_int)
         except RuntimeError as e:
-            raise RuntimeError(f"Cannot disembark elevator: floor {self._current_elevator.current_floor_int} does not exist.") from e
+            raise RuntimeError(
+                f"Cannot disembark elevator: floor {self._current_elevator.current_floor_int} does not exist."
+            ) from e
 
         self._waiting_time = Time(0.0)
         self._current_elevator = None
@@ -305,7 +310,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
         done: bool = False
 
         # TODO: Probably need a next_block_this_floor or some such for all these walking directions
-        horiz_waypoint: Blocks = self._next_elevator_bank.get_waiting_position() if self._next_elevator_bank else self._dest_horiz_position
+        horiz_waypoint: Blocks = (
+            self._next_elevator_bank.get_waiting_position() if self._next_elevator_bank else self._dest_horiz_position
+        )
 
         if horiz_waypoint < self._current_horiz_position:
             self.direction = HorizontalDirection.LEFT
@@ -349,7 +356,9 @@ class Person(PersonProtocol, PersonTestingProtocol):
     @override
     def testing_set_dest_floor_num(self, dest_floor: int) -> None:
         if dest_floor < 0 or dest_floor > self.building.num_floors:
-            self._logger.warning(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
+            self._logger.warning(
+                f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})"
+            )
             raise ValueError(f"[TEST] Destination floor {dest_floor} is out of bounds (0-{self.building.num_floors})")
         self._dest_floor_num = min(max(dest_floor, 0), self.building.num_floors)
 
@@ -436,8 +445,4 @@ class Person(PersonProtocol, PersonTestingProtocol):
     @override
     def draw_color(self) -> tuple[int, int, int]:
         """Get the color for the person based on their current state"""
-        return (
-            self.draw_color_red,
-            self.draw_color_green,
-            self.draw_color_blue
-        )
+        return (self.draw_color_red, self.draw_color_green, self.draw_color_blue)

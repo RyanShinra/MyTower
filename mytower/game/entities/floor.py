@@ -2,11 +2,7 @@
 from __future__ import annotations  # Defer type evaluation
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, Final, override
-
-from mytower.game.core.units import Blocks
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-from mytower.game.core.types import Color, FloorType
+from typing import TYPE_CHECKING, Final, override
 
 from mytower.game.core.constants import (
     APARTMENT_COLOR,
@@ -25,29 +21,33 @@ from mytower.game.core.constants import (
     RETAIL_COLOR,
     RETAIL_HEIGHT,
 )
-
+from mytower.game.core.types import Color, FloorType
+from mytower.game.core.units import Blocks
 from mytower.game.entities.entities_protocol import FloorProtocol
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 if TYPE_CHECKING:
-    from mytower.game.entities.entities_protocol import PersonProtocol, BuildingProtocol
+    from mytower.game.entities.entities_protocol import BuildingProtocol, PersonProtocol
 
 
 class Floor(FloorProtocol):
     """
     A floor in the building that can contain various room types
     """
+
     # TODO: #27 Consider what we will want for basements and European floor numbering schemes
     @dataclass
     class FloorInfo:
         """
         Struct to hold information about a floor's appearance and dimensions.
         """
+
         color: Color
         height: Blocks
 
     # Available floor types
     LOBBY_INFO: Final = FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT)
-    FLOOR_TYPES: Dict[FloorType, FloorInfo] = {
+    FLOOR_TYPES: dict[FloorType, FloorInfo] = {
         FloorType.LOBBY: FloorInfo(LOBBY_COLOR, LOBBY_HEIGHT),
         FloorType.OFFICE: FloorInfo(OFFICE_COLOR, OFFICE_HEIGHT),
         FloorType.APARTMENT: FloorInfo(APARTMENT_COLOR, APARTMENT_HEIGHT),
@@ -78,7 +78,7 @@ class Floor(FloorProtocol):
         self._floorboard_color: Color = FLOORBOARD_COLOR
         self._height: Blocks = self.FLOOR_TYPES[floor_type].height
 
-        self._people: Dict[str, PersonProtocol] = {}  # People currently on this floor
+        self._people: dict[str, PersonProtocol] = {}  # People currently on this floor
 
     # Grid of rooms/spaces on this floor
 
@@ -127,13 +127,15 @@ class Floor(FloorProtocol):
         return self._floorboard_color
 
     @property
-    def people(self) -> Dict[str, PersonProtocol]:
+    def people(self) -> dict[str, PersonProtocol]:
         return dict(self._people)
+
 
     @override
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
+
 
     @override
     def remove_person(self, person_id: str) -> PersonProtocol:
@@ -145,7 +147,7 @@ class Floor(FloorProtocol):
             raise KeyError(f"Person not found: {person_id}")
         return person
 
+
     def update(self, dt: float) -> None:
         """Update floor simulation"""
         pass  # To be implemented
-

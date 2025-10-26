@@ -2,16 +2,13 @@
 Model layer: Pure business logic and data management
 No pygame dependencies, no rendering logic
 """
+
 from __future__ import annotations
 
-from typing import Dict, Final, List, Optional
+from typing import Final
 
 from mytower.game.core.config import GameConfig
-from mytower.game.core.constants import (
-    MAX_TIME_MULTIPLIER,
-    MIN_TIME_MULTIPLIER,
-    STARTING_MONEY,
-)
+from mytower.game.core.constants import MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER, STARTING_MONEY
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.building import Building
@@ -52,10 +49,10 @@ class GameModel:
         self._logger: MyTowerLogger = logger_provider.get_logger("GameModel")
 
         # Use protocols for internal storage - allows for future flexibility
-        self._people: Dict[str, PersonProtocol] = {}
-        self._elevator_banks: Dict[str, ElevatorBankProtocol] = {}
-        self._elevators: Dict[str, ElevatorProtocol] = {}
-        self._floors: Dict[int, FloorProtocol] = {}
+        self._people: dict[str, PersonProtocol] = {}
+        self._elevator_banks: dict[str, ElevatorBankProtocol] = {}
+        self._elevators: dict[str, ElevatorProtocol] = {}
+        self._floors: dict[int, FloorProtocol] = {}
 
         self._building: Building = Building(logger_provider, width=20)
         self._config: GameConfig = GameConfig()
@@ -181,7 +178,7 @@ class GameModel:
             self._logger.exception(f"Failed to remove person {person_id}: {e}")
             raise RuntimeError(f"Failed to remove person {person_id}: {str(e)}") from e
 
-    def get_all_people(self) -> List[PersonSnapshot]:
+    def get_all_people(self) -> list[PersonSnapshot]:
         """Get all people in the building"""
         try:
             return [build_person_snapshot(person) for person in self._people.values()]
@@ -189,7 +186,7 @@ class GameModel:
             self._logger.exception(f"Failed to get all people: {e}")
             raise RuntimeError(f"Failed to get all people: {str(e)}") from e
 
-    def get_all_elevators(self) -> List[ElevatorSnapshot]:
+    def get_all_elevators(self) -> list[ElevatorSnapshot]:
         """Get all elevators in the building"""
         try:
             return [build_elevator_snapshot(elevator) for elevator in self._elevators.values()]
@@ -197,7 +194,7 @@ class GameModel:
             self._logger.exception(f"Failed to get all elevators: {e}")
             raise RuntimeError(f"Failed to get all elevators: {str(e)}") from e
 
-    def get_all_elevator_banks(self) -> List[ElevatorBankSnapshot]:
+    def get_all_elevator_banks(self) -> list[ElevatorBankSnapshot]:
         """Get all elevator banks in the building"""
         try:
             return [build_elevator_bank_snapshot(bank) for bank in self._elevator_banks.values()]
@@ -205,7 +202,7 @@ class GameModel:
             self._logger.exception(f"Failed to get all elevator banks: {e}")
             raise RuntimeError(f"Failed to get all elevator banks: {str(e)}") from e
 
-    def get_all_floors(self) -> List[FloorSnapshot]:
+    def get_all_floors(self) -> list[FloorSnapshot]:
         """Get all floors in the building"""
         try:
             # Somewhere, we may need to build these in order so that the floor heights are accounted for correctly
@@ -289,7 +286,7 @@ class GameModel:
             self._logger.exception(f"Failed to get building snapshot: {e}")
             raise RuntimeError(f"Failed to get building snapshot: {str(e)}") from e
 
-    def get_person_by_id(self, person_id: str) -> Optional[PersonSnapshot]:
+    def get_person_by_id(self, person_id: str) -> PersonSnapshot | None:
         """Get specific person state by ID"""
         try:
             person: PersonProtocol | None = self._people.get(person_id)
@@ -302,10 +299,10 @@ class GameModel:
             self._logger.exception(f"Failed to get person by id {person_id}: {e}")
             raise RuntimeError(f"Failed to get person by id {person_id}: {str(e)}") from e
 
-    def get_elevator_by_id(self, elevator_id: str) -> Optional[ElevatorSnapshot]:
+    def get_elevator_by_id(self, elevator_id: str) -> ElevatorSnapshot | None:
         """Get specific elevator state by ID"""
         try:
-            elevators: Final[List[ElevatorProtocol]] = self._building.get_elevators()
+            elevators: Final[list[ElevatorProtocol]] = self._building.get_elevators()
             for elevator in elevators:
                 if elevator.elevator_id == elevator_id:
                     return build_elevator_snapshot(elevator)
@@ -314,7 +311,7 @@ class GameModel:
             self._logger.exception(f"Failed to get elevator by id {elevator_id}: {e}")
             raise RuntimeError(f"Failed to get elevator by id {elevator_id}: {str(e)}") from e
 
-    def get_floor_info(self, floor_number: int) -> Optional[FloorSnapshot]:
+    def get_floor_info(self, floor_number: int) -> FloorSnapshot | None:
         """Get specific floor information"""
         try:
             floor: FloorProtocol | None = self._building.get_floor_by_number(floor_number)

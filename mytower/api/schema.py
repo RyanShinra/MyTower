@@ -1,16 +1,18 @@
-from typing import Any, List, Optional
+from typing import Any
 
 import strawberry
 
 from mytower.api import unit_scalars  # Import the module to register scalars
 from mytower.api.game_bridge import get_game_bridge
-from mytower.api.graphql_types import (BuildingSnapshotGQL, FloorTypeGQL,
-                                       PersonSnapshotGQL)
-from mytower.api.type_conversions import (convert_building_snapshot,
-                                          convert_person_snapshot)
+from mytower.api.graphql_types import BuildingSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL
+from mytower.api.type_conversions import convert_building_snapshot, convert_person_snapshot
 from mytower.game.controllers.controller_commands import (
-    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
-    AddPersonCommand, Command)
+    AddElevatorBankCommand,
+    AddElevatorCommand,
+    AddFloorCommand,
+    AddPersonCommand,
+    Command,
+)
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
 from mytower.game.models.model_snapshots import BuildingSnapshot
@@ -21,7 +23,7 @@ def queue_command(command: Command[Any]) -> str:
     return get_game_bridge().queue_command(command)
 
 
-def get_building_state() -> Optional[BuildingSnapshot]:
+def get_building_state() -> BuildingSnapshot | None:
     return get_game_bridge().get_building_snapshot()
 
 
@@ -41,12 +43,12 @@ class Query:
         return get_building_state() is not None
 
     @strawberry.field
-    def building_state(self) -> Optional[BuildingSnapshotGQL]:
+    def building_state(self) -> BuildingSnapshotGQL | None:
         snapshot: BuildingSnapshot | None = get_building_state()
         return convert_building_snapshot(snapshot) if snapshot else None
 
     @strawberry.field
-    def all_people(self) -> Optional[List[PersonSnapshotGQL]]:
+    def all_people(self) -> list[PersonSnapshotGQL] | None:
         snapshot: BuildingSnapshot | None = get_building_state()
         if not snapshot:
             return None
@@ -63,8 +65,7 @@ class Mutation:
 
     @strawberry.mutation
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
-        command = AddPersonCommand(floor=floor, block=block,
-                                 dest_floor=dest_floor, dest_block=dest_block)
+        command = AddPersonCommand(floor=floor, block=block, dest_floor=dest_floor, dest_block=dest_block)
         return queue_command(command)
 
     @strawberry.mutation
@@ -98,6 +99,7 @@ class Mutation:
     def add_elevator_sync(self, elevator_bank_id: str) -> str:
         return get_game_bridge().execute_add_elevator_sync(elevator_bank_id)
 
+
 schema = strawberry.Schema(
     query=Query,
     mutation=Mutation,
@@ -106,6 +108,6 @@ schema = strawberry.Schema(
         Blocks: unit_scalars.Blocks,
         Meters: unit_scalars.Meters,
         Pixels: unit_scalars.Pixels,
-        Velocity: unit_scalars.Velocity
-    }
+        Velocity: unit_scalars.Velocity,
+    },
 )

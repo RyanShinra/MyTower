@@ -23,12 +23,7 @@ from mytower.api.game_bridge import GameBridge, initialize_game_bridge
 from mytower.api.server import run_server
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
-from mytower.game.core.constants import (
-    BACKGROUND_COLOR,
-    FPS,
-    SCREEN_HEIGHT,
-    SCREEN_WIDTH,
-)
+from mytower.game.core.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SCREEN_WIDTH
 from mytower.game.models.game_model import GameModel
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities import demo_builder
@@ -93,6 +88,7 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
 def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Desktop mode: Pygame rendering with local simulation.
+
 
     Thread architecture:
     - Main thread: Pygame event loop + rendering (must be main on macOS)

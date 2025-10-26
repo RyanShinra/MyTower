@@ -18,23 +18,33 @@ class TestPersonPhysics:
     def test_stationary_is_zero(self) -> None:
         assert 1 * HorizontalDirection.STATIONARY.value == 0
 
-    @pytest.mark.parametrize("direction,initial_block,dt,target_block", [
-        (HorizontalDirection.RIGHT, Blocks(5), Time(2.0), Blocks(6)), # Either-or case, depends on speed
-        (HorizontalDirection.RIGHT, Blocks(1), Time(2.0), Blocks(9)), # Should move but not reach target
-        (HorizontalDirection.RIGHT, Blocks(1), Time(10.0), Blocks(3)), # Should reach target
-        (HorizontalDirection.LEFT, Blocks(10), Time(4.0), Blocks(8)),  # Either-or case, depends on speed
-        (HorizontalDirection.LEFT, Blocks(10), Time(2.0), Blocks(2)), # Should move but not reach target
-        (HorizontalDirection.LEFT, Blocks(10), Time(10.0), Blocks(7)), # Should reach target
-        (HorizontalDirection.STATIONARY, Blocks(7), Time(3.0), Blocks(7)),  # No movement
-    ])
+    @pytest.mark.parametrize(
+        "direction,initial_block,dt,target_block",
+        [
+            (HorizontalDirection.RIGHT, Blocks(5), Time(2.0), Blocks(6)),  # Either-or case, depends on speed
+            (HorizontalDirection.RIGHT, Blocks(1), Time(2.0), Blocks(9)),  # Should move but not reach target
+            (HorizontalDirection.RIGHT, Blocks(1), Time(10.0), Blocks(3)),  # Should reach target
+            (HorizontalDirection.LEFT, Blocks(10), Time(4.0), Blocks(8)),  # Either-or case, depends on speed
+            (HorizontalDirection.LEFT, Blocks(10), Time(2.0), Blocks(2)),  # Should move but not reach target
+            (HorizontalDirection.LEFT, Blocks(10), Time(10.0), Blocks(7)),  # Should reach target
+            (HorizontalDirection.STATIONARY, Blocks(7), Time(3.0), Blocks(7)),  # No movement
+        ],
+    )
     def test_walking_moves_linear(
-        self, person_with_floor: Person, direction: HorizontalDirection, initial_block: Blocks, dt: Time, target_block: Blocks
+        self,
+        person_with_floor: Person,
+        direction: HorizontalDirection,
+        initial_block: Blocks,
+        dt: Time,
+        target_block: Blocks,
     ) -> None:
         """Test that walking movement is linear and respects direction"""
         person_with_floor.testing_set_current_horiz_position(initial_block)
         person_with_floor.direction = direction
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_horiz_pos=target_block)
+        person_with_floor.set_destination(
+            dest_floor_num=person_with_floor.current_floor_num, dest_horiz_pos=target_block
+        )
 
         person_with_floor.update_walking(dt)
         dx: Blocks = (person_with_floor.max_velocity * dt).in_blocks
@@ -69,10 +79,13 @@ class TestPersonPhysics:
         person_with_floor.testing_set_current_horiz_position(right_boundary - Blocks(0.5))
         person_with_floor.direction = HorizontalDirection.RIGHT
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_horiz_pos=right_boundary)
+        person_with_floor.set_destination(
+            dest_floor_num=person_with_floor.current_floor_num, dest_horiz_pos=right_boundary
+        )
 
         person_with_floor.update_walking(Time(5.0))
-        assert person_with_floor.current_horizontal_position <= right_boundary, "Person should not move past right boundary"
+        assert (
+            person_with_floor.current_horizontal_position <= right_boundary
+        ), "Person should not move past right boundary"
         assert person_with_floor.direction == HorizontalDirection.STATIONARY
         assert person_with_floor.state == PersonState.IDLE
-

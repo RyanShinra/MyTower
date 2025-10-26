@@ -1,42 +1,33 @@
 from unittest.mock import MagicMock
+
 import pytest
+
+from mytower.game.core.types import PersonState
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.person import Person
-from mytower.game.core.types import PersonState
-from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
+from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
 
 class TestPersonElevatorInteraction:
     """Test Person interactions with elevators"""
 
     def test_board_elevator_changes_state(
-        self,
-        person_with_floor: Person,
-        typed_mock_factory: TypedMockFactory,
-        state_assertions: StateAssertions
+        self, person_with_floor: Person, typed_mock_factory: TypedMockFactory, state_assertions: StateAssertions
     ) -> None:
         """Test that boarding elevator updates person state correctly"""
         mock_elevator = typed_mock_factory.create_elevator_mock()
 
         person_with_floor.board_elevator(mock_elevator)
 
-        state_assertions.assert_person_state(
-            person_with_floor,
-            expected_state=PersonState.IN_ELEVATOR
-        )
+        state_assertions.assert_person_state(person_with_floor, expected_state=PersonState.IN_ELEVATOR)
         assert person_with_floor.testing_get_wait_time() == Time(0.0)
         assert person_with_floor.testing_get_current_elevator() == mock_elevator
 
     def test_disembark_elevator_success(
-        self,
-        person_with_floor: Person,
-        typed_mock_factory: TypedMockFactory,
-        state_assertions: StateAssertions
+        self, person_with_floor: Person, typed_mock_factory: TypedMockFactory, state_assertions: StateAssertions
     ) -> None:
         """Test successful elevator disembarking"""
-        mock_elevator = typed_mock_factory.create_elevator_mock(
-            current_floor=5
-        )
+        mock_elevator = typed_mock_factory.create_elevator_mock(current_floor=5)
         mock_elevator.parent_elevator_bank.get_waiting_position.return_value = Blocks(3)  # Return Blocks, not int!
 
         # Set up person as if they're in elevator
@@ -54,7 +45,7 @@ class TestPersonElevatorInteraction:
             person_with_floor,
             expected_state=PersonState.IDLE,
             expected_floor=5,
-            expected_block=Blocks(3.0)  # Now matches mock return value
+            expected_block=Blocks(3.0),  # Now matches mock return value
         )
 
         assert person_with_floor.current_floor == mock_floor
@@ -82,4 +73,3 @@ class TestPersonElevatorInteraction:
 
         with pytest.raises(RuntimeError, match="Cannot disembark elevator: no elevator is currently boarded"):
             person_with_floor.disembark_elevator()
-

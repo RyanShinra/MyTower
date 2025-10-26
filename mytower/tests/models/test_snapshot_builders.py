@@ -1,17 +1,18 @@
 from unittest.mock import MagicMock
 
-from mytower.game.core.types import (ElevatorState, FloorType, PersonState,
-                                     VerticalDirection)
+from mytower.game.core.types import ElevatorState, FloorType, PersonState, VerticalDirection
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol
-from mytower.game.models.model_snapshots import (ElevatorBankSnapshot,
-                                                 PersonSnapshot)
+from mytower.game.models.model_snapshots import ElevatorBankSnapshot, PersonSnapshot
 from mytower.game.models.snapshot_builders import (
-    build_elevator_bank_snapshot, build_elevator_snapshot,
-    build_floor_snapshot, build_person_snapshot)
+    build_elevator_bank_snapshot,
+    build_elevator_snapshot,
+    build_floor_snapshot,
+    build_person_snapshot,
+)
 
 
 class TestBuildFloorSnapshot:
@@ -102,7 +103,7 @@ class TestBuildElevatorSnapshot:
             mock_elevator.destination_floor = 1
             mock_elevator.elevator_state = state
             mock_elevator.nominal_direction = VerticalDirection.STATIONARY
-            mock_elevator.door_open = (state == ElevatorState.LOADING)
+            mock_elevator.door_open = state == ElevatorState.LOADING
             mock_elevator.passenger_count = 0
             mock_elevator.avail_capacity = 15
             mock_elevator.max_capacity = 15
@@ -132,9 +133,9 @@ class TestBuildElevatorBankSnapshot:
     def test_build_elevator_bank_snapshot_different_ranges(self) -> None:
         """Test building snapshots for different floor ranges"""
         test_cases: list[tuple[int, int, int]] = [
-            (5, 1, 10),     # Small building
-            (10, 5, 25),    # Mid-range
-            (3, 15, 15),    # Single floor
+            (5, 1, 10),  # Small building
+            (10, 5, 25),  # Mid-range
+            (3, 15, 15),  # Single floor
         ]
 
         for h_block, min_floor, max_floor in test_cases:
@@ -227,11 +228,11 @@ class TestBuildPersonSnapshot:
     def test_build_person_snapshot_color_variations(self) -> None:
         """Test building snapshots with different draw colors"""
         colors = [
-            (255, 0, 0),      # Red
-            (0, 255, 0),      # Green
-            (0, 0, 255),      # Blue
-            (255, 255, 0),    # Yellow
-            (128, 64, 192),   # Purple-ish
+            (255, 0, 0),  # Red
+            (0, 255, 0),  # Green
+            (0, 0, 255),  # Blue
+            (255, 255, 0),  # Yellow
+            (128, 64, 192),  # Purple-ish
         ]
 
         for color in colors:
@@ -269,8 +270,8 @@ class TestSnapshotBuilderIntegration:
         mock_floor.number_of_people = 0
 
         floor_snapshot = build_floor_snapshot(mock_floor)
-        assert hasattr(floor_snapshot, 'floor_type')
-        assert hasattr(floor_snapshot, 'floor_number')
+        assert hasattr(floor_snapshot, "floor_type")
+        assert hasattr(floor_snapshot, "floor_number")
 
         # Elevator
         mock_elevator = MagicMock(spec=Elevator)
@@ -286,8 +287,8 @@ class TestSnapshotBuilderIntegration:
         mock_elevator.max_capacity = 15
 
         elevator_snapshot = build_elevator_snapshot(mock_elevator)
-        assert hasattr(elevator_snapshot, 'id')
-        assert hasattr(elevator_snapshot, 'elevator_state')
+        assert hasattr(elevator_snapshot, "id")
+        assert hasattr(elevator_snapshot, "elevator_state")
 
         # Bank
         mock_bank = MagicMock(spec=ElevatorBank)
@@ -296,8 +297,8 @@ class TestSnapshotBuilderIntegration:
         mock_bank.max_floor = 5
 
         bank_snapshot = build_elevator_bank_snapshot(mock_bank)
-        assert hasattr(bank_snapshot, 'horizontal_position')
-        assert hasattr(bank_snapshot, 'min_floor')
+        assert hasattr(bank_snapshot, "horizontal_position")
+        assert hasattr(bank_snapshot, "min_floor")
 
         # Person
         mock_person = MagicMock(spec=PersonProtocol)
@@ -313,5 +314,5 @@ class TestSnapshotBuilderIntegration:
         mock_person.draw_color = (128, 128, 128)
 
         person_snapshot = build_person_snapshot(mock_person)
-        assert hasattr(person_snapshot, 'person_id')
-        assert hasattr(person_snapshot, 'state')
+        assert hasattr(person_snapshot, "person_id")
+        assert hasattr(person_snapshot, "state")

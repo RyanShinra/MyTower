@@ -1,18 +1,17 @@
 from __future__ import annotations  # Defer type evaluation
 
-from typing import Dict, Final, List, override
+from typing import Final, override
 
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Time
-from mytower.game.entities.entities_protocol import (
-    BuildingProtocol,
-    ElevatorBankList,  # Use alias
-    ElevatorBankProtocol,
-    ElevatorList,  # Use alias
-    ElevatorProtocol,
-    FloorList,  # Use alias
-    FloorProtocol,
-)
+from mytower.game.entities.entities_protocol import \
+    ElevatorBankList  # Use alias
+from mytower.game.entities.entities_protocol import ElevatorList  # Use alias
+from mytower.game.entities.entities_protocol import FloorList  # Use alias
+from mytower.game.entities.entities_protocol import (BuildingProtocol,
+                                                     ElevatorBankProtocol,
+                                                     ElevatorProtocol,
+                                                     FloorProtocol)
 from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
@@ -31,8 +30,8 @@ class Building(BuildingProtocol):
         self._logger: MyTowerLogger = logger_provider.get_logger("Building")
 
         self._floor_width: Blocks = Blocks(width)  # Width in grid cells
-        self._floors: Dict[int, Floor] = {}  # Dictionary with floor number as key
-        self._elevator_banks: List[ElevatorBankProtocol] = []  # List of elevator objects
+        self._floors: dict[int, Floor] = {}  # Dictionary with floor number as key
+        self._elevator_banks: list[ElevatorBankProtocol] = []  # List of elevator objects
 
     @property
     @override
@@ -83,13 +82,13 @@ class Building(BuildingProtocol):
         return self._floors.get(floor_num)
 
     @override
-    def get_elevator_banks(self) -> List[ElevatorBankProtocol]:
+    def get_elevator_banks(self) -> list[ElevatorBankProtocol]:
         return self._elevator_banks
 
     @override
     def get_elevators(self) -> ElevatorList:  # ✅ Cleaner
         """Get all elevators from all banks"""
-        elevators: Final[List[ElevatorProtocol]] = []
+        elevators: Final[list[ElevatorProtocol]] = []
         for bank in self._elevator_banks:
             elevators.extend(bank.elevators)
         return elevators

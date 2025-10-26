@@ -1,19 +1,18 @@
-
-
+from mytower.game.core.types import VerticalDirection
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.elevator import Elevator, ElevatorState
-from mytower.game.core.types import VerticalDirection
 from mytower.game.entities.entities_protocol import ElevatorDestination
 
 
 class TestStateMachine:
-
     def test_update_idle_stays_idle(self, elevator: Elevator) -> None:
         """Test that IDLE elevator transitions to MOVING when destination is set"""
         # Set up conditions for transition
         elevator.testing_set_state(ElevatorState.IDLE)
         destination = ElevatorDestination(floor=5, direction=VerticalDirection.UP, has_destination=True)
-        elevator.set_destination(destination)  # Set a destination above current floor - this changes state to READY_TO_MOVE
+        elevator.set_destination(
+            destination
+        )  # Set a destination above current floor - this changes state to READY_TO_MOVE
 
         # Update the elevator
         elevator.update(Time(1.0))

@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock, patch
+
+from mytower.game.core.types import PersonState
 from mytower.game.core.units import Time
 from mytower.game.entities.person import Person
-from mytower.game.core.types import PersonState
 
 
 class TestPersonStateMachine:
@@ -9,12 +10,12 @@ class TestPersonStateMachine:
 
     def test_update_routes_to_correct_state_method(self, person_with_floor: Person) -> None:
         """Test that update() calls the correct state-specific method"""
-        with patch.object(person_with_floor, 'update_idle') as mock_idle:
+        with patch.object(person_with_floor, "update_idle") as mock_idle:
             person_with_floor.testing_set_current_state(PersonState.IDLE)
             person_with_floor.update(Time(1.0))
             mock_idle.assert_called_once_with(Time(1.0))
 
-        with patch.object(person_with_floor, 'update_walking') as mock_walking:
+        with patch.object(person_with_floor, "update_walking") as mock_walking:
             person_with_floor.testing_set_current_state(PersonState.WALKING)
             person_with_floor.update(Time(1.0))
             mock_walking.assert_called_once_with(Time(1.0))
@@ -42,4 +43,3 @@ class TestPersonStateMachine:
 
         assert person_with_floor.testing_get_current_vertical_position() == 6.7
         assert person_with_floor.current_horizontal_position == 12
-

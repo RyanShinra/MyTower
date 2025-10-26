@@ -4,11 +4,12 @@ Thread-safe bridge between the GraphQL API and the game simulation.
 Provides the GameBridge class for safe command queuing and state retrieval,
 and exposes a singleton instance for use throughout the application.
 """
+
 import queue
 import threading
 from queue import Queue
 from time import time
-from typing import Any, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, TypeVar
 
 from mytower.game.controllers.controller_commands import (
     AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
@@ -47,12 +48,12 @@ class GameBridge:
         self._command_lock = threading.Lock()
         self._snapshot_lock = threading.Lock()
 
-        self._game_thread_id: Optional[int] = None
+        self._game_thread_id: int | None = None
 
-        self._command_queue: Queue[Tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
-        self._command_results: Dict[str, CommandResult[Any]] = {}
+        self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
+        self._command_results: dict[str, CommandResult[Any]] = {}
 
-        self._latest_snapshot: Optional[BuildingSnapshot] = None
+        self._latest_snapshot: BuildingSnapshot | None = None
         self._snapshot_interval_s: float = 1.0 / snapshot_fps
         self._last_snapshot_time: float = 0.0
 
@@ -71,9 +72,9 @@ class GameBridge:
             self._game_thread_id = current_thread
             self._game_thread_ready.set()  # 🚦 Signal that game thread is ready
         elif self._game_thread_id != current_thread:
-            raise RuntimeError(f"update_game() called from wrong thread!")
+            raise RuntimeError("update_game() called from wrong thread!")
 
-        commands_this_frame: List[Tuple[str, Command[Any]]] = []
+        commands_this_frame: list[tuple[str, Command[Any]]] = []
         with self._command_lock:
             while not self._command_queue.empty():
                 try:
@@ -93,9 +94,11 @@ class GameBridge:
 
         with self._snapshot_lock:
             self._latest_snapshot = new_snapshot
+
     # End of update_game()
 
-    T = TypeVar('T')
+    T = TypeVar("T")
+
     def execute_command_sync(self, command: Command[T]) -> CommandResult[T]:
         with self._update_lock:
             # Execute immediately, blocking updates
@@ -107,15 +110,15 @@ class GameBridge:
         self._command_queue.put((command_id, command))
         return command_id
 
-    def get_building_snapshot(self) -> Optional[BuildingSnapshot]:
+    def get_building_snapshot(self) -> BuildingSnapshot | None:
         with self._snapshot_lock:
             return self._latest_snapshot  # Returns cached snapshot
 
-    def get_command_result_sync(self, command_id: str) -> Optional[CommandResult[Any]]:
+    def get_command_result_sync(self, command_id: str) -> CommandResult[Any] | None:
         with self._update_lock:
             return self._command_results.get(command_id, None)
 
-    def get_all_command_results_sync(self) -> Dict[str, CommandResult[Any]]:
+    def get_all_command_results_sync(self) -> dict[str, CommandResult[Any]]:
         with self._update_lock:
             return dict(self._command_results)  # Return a copy
 
@@ -156,7 +159,7 @@ class GameBridge:
         raise RuntimeError(f"Failed to add elevator: {result.error}")
 
 # Module-level singleton
-_bridge: Optional[GameBridge] = None
+_bridge: GameBridge | None = None
 
 
 def initialize_game_bridge(controller: GameController) -> GameBridge:
@@ -169,4 +172,3 @@ def get_game_bridge() -> GameBridge:
     if _bridge is None:
         raise RuntimeError("Game bridge not initialized")
     return _bridge
-

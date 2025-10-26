@@ -2,20 +2,20 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generic, Optional, TypeVar, override
+from typing import TYPE_CHECKING, Generic, TypeVar, override
 
 if TYPE_CHECKING:
     from mytower.game.core.types import FloorType
     from mytower.game.models.game_model import GameModel
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
 class CommandResult(Generic[T]):
     success: bool
-    data: Optional[T] = None
-    error: Optional[str] = None
+    data: T | None = None
+    error: str | None = None
 
 
 class Command(ABC, Generic[T]):
@@ -66,10 +66,7 @@ class AddPersonCommand(Command[str]):
             return CommandResult(success=False, error=f"Invalid source block: {self.block:.2f}")
 
         person_id: str = model.add_person(
-            floor=self.floor,
-            block=self.block,
-            dest_floor=self.dest_floor,
-            dest_block=self.dest_block
+            floor=self.floor, block=self.block, dest_floor=self.dest_floor, dest_block=self.dest_block
         )
         return CommandResult(success=True, data=person_id)
 
@@ -96,11 +93,11 @@ class AddElevatorBankCommand(Command[str]):
         if self.min_floor < 1:
             return CommandResult(success=False, error=f"Invalid min floor: {self.min_floor:.1f}")
         if self.max_floor < self.min_floor:
-            return CommandResult(success=False, error=f"max_floor must be >= min_floor: {self.max_floor:.1f} < {self.min_floor:.1f}")
+            return CommandResult(
+                success=False, error=f"max_floor must be >= min_floor: {self.max_floor:.1f} < {self.min_floor:.1f}"
+            )
         el_bank_id: str = model.add_elevator_bank(
-            h_cell=self.h_cell,
-            min_floor=self.min_floor,
-            max_floor=self.max_floor
+            h_cell=self.h_cell, min_floor=self.min_floor, max_floor=self.max_floor
         )
         return CommandResult(success=True, data=el_bank_id)
 
@@ -124,7 +121,10 @@ class AddElevatorCommand(Command[str]):
 
         # TODO: #29 Make 64 a config value somewhere
         if len(stripped_id) > 64:
-            return CommandResult(success=False, error=f"elevator_bank_id must be less than 64 characters, got {len(stripped_id)} characters")
+            return CommandResult(
+                success=False,
+                error=f"elevator_bank_id must be less than 64 characters, got {len(stripped_id)} characters",
+            )
 
         el_id: str = model.add_elevator(stripped_id)
         return CommandResult(success=True, data=el_id)

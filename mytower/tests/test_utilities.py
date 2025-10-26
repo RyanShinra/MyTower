@@ -4,22 +4,24 @@ Type-safe test utilities for MyTower tests.
 Provides mock factories and assertion helpers to improve test maintainability and type safety.
 """
 
-from typing import Any, Callable, Protocol, TypeVar
+from collections.abc import Callable
+from typing import Any, Protocol, TypeVar
 from unittest.mock import Mock, PropertyMock
 
 import pytest
 
-from mytower.game.core.types import (ElevatorState, PersonState,
-                                     VerticalDirection)
+from mytower.game.core.types import ElevatorState, PersonState, VerticalDirection
 from mytower.game.core.units import Blocks
-from mytower.game.entities.entities_protocol import (BuildingProtocol,
-                                                     ElevatorBankProtocol,
-                                                     ElevatorProtocol,
-                                                     FloorProtocol,
-                                                     PersonProtocol)
+from mytower.game.entities.entities_protocol import (
+    BuildingProtocol,
+    ElevatorBankProtocol,
+    ElevatorProtocol,
+    FloorProtocol,
+    PersonProtocol,
+)
 
 # Type variable for protocol types
-P = TypeVar('P')
+P = TypeVar("P")
 
 
 class MockFactoryProtocol(Protocol):
@@ -31,7 +33,7 @@ class MockFactoryProtocol(Protocol):
         destination_floor: int = 1,
         current_block: float = 10.0,
         person_id: str = "test_person_1",
-        **overrides: Any
+        **overrides: Any,
     ) -> Mock: ...  # Return Mock explicitly
 
     def create_elevator_mock(
@@ -39,29 +41,17 @@ class MockFactoryProtocol(Protocol):
         current_floor: int = 1,
         state: ElevatorState = ElevatorState.IDLE,
         elevator_id: str = "test_elevator_1",
-        **overrides: Any
+        **overrides: Any,
     ) -> Mock: ...  # Return Mock explicitly
 
     def create_building_mock(
-        self,
-        num_floors: int = 10,
-        building_width: int = 20,
-        has_floors: bool = True,
-        **overrides: Any
+        self, num_floors: int = 10, building_width: int = 20, has_floors: bool = True, **overrides: Any
     ) -> Mock: ...  # Return Mock explicitly
 
-    def create_floor_mock(
-        self,
-        floor_num: int = 1,
-        **overrides: Any
-    ) -> Mock: ...  # Return Mock explicitly
+    def create_floor_mock(self, floor_num: int = 1, **overrides: Any) -> Mock: ...  # Return Mock explicitly
 
     def create_elevator_bank_mock(
-        self,
-        horizontal_position: int = 5,
-        min_floor: int = 1,
-        max_floor: int = 10,
-        **overrides: Any
+        self, horizontal_position: int = 5, min_floor: int = 1, max_floor: int = 10, **overrides: Any
     ) -> Mock: ...  # Return Mock explicitly
 
 
@@ -84,7 +74,7 @@ class TypedMockFactory:
         current_block: float = 10.0,
         person_id: str = "test_person_1",
         state: PersonState = PersonState.IDLE,
-        **overrides: Any
+        **overrides: Any,
     ) -> Mock:  # Honest return type
         """
         Create a properly typed Person mock.
@@ -126,7 +116,7 @@ class TypedMockFactory:
         fractional_floor: float | None = None,
         passenger_count: int = 0,
         max_capacity: int = 15,
-        **overrides: Any
+        **overrides: Any,
     ) -> Mock:  # Honest return type
         """
         Create a properly typed Elevator mock.
@@ -169,11 +159,7 @@ class TypedMockFactory:
         return mock
 
     def create_building_mock(
-        self,
-        num_floors: int = 10,
-        building_width: float = 20.0,
-        has_floors: bool = True,
-        **overrides: Any
+        self, num_floors: int = 10, building_width: float = 20.0, has_floors: bool = True, **overrides: Any
     ) -> Mock:  # Honest return type
         """Create a properly typed Building mock"""
         mock = Mock(spec=BuildingProtocol)
@@ -198,11 +184,7 @@ class TypedMockFactory:
 
         return mock
 
-    def create_floor_mock(
-        self,
-        floor_num: int = 1,
-        **overrides: Any
-    ) -> Mock:  # Honest return type
+    def create_floor_mock(self, floor_num: int = 1, **overrides: Any) -> Mock:  # Honest return type
         """Create a properly typed Floor mock"""
         mock = Mock(spec=FloorProtocol)
 
@@ -224,11 +206,7 @@ class TypedMockFactory:
         return mock
 
     def create_elevator_bank_mock(
-        self,
-        horizontal_position: int = 5,
-        min_floor: int = 1,
-        max_floor: int = 10,
-        **overrides: Any
+        self, horizontal_position: int = 5, min_floor: int = 1, max_floor: int = 10, **overrides: Any
     ) -> Mock:  # Honest return type
         """Create a properly typed ElevatorBank mock"""
         mock = Mock(spec=ElevatorBankProtocol)
@@ -242,9 +220,7 @@ class TypedMockFactory:
         mock.get_waiting_position = Mock(return_value=horizontal_position)
         mock.add_waiting_passenger = Mock()
         mock.request_elevator = Mock()
-
-        # Set up the new floor_requests property that returns a dict
-        type(mock).floor_requests = PropertyMock(return_value={floor: set() for floor in range(min_floor, max_floor + 1)})
+        mock.get_requests_for_floor = Mock(return_value=set())
 
         # Apply any overrides
         for key, value in overrides.items():
@@ -262,7 +238,7 @@ class StateAssertions:
         expected_state: PersonState,
         expected_floor: int | None = None,
         expected_block: Blocks | None = None,
-        expected_destination_floor: int | None = None
+        expected_destination_floor: int | None = None,
     ) -> None:
         """
         Assert person is in expected state and position.
@@ -272,13 +248,19 @@ class StateAssertions:
         assert person.state == expected_state, f"Expected state {expected_state}, got {person.state}"
 
         if expected_floor is not None:
-            assert person.current_floor_num == expected_floor, f"Expected floor {expected_floor}, got {person.current_floor_num}"
+            assert (
+                person.current_floor_num == expected_floor
+            ), f"Expected floor {expected_floor}, got {person.current_floor_num}"
 
         if expected_block is not None:
-            assert person.current_horizontal_position == expected_block, f"Expected block {expected_block}, got {person.current_horizontal_position}"
+            assert (
+                person.current_horizontal_position == expected_block
+            ), f"Expected block {expected_block}, got {person.current_horizontal_position}"
 
         if expected_destination_floor is not None:
-            assert person.destination_floor_num == expected_destination_floor, f"Expected destination floor {expected_destination_floor}, got {person.destination_floor_num}"
+            assert (
+                person.destination_floor_num == expected_destination_floor
+            ), f"Expected destination floor {expected_destination_floor}, got {person.destination_floor_num}"
 
     @staticmethod
     def assert_elevator_state(
@@ -286,31 +268,43 @@ class StateAssertions:
         expected_state: ElevatorState,
         expected_floor: int | None = None,
         expected_passenger_count: int | None = None,
-        expected_destination: int | None = None
+        expected_destination: int | None = None,
     ) -> None:
         """Assert elevator is in expected state"""
-        assert elevator.elevator_state == expected_state, f"Expected state {expected_state}, got {elevator.elevator_state}"
+        assert (
+            elevator.elevator_state == expected_state
+        ), f"Expected state {expected_state}, got {elevator.elevator_state}"
 
         if expected_floor is not None:
-            assert elevator.current_floor_int == expected_floor, f"Expected floor {expected_floor}, got {elevator.current_floor_int}"
+            assert (
+                elevator.current_floor_int == expected_floor
+            ), f"Expected floor {expected_floor}, got {elevator.current_floor_int}"
 
         if expected_passenger_count is not None:
-            assert elevator.passenger_count == expected_passenger_count, f"Expected {expected_passenger_count} passengers, got {elevator.passenger_count}"
+            assert (
+                elevator.passenger_count == expected_passenger_count
+            ), f"Expected {expected_passenger_count} passengers, got {elevator.passenger_count}"
 
         if expected_destination is not None:
-            assert elevator.destination_floor == expected_destination, f"Expected destination {expected_destination}, got {elevator.destination_floor}"
+            assert (
+                elevator.destination_floor == expected_destination
+            ), f"Expected destination {expected_destination}, got {elevator.destination_floor}"
 
     @staticmethod
     def assert_mock_called_with_person(
         mock_method: Mock,
-        expected_person: PersonProtocol | Mock,  # Accept both
-        call_index: int = 0
+        expected_person: PersonProtocol | Mock,
+        call_index: int = 0,  # Accept both
     ) -> None:
         """Assert a mock method was called with a specific person"""
-        assert mock_method.call_count > call_index, f"Expected at least {call_index + 1} calls, got {mock_method.call_count}"
+        assert (
+            mock_method.call_count > call_index
+        ), f"Expected at least {call_index + 1} calls, got {mock_method.call_count}"
 
         actual_person = mock_method.call_args_list[call_index][0][0]
-        assert actual_person == expected_person, f"Expected person {expected_person.person_id}, got {actual_person.person_id}"
+        assert (
+            actual_person == expected_person
+        ), f"Expected person {expected_person.person_id}, got {actual_person.person_id}"
 
     @staticmethod
     def assert_no_exceptions_raised(func: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
@@ -330,7 +324,7 @@ class BoundaryTestMixin:
         valid_values: list[Any],
         invalid_values: list[Any],
         exception_type: type[Exception] = ValueError,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """Test boundary conditions for a function"""
         # Test valid values don't raise exceptions
@@ -344,6 +338,7 @@ class BoundaryTestMixin:
         for invalid_value in invalid_values:
             with pytest.raises(exception_type):
                 func(invalid_value, **kwargs)
+
 
 # Global instances for easy importing
 mock_factory = TypedMockFactory()

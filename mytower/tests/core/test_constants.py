@@ -1,4 +1,3 @@
-
 from mytower.game.core import constants, primitive_constants
 from mytower.game.core.types import Money
 from mytower.game.core.units import Blocks, Pixels  # Add unit import
@@ -62,7 +61,7 @@ class TestFloorConstants:
             constants.RESTAURANT_COLOR,
             constants.RETAIL_COLOR,
             constants.FLOORBOARD_COLOR,
-            constants.DEFAULT_FLOOR_COLOR
+            constants.DEFAULT_FLOOR_COLOR,
         ]
 
         for color in floor_colors:
@@ -91,7 +90,7 @@ class TestFloorConstants:
             constants.APARTMENT_HEIGHT,
             constants.HOTEL_HEIGHT,
             constants.RESTAURANT_HEIGHT,
-            constants.RETAIL_HEIGHT
+            constants.RETAIL_HEIGHT,
         ]
 
         for height in floor_heights:
@@ -146,7 +145,7 @@ class TestConstantTypes:
         float_constants = [
             constants.MIN_TIME_MULTIPLIER,
             constants.MAX_TIME_MULTIPLIER,
-            constants.BLOCK_FLOAT_TOLERANCE
+            constants.BLOCK_FLOAT_TOLERANCE,
         ]
 
         for const in float_constants:
@@ -163,7 +162,7 @@ class TestConstantTypes:
             constants.RESTAURANT_COLOR,
             constants.RETAIL_COLOR,
             constants.FLOORBOARD_COLOR,
-            constants.DEFAULT_FLOOR_COLOR
+            constants.DEFAULT_FLOOR_COLOR,
         ]
 
         for rgb in rgb_constants:

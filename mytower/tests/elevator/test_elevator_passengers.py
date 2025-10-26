@@ -1,4 +1,5 @@
-from typing import Final, List, Sequence
+from collections.abc import Sequence
+from typing import Final
 from unittest.mock import MagicMock
 
 import pytest
@@ -11,17 +12,16 @@ from mytower.tests.conftest import PersonFactory
 
 
 class TestPassengers:
-
     def test_passengers_who_want_off_current_floor(
         self, elevator: Elevator, mock_person_factory: PersonFactory
     ) -> None:
         """Test filtering passengers by destination floor"""
         # Elevator starts on floor one (see test_initial_state above)
-        passenger_current_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=1, cur_floor_num=1) # pylint: disable=invalid-name
+        passenger_current_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=1, cur_floor_num=1)  # pylint: disable=invalid-name
         passenger_another_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=5, cur_floor_num=1)
 
         elevator.testing_set_passengers([passenger_another_floor, passenger_current_floor])
-        who_wants_off: Final[List[PersonProtocol]] = elevator.passengers_who_want_off()
+        who_wants_off: Final[list[PersonProtocol]] = elevator.passengers_who_want_off()
 
         assert len(who_wants_off) == 1
         # assert who_wants_off[0] == passenger_current_floor # This made the type checker mad
@@ -38,7 +38,6 @@ class TestPassengers:
             (7, VerticalDirection.UP, []),  # At max floor going up
             (4, VerticalDirection.UP, [5, 7]),  # From middle floor
         ],
-
     )
     def test_get_passenger_destinations_by_direction(
         self,
@@ -46,16 +45,18 @@ class TestPassengers:
         mock_person_factory: PersonFactory,
         current_floor: int,
         direction: VerticalDirection,
-        expected_floors: List[int],
+        expected_floors: list[int],
     ) -> None:
-        """Test getting sorted destinations in the direction of 'direction' """
+        """Test getting sorted destinations in the direction of 'direction'"""
         elevator.testing_set_current_vertical_pos(Blocks(current_floor))
-        dest_floors: Final[List[int]] = [1, 3, 5, 7]
+        dest_floors: Final[list[int]] = [1, 3, 5, 7]
 
-        passengers: Sequence[PersonProtocol] = [mock_person_factory(current_floor, destination_floor) for destination_floor in dest_floors]
+        passengers: Sequence[PersonProtocol] = [
+            mock_person_factory(current_floor, destination_floor) for destination_floor in dest_floors
+        ]
         elevator.testing_set_passengers(passengers)
 
-        actual_floors: Final[List[int]] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
+        actual_floors: Final[list[int]] = elevator.get_passenger_destinations_in_direction(current_floor, direction)
         assert expected_floors == actual_floors
 
     def test_passengers_boarding(self, elevator: Elevator, mock_elevator_bank: MagicMock) -> None:
@@ -73,7 +74,7 @@ class TestPassengers:
         elevator.update(Time(1.1))  # Time > passenger_loading_time
 
         # Check that the passenger was added
-        current_passengers: Final[List[PersonProtocol]] = elevator.testing_get_passengers()
+        current_passengers: Final[list[PersonProtocol]] = elevator.testing_get_passengers()
         assert len(current_passengers) == 1
         assert current_passengers[0] == mock_person
 
@@ -98,14 +99,16 @@ class TestPassengers:
         with pytest.raises(RuntimeError, match=".*Cannot load passengers while elevator is in .* state"):
             elevator.request_load_passengers(VerticalDirection.UP)
 
-    def test_update_arrived_with_passengers_wanting_off(self, elevator: Elevator, mock_person_factory: PersonFactory) -> None:
+    def test_update_arrived_with_passengers_wanting_off(
+        self, elevator: Elevator, mock_person_factory: PersonFactory
+    ) -> None:
         # Setup: elevator arrives at floor 3 with passengers going to floor 3
         elevator.testing_set_state(ElevatorState.ARRIVED)
         elevator.testing_set_current_vertical_pos(Blocks(3.0))
 
-        passengers: Final[List[PersonProtocol]] = [
-            mock_person_factory(1,3),  # Wants off here
-            mock_person_factory(1,5),  # Doesn't want off
+        passengers: Final[list[PersonProtocol]] = [
+            mock_person_factory(1, 3),  # Wants off here
+            mock_person_factory(1, 5),  # Doesn't want off
         ]
         elevator.testing_set_passengers(passengers)
 

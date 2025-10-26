@@ -1,13 +1,15 @@
-from unittest.mock import MagicMock, call
-import pytest
+from unittest.mock import MagicMock
 
-from mytower.game.utilities.demo_builder import build_model_building
-from mytower.game.controllers.game_controller import GameController
 from mytower.game.controllers.controller_commands import (
-    AddFloorCommand, AddElevatorBankCommand, AddElevatorCommand, AddPersonCommand, CommandResult
+    AddElevatorBankCommand,
+    AddElevatorCommand,
+    AddFloorCommand,
+    AddPersonCommand,
+    CommandResult,
 )
+from mytower.game.controllers.game_controller import GameController
 from mytower.game.entities.floor import FloorType
-from mytower.game.utilities.logger import LoggerProvider
+from mytower.game.utilities.demo_builder import build_model_building
 
 
 class TestDemoBuilder:
@@ -38,8 +40,9 @@ class TestDemoBuilder:
         assert mock_controller.execute_command.call_count > 0
 
         # Verify floor types were added correctly
-        floor_calls = [call for call in mock_controller.execute_command.call_args_list
-                      if isinstance(call[0][0], AddFloorCommand)]
+        floor_calls = [
+            call for call in mock_controller.execute_command.call_args_list if isinstance(call[0][0], AddFloorCommand)
+        ]
         assert len(floor_calls) == 18  # Total floors added
 
         # Verify specific floor types
@@ -52,8 +55,11 @@ class TestDemoBuilder:
         assert FloorType.APARTMENT in floor_types_added
 
         # Verify elevator bank was added
-        bank_calls = [call for call in mock_controller.execute_command.call_args_list
-                     if isinstance(call[0][0], AddElevatorBankCommand)]
+        bank_calls = [
+            call
+            for call in mock_controller.execute_command.call_args_list
+            if isinstance(call[0][0], AddElevatorBankCommand)
+        ]
         assert len(bank_calls) == 1
         bank_command = bank_calls[0][0][0]
         assert bank_command.h_cell == 14
@@ -61,15 +67,19 @@ class TestDemoBuilder:
         assert bank_command.max_floor == 1  # Based on mocked return value
 
         # Verify elevator was added
-        elevator_calls = [call for call in mock_controller.execute_command.call_args_list
-                         if isinstance(call[0][0], AddElevatorCommand)]
+        elevator_calls = [
+            call
+            for call in mock_controller.execute_command.call_args_list
+            if isinstance(call[0][0], AddElevatorCommand)
+        ]
         assert len(elevator_calls) == 1
         elevator_command = elevator_calls[0][0][0]
         assert elevator_command.elevator_bank_id == "bank_123"
 
         # Verify people were added
-        person_calls = [call for call in mock_controller.execute_command.call_args_list
-                       if isinstance(call[0][0], AddPersonCommand)]
+        person_calls = [
+            call for call in mock_controller.execute_command.call_args_list if isinstance(call[0][0], AddPersonCommand)
+        ]
         assert len(person_calls) == 4
 
     def test_build_model_building_with_failures(self, mock_logger_provider: MagicMock) -> None:
@@ -105,6 +115,7 @@ class TestDemoBuilder:
 
         # Mock to return incrementing floor numbers
         floor_counter = [0]  # Use list to modify in closure
+
         def mock_execute(command):
             if isinstance(command, AddFloorCommand):
                 floor_counter[0] += 1
@@ -141,6 +152,7 @@ class TestDemoBuilder:
 
         # Track the order of floor types
         floor_types_order = []
+
         def mock_execute(command):
             if isinstance(command, AddFloorCommand):
                 floor_types_order.append(command.floor_type)
@@ -160,11 +172,23 @@ class TestDemoBuilder:
         # Verify the expected sequence
         expected_sequence = [
             FloorType.LOBBY,
-            FloorType.RETAIL, FloorType.RETAIL, FloorType.RETAIL,
-            FloorType.RESTAURANT, FloorType.RESTAURANT,
-            FloorType.OFFICE, FloorType.OFFICE, FloorType.OFFICE, FloorType.OFFICE,
-            FloorType.HOTEL, FloorType.HOTEL, FloorType.HOTEL, FloorType.HOTEL,
-            FloorType.APARTMENT, FloorType.APARTMENT, FloorType.APARTMENT, FloorType.APARTMENT
+            FloorType.RETAIL,
+            FloorType.RETAIL,
+            FloorType.RETAIL,
+            FloorType.RESTAURANT,
+            FloorType.RESTAURANT,
+            FloorType.OFFICE,
+            FloorType.OFFICE,
+            FloorType.OFFICE,
+            FloorType.OFFICE,
+            FloorType.HOTEL,
+            FloorType.HOTEL,
+            FloorType.HOTEL,
+            FloorType.HOTEL,
+            FloorType.APARTMENT,
+            FloorType.APARTMENT,
+            FloorType.APARTMENT,
+            FloorType.APARTMENT,
         ]
 
         assert floor_types_order == expected_sequence
@@ -175,6 +199,7 @@ class TestDemoBuilder:
 
         # Track person commands
         person_commands = []
+
         def mock_execute(command):
             if isinstance(command, AddFloorCommand):
                 return CommandResult(success=True, data=1)
@@ -196,16 +221,13 @@ class TestDemoBuilder:
 
         # Check specific person placements (based on the demo_builder.py code)
         expected_people = [
-            (1, 1, 9, 7),    # floor, block, dest_floor, dest_block
+            (1, 1, 9, 7),  # floor, block, dest_floor, dest_block
             (1, 3, 3, 7),
             (1, 6, 7, 7),
-            (12, 1, 1, 1)
+            (12, 1, 1, 1),
         ]
 
-        actual_people = [
-            (cmd.floor, cmd.block, cmd.dest_floor, cmd.dest_block)
-            for cmd in person_commands
-        ]
+        actual_people = [(cmd.floor, cmd.block, cmd.dest_floor, cmd.dest_block) for cmd in person_commands]
 
         assert actual_people == expected_people
 

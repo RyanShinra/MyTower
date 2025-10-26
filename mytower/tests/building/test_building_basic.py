@@ -25,7 +25,7 @@ class TestBuildingBasics:
         assert building.building_width == Blocks(20)  # Compare to Blocks - Default width
         assert building.num_floors == 0
 
-    @patch('mytower.game.entities.building.Floor')
+    @patch("mytower.game.entities.building.Floor")
     def test_add_floor(self, mock_floor_class: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test adding floors to building"""
         building = Building(mock_logger_provider, width=30)
@@ -46,7 +46,7 @@ class TestBuildingBasics:
             1,  # floor_num
             FloorType.LOBBY,
             Blocks(0),  # left_edge - now Blocks
-            Blocks(30)  # building width - now Blocks
+            Blocks(30),  # building width - now Blocks
         )
 
         # Add second floor
@@ -76,7 +76,7 @@ class TestBuildingBasics:
 class TestBuildingFloorRetrieval:
     """Test floor retrieval methods"""
 
-    @patch('mytower.game.entities.building.Floor')
+    @patch("mytower.game.entities.building.Floor")
     def test_get_floors(self, mock_floor_class: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test getting all floors in order"""
         building = Building(mock_logger_provider)
@@ -94,7 +94,7 @@ class TestBuildingFloorRetrieval:
         assert len(floors) == 3
         # Should return floors in order from 1 to num_floors
 
-    @patch('mytower.game.entities.building.Floor')
+    @patch("mytower.game.entities.building.Floor")
     def test_get_floor_by_number(self, mock_floor_class: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test getting floor by specific number"""
         building = Building(mock_logger_provider)

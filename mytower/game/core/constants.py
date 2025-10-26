@@ -1,4 +1,4 @@
- # game/constants.py
+# game/constants.py
 # MyTower - A tower building and management game
 # Copyright (C) 2025 [Your Name]
 #
@@ -20,10 +20,10 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 # Re-export for backward compatibility
 __all__ = [
-    'BLOCK_FLOAT_TOLERANCE',
-    'STARTING_MONEY',
-    'MIN_TIME_MULTIPLIER',
-    'MAX_TIME_MULTIPLIER',
+    "BLOCK_FLOAT_TOLERANCE",
+    "STARTING_MONEY",
+    "MIN_TIME_MULTIPLIER",
+    "MAX_TIME_MULTIPLIER",
     # ... other constants
 ]
 

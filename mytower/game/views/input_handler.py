@@ -12,7 +12,8 @@ NOT responsible for:
 - Game simulation logic
 - Rendering (delegates to toolbar)
 """
-from typing import Callable
+
+from collections.abc import Callable
 
 import pygame
 from pygame.surface import Surface as PygameSurface

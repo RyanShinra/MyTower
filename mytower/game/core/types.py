@@ -8,7 +8,9 @@
 # (at your option) any later version.
 
 from enum import Enum
-from typing import NewType, Tuple, TypeAlias, Union
+from typing import NewType, TypeAlias
+
+import pygame
 
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
@@ -19,15 +21,16 @@ logger: MyTowerLogger = logger_provider.get_logger("types")
 # pylint: disable=c0103
 # Type definitions for colors
 # RGB color type as a tuple of three integers
-RGB: TypeAlias = Tuple[int, int, int]
+RGB: TypeAlias = tuple[int, int, int]
 # RGBA color type as a tuple of four integers
-RGBA: TypeAlias = Tuple[int, int, int, int]
+RGBA: TypeAlias = tuple[int, int, int, int]
 # Either RGB or RGBA
-Color: TypeAlias = Union[RGB, RGBA]
+Color: TypeAlias = RGB | RGBA
 
 # Pygame-specific types
-MousePos: TypeAlias = Tuple[int, int]
-MouseButtons: TypeAlias = Tuple[bool, bool, bool]
+MousePos: TypeAlias = tuple[int, int]
+MouseButtons: TypeAlias = tuple[bool, bool, bool]
+PygameSurface: TypeAlias = pygame.Surface
 
 
 # Floor types as an Enum
@@ -83,4 +86,4 @@ class ElevatorState(Enum):
 Money = NewType("Money", int)
 
 # Grid position
-GridPosition: TypeAlias = Tuple[int, int]  # (x, y) coordinates in grid cells
+GridPosition: TypeAlias = tuple[int, int]  # (x, y) coordinates in grid cells

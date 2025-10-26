@@ -10,10 +10,10 @@ Supports multiple execution modes:
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Optional
+
 import argparse
 import logging  # Add this import
+from dataclasses import dataclass
 
 
 @dataclass
@@ -27,18 +27,19 @@ class GameArgs:
     - Easier testing
     - Clear documentation of available options
     """
+
     mode: str  # 'desktop', 'headless', 'hybrid', 'remote'
     port: int
     demo: bool
     target_fps: int
-    remote_url: Optional[str] = None
+    remote_url: str | None = None
     log_level: int = logging.INFO  # Default log level
     print_exceptions: bool = False  # Whether to print full exceptions
     fail_fast: bool = False  # Whether to exit on first error
 
     def __post_init__(self) -> None:
         """Validate arguments after initialization"""
-        valid_modes: set[str] = {'desktop', 'headless', 'hybrid', 'remote'}
+        valid_modes: set[str] = {"desktop", "headless", "hybrid", "remote"}
         if self.mode not in valid_modes:
             raise ValueError(f"Invalid mode '{self.mode}'. Must be one of {valid_modes}")
 
@@ -48,7 +49,7 @@ class GameArgs:
         if self.target_fps < 1 or self.target_fps > 240:
             raise ValueError(f"Invalid FPS {self.target_fps}. Must be between 1 and 240")
 
-        if self.mode == 'remote' and not self.remote_url:
+        if self.mode == "remote" and not self.remote_url:
             raise ValueError("Remote mode requires --remote URL")
 
 
@@ -64,8 +65,8 @@ def parse_args() -> GameArgs:
         ValueError: If post-validation fails
     """
     parser = argparse.ArgumentParser(
-        prog='mytower',
-        description='MyTower - A SimTower-inspired elevator simulation game',
+        prog="mytower",
+        description="MyTower - A SimTower-inspired elevator simulation game",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -81,100 +82,75 @@ Keyboard Controls (Desktop mode):
   SPACE     - Pause/unpause simulation
   UP/DOWN   - Adjust game speed
   ESC       - Exit game
-        """
+        """,
     )
 
     # Mutually exclusive mode selection
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument(
-        '--headless',
-        action='store_true',
-        help='Run without desktop view (GraphQL server only, for deployment)'
+        "--headless", action="store_true", help="Run without desktop view (GraphQL server only, for deployment)"
     )
     mode_group.add_argument(
-        '--remote',
-        type=str,
-        metavar='URL',
-        help='Connect desktop to remote server (not yet implemented)'
+        "--remote", type=str, metavar="URL", help="Connect desktop to remote server (not yet implemented)"
     )
 
     # Server options
     parser.add_argument(
-        '--with-graphql',
-        action='store_true',
-        help='Run local GraphQL server alongside desktop view (hybrid mode)'
+        "--with-graphql", action="store_true", help="Run local GraphQL server alongside desktop view (hybrid mode)"
     )
     parser.add_argument(
-        '--port',
-        type=int,
-        default=8000,
-        metavar='PORT',
-        help='Port for GraphQL server (default: 8000)'
+        "--port", type=int, default=8000, metavar="PORT", help="Port for GraphQL server (default: 8000)"
     )
 
     # Game options
     parser.add_argument(
-        '--demo',
-        action='store_true',
-        help='Auto-populate building with demo content (floors, elevators, people)'
+        "--demo", action="store_true", help="Auto-populate building with demo content (floors, elevators, people)"
     )
     parser.add_argument(
-        '--fps',
-        type=int,
-        default=60,
-        metavar='FPS',
-        help='Target frames per second for simulation (default: 60)'
+        "--fps", type=int, default=60, metavar="FPS", help="Target frames per second for simulation (default: 60)"
     )
 
     # Debug/development options
-    parser.add_argument(
-        '--version',
-        action='version',
-        version='MyTower 0.1.0 (Alpha)'
-    )
+    parser.add_argument("--version", action="version", version="MyTower 0.1.0 (Alpha)")
 
     parser.add_argument(
-        '--log-level',
+        "--log-level",
         type=str,
-        choices=['TRACE', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        default='INFO',
-        help='Set logging level (default: INFO)'
+        choices=["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="INFO",
+        help="Set logging level (default: INFO)",
     )
     parser.add_argument(
-        '--print-exceptions',
-        action='store_true',
-        help='Print full exception stack traces for caught exceptions'
+        "--print-exceptions", action="store_true", help="Print full exception stack traces for caught exceptions"
     )
     parser.add_argument(
-        '--fail-fast',
-        action='store_true',
-        help='Raise exceptions instead of catching them (for debugging)'
+        "--fail-fast", action="store_true", help="Raise exceptions instead of catching them (for debugging)"
     )
 
     args: argparse.Namespace = parser.parse_args()
 
     # Determine mode from arguments
     if args.remote:
-        mode = 'remote'
+        mode = "remote"
         remote_url = args.remote
     elif args.headless:
-        mode = 'headless'
+        mode = "headless"
         remote_url = None
     elif args.with_graphql:
-        mode = 'hybrid'
+        mode = "hybrid"
         remote_url = None
     else:
-        mode = 'desktop'
+        mode = "desktop"
         remote_url = None
 
     # Convert log level string to logging constant
     log_level_map: dict[str, int] = {
-        'TRACE': 5,  # Your custom TRACE level
-        'DEBUG': logging.DEBUG,
-        'INFO': logging.INFO,
-        'WARNING': logging.WARNING,
-        'ERROR': logging.ERROR,
-        'CRITICAL': logging.CRITICAL
+        "TRACE": 5,  # Your custom TRACE level
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
     }
     log_level: int = log_level_map[args.log_level]
 
@@ -187,7 +163,7 @@ Keyboard Controls (Desktop mode):
         remote_url=remote_url,
         log_level=log_level,
         print_exceptions=args.print_exceptions,
-        fail_fast=args.fail_fast
+        fail_fast=args.fail_fast,
     )
 
     return game_args
@@ -201,20 +177,20 @@ def print_startup_banner(args: GameArgs) -> None:
     useful when launched from scripts or with complex arguments.
     """
     mode_names = {
-        'desktop': 'Desktop Mode',
-        'headless': 'Headless Server Mode',
-        'hybrid': 'Hybrid Mode (Desktop + GraphQL)',
-        'remote': 'Remote Client Mode'
+        "desktop": "Desktop Mode",
+        "headless": "Headless Server Mode",
+        "hybrid": "Hybrid Mode (Desktop + GraphQL)",
+        "remote": "Remote Client Mode",
     }
 
     print("=" * 60)
     print(f"  MyTower - {mode_names[args.mode]}")
     print("=" * 60)
 
-    if args.mode in ('headless', 'hybrid'):
+    if args.mode in ("headless", "hybrid"):
         print(f"  GraphQL Server: http://localhost:{args.port}/graphql")
 
-    if args.mode == 'remote':
+    if args.mode == "remote":
         print(f"  Connecting to: {args.remote_url}")
 
     if args.demo:

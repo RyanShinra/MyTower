@@ -1,7 +1,8 @@
 # game/ui.py
 # flake8: noqa: E701
 
-from typing import Callable, List, Optional, Protocol
+from collections.abc import Callable
+from typing import Protocol
 
 import pygame
 from pygame import Surface as PygameSurface
@@ -33,16 +34,13 @@ class UIConfigProtocol(Protocol):
         ...
 
     @property
-    def BUTTON_HOVER_COLOR(self) -> RGB:
-        ...
+    def BUTTON_HOVER_COLOR(self) -> RGB: ...
 
     @property
-    def UI_FONT_NAME(self) -> tuple[str, ...]:
-        ...
+    def UI_FONT_NAME(self) -> tuple[str, ...]: ...
 
     @property
-    def UI_FONT_SIZE(self) -> int:
-        ...
+    def UI_FONT_SIZE(self) -> int: ...
 
     # TODO: #23 This should be moved into its own config protocol
     @property
@@ -50,8 +48,8 @@ class UIConfigProtocol(Protocol):
         ...
 
     @property
-    def FLOOR_LABEL_FONT_SIZE(self) -> int:
-        ...
+    def FLOOR_LABEL_FONT_SIZE(self) -> int: ...
+
 
 # pylint: enable=invalid-name
 
@@ -140,8 +138,8 @@ class Toolbar:
         self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger("ui")
         self._rect = pygame.Rect(x, y, width, height)
-        self._buttons: List[Button] = []
-        self._active_tool: Optional[str] = None
+        self._buttons: list[Button] = []
+        self._active_tool: str | None = None
         self._ui_config: UIConfigProtocol = ui_config
 
     @property
@@ -149,14 +147,14 @@ class Toolbar:
         return self._rect
 
     @property
-    def buttons(self) -> List[Button]:
+    def buttons(self) -> list[Button]:
         return self._buttons
 
     @property
-    def active_tool(self) -> Optional[str]:
+    def active_tool(self) -> str | None:
         return self._active_tool
 
-    def set_active_tool(self, value: Optional[str]) -> None:
+    def set_active_tool(self, value: str | None) -> None:
         self._active_tool = value
 
     def add_button(

@@ -2,8 +2,12 @@ from typing import Any, Final
 from unittest.mock import MagicMock
 
 from mytower.game.controllers.controller_commands import (
-    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
-    AddPersonCommand, CommandResult)
+    AddElevatorBankCommand,
+    AddElevatorCommand,
+    AddFloorCommand,
+    AddPersonCommand,
+    CommandResult,
+)
 from mytower.game.core.types import FloorType
 from mytower.game.models.game_model import GameModel
 
@@ -71,8 +75,14 @@ class TestAddFloorCommand:
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
         mock_model.add_floor.return_value = 1
 
-        floor_types: Final[list[FloorType]] = [FloorType.LOBBY, FloorType.OFFICE, FloorType.APARTMENT,
-                      FloorType.HOTEL, FloorType.RESTAURANT, FloorType.RETAIL]
+        floor_types: Final[list[FloorType]] = [
+            FloorType.LOBBY,
+            FloorType.OFFICE,
+            FloorType.APARTMENT,
+            FloorType.HOTEL,
+            FloorType.RESTAURANT,
+            FloorType.RETAIL,
+        ]
 
         for floor_type in floor_types:
             command: AddFloorCommand = AddFloorCommand(floor_type=floor_type)
@@ -113,9 +123,7 @@ class TestAddPersonCommand:
         assert result.success is True
         assert result.data == "person_123"
         assert result.error is None
-        mock_model.add_person.assert_called_once_with(
-            floor=2, block=1.0, dest_floor=5, dest_block=3.0
-        )
+        mock_model.add_person.assert_called_once_with(floor=2, block=1.0, dest_floor=5, dest_block=3.0)
 
     def test_execute_same_source_and_destination_fails(self) -> None:
         """Test that same source and destination causes failure"""
@@ -196,9 +204,7 @@ class TestAddElevatorBankCommand:
         assert result.success is True
         assert result.data == "bank_456"
         assert result.error is None
-        mock_model.add_elevator_bank.assert_called_once_with(
-            h_cell=2, min_floor=1, max_floor=5
-        )
+        mock_model.add_elevator_bank.assert_called_once_with(h_cell=2, min_floor=1, max_floor=5)
 
     def test_execute_invalid_h_cell_fails(self) -> None:
         """Test that invalid horizontal cell causes failure"""

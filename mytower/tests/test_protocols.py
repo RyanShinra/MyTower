@@ -4,15 +4,16 @@ Combines production and testing protocols for comprehensive test coverage.
 """
 
 from typing import Protocol
+
 from mytower.game.entities.entities_protocol import (
-    ElevatorProtocol,
-    ElevatorTestingProtocol,
-    PersonProtocol,
-    PersonTestingProtocol,
+    BuildingProtocol,
     ElevatorBankProtocol,
     ElevatorBankTestingProtocol,
+    ElevatorProtocol,
+    ElevatorTestingProtocol,
     FloorProtocol,
-    BuildingProtocol,
+    PersonProtocol,
+    PersonTestingProtocol,
 )
 
 
@@ -21,6 +22,7 @@ class TestableElevatorProtocol(ElevatorProtocol, ElevatorTestingProtocol, Protoc
     Combined protocol for testing Elevators.
     Provides both production interface and testing hooks.
     """
+
     pass
 
 
@@ -29,6 +31,7 @@ class TestablePersonProtocol(PersonProtocol, PersonTestingProtocol, Protocol):
     Combined protocol for testing Persons.
     Provides both production interface and testing hooks.
     """
+
     pass
 
 
@@ -37,7 +40,9 @@ class TestableElevatorBankProtocol(ElevatorBankProtocol, ElevatorBankTestingProt
     Combined protocol for testing ElevatorBanks.
     Provides both production interface and testing hooks.
     """
+
     pass
+
 
 # Floor and Building don't need testing protocols yet
 # They can use production protocols directly

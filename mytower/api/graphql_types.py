@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List
 
 import strawberry
 
@@ -141,8 +140,8 @@ class FloorSnapshotGQL:
     floor_type: FloorTypeGQL
     floor_number: int
     floor_height: Blocks  # Core type
-    left_edge_block: Blocks      # Core type
-    floor_width: Blocks   # Core type
+    left_edge_block: Blocks  # Core type
+    floor_width: Blocks  # Core type
     person_count: int
     floor_color: ColorGQL
     floorboard_color: ColorGQL
@@ -157,6 +156,6 @@ class FloorSnapshotGQL:
 class BuildingSnapshotGQL:
     time: Time  # Core type
     money: int
-    floors: List[FloorSnapshotGQL]
-    elevators: List[ElevatorSnapshotGQL]
-    people: List[PersonSnapshotGQL]
+    floors: list[FloorSnapshotGQL]
+    elevators: list[ElevatorSnapshotGQL]
+    people: list[PersonSnapshotGQL]

@@ -1,12 +1,12 @@
 # test_el_bank_ready_elevator.py
 
-from typing import List, Final
+from typing import Final
 from unittest.mock import MagicMock
 
 import pytest
 
-from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.core.types import VerticalDirection
+from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.entities.entities_protocol import ElevatorDestination
 from mytower.tests.conftest import PersonFactory
 
@@ -58,11 +58,11 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 7
 
         # Should clear the request we're fulfilling
-        requests_floor_7 = elevator_bank.floor_requests[7]
+        requests_floor_7 = elevator_bank.get_requests_for_floor(7)
         assert VerticalDirection.UP not in requests_floor_7
 
         # No request exists for floor 8 (passenger destination), so nothing to clear there
-        requests_floor_8 = elevator_bank.floor_requests[8]
+        requests_floor_8 = elevator_bank.get_requests_for_floor(8)
         assert len(requests_floor_8) == 0
 
     def test_ready_elevator_continues_journey_after_intermediate_stop(
@@ -108,11 +108,11 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 7
 
         # Should clear the request for floor 7
-        requests_floor_7: set[VerticalDirection] = elevator_bank.floor_requests[7]
+        requests_floor_7: set[VerticalDirection] = elevator_bank.get_requests_for_floor(7)
         assert VerticalDirection.UP not in requests_floor_7
 
         # Should not clear the request for floor 9
-        requests_floor_9: set[VerticalDirection] = elevator_bank.floor_requests[9]
+        requests_floor_9: set[VerticalDirection] = elevator_bank.get_requests_for_floor(9)
         assert VerticalDirection.UP in requests_floor_9
 
     def test_ready_elevator_reverses_when_no_forward_destinations(
@@ -175,13 +175,13 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 6
 
         # Should clear only the request we're fulfilling
-        requests_floor_6 = elevator_bank.floor_requests[6]
+        requests_floor_6 = elevator_bank.get_requests_for_floor(6)
         assert VerticalDirection.UP not in requests_floor_6
 
         # Other requests should remain
-        assert VerticalDirection.UP in elevator_bank.floor_requests[2]
-        assert VerticalDirection.UP in elevator_bank.floor_requests[7]
-        assert VerticalDirection.UP in elevator_bank.floor_requests[8]
+        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(2)
+        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(7)
+        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(8)
 
     def test_ready_elevator_chooses_closest_floor_down_ignores_ahead(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
@@ -193,9 +193,9 @@ class TestReadyElevatorLogic:
 
         # Requests both below AND above current floor
         elevator_bank.request_elevator(10, VerticalDirection.DOWN)  # Above - should be ignored
-        elevator_bank.request_elevator(3, VerticalDirection.DOWN)   # Below - farther
-        elevator_bank.request_elevator(5, VerticalDirection.DOWN)   # Below - closest
-        elevator_bank.request_elevator(2, VerticalDirection.DOWN)   # Below - farthest
+        elevator_bank.request_elevator(3, VerticalDirection.DOWN)  # Below - farther
+        elevator_bank.request_elevator(5, VerticalDirection.DOWN)  # Below - closest
+        elevator_bank.request_elevator(2, VerticalDirection.DOWN)  # Below - farthest
 
         elevator_bank.testing_update_ready_elevator(mock_elevator)
 
@@ -205,13 +205,13 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 5
 
         # Should clear only the request we're fulfilling
-        requests_floor_5 = elevator_bank.floor_requests[5]
+        requests_floor_5 = elevator_bank.get_requests_for_floor(5)
         assert VerticalDirection.DOWN not in requests_floor_5
 
         # Other requests should remain
-        assert VerticalDirection.DOWN in elevator_bank.floor_requests[10]
-        assert VerticalDirection.DOWN in elevator_bank.floor_requests[3]
-        assert VerticalDirection.DOWN in elevator_bank.floor_requests[2]
+        assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(10)
+        assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(3)
+        assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(2)
 
     def test_ready_elevator_mixed_passengers_and_requests(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
@@ -235,7 +235,7 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 6
 
         # Should clear the request we're fulfilling
-        requests_floor_6 = elevator_bank.floor_requests[6]
+        requests_floor_6 = elevator_bank.get_requests_for_floor(6)
         assert VerticalDirection.UP not in requests_floor_6
 
     def test_ready_elevator_direction_reversal_to_stationary_bias(
@@ -256,9 +256,7 @@ class TestReadyElevatorLogic:
         call_args = mock_elevator.set_destination.call_args[0][0]
         assert call_args.floor == 3
 
-    def test_ready_elevator_clears_correct_request(
-        self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
-    ) -> None:
+    def test_ready_elevator_clears_correct_request(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that only the request being fulfilled gets cleared"""
         mock_elevator.current_floor_int = 5
         mock_elevator.nominal_direction = VerticalDirection.UP
@@ -277,21 +275,19 @@ class TestReadyElevatorLogic:
         assert call_args.floor == 7
 
         # Should clear UP request for floor 7, but not DOWN request
-        requests_floor_7: set[VerticalDirection] = elevator_bank.floor_requests[7]
+        requests_floor_7: set[VerticalDirection] = elevator_bank.get_requests_for_floor(7)
         assert VerticalDirection.UP not in requests_floor_7
         assert VerticalDirection.DOWN in requests_floor_7  # Should still exist
 
         # Floor 8 request should be untouched
-        requests_floor_8: set[VerticalDirection] = elevator_bank.floor_requests[8]
+        requests_floor_8: set[VerticalDirection] = elevator_bank.get_requests_for_floor(8)
         assert VerticalDirection.UP in requests_floor_8
 
 
 class TestDestinationCollection:
     """Test the helper methods used by ready elevator logic"""
 
-    def test_collect_destinations_passengers_first(
-        self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
-    ) -> None:
+    def test_collect_destinations_passengers_first(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that _collect_destinations includes passenger destinations first"""
         mock_elevator.get_passenger_destinations_in_direction.return_value = [7, 9]
 
@@ -300,7 +296,9 @@ class TestDestinationCollection:
         elevator_bank.request_elevator(8, VerticalDirection.UP)
 
         # Use the actual method (assuming you add a testing accessor)
-        destinations: Final[List[ElevatorDestination]] = elevator_bank.testing_collect_destinations(mock_elevator, floor=5, direction=VerticalDirection.UP)
+        destinations: Final[list[ElevatorDestination]] = elevator_bank.testing_collect_destinations(
+            mock_elevator, floor=5, direction=VerticalDirection.UP
+        )
 
         # Should include both passenger destinations and call requests
         # Extract floors for easier checking
@@ -310,13 +308,16 @@ class TestDestinationCollection:
         assert 6 in destination_floors  # Call request
         assert 8 in destination_floors  # Call request
 
-    @pytest.mark.parametrize("direction,floors,expected", [
-        (VerticalDirection.UP, [6, 8, 7], 6),      # UP: choose minimum
-        (VerticalDirection.DOWN, [3, 5, 2], 5),    # DOWN: choose maximum
-        (VerticalDirection.UP, [10], 10),          # Single destination
-    ])
+    @pytest.mark.parametrize(
+        "direction,floors,expected",
+        [
+            (VerticalDirection.UP, [6, 8, 7], 6),  # UP: choose minimum
+            (VerticalDirection.DOWN, [3, 5, 2], 5),  # DOWN: choose maximum
+            (VerticalDirection.UP, [10], 10),  # Single destination
+        ],
+    )
     def test_select_next_floor_logic(
-        self, elevator_bank: ElevatorBank, direction: VerticalDirection, floors: List[int], expected: int
+        self, elevator_bank: ElevatorBank, direction: VerticalDirection, floors: list[int], expected: int
     ) -> None:
         """Test floor selection logic for different directions"""
         # Convert floors to ElevatorDestination objects
@@ -328,9 +329,7 @@ class TestDestinationCollection:
 class TestRequestClearing:
     """Test that requests get properly cleared when elevators are assigned"""
 
-    def test_request_cleared_after_destination_set(
-        self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
-    ) -> None:
+    def test_request_cleared_after_destination_set(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Integration test: request should be cleared after elevator is assigned"""
         mock_elevator.current_floor_int = 3
         mock_elevator.nominal_direction = VerticalDirection.UP
@@ -338,19 +337,17 @@ class TestRequestClearing:
 
         # Set up request
         elevator_bank.request_elevator(5, VerticalDirection.UP)
-        assert VerticalDirection.UP in elevator_bank.floor_requests[5]
+        assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(5)
 
         # Process the ready elevator
         elevator_bank.testing_update_ready_elevator(mock_elevator)
 
         # Request should be cleared
-        requests: set[VerticalDirection] = elevator_bank.floor_requests[5]
+        requests: set[VerticalDirection] = elevator_bank.get_requests_for_floor(5)
         assert VerticalDirection.UP not in requests
         assert len(requests) == 0
 
-    def test_only_fulfilled_request_cleared(
-        self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
-    ) -> None:
+    def test_only_fulfilled_request_cleared(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that only the specific request being fulfilled gets cleared"""
         mock_elevator.current_floor_int = 3
         mock_elevator.nominal_direction = VerticalDirection.UP
@@ -363,6 +360,6 @@ class TestRequestClearing:
         elevator_bank.testing_update_ready_elevator(mock_elevator)
 
         # Only UP request should be cleared (that's the direction we're going)
-        requests: set[VerticalDirection] = elevator_bank.floor_requests[5]
+        requests: set[VerticalDirection] = elevator_bank.get_requests_for_floor(5)
         assert VerticalDirection.UP not in requests
         assert VerticalDirection.DOWN in requests

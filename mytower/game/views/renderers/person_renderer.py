@@ -5,10 +5,8 @@ from typing import TYPE_CHECKING, Final
 import pygame
 from pygame.font import Font
 
-from mytower.game.core.config import (PersonConfigProtocol,
-                                      PersonCosmeticsProtocol)
-from mytower.game.core.constants import (  # TODO: Move this into a config
-    BLOCK_WIDTH, DEFAULT_FLOOR_HEIGHT)
+from mytower.game.core.config import PersonConfigProtocol, PersonCosmeticsProtocol
+from mytower.game.core.constants import BLOCK_WIDTH, DEFAULT_FLOOR_HEIGHT  # TODO: Move this into a config
 from mytower.game.core.units import Blocks, Pixels
 
 if TYPE_CHECKING:
@@ -19,7 +17,12 @@ if TYPE_CHECKING:
 
 
 class PersonRenderer:
-    def __init__(self, person_config: PersonConfigProtocol, person_cosmetics: PersonCosmeticsProtocol, logger_provider: LoggerProvider) -> None:
+    def __init__(
+        self,
+        person_config: PersonConfigProtocol,
+        person_cosmetics: PersonCosmeticsProtocol,
+        logger_provider: LoggerProvider,
+    ) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("PersonRenderer")
         self._cosmetics: PersonCosmeticsProtocol = person_cosmetics
         self._config: PersonConfigProtocol = person_config
@@ -27,7 +30,9 @@ class PersonRenderer:
     # Someday this will be replaced with a proper transform system
     def y_position(self, surface: Surface, vert_position: Blocks) -> Pixels:
         """Calculate the y position for the given person"""
-        apparent_floor: Blocks = vert_position - Blocks(1.0)  # Floors are 1 indexed / Alternatively, we want the feet to be at the bottom of the block
+        apparent_floor: Blocks = vert_position - Blocks(
+            1.0
+        )  # Floors are 1 indexed / Alternatively, we want the feet to be at the bottom of the block
         z_bottom: Pixels = apparent_floor.in_pixels
 
         half_floor_height: Pixels = Pixels(int(float(DEFAULT_FLOOR_HEIGHT.in_pixels) / 2.0))
@@ -64,7 +69,9 @@ class PersonRenderer:
 
         font: Final[Font] = pygame.font.SysFont("Consolas", 24)
         dest_target: Final[Surface] = font.render("X", True, person.draw_color)
-        drawing_surface.blit(dest_target, (draw_dest_center[0] - dest_target.get_width() // 2, draw_dest_center[1] - dest_target.get_height() // 2))
+        drawing_surface.blit(
+            dest_target,
+            (draw_dest_center[0] - dest_target.get_width() // 2, draw_dest_center[1] - dest_target.get_height() // 2),
+        )
         # Draw the person as a circle
         pygame.draw.circle(drawing_surface, person.draw_color, draw_center, draw_radius)
-

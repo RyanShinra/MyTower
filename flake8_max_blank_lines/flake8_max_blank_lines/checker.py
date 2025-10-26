@@ -13,12 +13,12 @@ class MaxBlankLinesChecker:
         self.tree = tree
 
     def run(self):
-        with open(self.filename, "r", encoding="utf-8", newline='') as f:
+        with open(self.filename, "r", encoding="utf-8", newline="") as f:
             content = f.read()
 
         # Normalize line endings to LF
-        content = content.replace('\r\n', '\n').replace('\r', '\n')
-        lines = content.split('\n')
+        content = content.replace("\r\n", "\n").replace("\r", "\n")
+        lines = content.split("\n")
 
         prev_func_end = None
         i = 0

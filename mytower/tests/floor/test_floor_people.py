@@ -4,22 +4,21 @@
 
 # tests/floor/test_floor_people.py 22
 from __future__ import annotations
+
 from typing import Final
-import pytest
 from unittest.mock import MagicMock
 
-from mytower.game.entities.floor import Floor
+import pytest
+
 from mytower.game.core.types import FloorType
+from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol
 
 
 @pytest.fixture
 def floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock) -> Floor:
     return Floor(
-        logger_provider=mock_logger_provider,
-        building=mock_building_no_floor,
-        floor_num=3,
-        floor_type=FloorType.OFFICE
+        logger_provider=mock_logger_provider, building=mock_building_no_floor, floor_num=3, floor_type=FloorType.OFFICE
     )
 
 
@@ -135,5 +134,6 @@ class TestFloorPersonOwnershipEdgeCases:
         floor.add_person(none_person)
         retrieved = floor.remove_person("none_person")
         assert retrieved == none_person
+
 
 # TODO: Add these tests once we implement person count tracking
