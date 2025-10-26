@@ -1,0 +1,43 @@
+{
+  "family": "mytower-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "containerDefinitions": [
+    {
+      "name": "mytower-server",
+      "image": "151935250464.dkr.ecr.us-east-2.amazonaws.com/mytower-server:latest",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "MYTOWER_MODE",
+          "value": "headless"
+        },
+        {
+          "name": "MYTOWER_PORT",
+          "value": "8000"
+        },
+        {
+          "name": "MYTOWER_LOG_LEVEL",
+          "value": "INFO"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mytower-server",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ],
+  "executionRoleArn": "arn:aws:iam::151935250464:role/ecsTaskExecutionRole"
+}
