@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
 # flake8: noqa: E701
 
+
 class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     """
     An elevator in the building that transports people between floors.

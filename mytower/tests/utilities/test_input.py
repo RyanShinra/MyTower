@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 from mytower.game.utilities.input import MouseState
 
+
 class TestMouseState:
     """Test MouseState functionality"""
 

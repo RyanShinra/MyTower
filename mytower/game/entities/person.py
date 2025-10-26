@@ -29,6 +29,7 @@ if TYPE_CHECKING:
                                                          FloorProtocol)
     from mytower.game.utilities.logger import LoggerProvider
 
+
 class Person(PersonProtocol, PersonTestingProtocol):
     """
     A person in the building who moves between floors and has needs.

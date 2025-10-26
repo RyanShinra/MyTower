@@ -21,6 +21,7 @@ from mytower.game.entities.entities_protocol import (BuildingProtocol,
 # Type variable for protocol types
 P = TypeVar('P')
 
+
 class MockFactoryProtocol(Protocol):
     """Protocol for creating type-safe mocks"""
 
@@ -62,6 +63,7 @@ class MockFactoryProtocol(Protocol):
         max_floor: int = 10,
         **overrides: Any
     ) -> Mock: ...  # Return Mock explicitly
+
 
 class TypedMockFactory:
     """
@@ -250,6 +252,7 @@ class TypedMockFactory:
 
         return mock
 
+
 class StateAssertions:
     """Common state assertion helpers for improved test readability"""
 
@@ -316,6 +319,7 @@ class StateAssertions:
             func(*args, **kwargs)
         except Exception as e:
             pytest.fail(f"Expected no exceptions, but {type(e).__name__} was raised: {e}")
+
 
 class BoundaryTestMixin:
     """Mixin providing common boundary testing patterns"""

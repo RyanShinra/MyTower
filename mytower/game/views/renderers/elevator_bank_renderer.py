@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from mytower.game.models.model_snapshots import ElevatorBankSnapshot
     from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
+
 class ElevatorBankRenderer:
     def __init__(self, logger_provider: LoggerProvider, cosmetics_config: ElevatorCosmeticsProtocol) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("ElevatorBankRenderer")

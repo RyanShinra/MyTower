@@ -14,6 +14,7 @@ from mytower.game.entities.person import Person
 from mytower.tests.conftest import PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR
 from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
+
 class TestTypedMockFactoryDemo:
     """Demonstrate TypedMockFactory usage with proper type handling"""
 
@@ -74,6 +75,7 @@ class TestTypedMockFactoryDemo:
         elevator_protocol: ElevatorProtocol = cast(ElevatorProtocol, elevator_mock)
         assert elevator_protocol.elevator_id == "demo_elevator"
 
+
 class TestStateAssertionsDemo:
     """Demonstrate StateAssertions with proper Mock handling"""
 
@@ -109,6 +111,7 @@ class TestStateAssertionsDemo:
             expected_state=PersonState.WALKING,
             expected_floor=7
         )
+
 
 class TestIntegratedUtilitiesDemo:
     """Demonstrate using multiple utilities together"""
@@ -203,6 +206,7 @@ class TestIntegratedUtilitiesDemo:
         # Verify the building mock was called correctly during Person init
         building_mock.get_floor_by_number.assert_called_with(5)
         floor_mock.add_person.assert_called_once_with(person)
+
 
 class TestProperMockTypingPatterns:
     """Demonstrate proper patterns for Mock vs Protocol typing"""

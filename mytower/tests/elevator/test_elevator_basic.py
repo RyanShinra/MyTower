@@ -13,6 +13,7 @@ from mytower.game.entities.entities_protocol import ElevatorDestination
 from mytower.game.entities.person import PersonProtocol
 from mytower.tests.conftest import PersonFactory
 
+
 class TestElevatorBasics:
 
     def test_initial_state(self, elevator: Elevator) -> None:

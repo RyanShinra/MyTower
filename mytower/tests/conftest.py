@@ -24,8 +24,10 @@ from mytower.tests.test_protocols import (TestableElevatorBankProtocol,
 # Import new type-safe test utilities
 from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
+
 class PersonFactory(Protocol):
     def __call__(self, cur_floor_num: int, dest_floor_num: int) -> Mock: ...  # ✅ Honest return type
+
 
 @pytest.fixture
 def mock_person_factory() -> PersonFactory:
@@ -38,6 +40,7 @@ def mock_person_factory() -> PersonFactory:
         return person
     return _person_gen
 
+
 @pytest.fixture
 def mock_cosmetics_config() -> MagicMock:
     config = MagicMock(spec=ElevatorCosmeticsProtocol)
@@ -46,6 +49,7 @@ def mock_cosmetics_config() -> MagicMock:
     config.CLOSED_COLOR = (50, 50, 200)
     config.OPEN_COLOR = (200, 200, 50)
     return config
+
 
 @pytest.fixture
 def mock_logger_provider() -> MagicMock:
@@ -63,10 +67,12 @@ def typed_mock_factory() -> TypedMockFactory:
     """Fixture providing type-safe mock creation"""
     return TypedMockFactory()
 
+
 @pytest.fixture
 def state_assertions() -> StateAssertions:
     """Fixture providing common state assertion helpers"""
     return StateAssertions()
+
 
 @pytest.fixture
 def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:  # ✅
@@ -85,6 +91,7 @@ def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock
 
     return _create_building
 
+
 @pytest.fixture
 def mock_building_no_floor() -> Mock:  # ✅
     """Standard building mock - For tests where a person does not need to belong to a floor"""
@@ -94,6 +101,7 @@ def mock_building_no_floor() -> Mock:  # ✅
     building.get_elevator_banks_on_floor.return_value = []
     building.get_floor_by_number.return_value = None
     return building
+
 
 @pytest.fixture
 def mock_building_with_floor() -> Mock:  # ✅
@@ -105,6 +113,7 @@ def mock_building_with_floor() -> Mock:  # ✅
     mock_floor = MagicMock(spec=FloorProtocol)
     building.get_floor_by_number.return_value = mock_floor
     return building
+
 
 @pytest.fixture
 def mock_game_config() -> MagicMock:
@@ -152,6 +161,7 @@ def mock_game_config() -> MagicMock:
 PERSON_DEFAULT_FLOOR: Final[int] = 6
 PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)
 
+
 @pytest.fixture
 def person_with_floor(
     mock_logger_provider: MagicMock,
@@ -174,6 +184,7 @@ def mock_elevator_bank() -> Mock:  # ✅
     mock_bank.horizontal_position = Blocks(5)
     return mock_bank
 
+
 @pytest.fixture
 def mock_elevator_config() -> MagicMock:
     config = MagicMock()
@@ -185,6 +196,7 @@ def mock_elevator_config() -> MagicMock:
     config.IDLE_WAIT_TIMEOUT = Time(0.5)
     return config
 
+
 @pytest.fixture
 def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
     elevator = MagicMock(spec=ElevatorProtocol)
@@ -195,6 +207,7 @@ def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
     elevator.idle_wait_timeout = Time(0.5)
     elevator.get_passenger_destinations_in_direction.return_value = []
     return elevator
+
 
 @pytest.fixture
 def elevator_bank(
@@ -210,6 +223,7 @@ def elevator_bank(
         max_floor=10,
         min_floor=1,
     )
+
 
 @pytest.fixture
 def elevator(

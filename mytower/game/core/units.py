@@ -10,6 +10,7 @@ from mytower.game.core.primitive_constants import (BLOCK_FLOAT_TOLERANCE,
                                                    PIXELS_PER_METER,
                                                    TIME_FLOAT_TOLERANCE)
 
+
 @dataclass(frozen=True, slots=True, order=True)
 class Meters:
     """
@@ -93,6 +94,7 @@ class Meters:
         """Return absolute value while preserving type"""
         return Meters(abs(self.value))
 
+
 @dataclass(frozen=True, slots=True, order=True)
 class Pixels:
     """
@@ -160,6 +162,7 @@ class Pixels:
     def __abs__(self) -> Pixels:
         """Return absolute value while preserving type"""
         return Pixels(abs(self.value))
+
 
 @dataclass(frozen=True, slots=True, order=True)
 class Blocks:
@@ -229,9 +232,11 @@ class Blocks:
         """Return absolute value while preserving type"""
         return Blocks(abs(self.value))
 
+
 def rect_from_pixels(x: Pixels, y: Pixels, width: Pixels, height: Pixels) -> tuple[int, int, int, int]:
     """Convert Pixels to pygame rect tuple (int, int, int, int)"""
     return (int(x), int(y), int(width), int(height))
+
 
 @dataclass(frozen=True, slots=True, order=True)
 class Time:
@@ -312,6 +317,7 @@ class Time:
     def in_days(self) -> float:
         """Return time in days as float"""
         return self.value / 86400.0  # 86400 seconds in a day
+
 
 @dataclass(frozen=True, slots=True, order=True)
 class Velocity:

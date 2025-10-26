@@ -8,6 +8,7 @@ from mytower.game.models.model_snapshots import (BuildingSnapshot,
                                                  ElevatorSnapshot,
                                                  FloorSnapshot, PersonSnapshot)
 
+
 class TestPersonSnapshot:
     """Test PersonSnapshot dataclass"""
 
@@ -56,6 +57,7 @@ class TestPersonSnapshot:
         # (Though this dataclass isn't explicitly frozen, it's meant to be immutable)
         assert snapshot.person_id == "person_123"
         assert snapshot.state == PersonState.IDLE
+
 
 class TestElevatorSnapshot:
     """Test ElevatorSnapshot dataclass"""
@@ -107,6 +109,7 @@ class TestElevatorSnapshot:
         assert closed_snapshot.door_open is False
         assert open_snapshot.door_open is True
 
+
 class TestElevatorBankSnapshot:
     """Test ElevatorBankSnapshot dataclass"""
 
@@ -137,6 +140,7 @@ class TestElevatorBankSnapshot:
 
         assert snapshot.min_floor == snapshot.max_floor
         assert snapshot.min_floor == 10
+
 
 class TestFloorSnapshot:
     """Test FloorSnapshot dataclass"""
@@ -183,6 +187,7 @@ class TestFloorSnapshot:
             )
 
             assert snapshot.floor_type == floor_type
+
 
 class TestBuildingSnapshot:
     """Test BuildingSnapshot dataclass"""

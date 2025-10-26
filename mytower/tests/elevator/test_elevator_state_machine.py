@@ -5,6 +5,7 @@ from mytower.game.entities.elevator import Elevator, ElevatorState
 from mytower.game.core.types import VerticalDirection
 from mytower.game.entities.entities_protocol import ElevatorDestination
 
+
 class TestStateMachine:
 
     def test_update_idle_stays_idle(self, elevator: Elevator) -> None:

@@ -6,6 +6,7 @@ from mytower.game.core.units import Blocks
 from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.entities_protocol import ElevatorDestination
 
+
 class TestMovement:
 
     def test_set_destination_floor_down(self, elevator: Elevator) -> None:

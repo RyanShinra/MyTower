@@ -10,6 +10,7 @@ from mytower.game.core.units import Time
 from mytower.game.models.game_model import GameModel
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorBankSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 
+
 class TestGameControllerBasics:
     """Test basic GameController functionality"""
 
@@ -30,6 +31,7 @@ class TestGameControllerBasics:
         controller: GameController = GameController(mock_model, mock_logger_provider, fail_fast=True, print_exceptions=False)
 
         assert controller._fail_fast is True
+
 
 class TestCommandExecution:
     """Test command execution functionality"""
@@ -99,6 +101,7 @@ class TestCommandExecution:
 
         with pytest.raises(RuntimeError, match="Test exception"):
             controller.execute_command(mock_command)
+
 
 class TestQueryInterface:
     """Test query interface methods"""
@@ -197,6 +200,7 @@ class TestQueryInterface:
 
         assert result == mock_floors_list
         mock_model.get_all_floors.assert_called_once()
+
 
 class TestSimulationManagement:
     """Test simulation management functionality"""

@@ -15,6 +15,7 @@ CRITICAL = logging.CRITICAL  # A serious error that might prevent the program fr
 # Register the TRACE level with the logging system
 logging.addLevelName(TRACE, "TRACE")
 
+
 class MyTowerLogger(logging.Logger):
     """Custom logger class with TRACE level support."""
 
@@ -36,6 +37,7 @@ class MyTowerLogger(logging.Logger):
 
 # Register our custom logger class with the logging system BEFORE creating any loggers
 logging.setLoggerClass(MyTowerLogger)
+
 
 def setup_logger(
     name: str = "mytower",

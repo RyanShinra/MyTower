@@ -32,6 +32,7 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 if TYPE_CHECKING:
     from mytower.game.core.config import ElevatorCosmeticsProtocol
 
+
 class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     """
     An elevator bank managing multiple elevators serving a range of floors.

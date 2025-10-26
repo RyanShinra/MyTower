@@ -3,6 +3,7 @@ from mytower.game.core.units import Time
 from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState
 
+
 class TestPersonStateMachine:
     """Test Person state machine transitions and update logic"""
 

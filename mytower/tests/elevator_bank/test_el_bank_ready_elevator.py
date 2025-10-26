@@ -10,6 +10,7 @@ from mytower.game.core.types import VerticalDirection
 from mytower.game.entities.entities_protocol import ElevatorDestination
 from mytower.tests.conftest import PersonFactory
 
+
 class TestReadyElevatorLogic:
     """Tests for the core elevator dispatch algorithm in _update_ready_elevator()"""
 
@@ -284,6 +285,7 @@ class TestReadyElevatorLogic:
         requests_floor_8: set[VerticalDirection] = elevator_bank.floor_requests[8]
         assert VerticalDirection.UP in requests_floor_8
 
+
 class TestDestinationCollection:
     """Test the helper methods used by ready elevator logic"""
 
@@ -321,6 +323,7 @@ class TestDestinationCollection:
         destinations = [ElevatorDestination(floor, direction, True) for floor in floors]
         result = elevator_bank.testing_select_next_floor(destinations, direction)
         assert result.floor == expected
+
 
 class TestRequestClearing:
     """Test that requests get properly cleared when elevators are assigned"""

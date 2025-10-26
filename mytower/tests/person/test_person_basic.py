@@ -11,6 +11,7 @@ from mytower.tests.conftest import (BUILDING_DEFAULT_FLOOR_WIDTH,
                                     PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR)
 from mytower.tests.test_utilities import StateAssertions
 
+
 class TestPersonBasics:
     """Test basic Person properties and initialization"""
 

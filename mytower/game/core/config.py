@@ -37,6 +37,7 @@ class ElevatorConfigProtocol(Protocol):
     @property
     def IDLE_WAIT_TIMEOUT(self) -> Time: ...
 
+
 class ElevatorCosmeticsProtocol(Protocol):
     """Visual appearance settings for Elevator class"""
 
@@ -61,6 +62,7 @@ class ElevatorCosmeticsProtocol(Protocol):
     @property
     def ELEVATOR_HEIGHT(self) -> Meters: ...
 
+
 class PersonConfigProtocol(Protocol):
     """Config requirements for Person class"""
 
@@ -75,6 +77,7 @@ class PersonConfigProtocol(Protocol):
 
     @property
     def RADIUS(self) -> Meters: ...
+
 
 class PersonCosmeticsProtocol(Protocol):
     """Visual appearance settings for Person class"""
@@ -120,6 +123,7 @@ class ElevatorConfig:
     IDLE_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Idle
     MOVING_LOG_TIMEOUT: Time = Time(0.5)  # Seconds: how often to log status while Moving
 
+
 @dataclass
 class ElevatorCosmetics:
     """Implements Elevator Cosmetics Protocol"""
@@ -132,6 +136,7 @@ class ElevatorCosmetics:
     ELEVATOR_WIDTH: Final[Meters] = Blocks(1.0).in_meters
     ELEVATOR_HEIGHT: Final[Meters] = Blocks(1.0).in_meters
 
+
 @dataclass
 class PersonConfig:
     """Person behavior configuration with explicit units"""
@@ -141,6 +146,7 @@ class PersonConfig:
     MAX_WAIT_TIME: Time = Time(90.0)   # Explicit seconds
     IDLE_TIMEOUT: Time = Time(5.0)     # Explicit seconds
     RADIUS: Meters = Meters(1.75 / 2)      # Explicit meters (divide by two so that the radius is half the average height of 175 cm)
+
 
 @dataclass
 class PersonCosmetics:
@@ -169,6 +175,7 @@ class PersonCosmetics:
         (64, 0, 128),    # Purple
     )
 
+
 @dataclass
 class UIConfig:
     """Default UI configuration implementation"""
@@ -184,6 +191,7 @@ class UIConfig:
     FLOOR_LABEL_FONT_SIZE: Final[int] = 18  # Font size for floor labels
 
 # pylint: enable=invalid-name
+
 
 class GameConfig:
     def __init__(self) -> None:

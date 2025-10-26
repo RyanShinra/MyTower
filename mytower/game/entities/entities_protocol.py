@@ -87,6 +87,7 @@ class PersonProtocol(Protocol):
 
     def testing_set_dest_floor_num(self, dest_floor: int) -> None: ...
 
+
 class ElevatorProtocol(Protocol):
     """Protocol defining the interface for Elevator entities"""
 
@@ -163,6 +164,7 @@ class ElevatorProtocol(Protocol):
 
     def passengers_who_want_off(self) -> List[PersonProtocol]: ...
 
+
 class ElevatorTestingProtocol(Protocol):
     """Testing-only protocol for Elevator - provides internal state access for unit tests"""
 
@@ -178,10 +180,12 @@ class ElevatorTestingProtocol(Protocol):
 
     def testing_get_passengers(self) -> List[PersonProtocol]: ...
 
+
 class ElevatorDestination(NamedTuple):
     floor: int
     direction: VerticalDirection
     has_destination: bool
+
 
 class ElevatorBankProtocol(Protocol):
     """Protocol defining the interface for ElevatorBank entities"""
@@ -216,6 +220,7 @@ class ElevatorBankProtocol(Protocol):
 
     def update(self, dt: Time) -> None: ...
 
+
 class ElevatorBankTestingProtocol(Protocol):
     """Testing-only protocol for ElevatorBank"""
 
@@ -230,6 +235,7 @@ class ElevatorBankTestingProtocol(Protocol):
     def testing_collect_destinations(self, elevator: ElevatorProtocol, floor: int, direction: VerticalDirection) -> List[ElevatorDestination]: ...  # Changed
 
     def testing_select_next_floor(self, destinations: List[ElevatorDestination], direction: VerticalDirection) -> ElevatorDestination: ...
+
 
 class FloorProtocol(Protocol):
     """Protocol defining the interface for Floor entities"""
@@ -262,6 +268,7 @@ class FloorProtocol(Protocol):
 
     def remove_person(self, person_id: str) -> PersonProtocol: ...
 
+
 class BuildingProtocol(Protocol):
     """Protocol defining the interface for Building entities"""
 
@@ -286,6 +293,7 @@ class BuildingProtocol(Protocol):
     def get_floors(self) -> List[FloorProtocol]: ...  # Add this
 
     def update(self, dt: Time) -> None: ...  # Changed from float to Time
+
 
 class PersonTestingProtocol(Protocol):
     """Testing-only protocol for Person - provides internal state access for unit tests"""

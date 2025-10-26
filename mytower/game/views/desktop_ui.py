@@ -54,6 +54,7 @@ class UIConfigProtocol(Protocol):
 
 # pylint: enable=invalid-name
 
+
 class Button:
     """
     A simple button UI element
@@ -125,6 +126,7 @@ class Button:
         text_surface: PygameSurface = font.render(self._text, True, self._ui_config.TEXT_COLOR)
         text_rect: pygame.Rect = text_surface.get_rect(center=self._rect.center)
         surface.blit(text_surface, text_rect)
+
 
 class Toolbar:
     """

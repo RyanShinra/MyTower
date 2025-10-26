@@ -7,6 +7,7 @@ from mytower.game.entities.elevator import Elevator
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.entities.floor import Floor
 
+
 class TestBuildingBasics:
     """Test basic Building functionality"""
 
@@ -71,6 +72,7 @@ class TestBuildingBasics:
     # test_add_person removed as Building no longer manages people directly
     # People are now managed by GameModel
 
+
 class TestBuildingFloorRetrieval:
     """Test floor retrieval methods"""
 
@@ -116,6 +118,7 @@ class TestBuildingFloorRetrieval:
         # Test non-existent floor
         floor_none = building.get_floor_by_number(99)
         assert floor_none is None
+
 
 class TestBuildingElevatorOperations:
     """Test elevator-related operations"""
@@ -190,6 +193,7 @@ class TestBuildingElevatorOperations:
         assert mock_elevator1 in all_elevators
         assert mock_elevator2 in all_elevators
         assert mock_elevator3 in all_elevators
+
 
 class TestBuildingUpdateAndDraw:
     """Test update and draw methods"""

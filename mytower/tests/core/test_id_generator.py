@@ -3,6 +3,7 @@ from concurrent.futures._base import Future
 
 from mytower.game.core.id_generator import IDGenerator
 
+
 class TestIDGeneratorBasics:
     """Test basic IDGenerator functionality"""
 

@@ -8,6 +8,7 @@ from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.entities_protocol import ElevatorBankProtocol
 from mytower.game.entities.person import Person
 
+
 class TestPersonMovement:
     """Test Person movement and path finding logic"""
 

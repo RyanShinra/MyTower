@@ -15,6 +15,7 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
 from mytower.game.core.units import Time
 
+
 class GameController:
     """
     Coordinates game logic, handles commands from various sources

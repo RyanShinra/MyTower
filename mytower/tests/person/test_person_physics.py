@@ -5,6 +5,7 @@ from mytower.game.core.units import Blocks, Time  # Add unit import
 from mytower.game.entities.entities_protocol import BuildingProtocol
 from mytower.game.entities.person import Person
 
+
 class TestPersonPhysics:
     """Test Person movement calculations and boundary enforcement"""
 

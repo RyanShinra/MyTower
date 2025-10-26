@@ -7,6 +7,7 @@ from mytower.game.core.units import Time
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.tests.conftest import PersonFactory
 
+
 class TestIdleElevatorLogic:
     def test_idle_elevator_waits_when_timeout_not_reached(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that idle elevator doesn't do anything when idle_time < idle_wait_timeout"""

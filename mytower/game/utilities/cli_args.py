@@ -15,6 +15,7 @@ from typing import Optional
 import argparse
 import logging  # Add this import
 
+
 @dataclass
 class GameArgs:
     """
@@ -49,6 +50,7 @@ class GameArgs:
 
         if self.mode == 'remote' and not self.remote_url:
             raise ValueError("Remote mode requires --remote URL")
+
 
 def parse_args() -> GameArgs:
     """
@@ -189,6 +191,7 @@ Keyboard Controls (Desktop mode):
     )
 
     return game_args
+
 
 def print_startup_banner(args: GameArgs) -> None:
     """

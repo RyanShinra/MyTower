@@ -9,6 +9,7 @@ from mytower.game.entities.elevator import Elevator, ElevatorState
 from mytower.game.entities.person import PersonProtocol
 from mytower.tests.conftest import PersonFactory
 
+
 class TestPassengers:
 
     def test_passengers_who_want_off_current_floor(

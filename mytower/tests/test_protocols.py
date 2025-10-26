@@ -15,6 +15,7 @@ from mytower.game.entities.entities_protocol import (
     BuildingProtocol,
 )
 
+
 class TestableElevatorProtocol(ElevatorProtocol, ElevatorTestingProtocol, Protocol):
     """
     Combined protocol for testing Elevators.
@@ -22,12 +23,14 @@ class TestableElevatorProtocol(ElevatorProtocol, ElevatorTestingProtocol, Protoc
     """
     pass
 
+
 class TestablePersonProtocol(PersonProtocol, PersonTestingProtocol, Protocol):
     """
     Combined protocol for testing Persons.
     Provides both production interface and testing hooks.
     """
     pass
+
 
 class TestableElevatorBankProtocol(ElevatorBankProtocol, ElevatorBankTestingProtocol, Protocol):
     """

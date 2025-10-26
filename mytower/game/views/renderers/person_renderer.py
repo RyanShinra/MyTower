@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from mytower.game.models.model_snapshots import PersonSnapshot
     from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
+
 class PersonRenderer:
     def __init__(self, person_config: PersonConfigProtocol, person_cosmetics: PersonCosmeticsProtocol, logger_provider: LoggerProvider) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("PersonRenderer")

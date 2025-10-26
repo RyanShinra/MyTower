@@ -36,6 +36,7 @@ from mytower.game.utilities.cli_args import GameArgs, parse_args, print_startup_
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.utilities.simulation_loop import start_simulation_thread
 
+
 def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBridge, GameController]:
     """
     Common game setup for all modes.
@@ -60,6 +61,7 @@ def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBri
         demo_builder.build_model_building(game_controller, logger_provider)
 
     return bridge, game_controller
+
 
 def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
@@ -185,6 +187,7 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     pygame.quit()
     sys.exit(0)
 
+
 def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Hybrid mode: Desktop + local GraphQL server.
@@ -291,6 +294,7 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     pygame.quit()
     sys.exit(0)
 
+
 def run_remote_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """
     Remote mode: Desktop connected to remote server (future implementation).
@@ -311,6 +315,7 @@ def run_remote_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
         f"Future: Connect to {args.remote_url} via WebSocket\n"
         f"and render remote game state locally."  # pyright: ignore[reportImplicitStringConcatenation]
     )
+
 
 def main() -> NoReturn:
     """

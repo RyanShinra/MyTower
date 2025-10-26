@@ -8,6 +8,7 @@ import pytest
 from mytower.game.core.types import PersonState
 from mytower.game.entities.person import Person
 
+
 class TestPersonFloorOwnership:
     """Test Person floor ownership during elevator interactions"""
 
@@ -130,6 +131,7 @@ class TestPersonFloorOwnershipEdgeCases:
         # Should propagate the floor addition error
         with pytest.raises(Exception, match="Floor is full"):
             person_with_floor.disembark_elevator()
+
 
 class TestPersonCurrentFloorProperty:
     """Test the current_floor property behavior"""
