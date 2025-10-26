@@ -10,11 +10,13 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+
 @dataclass
 class CommandResult(Generic[T]):
     success: bool
     data: Optional[T] = None
     error: Optional[str] = None
+
 
 class Command(ABC, Generic[T]):
     @abstractmethod
@@ -26,6 +28,7 @@ class Command(ABC, Generic[T]):
     def get_description(self) -> str:
         """Get human-readable description of the command"""
         pass
+
 
 @dataclass
 class AddFloorCommand(Command[int]):
@@ -39,6 +42,7 @@ class AddFloorCommand(Command[int]):
     @override
     def get_description(self) -> str:
         return f"Add a floor of type {self.floor_type}"
+
 
 @dataclass
 class AddPersonCommand(Command[str]):
@@ -76,6 +80,7 @@ class AddPersonCommand(Command[str]):
             f"with destination floor {self.dest_floor:.1f}, block {self.dest_block:.2f}"
         )
 
+
 @dataclass
 class AddElevatorBankCommand(Command[str]):
     h_cell: int
@@ -105,6 +110,7 @@ class AddElevatorBankCommand(Command[str]):
             f"Add elevator bank at horizontal cell {self.h_cell:.2f} "
             f"from floor {self.min_floor:.1f} to {self.max_floor:.1f}"
         )
+
 
 @dataclass
 class AddElevatorCommand(Command[str]):

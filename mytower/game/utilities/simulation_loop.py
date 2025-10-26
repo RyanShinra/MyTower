@@ -3,6 +3,7 @@ import time
 from mytower.api.game_bridge import GameBridge
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
+
 def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60) -> None:
     """Run the game loop without pygame display"""
     logger: MyTowerLogger = logger_provider.get_logger("SimulationLoop")
@@ -28,6 +29,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
             # We're running behind, consider logging a warning if this happens often
             logger.warning(f"Simulation loop is running behind schedule by {-sleep_duration:.4f} seconds")
             pass
+
 
 def start_simulation_thread(bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60) -> threading.Thread:
     """Start the simulation in a background thread"""

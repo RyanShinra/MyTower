@@ -3,6 +3,7 @@ from mytower.game.core import constants, primitive_constants
 from mytower.game.core.types import Money
 from mytower.game.core.units import Blocks, Pixels  # Add unit import
 
+
 class TestDisplayConstants:
     """Test display-related constants"""
 
@@ -30,6 +31,7 @@ class TestDisplayConstants:
         assert len(constants.BACKGROUND_COLOR) == 3
         assert all(isinstance(c, int) and 0 <= c <= 255 for c in constants.BACKGROUND_COLOR)
 
+
 class TestGameGridConstants:
     """Test game grid-related constants"""
 
@@ -45,6 +47,7 @@ class TestGameGridConstants:
         assert primitive_constants.METRIC_FLOAT_TOLERANCE == 0.01  # 1 cm tolerance for metric values
         assert primitive_constants.METRIC_FLOAT_TOLERANCE > 0
         assert primitive_constants.METRIC_FLOAT_TOLERANCE < 1.0
+
 
 class TestFloorConstants:
     """Test floor-related constants"""
@@ -100,6 +103,7 @@ class TestFloorConstants:
         assert constants.LOBBY_HEIGHT == constants.DEFAULT_FLOOR_HEIGHT
         assert constants.OFFICE_HEIGHT == constants.DEFAULT_FLOOR_HEIGHT
 
+
 class TestGameBalanceConstants:
     """Test game balance-related constants"""
 
@@ -113,6 +117,7 @@ class TestGameBalanceConstants:
         """Test that starting money is a reasonable amount"""
         # Should be enough to build something, but not unlimited
         assert Money(1000) < constants.STARTING_MONEY <= Money(10000000)  # Updated upper bound
+
 
 class TestConstantTypes:
     """Test that constants have correct types"""

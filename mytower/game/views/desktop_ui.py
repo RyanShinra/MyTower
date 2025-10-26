@@ -11,6 +11,7 @@ from mytower.game.core.types import RGB, MouseButtons, MousePos
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
+
 # pylint: disable=invalid-name
 class UIConfigProtocol(Protocol):
     """Config requirements for UI elements"""
@@ -53,6 +54,7 @@ class UIConfigProtocol(Protocol):
         ...
 
 # pylint: enable=invalid-name
+
 
 class Button:
     """
@@ -125,6 +127,7 @@ class Button:
         text_surface: PygameSurface = font.render(self._text, True, self._ui_config.TEXT_COLOR)
         text_rect: pygame.Rect = text_surface.get_rect(center=self._rect.center)
         surface.blit(text_surface, text_rect)
+
 
 class Toolbar:
     """

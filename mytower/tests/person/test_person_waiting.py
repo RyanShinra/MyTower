@@ -4,6 +4,7 @@ from mytower.game.core.types import PersonState
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.person import Person
 
+
 class TestPersonWaitingBehavior:
     """Test Person waiting and timeout behavior"""
 

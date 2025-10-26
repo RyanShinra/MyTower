@@ -7,6 +7,7 @@ from mytower.game.controllers.controller_commands import (
 from mytower.game.core.types import FloorType
 from mytower.game.models.game_model import GameModel
 
+
 class TestCommandResult:
     """Test CommandResult dataclass"""
 
@@ -33,6 +34,7 @@ class TestCommandResult:
         assert result.success is False
         assert result.data == "partial_data"
         assert result.error == "validation failed"
+
 
 class TestAddFloorCommand:
     """Test AddFloorCommand functionality"""
@@ -78,6 +80,7 @@ class TestAddFloorCommand:
 
             assert result.success is True
             assert result.data == 1
+
 
 class TestAddPersonCommand:
     """Test AddPersonCommand functionality"""
@@ -162,6 +165,7 @@ class TestAddPersonCommand:
         assert result2.error is not None
         assert "Invalid destination block: -2" in result2.error
 
+
 class TestAddElevatorBankCommand:
     """Test AddElevatorBankCommand functionality"""
 
@@ -231,6 +235,7 @@ class TestAddElevatorBankCommand:
         assert result.error is not None
         assert "max_floor must be >= min_floor: 3.0 < 5.0" in result.error
         mock_model.add_elevator_bank.assert_not_called()
+
 
 class TestAddElevatorCommand:
     """Test AddElevatorCommand functionality"""

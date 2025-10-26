@@ -30,6 +30,7 @@ from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.views.desktop_ui import Button, Toolbar, UIConfigProtocol
 
+
 class InputHandler:
     """
     Manages all user input and translates it into game commands.

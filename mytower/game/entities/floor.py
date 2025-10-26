@@ -31,6 +31,7 @@ from mytower.game.entities.entities_protocol import FloorProtocol
 if TYPE_CHECKING:
     from mytower.game.entities.entities_protocol import PersonProtocol, BuildingProtocol
 
+
 class Floor(FloorProtocol):
     """
     A floor in the building that can contain various room types

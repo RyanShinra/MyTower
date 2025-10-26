@@ -1,6 +1,7 @@
 from mytower.api.graphql_types import BuildingSnapshotGQL, ColorGQL, ElevatorSnapshotGQL, ElevatorStateGQL, FloorSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL, PersonStateGQL, VerticalDirectionGQL
 from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
 
+
 def convert_building_snapshot(snapshot: BuildingSnapshot) -> BuildingSnapshotGQL:
     return BuildingSnapshotGQL(
         time=snapshot.time,
@@ -9,6 +10,7 @@ def convert_building_snapshot(snapshot: BuildingSnapshot) -> BuildingSnapshotGQL
         elevators=[convert_elevator_snapshot(e) for e in snapshot.elevators],
         people=[convert_person_snapshot(p) for p in snapshot.people]
     )
+
 
 def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
     return PersonSnapshotGQL(
@@ -24,6 +26,7 @@ def convert_person_snapshot(person: PersonSnapshot) -> PersonSnapshotGQL:
         _draw_color=person.draw_color
     )
 
+
 def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL:
     return ElevatorSnapshotGQL(
         id=elevator.id,
@@ -37,6 +40,7 @@ def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL
         max_capacity=elevator.max_capacity,
         nominal_direction=VerticalDirectionGQL(elevator.nominal_direction.value)
     )
+
 
 def convert_floor_snapshot(floor: FloorSnapshot) -> FloorSnapshotGQL:
     return FloorSnapshotGQL(

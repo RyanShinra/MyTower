@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from mytower.game.entities.person import Person
 
+
 class TestPersonValidation:
     """Test Person input validation and error handling"""
 

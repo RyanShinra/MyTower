@@ -5,6 +5,7 @@ from mytower.game.entities.person import Person
 from mytower.game.core.types import PersonState
 from mytower.tests.test_utilities import TypedMockFactory, StateAssertions
 
+
 class TestPersonElevatorInteraction:
     """Test Person interactions with elevators"""
 

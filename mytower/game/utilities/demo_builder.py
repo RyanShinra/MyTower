@@ -10,6 +10,7 @@ from mytower.game.controllers.game_controller import GameController
 from mytower.game.entities.floor import FloorType
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
+
 def build_model_building(controller: GameController, logger_provider: LoggerProvider) -> None:
     """Build a demo instance of the game building."""
 

@@ -9,6 +9,7 @@ from mytower.game.core.units import Meters, Pixels, Time
 
 mytower.api.unit_scalars  # noqa  # Prevent unused import warning
 
+
 @strawberry.enum
 class FloorTypeGQL(Enum):
     LOBBY = "LOBBY"
@@ -18,12 +19,14 @@ class FloorTypeGQL(Enum):
     RESTAURANT = "RESTAURANT"
     RETAIL = "RETAIL"
 
+
 @strawberry.enum
 class PersonStateGQL(Enum):
     IDLE = "IDLE"
     WALKING = "WALKING"
     WAITING_FOR_ELEVATOR = "WAITING_FOR_ELEVATOR"
     IN_ELEVATOR = "IN_ELEVATOR"
+
 
 @strawberry.enum
 class ElevatorStateGQL(Enum):
@@ -33,6 +36,7 @@ class ElevatorStateGQL(Enum):
     LOADING = "LOADING"
     UNLOADING = "UNLOADING"
     READY_TO_MOVE = "READY_TO_MOVE"
+
 
 @strawberry.enum
 class VerticalDirectionGQL(Enum):
@@ -48,11 +52,13 @@ class VerticalDirectionGQL(Enum):
         else:
             return VerticalDirectionGQL.STATIONARY
 
+
 @strawberry.enum
 class HorizontalDirectionGQL(Enum):
     LEFT = -1
     STATIONARY = 0
     RIGHT = 1
+
 
 @strawberry.type
 class ColorGQL:
@@ -78,6 +84,7 @@ class ColorGQL:
     def as_rgb_tuple(self) -> tuple[int, int, int]:
         return (self.red, self.green, self.blue)
 
+
 @strawberry.type
 class PersonSnapshotGQL:
     person_id: str
@@ -94,6 +101,7 @@ class PersonSnapshotGQL:
     @strawberry.field
     def draw_color(self) -> ColorGQL:
         return ColorGQL.from_tuple(self._draw_color)
+
 
 @strawberry.type
 class ElevatorSnapshotGQL:
@@ -119,12 +127,14 @@ class ElevatorSnapshotGQL:
         """Current position in pixels for rendering hint"""
         return self.vertical_position.in_pixels  # Type checker knows this returns Pixels
 
+
 @strawberry.type
 class ElevatorBankSnapshotGQL:
     id: str
     horizontal_position: Blocks  # Core type
     min_floor: int
     max_floor: int
+
 
 @strawberry.type
 class FloorSnapshotGQL:
@@ -141,6 +151,7 @@ class FloorSnapshotGQL:
     def floor_height_meters(self) -> Meters:
         """Floor height in real-world units"""
         return self.floor_height.in_meters  # Type-safe conversion
+
 
 @strawberry.type
 class BuildingSnapshotGQL:

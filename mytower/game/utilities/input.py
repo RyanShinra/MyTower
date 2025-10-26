@@ -14,6 +14,7 @@ import pygame
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.core.types import MouseButtons, MousePos
 
+
 class MouseState:
     """Class to store and manage mouse state"""
 

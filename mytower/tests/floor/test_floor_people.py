@@ -12,6 +12,7 @@ from mytower.game.entities.floor import Floor
 from mytower.game.core.types import FloorType
 from mytower.game.entities.person import PersonProtocol
 
+
 @pytest.fixture
 def floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock) -> Floor:
     return Floor(
@@ -21,11 +22,13 @@ def floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock) ->
         floor_type=FloorType.OFFICE
     )
 
+
 @pytest.fixture
 def mock_person() -> MagicMock:
     person = MagicMock(spec=PersonProtocol)
     person.person_id = "person_123"
     return person
+
 
 class TestFloorPeopleOwnership:
     """Test Floor's person ownership functionality"""
@@ -116,6 +119,7 @@ class TestFloorPeopleOwnership:
         # Second removal should fail
         with pytest.raises(KeyError, match="Person not found: person_123"):
             floor.remove_person("person_123")
+
 
 class TestFloorPersonOwnershipEdgeCases:
     """Test edge cases and error conditions for floor person ownership"""

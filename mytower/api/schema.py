@@ -15,12 +15,15 @@ from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
+
 # Convenience functions
 def queue_command(command: Command[Any]) -> str:
     return get_game_bridge().queue_command(command)
 
+
 def get_building_state() -> Optional[BuildingSnapshot]:
     return get_game_bridge().get_building_snapshot()
+
 
 @strawberry.type
 class Query:
@@ -48,6 +51,7 @@ class Query:
         if not snapshot:
             return None
         return [convert_person_snapshot(p) for p in snapshot.people]
+
 
 @strawberry.type
 class Mutation:

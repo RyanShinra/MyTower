@@ -9,6 +9,7 @@ from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.entities.person import PersonProtocol
 from mytower.game.core.types import VerticalDirection
 
+
 class TestPassengerQueueing:
     def test_add_passenger_going_up(self, elevator_bank: ElevatorBank) -> None:
         # Test the most basic case - person going up gets added to up queue

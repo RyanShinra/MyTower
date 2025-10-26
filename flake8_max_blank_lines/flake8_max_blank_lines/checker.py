@@ -2,6 +2,7 @@
 # pylint: skip-file
 # type: ignore
 
+
 class MaxBlankLinesChecker:
     name = "flake8-max-blank-lines"
     version = "0.1.0"

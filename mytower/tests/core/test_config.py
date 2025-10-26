@@ -8,6 +8,7 @@ from mytower.game.core.config import (
 )
 from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Velocity
 
+
 class TestElevatorConfig:
     """Test ElevatorConfig dataclass"""
 
@@ -29,6 +30,7 @@ class TestElevatorConfig:
         assert isinstance(config.MAX_SPEED, Velocity)  # Type check for Velocity
         assert isinstance(config.MAX_CAPACITY, int)
         assert isinstance(config.PASSENGER_LOADING_TIME, Time)
+
 
 class TestElevatorCosmetics:
     """Test ElevatorCosmetics dataclass"""
@@ -54,6 +56,7 @@ class TestElevatorCosmetics:
             assert len(color) == 3
             assert all(isinstance(c, int) and 0 <= c <= 255 for c in color)
 
+
 class TestPersonConfig:
     """Test PersonConfig dataclass"""
 
@@ -76,6 +79,7 @@ class TestPersonConfig:
         assert config.MAX_WAIT_TIME > Time(0.0)
         assert config.IDLE_TIMEOUT > Time(0.0)
         assert config.RADIUS > Meters(0.0)
+
 
 class TestPersonCosmetics:
     """Test PersonCosmetics dataclass"""
@@ -117,6 +121,7 @@ class TestPersonCosmetics:
             assert isinstance(value, int)
             assert 0 <= value <= 255
 
+
 class TestUIConfig:
     """Test UIConfig dataclass"""
 
@@ -143,6 +148,7 @@ class TestUIConfig:
         assert isinstance(config.FLOOR_LABEL_FONT_NAME, tuple)
         assert len(config.FLOOR_LABEL_FONT_NAME) > 0
         assert all(isinstance(font, str) for font in config.FLOOR_LABEL_FONT_NAME)
+
 
 class TestGameConfig:
     """Test GameConfig main configuration class"""

@@ -17,6 +17,7 @@ from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
+
 class GameBridge:
     """
     Thread-safe bridge between GraphQL API and game simulation.
@@ -157,10 +158,12 @@ class GameBridge:
 # Module-level singleton
 _bridge: Optional[GameBridge] = None
 
+
 def initialize_game_bridge(controller: GameController) -> GameBridge:
     global _bridge
     _bridge = GameBridge(controller)
     return _bridge
+
 
 def get_game_bridge() -> GameBridge:
     if _bridge is None:

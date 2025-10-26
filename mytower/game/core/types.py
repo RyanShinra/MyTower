@@ -29,6 +29,7 @@ Color: TypeAlias = Union[RGB, RGBA]
 MousePos: TypeAlias = Tuple[int, int]
 MouseButtons: TypeAlias = Tuple[bool, bool, bool]
 
+
 # Floor types as an Enum
 class FloorType(Enum):
     LOBBY = "LOBBY"
@@ -37,6 +38,7 @@ class FloorType(Enum):
     HOTEL = "HOTEL"
     RESTAURANT = "RESTAURANT"
     RETAIL = "RETAIL"
+
 
 # Direction types using Enum
 class VerticalDirection(Enum):
@@ -52,11 +54,13 @@ class VerticalDirection(Enum):
         else:
             return VerticalDirection.STATIONARY
 
+
 # HorizontalDirection can also be defined similarly if needed
 class HorizontalDirection(Enum):
     LEFT = -1
     STATIONARY = 0
     RIGHT = 1
+
 
 # Person state as an Enum
 class PersonState(Enum):
@@ -64,6 +68,7 @@ class PersonState(Enum):
     WALKING = "WALKING"
     WAITING_FOR_ELEVATOR = "WAITING_FOR_ELEVATOR"
     IN_ELEVATOR = "IN_ELEVATOR"
+
 
 # Elevator state as an Enum
 class ElevatorState(Enum):
