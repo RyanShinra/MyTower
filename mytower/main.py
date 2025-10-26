@@ -88,6 +88,7 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
     # Never reaches here (uvicorn.run blocks)
     sys.exit(0)
 
+
 # pylint: disable=no-member
 def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn:
     """

@@ -35,6 +35,7 @@ class ElevatorSnapshot:
     available_capacity: int
     max_capacity: int
 
+
 # TODO: Add Elevator references so that the GraphQL layer can resolve them
 @dataclass
 class ElevatorBankSnapshot:

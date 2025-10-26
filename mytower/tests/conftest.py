@@ -61,6 +61,7 @@ def mock_logger_provider() -> MagicMock:
 BUILDING_DEFAULT_NUM_FLOORS = 10
 BUILDING_DEFAULT_FLOOR_WIDTH = 20.0 # Needs to be float for Person initial_block_float
 
+
 # New type-safe test utilities fixtures
 @pytest.fixture
 def typed_mock_factory() -> TypedMockFactory:
@@ -176,6 +177,7 @@ def person_with_floor(
         initial_horiz_position=float(PERSON_DEFAULT_BLOCK),
         config=mock_game_config
     )
+
 
 # Elevator-specific fixtures
 @pytest.fixture

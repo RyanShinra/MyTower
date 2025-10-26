@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 # So, it gets neither
 # pylint: disable=invalid-name
 
+
 # flake8: noqa: E704
 # Protocol definitions for configuration
 class ElevatorConfigProtocol(Protocol):
@@ -111,6 +112,7 @@ class PersonCosmeticsProtocol(Protocol):
 
     @property
     def COLOR_PALETTE(self) -> tuple[tuple[int, int, int], ...]: ...
+
 
 # Concrete configuration implementations
 @dataclass

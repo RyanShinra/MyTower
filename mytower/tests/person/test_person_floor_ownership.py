@@ -99,6 +99,8 @@ class TestPersonFloorOwnership:
 
         # Now check the call count
         assert mock_origin_floor.remove_person.call_count == 1
+
+
 class TestPersonFloorOwnershipEdgeCases:
     """Test edge cases in floor ownership"""
 

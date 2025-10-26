@@ -11,6 +11,7 @@ from mytower.game.core.types import RGB, MouseButtons, MousePos
 from mytower.game.models.model_snapshots import BuildingSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
+
 # pylint: disable=invalid-name
 class UIConfigProtocol(Protocol):
     """Config requirements for UI elements"""

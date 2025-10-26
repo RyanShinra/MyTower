@@ -9,6 +9,7 @@ from mytower.game.controllers.controller_commands import (
 from mytower.game.entities.floor import FloorType
 from mytower.game.utilities.logger import LoggerProvider
 
+
 class TestDemoBuilder:
     """Test demo building functionality"""
 

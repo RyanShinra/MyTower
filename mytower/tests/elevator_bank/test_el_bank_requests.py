@@ -7,6 +7,7 @@ import pytest
 from mytower.game.entities.elevator_bank import ElevatorBank
 from mytower.game.core.types import VerticalDirection
 
+
 # test_el_bank_requests.py
 class TestRequestElevator:
     VALID_FLOORS: Final = [1, 5, 10] # bottom, middle, top, keep in sync with the conftest.py

@@ -22,6 +22,7 @@ ElevatorList: TypeAlias = List['ElevatorProtocol']
 ElevatorBankList: TypeAlias = List['ElevatorBankProtocol']
 FloorList: TypeAlias = List['FloorProtocol']
 
+
 # flake8: noqa: E704
 class PersonProtocol(Protocol):
     """Protocol defining the interface for Person entities"""

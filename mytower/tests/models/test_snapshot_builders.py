@@ -13,6 +13,7 @@ from mytower.game.models.snapshot_builders import (
     build_elevator_bank_snapshot, build_elevator_snapshot,
     build_floor_snapshot, build_person_snapshot)
 
+
 class TestBuildFloorSnapshot:
     """Test build_floor_snapshot function"""
 
@@ -57,6 +58,7 @@ class TestBuildFloorSnapshot:
             snapshot = build_floor_snapshot(mock_floor)
 
             assert snapshot.floor_type == floor_type
+
 
 class TestBuildElevatorSnapshot:
     """Test build_elevator_snapshot function"""
@@ -110,6 +112,7 @@ class TestBuildElevatorSnapshot:
             assert snapshot.elevator_state == state
             assert snapshot.door_open == (state == ElevatorState.LOADING)
 
+
 class TestBuildElevatorBankSnapshot:
     """Test build_elevator_bank_snapshot function"""
 
@@ -145,6 +148,7 @@ class TestBuildElevatorBankSnapshot:
             assert snapshot.horizontal_position == h_block
             assert snapshot.min_floor == min_floor
             assert snapshot.max_floor == max_floor
+
 
 class TestBuildPersonSnapshot:
     """Test build_person_snapshot function"""
@@ -246,6 +250,7 @@ class TestBuildPersonSnapshot:
             snapshot = build_person_snapshot(mock_person)
 
             assert snapshot.draw_color == color
+
 
 class TestSnapshotBuilderIntegration:
     """Test integration between different snapshot builders"""

@@ -105,11 +105,13 @@ root_logger = setup_logger(
     console_level=DEBUG,  # Only show DEBUG and higher in console
 )
 
+
 # Create function to get module-specific loggers
 def get_logger(module_name: str) -> MyTowerLogger:
     """Get a logger for a specific module."""
     # Prepend mytower to create a hierarchy
     return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
+
 
 # Create a LoggerProvider:
 class LoggerProvider:

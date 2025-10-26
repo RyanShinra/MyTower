@@ -15,6 +15,7 @@ from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
+
 # Convenience functions
 def queue_command(command: Command[Any]) -> str:
     return get_game_bridge().queue_command(command)
