@@ -1,7 +1,7 @@
 {
     "git.suggestSmartCommit": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatter": "ms-python.autopep8",
         "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "never"
@@ -128,5 +128,7 @@
     "ruff.enable": true,
     "ruff.organizeImports": true,
     "ruff.fixAll": true,
-    "ruff.configurationPreference": "filesystemFirst"
+    "ruff.configurationPreference": "filesystemFirst",
+    "ruff.lineLength": 120,
+
 }

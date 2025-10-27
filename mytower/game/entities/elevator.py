@@ -362,12 +362,14 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
                 raise ValueError(f"Unknown elevator state: {self._state}")
 
+
     def _update_idle(self, dt: Time) -> None:
         self._idle_log_timer += dt
         if self._idle_log_timer >= self._config.IDLE_LOG_TIMEOUT:
             self._logger.trace(f"{self.elevator_state} Elevator: Elevator is idle on floor {self.current_floor_int}")
             self._idle_log_timer = Time(0.0)
         self._motion_direction = VerticalDirection.STATIONARY
+
 
     def _update_moving(self, dt: Time) -> None:
         # Physics with proper units - type checker now knows this is Meters!
