@@ -10,6 +10,7 @@ from mytower.game.utilities.input import MouseState
 class TestMouseState:
     """Test MouseState functionality"""
 
+
     def test_initialization(self, mock_logger_provider: MagicMock) -> None:
         """Test MouseState initialization"""
         mouse_state = MouseState(mock_logger_provider)
@@ -19,6 +20,7 @@ class TestMouseState:
         assert mouse_state._extended_buttons == []
         assert mouse_state._wheel_y == 0
         assert mouse_state._wheel_x == 0
+
 
     @patch("pygame.mouse.get_pos")
     @patch("pygame.mouse.get_pressed")
@@ -36,6 +38,7 @@ class TestMouseState:
         assert mouse_state.get_pressed() == (True, False, True)
         assert mouse_state.get_extended_pressed() == []
 
+
     @patch("pygame.mouse.get_pos")
     @patch("pygame.mouse.get_pressed")
     def test_update_extended_buttons(
@@ -51,6 +54,7 @@ class TestMouseState:
         assert mouse_state.get_pos() == (50, 75)
         assert mouse_state.get_pressed() == (False, True, False)
         assert mouse_state.get_extended_pressed() == [True, False, True]
+
 
     @patch("pygame.mouse.get_pos")
     @patch("pygame.mouse.get_pressed")
@@ -68,6 +72,7 @@ class TestMouseState:
         assert mouse_state.get_pressed() == (True, False, False)
         assert mouse_state.get_extended_pressed() == []
 
+
     @patch("pygame.mouse.get_pos")
     @patch("pygame.mouse.get_pressed")
     def test_update_empty_button_list(
@@ -84,6 +89,7 @@ class TestMouseState:
         assert mouse_state.get_pressed() == (False, False, False)
         assert mouse_state.get_extended_pressed() == []
 
+
     def test_is_button_pressed_basic_buttons(self, mock_logger_provider: MagicMock) -> None:
         """Test checking if basic buttons are pressed"""
         mouse_state = MouseState(mock_logger_provider)
@@ -92,6 +98,7 @@ class TestMouseState:
         assert mouse_state.is_button_pressed(0) is True  # Left button
         assert mouse_state.is_button_pressed(1) is False  # Middle button
         assert mouse_state.is_button_pressed(2) is True  # Right button
+
 
     def test_is_button_pressed_extended_buttons(self, mock_logger_provider: MagicMock) -> None:
         """Test checking if extended buttons are pressed"""
@@ -109,6 +116,7 @@ class TestMouseState:
         assert mouse_state.is_button_pressed(4) is False  # Second extended button
         assert mouse_state.is_button_pressed(5) is True  # Third extended button
 
+
     def test_is_button_pressed_out_of_range(self, mock_logger_provider: MagicMock) -> None:
         """Test checking button that doesn't exist"""
         mouse_state = MouseState(mock_logger_provider)
@@ -120,6 +128,7 @@ class TestMouseState:
         # Note: -1 returns True because Python allows negative indexing on tuples
         # This accesses the last element of _buttons tuple (index 2)
         assert mouse_state.is_button_pressed(-1) is True  # _buttons[2] = True
+
 
     def test_get_methods_consistency(self, mock_logger_provider: MagicMock) -> None:
         """Test that get methods return consistent data"""
@@ -139,6 +148,7 @@ class TestMouseState:
         assert mouse_state.get_pos() == mouse_state.get_pos()
         assert mouse_state.get_pressed() == mouse_state.get_pressed()
         assert mouse_state.get_extended_pressed() == mouse_state.get_extended_pressed()
+
 
     @patch("pygame.mouse.get_pos")
     @patch("pygame.mouse.get_pressed")

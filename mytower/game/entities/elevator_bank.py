@@ -36,6 +36,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     An elevator bank managing multiple elevators serving a range of floors.
     """
 
+
     class DirQueue(NamedTuple):
         queue: deque[PersonProtocol]
         direction: VerticalDirection
@@ -44,6 +45,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     EMPTY_DEQUE: Final[deque[PersonProtocol]] = deque()
 
     _id_generator: IDGenerator = IDGenerator("elevator_bank")
+
 
     def __init__(
         self,
@@ -144,6 +146,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         if floor < self._min_floor or floor > self._max_floor:
             raise ValueError(f"Floor {floor} out of range {self._min_floor}-{self._max_floor}")
 
+
     @override
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
@@ -161,6 +164,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         floor_request.add(direction)
 
+
     @override
     def add_waiting_passenger(self, passenger: PersonProtocol) -> None:
         if passenger is None:  # pyright: ignore
@@ -168,24 +172,24 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         if passenger.current_floor_num < self.min_floor or passenger.current_floor_num > self.max_floor:
             raise ValueError(
-                f"Floor {passenger.current_floor_num} is not within the valid range of floors: {self._min_floor}:{self._max_floor}"
+                f"Floor {passenger.current_floor_num} is not within the valid range of floors: {self._min_floor}:{self._max_floor}"  # noqa: E501
             )
 
         self._logger.info(
-            f"Adding passenger going from floor {passenger.current_floor_num} to floor {passenger.destination_floor_num}"
+            f"Adding passenger going from floor {passenger.current_floor_num} to floor {passenger.destination_floor_num}"  # noqa: E501
         )
 
         current_queue: deque[PersonProtocol] | None = None
         if passenger.current_floor_num == passenger.destination_floor_num:
             raise ValueError(
-                f"PersonProtocol cannot go to the same floor: current floor {passenger.current_floor_num} = destination floor {passenger.destination_floor_num}"
+                f"PersonProtocol cannot go to the same floor: current floor {passenger.current_floor_num} = destination floor {passenger.destination_floor_num}"  # noqa: E501
             )
 
         elif passenger.current_floor_num < passenger.destination_floor_num:
             self._logger.info("Adding Passenger to Going UP queue, Requesting UP")
             if passenger.current_floor_num not in self._upward_waiting_passengers:
                 raise KeyError(
-                    f"Floor {passenger.current_floor_num} is not within the valid range of floors for upward_waiting_passengers, {self._upward_waiting_passengers.keys}"
+                    f"Floor {passenger.current_floor_num} is not within the valid range of floors for upward_waiting_passengers, {self._upward_waiting_passengers.keys}"  # noqa: E501
                 )
             self.request_elevator(passenger.current_floor_num, VerticalDirection.UP)
             current_queue = self._upward_waiting_passengers.get(passenger.current_floor_num)
@@ -194,7 +198,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             self._logger.info("Adding Passenger to Going DOWN queue, Requesting DOWN")
             if passenger.current_floor_num not in self._downward_waiting_passengers:
                 raise KeyError(
-                    f"Floor {passenger.current_floor_num} is not within the valid range of floors for _downward_waiting_passengers, {self._downward_waiting_passengers.keys}"
+                    f"Floor {passenger.current_floor_num} is not within the valid range of floors for _downward_waiting_passengers, {self._downward_waiting_passengers.keys}"  # noqa: E501
                 )
             self.request_elevator(passenger.current_floor_num, VerticalDirection.DOWN)
             current_queue = self._downward_waiting_passengers.get(passenger.current_floor_num)
@@ -203,6 +207,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             raise KeyError(f"Why can't we get a current Queue on floor: {passenger.current_floor_num}")
         # TODO: Do we want a max queue length?
         current_queue.append(passenger)
+
 
     @override
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> PersonProtocol | None:
@@ -276,6 +281,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     ) -> ElevatorDestination:
         return self._select_next_floor(destinations, direction)
 
+
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         self._logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
@@ -312,9 +318,10 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
     @override
     def get_waiting_position(self) -> Blocks:
-        """The block where people wait for the elevator, it's just to the left of the elevator bank unless it's at the left edge of the building, then it's just to the right"""
+        """The block where people wait for the elevator, it's just to the left of the elevator bank unless it's at the left edge of the building, then it's just to the right"""  # noqa: E501
         # TODO: Update this once we add building extents
         return max(Blocks(1), self.horizontal_position - Blocks(1))
+
 
     @override
     def update(self, dt: Time) -> None:  # Accept both for now during transition
@@ -330,6 +337,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
                 self._update_ready_elevator(el)
         pass
 
+
     def _update_idle_elevator(self, elevator: ElevatorProtocol, dt: Time) -> None:
         """Idle means it arrived at this floor with nobody who wanted to disembark on this floor"""
         elevator.idle_time += dt
@@ -339,7 +347,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         elevator.idle_time = Time(0.0)
         self._logger.debug(
-            f"Elevator at floor {elevator.current_floor_int} idle time expired, checking for waiting passengers or new destinations"
+            f"Elevator at floor {elevator.current_floor_int} idle time expired, checking for waiting passengers or new destinations"  # noqa: E501
         )
 
         # First, let's figure out if there is anybody here who wants to go UP or DOWN
@@ -353,7 +361,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         if who_wants_to_get_on:
             self._logger.debug(
-                f"IDLE elevator Found {len(who_wants_to_get_on)} passengers waiting on floor {floor} in direction {new_direction}"
+                f"IDLE elevator Found {len(who_wants_to_get_on)} passengers waiting on floor {floor} in direction {new_direction}"  # noqa: E501
             )
             self._requests[floor].discard(new_direction)  # Clear the request since we're responding to it
             elevator.request_load_passengers(new_direction)
@@ -366,7 +374,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         if reverse_who_wants_to_get_on:
             self._logger.debug(
-                f"IDLE elevator Found {len(reverse_who_wants_to_get_on)} passengers waiting on floor {floor} in direction {reverse_direction}"
+                f"IDLE elevator Found {len(reverse_who_wants_to_get_on)} passengers waiting on floor {floor} in direction {reverse_direction}"  # noqa: E501
             )
             self._requests[floor].discard(reverse_direction)  # Clear the request since we're responding to it
             elevator.request_load_passengers(reverse_direction)
@@ -376,6 +384,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         self._update_ready_elevator(elevator)
 
         return
+
 
     def _update_ready_elevator(self, elevator: ElevatorProtocol) -> None:
         floor: int = elevator.current_floor_int
@@ -388,7 +397,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         if next_destination.has_destination:
             self._logger.info(
-                f"Setting destination to {next_destination.floor} with direction {next_destination.direction}, has_destination={next_destination.has_destination}"
+                f"Setting destination to {next_destination.floor} with direction {next_destination.direction}, has_destination={next_destination.has_destination}"  # noqa: E501
             )
             elevator.set_destination(next_destination)
 
@@ -403,6 +412,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             self._logger.debug(f"No new destination - staying at floor {next_destination.floor}")
 
         return
+
 
     def _get_next_destination(
         self, elevator: ElevatorProtocol, current_floor: int, current_direction: VerticalDirection
@@ -448,7 +458,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         destinations.extend([ElevatorDestination(dest, direction, True) for dest in call_requests])
 
         # If nobody in the car wants to go this way, nor are there any calls going this way,
-        # then let's see if there are any calls in the opposite direction on the way (e.g., we're going up but somebody up there wants to go down)
+        # then let's see if there are any calls in the opposite direction on the way (e.g., we're going up but somebody up there wants to go down)  # noqa: E501
         if not destinations:
             opposite_dir: Final[VerticalDirection] = direction.invert()
             reverse_requests: Final[list[int]] = self._get_floor_requests_in_dir_from_floor(
@@ -457,6 +467,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             destinations.extend([ElevatorDestination(dest, opposite_dir, True) for dest in reverse_requests])
 
         return destinations
+
 
     def _select_next_floor(
         self, destinations: list[ElevatorDestination], direction: VerticalDirection
@@ -475,6 +486,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         else:
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
+
 
     def _get_floor_requests_in_dir_from_floor(
         self, start_floor: int, search_direction: VerticalDirection, req_direction: VerticalDirection
@@ -503,7 +515,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
                     answer.append(floor)
 
         self._logger.debug(
-            f"Final list of floor requests in Search direction {search_direction} from floor {start_floor} going {req_direction}: {answer}"
+            f"Final list of floor requests in Search direction {search_direction} from floor {start_floor} going {req_direction}: {answer}"  # noqa: E501
         )
         return answer
 
@@ -519,5 +531,5 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     #     shaft_overhead: Pixels = screen_height - Blocks(self._max_floor + 1).in_pixels
     #     shaft_bottom: Pixels = screen_height - Blocks(self._min_floor - 1).in_pixels
 
-    #     elevator_shaft_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_top, width, shaft_bottom - shaft_top)
+    #     elevator_shaft_rect: tuple[int, int, int, int] = rect_from_pixels(shaft_left, shaft_top, width, shaft_bottom - shaft_top)  # noqa: E501
     # Draw shaft from min to max floor

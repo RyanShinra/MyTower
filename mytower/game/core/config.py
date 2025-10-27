@@ -202,9 +202,9 @@ class UIConfig:
 
 
 # pylint: enable=invalid-name
-
-
 class GameConfig:
+
+
     def __init__(self) -> None:
         self._elevator: ElevatorConfigProtocol = ElevatorConfig()
         self._person: PersonConfigProtocol = PersonConfig()
@@ -213,7 +213,6 @@ class GameConfig:
         self._ui_config: UIConfigProtocol = UIConfig()
         self._initial_speed: float = 2.0  # TODO: Change this back to 1.0
         # etc.
-
     @property
     def elevator(self) -> ElevatorConfigProtocol:
         return self._elevator

@@ -50,6 +50,7 @@ class InputHandler:
         handler.draw(surface)  # Every frame
     """
 
+
     def __init__(
         self,
         logger_provider: LoggerProvider,
@@ -74,7 +75,6 @@ class InputHandler:
         self._toolbar: Toolbar = self._create_toolbar()
 
     # TODO: I think we may want to inject the toolbar rather than create it here...
-
     def _create_toolbar(self) -> Toolbar:
         """Create the toolbar and all its buttons"""
         toolbar_height = 40
@@ -102,6 +102,7 @@ class InputHandler:
 
         return toolbar
 
+
     def _on_add_floor_clicked(self, snapshot: BuildingSnapshot | None) -> None:
         """Handle 'Add Floor' button click"""
         # This may come in handy later...
@@ -119,6 +120,7 @@ class InputHandler:
         # Update button text
         if self._add_floor_button:
             self._add_floor_button.set_text(f"Add {self._current_floor_type.value}")
+
 
     def _on_add_person_clicked(self, snapshot: BuildingSnapshot | None) -> None:
         """Handle 'Add Person' button click"""
@@ -145,6 +147,7 @@ class InputHandler:
         command = AddPersonCommand(floor=start_floor, block=start_block, dest_floor=dest_floor, dest_block=dest_block)
         cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddPerson command: {cmd_id} (from floor {start_floor} to floor {dest_floor})")
+
 
     def _on_add_elevator_bank_clicked(self, snapshot: BuildingSnapshot | None) -> None:
         """Handle 'Add Elevator Bank' button click"""
@@ -179,6 +182,7 @@ class InputHandler:
         cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddElevatorBank command: {cmd_id} (floors 1 to {len(snapshot.floors)})")
 
+
     def _on_add_elevator_car_clicked(self, snapshot: BuildingSnapshot | None) -> None:
         """Handle 'Add Elevator Car' button click"""
         if snapshot is None:
@@ -204,6 +208,7 @@ class InputHandler:
         current_index: int = floor_types.index(self._current_floor_type)
         next_index: int = (current_index + 1) % len(floor_types)
         self._current_floor_type = floor_types[next_index]
+
 
     def handle_keyboard_event(self, event: pygame.event.Event, snapshot: BuildingSnapshot | None) -> bool:
         """

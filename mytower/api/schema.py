@@ -17,11 +17,9 @@ from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
-
 # Convenience functions
 def queue_command(command: Command[Any]) -> str:
     return get_game_bridge().queue_command(command)
-
 
 def get_building_state() -> BuildingSnapshot | None:
     return get_game_bridge().get_building_snapshot()
@@ -29,6 +27,7 @@ def get_building_state() -> BuildingSnapshot | None:
 
 @strawberry.type
 class Query:
+
     @strawberry.field
     def hello(self) -> str:
         return "Hello World from MyTower!"
@@ -57,6 +56,7 @@ class Query:
 
 @strawberry.type
 class Mutation:
+
     @strawberry.mutation
     def add_floor(self, floor_type: FloorTypeGQL) -> str:
         domain_floor_type = FloorType(floor_type.value)

@@ -7,12 +7,14 @@ from mytower.game.entities.entities_protocol import ElevatorDestination
 
 
 class TestMovement:
+
     def test_set_destination_floor_down(self, elevator: Elevator) -> None:
         elevator.testing_set_current_vertical_pos(Blocks(4))
         destination = ElevatorDestination(floor=2, direction=VerticalDirection.DOWN, has_destination=True)
         elevator.set_destination(destination)
         assert elevator.destination_floor == 2
         assert elevator.nominal_direction == VerticalDirection.DOWN
+
 
     def test_set_destination_floor_same_floor(self, elevator: Elevator) -> None:
         # Setup: The elevator defaults to floor 1, this will change the state of nominal_direction
@@ -25,6 +27,7 @@ class TestMovement:
         destination_2 = ElevatorDestination(floor=2, direction=VerticalDirection.STATIONARY, has_destination=True)
         elevator.set_destination(destination_2)  # Already on floor 2
         assert elevator.nominal_direction == VerticalDirection.STATIONARY
+
 
     def test_set_invalid_destination_floor(self, elevator: Elevator) -> None:
         """Test that setting invalid destination floor raises ValueError"""

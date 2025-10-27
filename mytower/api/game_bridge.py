@@ -40,6 +40,7 @@ class GameBridge:
         bridge.get_building_state()
     """
 
+
     def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
 
         self._controller: GameController = controller
@@ -63,6 +64,7 @@ class GameBridge:
     @property
     def game_thread_ready(self) -> threading.Event:
         return self._game_thread_ready
+
 
     def update_game(self, dt: float) -> None:
         """Update the game controller and process commands"""
@@ -122,6 +124,7 @@ class GameBridge:
         with self._update_lock:
             return dict(self._command_results)  # Return a copy
 
+
     def execute_add_floor_sync(self, floor_type: FloorType) -> int:
         """Type-safe floor addition"""
         command = AddFloorCommand(floor_type)
@@ -130,6 +133,7 @@ class GameBridge:
         if result.success and result.data is not None:
             return result.data  # Type checker knows this is int
         raise RuntimeError(f"Failed to add floor: {result.error}")
+
 
     def execute_add_person_sync(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
         """Type-safe person addition"""
@@ -140,6 +144,7 @@ class GameBridge:
             return result.data  # Type checker knows this is str
         raise RuntimeError(f"Failed to add person: {result.error}")
 
+
     def execute_add_elevator_bank_sync(self, h_cell: int, min_floor: int, max_floor: int) -> str:
         """Type-safe elevator bank addition"""
         command = AddElevatorBankCommand(h_cell=h_cell, min_floor=min_floor, max_floor=max_floor)
@@ -148,6 +153,7 @@ class GameBridge:
         if result.success and result.data is not None:
             return result.data  # Type checker knows this is str
         raise RuntimeError(f"Failed to add elevator bank: {result.error}")
+
 
     def execute_add_elevator_sync(self, elevator_bank_id: str) -> str:
         """Type-safe elevator addition"""
@@ -161,12 +167,10 @@ class GameBridge:
 # Module-level singleton
 _bridge: GameBridge | None = None
 
-
 def initialize_game_bridge(controller: GameController) -> GameBridge:
     global _bridge
     _bridge = GameBridge(controller)
     return _bridge
-
 
 def get_game_bridge() -> GameBridge:
     if _bridge is None:

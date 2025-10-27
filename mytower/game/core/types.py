@@ -49,6 +49,7 @@ class VerticalDirection(Enum):
     STATIONARY = 0
     UP = 1
 
+
     def invert(self) -> "VerticalDirection":  # More compatible type annotation
         if self == VerticalDirection.UP:
             return VerticalDirection.DOWN

@@ -20,6 +20,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
 
     demo_logger: Final[MyTowerLogger] = logger_provider.get_logger("DemoBuilder")
 
+
     def add_floor(floor_type: FloorType) -> int:
         result: Final[CommandResult[int]] = controller.execute_command(AddFloorCommand(floor_type=floor_type))
         if result.success and result.data is not None:
@@ -27,6 +28,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
         else:
             demo_logger.error(f"Failed to add floor: {result.error}")
             return -1
+
 
     def add_elevator_bank(h_cell: int, min_floor: int, max_floor: int) -> str:
         result: Final[CommandResult[str]] = controller.execute_command(
@@ -38,6 +40,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             demo_logger.error(f"Failed to add elevator bank: {result.error}")
             return ""
 
+
     def add_elevator(elevator_bank_id: str) -> str:
         result: Final[CommandResult[str]] = controller.execute_command(
             AddElevatorCommand(elevator_bank_id=elevator_bank_id)
@@ -47,6 +50,7 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
         else:
             demo_logger.error(f"Failed to add elevator: {result.error}")
             return ""
+
 
     def add_person(
         current_floor_num: int, current_block_float: float, dest_floor_num: int, dest_block_num: float

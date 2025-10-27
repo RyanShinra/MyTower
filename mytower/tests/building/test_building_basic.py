@@ -25,6 +25,7 @@ class TestBuildingBasics:
         assert building.building_width == Blocks(20)  # Compare to Blocks - Default width
         assert building.num_floors == 0
 
+
     @patch("mytower.game.entities.building.Floor")
     def test_add_floor(self, mock_floor_class: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test adding floors to building"""
@@ -54,6 +55,7 @@ class TestBuildingBasics:
         assert floor_num == 2
         assert building.num_floors == 2
 
+
     def test_add_elevator_bank(self, mock_logger_provider: MagicMock) -> None:
         """Test adding elevator banks to building"""
         building = Building(mock_logger_provider)
@@ -70,11 +72,9 @@ class TestBuildingBasics:
         assert mock_bank2 in building.get_elevator_banks()
 
     # test_add_person removed as Building no longer manages people directly
-    # People are now managed by GameModel
-
-
 class TestBuildingFloorRetrieval:
     """Test floor retrieval methods"""
+
 
     @patch("mytower.game.entities.building.Floor")
     def test_get_floors(self, mock_floor_class: MagicMock, mock_logger_provider: MagicMock) -> None:
@@ -93,7 +93,6 @@ class TestBuildingFloorRetrieval:
         floors = building.get_floors()
         assert len(floors) == 3
         # Should return floors in order from 1 to num_floors
-
     @patch("mytower.game.entities.building.Floor")
     def test_get_floor_by_number(self, mock_floor_class: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test getting floor by specific number"""
@@ -122,6 +121,7 @@ class TestBuildingFloorRetrieval:
 
 class TestBuildingElevatorOperations:
     """Test elevator-related operations"""
+
 
     def test_get_elevator_banks_on_floor(self, mock_logger_provider: MagicMock) -> None:
         """Test getting elevator banks that serve a specific floor"""
@@ -169,6 +169,7 @@ class TestBuildingElevatorOperations:
         banks_on_15 = building.get_elevator_banks_on_floor(15)
         assert len(banks_on_15) == 0
 
+
     def test_get_elevators(self, mock_logger_provider: MagicMock) -> None:
         """Test getting all elevators from all banks"""
         building = Building(mock_logger_provider)
@@ -197,6 +198,7 @@ class TestBuildingElevatorOperations:
 
 class TestBuildingUpdateAndDraw:
     """Test update and draw methods"""
+
 
     def test_update(self, mock_logger_provider: MagicMock) -> None:
         """Test update method (currently just passes)"""

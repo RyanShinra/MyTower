@@ -14,6 +14,7 @@ from mytower.game.models.model_snapshots import (
 class TestPersonSnapshot:
     """Test PersonSnapshot dataclass"""
 
+
     def test_creation(self) -> None:
         """Test PersonSnapshot creation with all fields"""
         snapshot = PersonSnapshot(
@@ -40,6 +41,7 @@ class TestPersonSnapshot:
         assert snapshot.mad_fraction == 0.7
         assert snapshot.draw_color == (255, 128, 64)
 
+
     def test_immutability(self) -> None:
         """Test that PersonSnapshot is immutable (dataclass frozen behavior)"""
         snapshot = PersonSnapshot(
@@ -63,6 +65,7 @@ class TestPersonSnapshot:
 
 class TestElevatorSnapshot:
     """Test ElevatorSnapshot dataclass"""
+
 
     def test_creation(self) -> None:
         """Test ElevatorSnapshot creation with all fields"""
@@ -89,6 +92,7 @@ class TestElevatorSnapshot:
         assert snapshot.passenger_count == 5
         assert snapshot.available_capacity == 10
         assert snapshot.max_capacity == 15
+
 
     def test_door_states(self) -> None:
         """Test elevator door states"""
@@ -125,6 +129,7 @@ class TestElevatorSnapshot:
 class TestElevatorBankSnapshot:
     """Test ElevatorBankSnapshot dataclass"""
 
+
     def test_creation(self) -> None:
         """Test ElevatorBankSnapshot creation with all fields"""
         snapshot = ElevatorBankSnapshot(
@@ -138,6 +143,7 @@ class TestElevatorBankSnapshot:
         assert snapshot.horizontal_position == Blocks(14)
         assert snapshot.min_floor == 1
         assert snapshot.max_floor == 20
+
 
     def test_single_floor_bank(self) -> None:
         """Test elevator bank serving single floor"""
@@ -155,6 +161,7 @@ class TestElevatorBankSnapshot:
 
 class TestFloorSnapshot:
     """Test FloorSnapshot dataclass"""
+
 
     def test_creation(self) -> None:
         """Test FloorSnapshot creation with all fields"""
@@ -177,6 +184,7 @@ class TestFloorSnapshot:
         assert snapshot.person_count == 3
         assert snapshot.floor_color == (150, 200, 250)
         assert snapshot.floorboard_color == (10, 10, 10)
+
 
     def test_different_floor_types(self) -> None:
         """Test different floor types"""
@@ -206,6 +214,7 @@ class TestFloorSnapshot:
 
 class TestBuildingSnapshot:
     """Test BuildingSnapshot dataclass"""
+
 
     def test_creation(self) -> None:
         """Test BuildingSnapshot creation with all fields"""
@@ -272,6 +281,7 @@ class TestBuildingSnapshot:
         assert building_snapshot.elevators[0] == elevator_snapshot
         assert building_snapshot.people[0] == person_snapshot
 
+
     def test_empty_building(self) -> None:
         """Test BuildingSnapshot with empty collections"""
         snapshot = BuildingSnapshot(time=Time(0.0), money=100000, floors=[], elevators=[], people=[], elevator_banks=[])
@@ -281,6 +291,7 @@ class TestBuildingSnapshot:
         assert len(snapshot.floors) == 0
         assert len(snapshot.elevators) == 0
         assert len(snapshot.people) == 0
+
 
     def test_multiple_entities(self) -> None:
         """Test BuildingSnapshot with multiple entities"""

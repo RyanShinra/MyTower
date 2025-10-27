@@ -2,6 +2,7 @@ import threading
 
 
 class IDGenerator:
+
     def __init__(self, prefix: str, radix: int = 4, first_id: int = 1) -> None:
         self._prefix: str = prefix
         self._radix: int = radix

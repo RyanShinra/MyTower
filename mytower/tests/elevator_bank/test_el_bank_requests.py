@@ -14,6 +14,7 @@ class TestRequestElevator:
     DIRECTIONS: Final = [VerticalDirection.UP, VerticalDirection.DOWN]
     INVALID_FLOORS: Final = [-1, 0, 11, 100]
 
+
     @pytest.mark.parametrize("floor", VALID_FLOORS)
     @pytest.mark.parametrize("direction", DIRECTIONS)
     def test_request_elevator_valid_floor(
@@ -33,6 +34,7 @@ class TestRequestElevator:
                 continue  # Obviously, THIS floor won't be 0
             assert len(elevator_bank.get_requests_for_floor(other_floor)) == 0  # all the other floors should be empty
 
+
     @pytest.mark.parametrize("floor", VALID_FLOORS)
     @pytest.mark.parametrize("direction", DIRECTIONS)
     def test_request_multiple_directions_same_floor(
@@ -48,6 +50,7 @@ class TestRequestElevator:
         elevator_bank.request_elevator(floor, VerticalDirection.DOWN)
 
         assert len(elevator_bank.get_requests_for_floor(floor)) == 2
+
 
     @pytest.mark.parametrize("direction", DIRECTIONS)
     def test_request_same_direction_multiple_floors(

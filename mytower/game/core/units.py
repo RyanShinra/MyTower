@@ -226,7 +226,6 @@ class Blocks:
         """Return absolute value while preserving type"""
         return Blocks(abs(self.value))
 
-
 def rect_from_pixels(x: Pixels, y: Pixels, width: Pixels, height: Pixels) -> tuple[int, int, int, int]:
     """Convert Pixels to pygame rect tuple (int, int, int, int)"""
     return (int(x), int(y), int(width), int(height))

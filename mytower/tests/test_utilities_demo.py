@@ -17,6 +17,7 @@ from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 class TestTypedMockFactoryDemo:
     """Demonstrate TypedMockFactory usage with proper type handling"""
 
+
     def test_create_person_mock_basic(self, typed_mock_factory: TypedMockFactory) -> None:
         """Test creating a Person mock - basic usage without type casting"""
         # Factory returns Mock - this is honest
@@ -28,6 +29,7 @@ class TestTypedMockFactoryDemo:
         assert person_mock.current_floor_num == 5
         assert person_mock.destination_floor_num == 8
         assert person_mock.state == PersonState.WALKING
+
 
     def test_create_person_mock_with_protocol_typing(self, typed_mock_factory: TypedMockFactory) -> None:
         """Test creating a Person mock with explicit protocol typing"""
@@ -46,6 +48,7 @@ class TestTypedMockFactoryDemo:
         result = process_person(person_protocol)
         assert result == 5
 
+
     def test_create_elevator_mock(self, typed_mock_factory: TypedMockFactory) -> None:
         """Test creating an Elevator mock"""
         elevator_mock = typed_mock_factory.create_elevator_mock(
@@ -63,6 +66,7 @@ class TestTypedMockFactoryDemo:
 
 class TestStateAssertionsDemo:
     """Demonstrate StateAssertions with proper Mock handling"""
+
 
     def test_assert_person_state_with_real_person(
         self, person_with_floor: Person, state_assertions: StateAssertions
@@ -89,6 +93,7 @@ class TestStateAssertionsDemo:
 
 class TestIntegratedUtilitiesDemo:
     """Demonstrate using multiple utilities together"""
+
 
     def test_person_elevator_interaction_complete(
         self, person_with_floor: Person, typed_mock_factory: TypedMockFactory, state_assertions: StateAssertions
@@ -125,6 +130,7 @@ class TestIntegratedUtilitiesDemo:
 
         # Clean state validation after disembarking
         state_assertions.assert_person_state(person_with_floor, expected_state=PersonState.IDLE, expected_floor=8)
+
 
     def test_person_with_fully_mocked_dependencies(
         self,
@@ -165,6 +171,7 @@ class TestIntegratedUtilitiesDemo:
 
 class TestProperMockTypingPatterns:
     """Demonstrate proper patterns for Mock vs Protocol typing"""
+
 
     def test_when_to_cast_to_protocol(self, typed_mock_factory: TypedMockFactory) -> None:
         """Show when casting to protocol is necessary"""

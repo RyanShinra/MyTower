@@ -43,6 +43,7 @@ class VerticalDirectionGQL(Enum):
     STATIONARY = 0
     UP = 1
 
+
     def invert(self) -> "VerticalDirectionGQL":  # More compatible type annotation
         if self == VerticalDirectionGQL.UP:
             return VerticalDirectionGQL.DOWN
@@ -65,6 +66,7 @@ class ColorGQL:
     green: int
     blue: int
     alpha: int = 255  # Default to fully opaque
+
 
     @classmethod
     def from_tuple(cls, color: tuple[int, ...]) -> "ColorGQL":

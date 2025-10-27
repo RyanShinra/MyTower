@@ -57,6 +57,7 @@ class TestAddFloorCommand:
         assert "Add a floor of type" in description
         assert "LOBBY" in description
 
+
     def test_execute_success(self) -> None:
         """Test successful floor addition"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -69,6 +70,7 @@ class TestAddFloorCommand:
         assert result.data == 5
         assert result.error is None
         mock_model.add_floor.assert_called_once_with(FloorType.RESTAURANT)
+
 
     def test_execute_different_floor_types(self) -> None:
         """Test adding different floor types"""
@@ -95,6 +97,7 @@ class TestAddFloorCommand:
 class TestAddPersonCommand:
     """Test AddPersonCommand functionality"""
 
+
     def test_command_creation(self) -> None:
         """Test creating AddPersonCommand"""
         command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4.0)
@@ -112,6 +115,7 @@ class TestAddPersonCommand:
         assert "Add person at floor 1.0, block 2.50" in description
         assert "destination floor 3.0, block 4.00" in description
 
+
     def test_execute_success(self) -> None:
         """Test successful person addition"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -125,6 +129,7 @@ class TestAddPersonCommand:
         assert result.error is None
         mock_model.add_person.assert_called_once_with(floor=2, block=1.0, dest_floor=5, dest_block=3.0)
 
+
     def test_execute_same_source_and_destination_fails(self) -> None:
         """Test that same source and destination causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -136,6 +141,7 @@ class TestAddPersonCommand:
         assert result.error is not None
         assert "Source and destination cannot be the same" in result.error
         mock_model.add_person.assert_not_called()
+
 
     def test_execute_invalid_floor_validation(self) -> None:
         """Test floor validation"""
@@ -154,6 +160,7 @@ class TestAddPersonCommand:
         assert result2.success is False
         assert result2.error is not None
         assert "Invalid destination floor: -1" in result2.error
+
 
     def test_execute_invalid_block_validation(self) -> None:
         """Test block validation"""
@@ -193,6 +200,7 @@ class TestAddElevatorBankCommand:
         assert "Add elevator bank at horizontal cell 3.0" in description
         assert "from floor 2.0 to 8.0" in description
 
+
     def test_execute_success(self) -> None:
         """Test successful elevator bank addition"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -206,6 +214,7 @@ class TestAddElevatorBankCommand:
         assert result.error is None
         mock_model.add_elevator_bank.assert_called_once_with(h_cell=2, min_floor=1, max_floor=5)
 
+
     def test_execute_invalid_h_cell_fails(self) -> None:
         """Test that invalid horizontal cell causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -218,6 +227,7 @@ class TestAddElevatorBankCommand:
         assert "Invalid horizontal cell: -1" in result.error
         mock_model.add_elevator_bank.assert_not_called()
 
+
     def test_execute_invalid_min_floor_fails(self) -> None:
         """Test that invalid min floor causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -229,6 +239,7 @@ class TestAddElevatorBankCommand:
         assert result.error is not None
         assert "Invalid min floor: 0" in result.error
         mock_model.add_elevator_bank.assert_not_called()
+
 
     def test_execute_max_floor_less_than_min_fails(self) -> None:
         """Test that max floor less than min floor causes failure"""
@@ -259,6 +270,7 @@ class TestAddElevatorCommand:
         description: Final[str] = command.get_description()
         assert "Add elevator to bank test_bank" in description
 
+
     def test_execute_success(self) -> None:
         """Test successful elevator addition"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -272,6 +284,7 @@ class TestAddElevatorCommand:
         assert result.error is None
         mock_model.add_elevator.assert_called_once_with("bank_456")
 
+
     def test_execute_strips_whitespace(self) -> None:
         """Test that whitespace is stripped from bank ID"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -282,6 +295,7 @@ class TestAddElevatorCommand:
 
         assert result.success is True
         mock_model.add_elevator.assert_called_once_with("bank_456")
+
 
     def test_execute_empty_bank_id_fails(self) -> None:
         """Test that empty bank ID causes failure"""
@@ -295,6 +309,7 @@ class TestAddElevatorCommand:
         assert "elevator_bank_id cannot be empty" in result.error
         mock_model.add_elevator.assert_not_called()
 
+
     def test_execute_whitespace_only_bank_id_fails(self) -> None:
         """Test that whitespace-only bank ID causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
@@ -306,6 +321,7 @@ class TestAddElevatorCommand:
         assert result.error is not None
         assert "elevator_bank_id cannot be empty" in result.error
         mock_model.add_elevator.assert_not_called()
+
 
     def test_execute_too_long_bank_id_fails(self) -> None:
         """Test that overly long bank ID causes failure"""

@@ -8,6 +8,7 @@ from mytower.game.entities.person import Person
 class TestPersonWaitingBehavior:
     """Test Person waiting and timeout behavior"""
 
+
     def test_idle_timeout_prevents_constant_checking(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock
     ) -> None:
@@ -17,7 +18,7 @@ class TestPersonWaitingBehavior:
         person_with_floor.set_destination(dest_floor_num=8, dest_horiz_pos=Blocks(15.0))
 
         # First call should set timeout
-        # The default idle timeout is 5.0 seconds (see Person.IDLE_TIMEOUT). 6.0 is used to ensure we are past the initial timeout.
+        # The default idle timeout is 5.0 seconds (see Person.IDLE_TIMEOUT). 6.0 is used to ensure we are past the initial timeout.  # noqa: E501
         person_with_floor.update_idle(Time(6.0))
         assert person_with_floor.state == PersonState.IDLE
 
@@ -25,6 +26,7 @@ class TestPersonWaitingBehavior:
         person_with_floor.update_idle(Time(1.0))  # Still within new timeout period
         # get_elevator_banks_on_floor should only be called once from first update
         assert mock_building_with_floor.get_elevator_banks_on_floor.call_count == 1
+
 
     def test_waiting_time_affects_anger_color(self, person_with_floor: Person, mock_game_config: MagicMock) -> None:
         """Test that waiting time changes person's visual appearance (red component)"""

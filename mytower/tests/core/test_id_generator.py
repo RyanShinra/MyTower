@@ -7,6 +7,7 @@ from mytower.game.core.id_generator import IDGenerator
 class TestIDGeneratorBasics:
     """Test basic IDGenerator functionality"""
 
+
     def test_initial_state(self) -> None:
         """Test that IDGenerator initializes with correct values"""
         generator = IDGenerator("test", radix=1, first_id=1)
@@ -17,6 +18,7 @@ class TestIDGeneratorBasics:
         second_id: str = generator.get_next_id()
         assert second_id == "test_2"
 
+
     def test_custom_prefix(self) -> None:
         """Test IDGenerator with custom prefix"""
         generator = IDGenerator("person", radix=1, first_id=100)
@@ -26,6 +28,7 @@ class TestIDGeneratorBasics:
 
         second_id: str = generator.get_next_id()
         assert second_id == "person_101"
+
 
     def test_custom_radix(self) -> None:
         """Test IDGenerator with custom radix"""
@@ -39,6 +42,7 @@ class TestIDGeneratorBasics:
 
         third_id = generator.get_next_id()
         assert third_id == "elevator_20"
+
 
     def test_reset_functionality(self) -> None:
         """Test that reset resets the counter"""
@@ -54,6 +58,7 @@ class TestIDGeneratorBasics:
 
         next_id = generator.get_next_id()
         assert next_id == "test_50"
+
 
     def test_thread_safety(self) -> None:
         """Test that IDGenerator is thread-safe"""
@@ -78,6 +83,7 @@ class TestIDGeneratorBasics:
         for id_str in generated_ids:
             assert id_str.startswith("thread_test_")
             assert id_str.split("_")[2].isdigit()
+
 
     def test_reset_thread_safety(self) -> None:
         """Test that reset is thread-safe"""

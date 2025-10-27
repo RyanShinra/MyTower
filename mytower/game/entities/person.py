@@ -36,6 +36,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
     _color_index: int = 0  # Static counter for color palette
     _color_lock: threading.Lock = threading.Lock()  # Thread safety for color index
 
+
     def __init__(
         self,
         logger_provider: LoggerProvider,
@@ -152,6 +153,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
     def waiting_time(self) -> Time:
         return self._waiting_time
 
+
     @override
     def set_destination(self, dest_floor_num: int, dest_horiz_pos: Blocks) -> None:
         # Check if destination values are out of bounds and raise warnings
@@ -168,6 +170,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         # Validation passed - set destinations directly
         self._dest_floor_num = dest_floor_num
         self._dest_horiz_position = dest_horiz_pos
+
 
     @override
     def find_nearest_elevator_bank(self) -> None | ElevatorBankProtocol:
@@ -201,6 +204,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._current_floor.remove_person(self._person_id)
         self._current_floor = None
 
+
     @override
     def board_elevator(self, elevator: ElevatorProtocol) -> None:
         self._current_elevator = elevator
@@ -211,6 +215,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
             self._clear_floor()
         except RuntimeError as e:
             raise RuntimeError(f"Person {self._person_id} is not on a floor but is trying to board an elevator.") from e
+
 
     @override
     def disembark_elevator(self) -> None:
@@ -234,6 +239,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._current_elevator = None
         self._next_elevator_bank = None
         self._state = PersonState.IDLE
+
 
     @override
     def update(self, dt: Time) -> None:
@@ -259,6 +265,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
             case _:
                 self._logger.warning(f"Unknown state: {self.state}")  # type: ignore[unreachable]
                 raise ValueError(f"Unknown state: {self.state}")
+
 
     @override
     def update_idle(self, dt: Time) -> None:  # Changed parameter type
@@ -304,6 +311,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
             )
             self._state = PersonState.WALKING
             self.direction = HorizontalDirection.RIGHT
+
 
     @override
     def update_walking(self, dt: Time) -> None:  # Changed parameter type
@@ -351,6 +359,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         next_horiz_position = min(next_horiz_position, self.building.building_width)
         next_horiz_position = max(next_horiz_position, Blocks(0))
         self._current_horiz_position = next_horiz_position
+
 
     # TESTING ONLY: Set the destination floor directly (for unit tests)
     @override

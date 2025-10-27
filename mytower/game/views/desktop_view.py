@@ -28,6 +28,7 @@ class DesktopView:
     Manages the overall game state including the building, UI, and game controls.
     """
 
+
     def __init__(
         self, logger_provider: LoggerProvider, config: GameConfig, screen_width: int, screen_height: int
     ) -> None:
@@ -61,11 +62,12 @@ class DesktopView:
     def screen_height(self) -> int:
         return self._screen_height
 
+
     def draw(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw the entire game state"""
 
         # TODO: There's nothing to draw for building yet, but we might later
-        # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]
+        # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]  # noqa: E501
         all_floors: Final[list[FloorSnapshot]] = snapshot.floors
         for floor in all_floors:
             self._floor_renderer.draw(surface, floor)
@@ -89,6 +91,7 @@ class DesktopView:
 
         # Draw UI elements
         self._draw_ui(surface, snapshot, speed)
+
 
     # TODO: Right now we have to coordinate this with the toolbar in InputHandler
     def _draw_ui(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:

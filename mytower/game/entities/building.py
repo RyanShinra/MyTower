@@ -21,6 +21,7 @@ class Building(BuildingProtocol):
     The main building class that contains all floors, elevators, and people.
     """
 
+
     def __init__(
         self,
         logger_provider: LoggerProvider,
@@ -44,6 +45,7 @@ class Building(BuildingProtocol):
     def building_width(self) -> Blocks:
         return self._floor_width
 
+
     @override
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
@@ -60,6 +62,7 @@ class Building(BuildingProtocol):
         """Add a new elevator to the building"""
         self._elevator_banks.append(elevator_bank)
 
+
     @override
     def get_elevator_banks_on_floor(self, floor_num: int) -> ElevatorBankList:  # ✅ Cleaner
         """Returns a list of all elevators that are currently on the specified floor"""
@@ -68,8 +71,8 @@ class Building(BuildingProtocol):
             for bank in self._elevator_banks
             if (
                 hasattr(bank, "min_floor")
-                and hasattr(bank, "max_floor")
-                and (bank.min_floor <= floor_num <= bank.max_floor)
+                and hasattr(bank, "max_floor")  # noqa: W503
+                and (bank.min_floor <= floor_num <= bank.max_floor)  # noqa: W503
             )
         ]
 

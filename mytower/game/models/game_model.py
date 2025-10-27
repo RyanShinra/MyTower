@@ -44,6 +44,7 @@ class GameModel:
 
     """
 
+
     def __init__(self, logger_provider: LoggerProvider) -> None:
         self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger("GameModel")
@@ -84,11 +85,12 @@ class GameModel:
         else:
             self._logger.warning(f"Attempted to set invalid speed: {value}")
 
+
     # Command Methods (for GraphQL mutations)
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         try:
-            # The floor may be a different height depending on type, we'll need to account for that in the building function
+            # The floor may be a different height depending on type, we'll need to account for that in the building function  # noqa: E501
             new_floor_num: int = self._building.add_floor(floor_type)
             new_floor: FloorProtocol | None = self._building.get_floor_by_number(new_floor_num)
 
@@ -100,6 +102,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to add floor of type {floor_type}: {e}")
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
+
 
     def add_elevator_bank(self, h_cell: int, min_floor: int, max_floor: int) -> str:
         """Add a new elevator bank to the building"""
@@ -121,6 +124,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to add elevator bank: {e}")
             raise RuntimeError(f"Failed to add elevator bank: {str(e)}") from e
+
 
     def add_elevator(self, el_bank_id: str) -> str:
         """Add a new elevator to the specified elevator bank"""
@@ -147,6 +151,7 @@ class GameModel:
             self._logger.exception(f"Failed to add elevator to bank {el_bank_id}: {e}")
             raise RuntimeError(f"Failed to add elevator to bank {el_bank_id}: {str(e)}") from e
 
+
     def add_person(self, floor: int, block: float, dest_floor: int, dest_block: float) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
@@ -168,7 +173,8 @@ class GameModel:
             self._logger.exception(f"Failed to add person: {e}")
             raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
 
-    # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.
+
+    # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.  # noqa: E501
     def remove_person(self, person_id: str) -> None:  # noqa: E301
         """Remove a person from the building"""
         try:
@@ -202,6 +208,7 @@ class GameModel:
             self._logger.exception(f"Failed to get all elevator banks: {e}")
             raise RuntimeError(f"Failed to get all elevator banks: {str(e)}") from e
 
+
     def get_all_floors(self) -> list[FloorSnapshot]:
         """Get all floors in the building"""
         try:
@@ -210,6 +217,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get all floors: {e}")
             raise RuntimeError(f"Failed to get all floors: {str(e)}") from e
+
 
     def set_game_speed(self, speed: float) -> bool:
         """Set game simulation speed"""
@@ -224,6 +232,7 @@ class GameModel:
             self._logger.exception(f"Failed to set game speed to {speed}: {e}")
             raise RuntimeError(f"Failed to set game speed to {speed}: {str(e)}") from e
 
+
     def set_pause_state(self, paused: bool) -> None:
         """Set game pause state"""
         try:
@@ -234,6 +243,7 @@ class GameModel:
             self._logger.exception(f"Failed to set pause state to {paused}: {e}")
             raise RuntimeError(f"Failed to set pause state to {paused}: {str(e)}") from e
 
+
     def toggle_pause(self) -> bool:
         """Toggle game pause state, returns new state"""
         try:
@@ -242,6 +252,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to toggle pause state: {e}")
             raise RuntimeError(f"Failed to toggle pause state: {str(e)}") from e
+
 
     # Simulation Methods
     def update(self, dt: Time) -> None:  # noqa: E301
@@ -270,6 +281,7 @@ class GameModel:
             self._logger.exception(f"Failed to update game simulation with dt={dt}: {e}")
             raise RuntimeError(f"Failed to update game simulation: {str(e)}") from e
 
+
     def get_building_snapshot(self) -> BuildingSnapshot:
         """Get complete building state as immutable snapshot"""
         try:
@@ -286,6 +298,7 @@ class GameModel:
             self._logger.exception(f"Failed to get building snapshot: {e}")
             raise RuntimeError(f"Failed to get building snapshot: {str(e)}") from e
 
+
     def get_person_by_id(self, person_id: str) -> PersonSnapshot | None:
         """Get specific person state by ID"""
         try:
@@ -299,6 +312,7 @@ class GameModel:
             self._logger.exception(f"Failed to get person by id {person_id}: {e}")
             raise RuntimeError(f"Failed to get person by id {person_id}: {str(e)}") from e
 
+
     def get_elevator_by_id(self, elevator_id: str) -> ElevatorSnapshot | None:
         """Get specific elevator state by ID"""
         try:
@@ -310,6 +324,7 @@ class GameModel:
         except Exception as e:
             self._logger.exception(f"Failed to get elevator by id {elevator_id}: {e}")
             raise RuntimeError(f"Failed to get elevator by id {elevator_id}: {str(e)}") from e
+
 
     def get_floor_info(self, floor_number: int) -> FloorSnapshot | None:
         """Get specific floor information"""

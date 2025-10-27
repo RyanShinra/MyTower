@@ -11,6 +11,7 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 
 class FloorRenderer:
+
     def __init__(self, logger_provider: LoggerProvider, font: Font) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("FloorRenderer")
         self._font: Font = font
@@ -21,6 +22,7 @@ class FloorRenderer:
         Floors are 1-indexed, so floor 1 starts at position 0.
         """
         return Blocks(floor_number - 1).in_pixels
+
 
     # TODO: The lower edge depends on the floor below it, so we need to pass that in (in blocks) instead of floor_num
     def draw(self, surface: Surface, floor: FloorSnapshot) -> None:

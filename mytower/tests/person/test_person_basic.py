@@ -18,6 +18,7 @@ from mytower.tests.test_utilities import StateAssertions
 class TestPersonBasics:
     """Test basic Person properties and initialization"""
 
+
     def test_initial_state(self, person_with_floor: Person, state_assertions: StateAssertions) -> None:
         """Test that person initializes with correct values"""
         state_assertions.assert_person_state(
@@ -35,6 +36,7 @@ class TestPersonBasics:
 
         assert person_with_floor.destination_floor_num == 8
         assert person_with_floor.testing_confirm_horiz_dest_is(Blocks(15.0))  # Wrap in Blocks
+
 
     def test_person_creation_invalid_floor_raises_value_error(
         self, building_factory: Callable[..., Mock], mock_logger_provider: MagicMock, mock_game_config: MagicMock
@@ -61,6 +63,7 @@ class TestPersonBasics:
                 initial_horiz_position=5,
             )  # Floor too low
 
+
     def test_person_creation_invalid_block_raises_value_error(
         self, mock_building_with_floor: MagicMock, mock_logger_provider: MagicMock, mock_game_config: MagicMock
     ) -> None:
@@ -83,6 +86,7 @@ class TestPersonBasics:
                 initial_floor_number=5,
                 initial_horiz_position=-5.0,
             )  # Block too low
+
 
     def test_set_destination_out_of_bounds_raises_value_error(
         self, person_with_floor: Person, mock_building_no_floor: MagicMock
@@ -125,6 +129,7 @@ class TestPersonBasics:
         """Test direction getter and setter"""
         person_with_floor.direction = HorizontalDirection.LEFT
         assert person_with_floor.direction == HorizontalDirection.LEFT
+
 
     def test_color_palette_assignment(
         self, mock_building_with_floor: Mock, mock_logger_provider: MagicMock, mock_game_config: MagicMock

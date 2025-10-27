@@ -11,6 +11,7 @@ from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 class TestPersonElevatorInteraction:
     """Test Person interactions with elevators"""
 
+
     def test_board_elevator_changes_state(
         self, person_with_floor: Person, typed_mock_factory: TypedMockFactory, state_assertions: StateAssertions
     ) -> None:
@@ -22,6 +23,7 @@ class TestPersonElevatorInteraction:
         state_assertions.assert_person_state(person_with_floor, expected_state=PersonState.IN_ELEVATOR)
         assert person_with_floor.testing_get_wait_time() == Time(0.0)
         assert person_with_floor.testing_get_current_elevator() == mock_elevator
+
 
     def test_disembark_elevator_success(
         self, person_with_floor: Person, typed_mock_factory: TypedMockFactory, state_assertions: StateAssertions
@@ -54,8 +56,9 @@ class TestPersonElevatorInteraction:
         assert person_with_floor.testing_get_next_elevator_bank() is None
         assert person_with_floor.testing_get_wait_time() == Time(0.0)
 
+
     def test_disembark_elevator_not_in_elevator_raises_error(self, person_with_floor: Person) -> None:
-        """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""
+        """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""  # noqa: E501
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 8
         mock_elevator.parent_elevator_bank.get_waiting_position.return_value = Blocks(3)  # Return Blocks!

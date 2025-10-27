@@ -11,6 +11,8 @@ from mytower.game.entities.person import PersonProtocol
 
 
 class TestPassengerQueueing:
+
+
     def test_add_passenger_going_up(self, elevator_bank: ElevatorBank) -> None:
         # Test the most basic case - person going up gets added to up queue
         mock_person = MagicMock()
@@ -23,6 +25,7 @@ class TestPassengerQueueing:
         upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(3)
         assert len(upward_queue) == 1
         assert upward_queue[0] is mock_person
+
 
     def test_add_passenger_going_down(self, elevator_bank: ElevatorBank) -> None:
         mock_person = MagicMock()
@@ -40,6 +43,7 @@ class TestPassengerQueueing:
         # Verify they're NOT in the upward queue (defensive check)
         upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(8)
         assert len(upward_queue) == 0
+
 
     def test_add_passengers_both_directions_same_floor(self, elevator_bank: ElevatorBank) -> None:
         """Test that up/down passengers on same floor go to correct queues"""
@@ -73,6 +77,8 @@ class TestPassengerQueueing:
             (8, 3, VerticalDirection.DOWN, "testing_get_downward_queue"),
         ],
     )
+
+
     def test_dequeue_passenger_success(
         self,
         elevator_bank: ElevatorBank,
@@ -104,6 +110,7 @@ class TestPassengerQueueing:
         result: PersonProtocol | None = elevator_bank.try_dequeue_waiting_passenger(3, VerticalDirection.UP)
         assert result is None
 
+
     def test_dequeue_wrong_direction_returns_none(self, elevator_bank: ElevatorBank) -> None:
         """Test dequeuing wrong direction from populated queue returns None"""
         # Add person going UP
@@ -119,6 +126,7 @@ class TestPassengerQueueing:
         # Original person should still be in UP queue
         upward_queue: deque[PersonProtocol] = elevator_bank.testing_get_upward_queue(5)
         assert len(upward_queue) == 1
+
 
     def test_dequeue_fifo_ordering(self, elevator_bank: ElevatorBank) -> None:
         """Test that passengers are dequeued in FIFO (first-in, first-out) order"""

@@ -19,6 +19,7 @@ class CommandResult(Generic[T]):
 
 
 class Command(ABC, Generic[T]):
+
     @abstractmethod
     def execute(self, model: GameModel) -> CommandResult[T]:
         """Execute the command against the game model"""
@@ -50,6 +51,7 @@ class AddPersonCommand(Command[str]):
     block: float
     dest_floor: int
     dest_block: float
+
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
@@ -84,6 +86,7 @@ class AddElevatorBankCommand(Command[str]):
     min_floor: int
     max_floor: int
 
+
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
         if self.h_cell < 0:
@@ -112,6 +115,7 @@ class AddElevatorBankCommand(Command[str]):
 @dataclass
 class AddElevatorCommand(Command[str]):
     elevator_bank_id: str
+
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:

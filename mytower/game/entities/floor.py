@@ -35,6 +35,7 @@ class Floor(FloorProtocol):
     A floor in the building that can contain various room types
     """
 
+
     # TODO: #27 Consider what we will want for basements and European floor numbering schemes
     @dataclass
     class FloorInfo:
@@ -55,6 +56,7 @@ class Floor(FloorProtocol):
         FloorType.RESTAURANT: FloorInfo(RESTAURANT_COLOR, RESTAURANT_HEIGHT),
         FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
+
 
     def __init__(
         self,
@@ -81,7 +83,6 @@ class Floor(FloorProtocol):
         self._people: dict[str, PersonProtocol] = {}  # People currently on this floor
 
     # Grid of rooms/spaces on this floor
-
     @property
     def building(self) -> BuildingProtocol:
         return self._building
@@ -130,12 +131,10 @@ class Floor(FloorProtocol):
     def people(self) -> dict[str, PersonProtocol]:
         return dict(self._people)
 
-
     @override
     def add_person(self, person: PersonProtocol) -> None:
         """Add a person to the floor"""
         self._people[person.person_id] = person
-
 
     @override
     def remove_person(self, person_id: str) -> PersonProtocol:
@@ -146,7 +145,6 @@ class Floor(FloorProtocol):
         if not person:
             raise KeyError(f"Person not found: {person_id}")
         return person
-
 
     def update(self, dt: float) -> None:
         """Update floor simulation"""
