@@ -17,6 +17,11 @@ exclude = '''
   | dist
 )/
 '''
+# NOTE: Black's blank line checks conflict with custom formatting rules
+# where functions with >5 lines have 2 blank lines before them.
+# This is intentional and approved by custom Flake8 rules.
+# Black will report files as needing reformatting, but do not apply
+# those changes as they will break the custom blank line formatting.
 
 [tool.coverage.run]
 # Enable branch measurement to match `--cov-branch`
@@ -71,6 +76,8 @@ ignore = [
     "E712",  # comparison to True/False (explicitly testing bool values in tests)
     "B007",  # unused loop variable (sometimes needed for count)
     "UP040", # TypeAlias annotation (prefer explicit for clarity in protocols)
+    "UP046", # Generic class uses Generic subclass (style preference for clarity)
+    "I001",  # Import block is un-sorted (imports organized manually for readability)
 ]
 
 [tool.ruff.lint.per-file-ignores]

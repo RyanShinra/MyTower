@@ -10,6 +10,11 @@
     "editor.formatOnSaveMode": "modifications",
 
     // Black formatter settings
+    // NOTE: Black's blank line formatting conflicts with custom rules:
+    // - Functions with >5 lines get 2 blank lines (not PEP8, but custom requirement)
+    // - Functions with ≤5 lines get 1 blank line (PEP8 compliant)
+    // Black will complain about extra blank lines, but this is intentional.
+    // Use Black for checking other formatting issues, but ignore E30x blank line errors.
     "black-formatter.args": ["--line-length=120"],
 
     // Flake8 linter settings
