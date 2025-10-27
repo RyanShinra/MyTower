@@ -32,7 +32,7 @@ class ElevatorBankRenderer:
 
         if max_floor_block < min_floor_block:
             raise ValueError(
-                f"Elevator bank {elevator_bank.id} max_floor {elevator_bank.max_floor} < min_floor {elevator_bank.min_floor}"
+                f"Elevator bank {elevator_bank.id} max_floor {elevator_bank.max_floor} < min_floor {elevator_bank.min_floor}"  # noqa: E501
             )
 
         # TODO: This all breaks down if floors are more than 1 Block tall (eg. lobby)

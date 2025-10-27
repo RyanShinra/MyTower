@@ -67,7 +67,7 @@ class DesktopView:
         """Draw the entire game state"""
 
         # TODO: There's nothing to draw for building yet, but we might later
-        # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]
+        # Render in Painter's algorithm order [Sky, Building, Floors, Offices, Elevators, decorative sprites, People, UI]  # noqa: E501
         all_floors: Final[list[FloorSnapshot]] = snapshot.floors
         for floor in all_floors:
             self._floor_renderer.draw(surface, floor)

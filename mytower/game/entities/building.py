@@ -71,8 +71,8 @@ class Building(BuildingProtocol):
             for bank in self._elevator_banks
             if (
                 hasattr(bank, "min_floor")
-                and hasattr(bank, "max_floor")
-                and (bank.min_floor <= floor_num <= bank.max_floor)
+                and hasattr(bank, "max_floor")  # noqa: W503
+                and (bank.min_floor <= floor_num <= bank.max_floor)  # noqa: W503
             )
         ]
 

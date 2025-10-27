@@ -90,7 +90,7 @@ class GameModel:
     def add_floor(self, floor_type: FloorType) -> int:
         """Add a new floor to the building"""
         try:
-            # The floor may be a different height depending on type, we'll need to account for that in the building function
+            # The floor may be a different height depending on type, we'll need to account for that in the building function  # noqa: E501
             new_floor_num: int = self._building.add_floor(floor_type)
             new_floor: FloorProtocol | None = self._building.get_floor_by_number(new_floor_num)
 
@@ -174,7 +174,7 @@ class GameModel:
             raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
 
 
-    # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.
+    # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.  # noqa: E501
     def remove_person(self, person_id: str) -> None:  # noqa: E301
         """Remove a person from the building"""
         try:

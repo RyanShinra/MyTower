@@ -58,7 +58,7 @@ class TestPersonElevatorInteraction:
 
 
     def test_disembark_elevator_not_in_elevator_raises_error(self, person_with_floor: Person) -> None:
-        """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""
+        """Test that a RuntimeError is raised when a person has a current elevator but is not in the IN_ELEVATOR state and attempts to disembark."""  # noqa: E501
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 8
         mock_elevator.parent_elevator_bank.get_waiting_position.return_value = Blocks(3)  # Return Blocks!

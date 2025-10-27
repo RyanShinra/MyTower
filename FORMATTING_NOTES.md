@@ -101,6 +101,126 @@ When running linters:
    python -m flake8 mytower  # Should pass
    ```
 
+## Per-Line and Per-Block Exception Examples
+
+When you need to suppress linter errors for specific lines or blocks of code, use the following syntax for each formatter:
+
+### Flake8 Per-Line Exceptions
+
+```python
+# Suppress a single error on a specific line
+long_string = "This is a very long string that exceeds the line length limit"  # noqa: E501
+
+# Suppress multiple errors on a specific line
+x = {1, 2, 3}  # noqa: E501, E231
+
+# Suppress all errors on a line (use sparingly!)
+problematic_line = "something"  # noqa
+```
+
+### Flake8 Per-Block Exceptions
+
+```python
+# Disable for a section of code (e.g., protocol interface declarations)
+# flake8: noqa: E704
+class MyProtocol(Protocol):
+    def method1(self) -> int: ...
+    def method2(self) -> str: ...
+    def method3(self) -> bool: ...
+
+# Re-enable after the block (not automatic, just document the end)
+# Normal linting resumes here
+```
+
+### Black Per-Line Exceptions
+
+Black doesn't support per-line exceptions, but you can disable formatting for blocks:
+
+```python
+# fmt: off
+custom_formatted_dict = {
+    'key1':    'value1',
+    'key2':    'value2',
+    'longer':  'value3',
+}
+# fmt: on
+```
+
+### Ruff Per-Line Exceptions
+
+```python
+# Suppress a single rule on a specific line
+from typing import List  # noqa: UP035
+
+# Suppress multiple rules
+x = foo()  # noqa: F841, E501
+
+# Type-specific ignore (Ruff-specific syntax)
+x = foo()  # type: ignore[assignment]
+```
+
+### Ruff Per-File Exceptions
+
+Add to `pyproject.toml`:
+
+```toml
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["F841"]  # Allow unused variables in tests
+"**/entities_protocol.py" = ["E701", "E702"]  # Allow one-line methods in protocols
+```
+
+### Pylint Per-Line Exceptions
+
+```python
+# Disable specific rule for one line
+long_variable_name = "value"  # pylint: disable=invalid-name
+
+# Disable multiple rules
+x = foo()  # pylint: disable=invalid-name,unused-variable
+```
+
+### Pylint Per-Block Exceptions
+
+```python
+# pylint: disable=invalid-name,too-many-locals
+def complex_function():
+    VeryLongVariableName = 1
+    AnotherLongName = 2
+    # ... many more variables
+# pylint: enable=invalid-name,too-many-locals
+```
+
+### Example: Protocol Interface with Multiple One-Line Methods
+
+```python
+# flake8: noqa: E704
+# fmt: off
+class ElevatorProtocol(Protocol):
+    @property
+    def elevator_id(self) -> str: ...
+    
+    @property
+    def elevator_state(self) -> ElevatorState: ...
+    
+    @property
+    def current_floor_int(self) -> int: ...
+    
+    def set_destination(self, destination: ElevatorDestination) -> None: ...
+# fmt: on
+```
+
+### Example: Switch Statement with Custom Formatting
+
+```python
+# fmt: off
+match state:
+    case State.IDLE:    return "idle"
+    case State.ACTIVE:  return "active"
+    case State.ERROR:   return "error"
+    case _:             return "unknown"
+# fmt: on
+```
+
 ## Rationale
 
 The custom blank line rules provide:

@@ -60,13 +60,13 @@ class TestElevatorBasics:
 
     def test_door_open_setter_and_getter(self, elevator: Elevator) -> None:
         # Doors start closed - sensible, yes?
-        assert elevator.door_open == False
+        assert elevator.door_open is False
 
         elevator.door_open = True
-        assert elevator.door_open == True
+        assert elevator.door_open is True
 
         elevator.door_open = False
-        assert elevator.door_open == False
+        assert elevator.door_open is False
 
 
     def test_testing_set_current_vertical_pos(self, elevator: Elevator) -> None:

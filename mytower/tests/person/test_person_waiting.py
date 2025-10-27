@@ -18,7 +18,7 @@ class TestPersonWaitingBehavior:
         person_with_floor.set_destination(dest_floor_num=8, dest_horiz_pos=Blocks(15.0))
 
         # First call should set timeout
-        # The default idle timeout is 5.0 seconds (see Person.IDLE_TIMEOUT). 6.0 is used to ensure we are past the initial timeout.
+        # The default idle timeout is 5.0 seconds (see Person.IDLE_TIMEOUT). 6.0 is used to ensure we are past the initial timeout.  # noqa: E501
         person_with_floor.update_idle(Time(6.0))
         assert person_with_floor.state == PersonState.IDLE
 

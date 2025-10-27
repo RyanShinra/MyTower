@@ -19,7 +19,7 @@ class TestPassengers:
     ) -> None:
         """Test filtering passengers by destination floor"""
         # Elevator starts on floor one (see test_initial_state above)
-        passenger_current_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=1, cur_floor_num=1)  # pylint: disable=invalid-name
+        passenger_current_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=1, cur_floor_num=1)  # pylint: disable=invalid-name  # noqa: E501
         passenger_another_floor: Final[PersonProtocol] = mock_person_factory(dest_floor_num=5, cur_floor_num=1)
 
         elevator.testing_set_passengers([passenger_another_floor, passenger_current_floor])
