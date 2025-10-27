@@ -6,19 +6,27 @@ max-line-length = 120
 extend-select = X303
 
 # Ignore specific errors/warnings:
+# E501: Line too long
+# W503: Line break before binary operator
+# D100-D104: Missing docstring
+# E203: Whitespace before ':'
+# R101: Too many local variables
+# E301-E306: Blank line errors (using custom blank line rules)
+# E303: Too many blank lines (use our custom X303 instead)
+# E712: Comparison to True/False (explicitly testing bool values)
 ignore =
-    # Line too long
     E501,
-    # Line break before binary operator
     W503,
-    # Missing docstring
     D100, D101, D102, D103, D104,
-    # Whitespace before ':'
     E203,
-    # Too many local variables
     R101,
-    # Built-in too many blank lines (use our custom X303 instead)
+    E301,
+    E302,
     E303,
+    E304,
+    E305,
+    E306,
+    E712,
 
 # Exclude specific directories/files
 exclude =

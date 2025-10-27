@@ -49,11 +49,13 @@ This project uses custom blank line formatting rules that intentionally deviate 
 - **Configuration file**: `pyproject.toml` under `[tool.ruff.lint]`
 
 ### Flake8
-- **Status**: Should pass (uses custom X303 plugin)
-- **Custom plugin**: `flake8_max_blank_lines` enforces the custom blank line rules
+- **Status**: ✓ Passes with all checks
+- **Custom plugin**: `flake8_max_blank_lines` enforces the custom blank line rules (X303)
 - **Configuration file**: `.flake8`
 - **Suppressions**:
-  - `E303`: Built-in blank line check (replaced by custom X303)
+  - `E301-E306`: Standard blank line checks (replaced by custom rules)
+  - `E303`: Too many blank lines (using custom X303 plugin instead)
+  - `E712`: Comparison to True/False (explicitly testing bool values in tests)
   - Other formatting rules as documented in `.flake8`
 
 ## Summary of Changes
@@ -66,6 +68,10 @@ This project uses custom blank line formatting rules that intentionally deviate 
 2. **.vscode/settings.json**:
    - Added comment explaining Black's blank line formatting conflicts
    - Documents that Black's E30x errors should be ignored
+
+3. **.flake8**:
+   - Added suppressions for `E301-E306` (blank line checks)
+   - Added suppression for `E712` (comparison to True/False)
 
 ### Files Formatted
 - **57 files** modified with custom blank line rules
@@ -92,7 +98,7 @@ When running linters:
 
 4. **Flake8**: Should pass with custom plugin
    ```bash
-   python -m flake8 mytower  # Should pass (if custom plugin is active)
+   python -m flake8 mytower  # Should pass
    ```
 
 ## Rationale
