@@ -18,6 +18,7 @@ from mytower.game.models.snapshot_builders import (
 class TestBuildFloorSnapshot:
     """Test build_floor_snapshot function"""
 
+
     def test_build_floor_snapshot(self) -> None:
         """Test building floor snapshot from floor entity"""
         mock_floor = MagicMock(spec=Floor)
@@ -41,6 +42,7 @@ class TestBuildFloorSnapshot:
         assert snapshot.floorboard_color == (10, 10, 10)
         assert snapshot.person_count == 3
 
+
     def test_build_floor_snapshot_different_types(self) -> None:
         """Test building snapshots for different floor types"""
         floor_types = [FloorType.LOBBY, FloorType.APARTMENT, FloorType.HOTEL]
@@ -63,6 +65,7 @@ class TestBuildFloorSnapshot:
 
 class TestBuildElevatorSnapshot:
     """Test build_elevator_snapshot function"""
+
 
     def test_build_elevator_snapshot(self) -> None:
         """Test building elevator snapshot from elevator entity"""
@@ -91,6 +94,7 @@ class TestBuildElevatorSnapshot:
         assert snapshot.available_capacity == 10
         assert snapshot.max_capacity == 15
 
+
     def test_build_elevator_snapshot_different_states(self) -> None:
         """Test building snapshots for different elevator states"""
         states = [ElevatorState.IDLE, ElevatorState.LOADING, ElevatorState.ARRIVED]
@@ -117,6 +121,7 @@ class TestBuildElevatorSnapshot:
 class TestBuildElevatorBankSnapshot:
     """Test build_elevator_bank_snapshot function"""
 
+
     def test_build_elevator_bank_snapshot(self) -> None:
         """Test building elevator bank snapshot from elevator bank entity"""
         mock_bank = MagicMock(spec=ElevatorBank)
@@ -129,6 +134,7 @@ class TestBuildElevatorBankSnapshot:
         assert snapshot.horizontal_position == 14
         assert snapshot.min_floor == 1
         assert snapshot.max_floor == 20
+
 
     def test_build_elevator_bank_snapshot_different_ranges(self) -> None:
         """Test building snapshots for different floor ranges"""
@@ -153,6 +159,7 @@ class TestBuildElevatorBankSnapshot:
 
 class TestBuildPersonSnapshot:
     """Test build_person_snapshot function"""
+
 
     def test_build_person_snapshot(self) -> None:
         """Test building person snapshot from person entity"""
@@ -181,6 +188,7 @@ class TestBuildPersonSnapshot:
         assert snapshot.mad_fraction == 0.4
         assert snapshot.draw_color == (255, 128, 64)
 
+
     def test_build_person_snapshot_different_states(self) -> None:
         """Test building snapshots for different person states"""
         states: list[PersonState] = [PersonState.IDLE, PersonState.WAITING_FOR_ELEVATOR, PersonState.IN_ELEVATOR]
@@ -203,6 +211,7 @@ class TestBuildPersonSnapshot:
             assert snapshot.state == state
             assert snapshot.person_id == f"person_{state.value}"
 
+
     def test_build_person_snapshot_mad_fraction_range(self) -> None:
         """Test building snapshots with different mad fraction values"""
         mad_fractions: list[float] = [0.0, 0.25, 0.5, 0.75, 1.0]
@@ -224,6 +233,7 @@ class TestBuildPersonSnapshot:
 
             assert snapshot.mad_fraction == mad_fraction
             assert snapshot.waiting_time == mad_fraction * 100
+
 
     def test_build_person_snapshot_color_variations(self) -> None:
         """Test building snapshots with different draw colors"""
@@ -255,6 +265,7 @@ class TestBuildPersonSnapshot:
 
 class TestSnapshotBuilderIntegration:
     """Test integration between different snapshot builders"""
+
 
     def test_all_builders_return_correct_types(self) -> None:
         """Test that all builders return the expected snapshot types"""

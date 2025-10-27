@@ -37,6 +37,7 @@ class GameArgs:
     print_exceptions: bool = False  # Whether to print full exceptions
     fail_fast: bool = False  # Whether to exit on first error
 
+
     def __post_init__(self) -> None:
         """Validate arguments after initialization"""
         valid_modes: set[str] = {"desktop", "headless", "hybrid", "remote"}

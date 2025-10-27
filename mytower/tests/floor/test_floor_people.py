@@ -14,13 +14,11 @@ from mytower.game.core.types import FloorType
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol
 
-
 @pytest.fixture
 def floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock) -> Floor:
     return Floor(
         logger_provider=mock_logger_provider, building=mock_building_no_floor, floor_num=3, floor_type=FloorType.OFFICE
     )
-
 
 @pytest.fixture
 def mock_person() -> MagicMock:
@@ -47,6 +45,7 @@ class TestFloorPeopleOwnership:
         retrieved_person: Final[PersonProtocol] = floor.remove_person("person_123")
         assert retrieved_person == mock_person
 
+
     def test_add_multiple_people(self, floor: Floor) -> None:
         """Test adding multiple people to same floor"""
         person1 = MagicMock(spec=PersonProtocol)
@@ -72,6 +71,7 @@ class TestFloorPeopleOwnership:
         assert retrieved2 == person2
         assert retrieved3 == person3
 
+
     def test_add_person_overwrites_same_id(self, floor: Floor) -> None:
         """Test that adding person with same ID overwrites previous"""
         person1 = MagicMock(spec=PersonProtocol)
@@ -87,6 +87,7 @@ class TestFloorPeopleOwnership:
         retrieved: Final[PersonProtocol] = floor.remove_person("person_duplicate")
         assert retrieved == person2
         assert retrieved != person1
+
 
     def test_remove_person_success(self, floor: Floor, mock_person: MagicMock) -> None:
         """Test successfully removing a person from floor"""
@@ -110,6 +111,7 @@ class TestFloorPeopleOwnership:
         with pytest.raises(KeyError, match="Person not found: person_123"):
             floor.remove_person("person_123")
 
+
     def test_person_removal_is_permanent(self, floor: Floor, mock_person: MagicMock) -> None:
         """Test that removed person cannot be removed again"""
         floor.add_person(mock_person)
@@ -122,6 +124,7 @@ class TestFloorPeopleOwnership:
 
 class TestFloorPersonOwnershipEdgeCases:
     """Test edge cases and error conditions for floor person ownership"""
+
 
     def test_add_none_person_handled_gracefully(self, floor: Floor) -> None:
         """Test that adding None doesn't crash (though it might not be useful)"""

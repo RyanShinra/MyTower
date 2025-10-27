@@ -13,8 +13,10 @@ import pygame
 from mytower.game.core.types import MouseButtons, MousePos
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
+
 class MouseState:
     """Class to store and manage mouse state"""
+
 
     def __init__(self, logger_provider: LoggerProvider) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("input")
@@ -24,6 +26,7 @@ class MouseState:
         self._extended_buttons: list[bool] = []
         self._wheel_y: int = 0  # Vertical scroll
         self._wheel_x: int = 0  # Horizontal scroll (if supported)
+
 
     def update(self) -> None:
         """Update mouse state from pygame"""

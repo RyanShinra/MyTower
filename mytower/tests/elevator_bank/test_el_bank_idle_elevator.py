@@ -9,6 +9,8 @@ from mytower.tests.conftest import PersonFactory
 
 
 class TestIdleElevatorLogic:
+
+
     def test_idle_elevator_waits_when_timeout_not_reached(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -24,6 +26,7 @@ class TestIdleElevatorLogic:
         # Assert: idle_time increases but no other actions taken
         assert mock_elevator.idle_time == Time(0.4)
         mock_elevator.request_load_passengers.assert_not_called()
+
 
     def test_idle_elevator_loads_waiting_passengers_same_floor(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock, mock_person_factory: PersonFactory
@@ -43,6 +46,7 @@ class TestIdleElevatorLogic:
 
         # Only one passenger (or floor?) either way, it should only be called once
         mock_elevator.request_load_passengers.assert_called_once_with(VerticalDirection.UP)
+
 
     def test_idle_elevator_moves_to_request_when_no_local_passengers(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
@@ -65,6 +69,7 @@ class TestIdleElevatorLogic:
         call_args = mock_elevator.set_destination.call_args[0][0]
         assert call_args.floor == 8
 
+
     def test_idle_elevator_stays_idle_when_no_passengers_or_requests(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -80,6 +85,7 @@ class TestIdleElevatorLogic:
         mock_elevator.request_load_passengers.assert_not_called()
         mock_elevator.set_destination.assert_not_called()
 
+
     def test_idle_elevator_continues_checking_after_reset(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -91,6 +97,7 @@ class TestIdleElevatorLogic:
         # Second cycle - accumulating time again
         elevator_bank.testing_update_idle_elevator(mock_elevator, Time(0.3))
         assert mock_elevator.idle_time == Time(0.3)  # Should be accumulating again
+
 
     def test_idle_elevator_resets_timer_when_no_destinations(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock

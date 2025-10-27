@@ -67,6 +67,7 @@ class TypedMockFactory:
         person: PersonProtocol = cast(PersonProtocol, mock)
     """
 
+
     def create_person_mock(
         self,
         current_floor: int = 1,
@@ -107,6 +108,7 @@ class TypedMockFactory:
                 setattr(mock, key, value)
 
         return mock
+
 
     def create_elevator_mock(
         self,
@@ -158,6 +160,7 @@ class TypedMockFactory:
 
         return mock
 
+
     def create_building_mock(
         self, num_floors: int = 10, building_width: float = 20.0, has_floors: bool = True, **overrides: Any
     ) -> Mock:  # Honest return type
@@ -184,6 +187,7 @@ class TypedMockFactory:
 
         return mock
 
+
     def create_floor_mock(self, floor_num: int = 1, **overrides: Any) -> Mock:  # Honest return type
         """Create a properly typed Floor mock"""
         mock = Mock(spec=FloorProtocol)
@@ -204,6 +208,7 @@ class TypedMockFactory:
             setattr(mock, key, value)
 
         return mock
+
 
     def create_elevator_bank_mock(
         self, horizontal_position: int = 5, min_floor: int = 1, max_floor: int = 10, **overrides: Any
@@ -231,6 +236,7 @@ class TypedMockFactory:
 
 class StateAssertions:
     """Common state assertion helpers for improved test readability"""
+
 
     @staticmethod
     def assert_person_state(
@@ -262,6 +268,7 @@ class StateAssertions:
                 person.destination_floor_num == expected_destination_floor
             ), f"Expected destination floor {expected_destination_floor}, got {person.destination_floor_num}"
 
+
     @staticmethod
     def assert_elevator_state(
         elevator: ElevatorProtocol | Mock,  # Accept both
@@ -290,6 +297,7 @@ class StateAssertions:
                 elevator.destination_floor == expected_destination
             ), f"Expected destination {expected_destination}, got {elevator.destination_floor}"
 
+
     @staticmethod
     def assert_mock_called_with_person(
         mock_method: Mock,
@@ -317,6 +325,7 @@ class StateAssertions:
 
 class BoundaryTestMixin:
     """Mixin providing common boundary testing patterns"""
+
 
     @staticmethod
     def assert_boundary_validation(

@@ -46,6 +46,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
     _id_generator: IDGenerator = IDGenerator("elevator")
 
+
     def __init__(
         self,
         logger_provider: LoggerProvider,
@@ -228,6 +229,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     def idle_time(self, value: Time) -> None:
         self._idle_time = value
 
+
     @override
     def set_destination(self, destination: ElevatorDestination) -> None:
         if (destination.floor > self.max_floor) or (destination.floor < self.min_floor):
@@ -271,6 +273,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     def testing_get_passengers(self) -> list[PersonProtocol]:
         return self._passengers.copy()
 
+
     @override
     def request_load_passengers(self, direction: VerticalDirection) -> None:
         """Instructs an idle elevator to begin loading and sets it to nominally go in `direction`.
@@ -286,6 +289,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._logger.warning(err_str)
             raise RuntimeError(err_str)
 
+
     @override
     def passengers_who_want_off(self) -> list[PersonProtocol]:
         answer: Final[list[PersonProtocol]] = []
@@ -294,6 +298,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
                 answer.append(p)
 
         return answer
+
 
     @override
     def get_passenger_destinations_in_direction(self, floor: int, direction: VerticalDirection) -> list[int]:
@@ -318,6 +323,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             sorted_floors.sort(reverse=True)
 
         return sorted_floors
+
 
     @override
     def update(self, dt: Time) -> None:
@@ -362,7 +368,6 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
                 raise ValueError(f"Unknown elevator state: {self._state}")
 
-
     def _update_idle(self, dt: Time) -> None:
         self._idle_log_timer += dt
         if self._idle_log_timer >= self._config.IDLE_LOG_TIMEOUT:
@@ -403,6 +408,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         cur_floor = max(self.min_floor, cur_floor)
         self._vertical_position = Blocks(cur_floor)
 
+
     def _update_arrived(self, dt: Time) -> None:
         who_wants_off: Final[list[PersonProtocol]] = self.passengers_who_want_off()
 
@@ -413,6 +419,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         self._logger.debug(
             f"{self.elevator_state} Elevator: Having arrived, elevator has {len(who_wants_off)} passengers to disembark -> {self._state}"
         )
+
 
     def _update_unloading(self, dt: Time) -> None:
         self._unloading_timeout += dt
@@ -433,6 +440,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._logger.debug(f"{self.elevator_state} Elevator: Unloading Complete -> LOADING")
             self._state = ElevatorState.LOADING
         return
+
 
     def _update_loading(self, dt: Time) -> None:
         self._loading_timeout += dt
@@ -465,6 +473,7 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._state = ElevatorState.READY_TO_MOVE  # Nobody else wants to get on
             self.door_open = False
         return
+
 
     def _update_ready_to_move(self, dt: Time) -> None:
         self._logger.debug(

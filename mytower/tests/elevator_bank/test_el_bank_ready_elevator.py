@@ -14,6 +14,7 @@ from mytower.tests.conftest import PersonFactory
 class TestReadyElevatorLogic:
     """Tests for the core elevator dispatch algorithm in _update_ready_elevator()"""
 
+
     def test_ready_elevator_prioritizes_passengers_when_no_closer_requests(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -34,6 +35,7 @@ class TestReadyElevatorLogic:
         mock_elevator.set_destination.assert_called_once()
         call_args = mock_elevator.set_destination.call_args[0][0]
         assert call_args.floor == 7
+
 
     def test_ready_elevator_services_closest_destination_first(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock, mock_person_factory: PersonFactory
@@ -65,6 +67,7 @@ class TestReadyElevatorLogic:
         requests_floor_8 = elevator_bank.get_requests_for_floor(8)
         assert len(requests_floor_8) == 0
 
+
     def test_ready_elevator_continues_journey_after_intermediate_stop(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -85,6 +88,7 @@ class TestReadyElevatorLogic:
         mock_elevator.set_destination.assert_called_once()
         call_args = mock_elevator.set_destination.call_args[0][0]
         assert call_args.floor == 8
+
 
     def test_ready_elevator_continues_current_direction_when_possible(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
@@ -115,6 +119,7 @@ class TestReadyElevatorLogic:
         requests_floor_9: set[VerticalDirection] = elevator_bank.get_requests_for_floor(9)
         assert VerticalDirection.UP in requests_floor_9
 
+
     def test_ready_elevator_reverses_when_no_forward_destinations(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -136,6 +141,7 @@ class TestReadyElevatorLogic:
         call_args = mock_elevator.set_destination.call_args[0][0]
         assert call_args.floor == 5
 
+
     def test_ready_elevator_stays_put_when_no_destinations_anywhere(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -152,6 +158,7 @@ class TestReadyElevatorLogic:
 
         # Should not set any destination
         mock_elevator.set_destination.assert_not_called()
+
 
     def test_ready_elevator_chooses_closest_floor_up_ignores_behind(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
@@ -183,6 +190,7 @@ class TestReadyElevatorLogic:
         assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(7)
         assert VerticalDirection.UP in elevator_bank.get_requests_for_floor(8)
 
+
     def test_ready_elevator_chooses_closest_floor_down_ignores_ahead(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -213,6 +221,7 @@ class TestReadyElevatorLogic:
         assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(3)
         assert VerticalDirection.DOWN in elevator_bank.get_requests_for_floor(2)
 
+
     def test_ready_elevator_mixed_passengers_and_requests(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -238,6 +247,7 @@ class TestReadyElevatorLogic:
         requests_floor_6 = elevator_bank.get_requests_for_floor(6)
         assert VerticalDirection.UP not in requests_floor_6
 
+
     def test_ready_elevator_direction_reversal_to_stationary_bias(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -255,6 +265,7 @@ class TestReadyElevatorLogic:
         mock_elevator.set_destination.assert_called_once()
         call_args = mock_elevator.set_destination.call_args[0][0]
         assert call_args.floor == 3
+
 
     def test_ready_elevator_clears_correct_request(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that only the request being fulfilled gets cleared"""
@@ -287,6 +298,7 @@ class TestReadyElevatorLogic:
 class TestDestinationCollection:
     """Test the helper methods used by ready elevator logic"""
 
+
     def test_collect_destinations_passengers_first(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that _collect_destinations includes passenger destinations first"""
         mock_elevator.get_passenger_destinations_in_direction.return_value = [7, 9]
@@ -316,6 +328,7 @@ class TestDestinationCollection:
             (VerticalDirection.UP, [10], 10),  # Single destination
         ],
     )
+
     def test_select_next_floor_logic(
         self, elevator_bank: ElevatorBank, direction: VerticalDirection, floors: list[int], expected: int
     ) -> None:
@@ -328,6 +341,7 @@ class TestDestinationCollection:
 
 class TestRequestClearing:
     """Test that requests get properly cleared when elevators are assigned"""
+
 
     def test_request_cleared_after_destination_set(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Integration test: request should be cleared after elevator is assigned"""
@@ -346,6 +360,7 @@ class TestRequestClearing:
         requests: set[VerticalDirection] = elevator_bank.get_requests_for_floor(5)
         assert VerticalDirection.UP not in requests
         assert len(requests) == 0
+
 
     def test_only_fulfilled_request_cleared(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that only the specific request being fulfilled gets cleared"""

@@ -30,6 +30,8 @@ class TestPersonPhysics:
             (HorizontalDirection.STATIONARY, Blocks(7), Time(3.0), Blocks(7)),  # No movement
         ],
     )
+
+
     def test_walking_moves_linear(
         self,
         person_with_floor: Person,
@@ -57,6 +59,7 @@ class TestPersonPhysics:
             # Should move in the correct direction but not reach the target
             expected_block: Blocks = initial_block + (dx * direction.value)
             assert person_with_floor.current_horizontal_position == expected_block
+
 
     def test_walking_stops_at_boundaries(self, person_with_floor: Person) -> None:
         """Test that walking respects building boundaries"""

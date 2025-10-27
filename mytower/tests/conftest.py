@@ -29,11 +29,14 @@ from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
 
 class PersonFactory(Protocol):
+
     def __call__(self, cur_floor_num: int, dest_floor_num: int) -> Mock: ...  # ✅ Honest return type
 
 
 @pytest.fixture
 def mock_person_factory() -> PersonFactory:
+
+
     def _person_gen(cur_floor_num: int, dest_floor_num: int) -> Mock:  # ✅ Returns Mock
         person: Final[MagicMock] = MagicMock(spec=PersonProtocol)
         type(person).current_floor_num = PropertyMock(return_value=cur_floor_num)
@@ -54,7 +57,6 @@ def mock_cosmetics_config() -> MagicMock:
     config.OPEN_COLOR = (200, 200, 50)
     return config
 
-
 @pytest.fixture
 def mock_logger_provider() -> MagicMock:
     provider = MagicMock(spec=LoggerProvider)
@@ -66,13 +68,11 @@ def mock_logger_provider() -> MagicMock:
 BUILDING_DEFAULT_NUM_FLOORS = 10
 BUILDING_DEFAULT_FLOOR_WIDTH = 20.0  # Needs to be float for Person initial_block_float
 
-
 # New type-safe test utilities fixtures
 @pytest.fixture
 def typed_mock_factory() -> TypedMockFactory:
     """Fixture providing type-safe mock creation"""
     return TypedMockFactory()
-
 
 @pytest.fixture
 def state_assertions() -> StateAssertions:
@@ -179,7 +179,6 @@ def person_with_floor(
         initial_horiz_position=float(PERSON_DEFAULT_BLOCK),
         config=mock_game_config,
     )
-
 
 # Elevator-specific fixtures
 @pytest.fixture

@@ -12,6 +12,7 @@ from mytower.game.entities.person import Person
 class TestPersonMovement:
     """Test Person movement and path finding logic"""
 
+
     def test_no_movement_when_already_at_destination(self, person_with_floor: Person) -> None:
         """Test that person stays idle when already at destination"""
         # Use the person's current location as their destination
@@ -28,6 +29,7 @@ class TestPersonMovement:
         assert person_with_floor.current_horizontal_position == original_block
         assert person_with_floor.current_floor_num == original_floor
 
+
     def test_update_idle_different_floor_no_elevator(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock
     ) -> None:
@@ -39,6 +41,7 @@ class TestPersonMovement:
 
         # Should stay idle since no elevator available
         assert person_with_floor.state == PersonState.IDLE
+
 
     def test_update_idle_finds_elevator_starts_walking(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock
@@ -62,6 +65,7 @@ class TestPersonMovement:
             person_with_floor.direction == HorizontalDirection.LEFT
         )  # Moving from block {initial_block} to {elevator_waiting_block}
 
+
     def test_update_walking_same_floor_reaches_destination_block(self, person_with_floor: Person) -> None:
         """Test walking state reaches destination and becomes idle"""
 
@@ -78,6 +82,7 @@ class TestPersonMovement:
         assert person_with_floor.current_horizontal_position == Blocks(15)  # Wrap in Blocks
         assert person_with_floor.state == PersonState.IDLE
         assert person_with_floor.direction == HorizontalDirection.STATIONARY
+
 
     def test_update_walking_reaches_selected_elevator_waits(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock
@@ -100,6 +105,7 @@ class TestPersonMovement:
         assert person_with_floor.state == PersonState.WAITING_FOR_ELEVATOR
         mock_elevator_bank.add_waiting_passenger.assert_called_once_with(person_with_floor)
 
+
     def test_find_nearest_elevator_bank_chooses_closest(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock
     ) -> None:
@@ -117,6 +123,7 @@ class TestPersonMovement:
         result: None | ElevatorBankProtocol = person_with_floor.find_nearest_elevator_bank()
 
         assert result == close_elevator
+
 
     def test_update_idle_finds_elevator_walks_there(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock

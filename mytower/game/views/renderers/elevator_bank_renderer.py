@@ -18,9 +18,11 @@ if TYPE_CHECKING:
 
 
 class ElevatorBankRenderer:
+
     def __init__(self, logger_provider: LoggerProvider, cosmetics_config: ElevatorCosmeticsProtocol) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("ElevatorBankRenderer")
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
+
 
     def draw(self, surface: Surface, elevator_bank: ElevatorBankSnapshot) -> None:
         screen_height: Pixels = Pixels(surface.get_height())

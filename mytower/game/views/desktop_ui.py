@@ -52,12 +52,11 @@ class UIConfigProtocol(Protocol):
 
 
 # pylint: enable=invalid-name
-
-
 class Button:
     """
     A simple button UI element
     """
+
 
     def __init__(
         self,
@@ -95,6 +94,7 @@ class Button:
     def is_hovered(self) -> bool:
         return self._is_hovered
 
+
     def update(
         self, mouse_pos: MousePos, mouse_pressed: MouseButtons, building_snapshot: BuildingSnapshot | None
     ) -> None:
@@ -112,6 +112,7 @@ class Button:
             self._on_click(building_snapshot)  # Trigger callback
 
         self._was_pressed = is_pressed_now
+
 
     def draw(self, surface: PygameSurface) -> None:
         """Draw the button on the given surface"""
@@ -131,6 +132,7 @@ class Toolbar:
     """
     A toolbar for building tools and controls
     """
+
 
     def __init__(
         self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, ui_config: UIConfigProtocol
@@ -157,6 +159,7 @@ class Toolbar:
     def set_active_tool(self, value: str | None) -> None:
         self._active_tool = value
 
+
     def add_button(
         self, text: str, on_click: Callable[[BuildingSnapshot | None], None], width: int = 100, height: int = 30
     ) -> Button:
@@ -175,6 +178,7 @@ class Toolbar:
         """Update toolbar and its buttons"""
         for button in self._buttons:
             button.update(mouse_pos, mouse_pressed, building_snapshot)
+
 
     def draw(self, surface: PygameSurface) -> None:
         """Draw the toolbar and its buttons"""

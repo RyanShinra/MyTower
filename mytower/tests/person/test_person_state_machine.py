@@ -8,6 +8,7 @@ from mytower.game.entities.person import Person
 class TestPersonStateMachine:
     """Test Person state machine transitions and update logic"""
 
+
     def test_update_routes_to_correct_state_method(self, person_with_floor: Person) -> None:
         """Test that update() calls the correct state-specific method"""
         with patch.object(person_with_floor, "update_idle") as mock_idle:
@@ -20,6 +21,7 @@ class TestPersonStateMachine:
             person_with_floor.update(Time(1.0))
             mock_walking.assert_called_once_with(Time(1.0))
 
+
     def test_update_waiting_for_elevator_increments_time(self, person_with_floor: Person) -> None:
         """Test that waiting state increments waiting time"""
         person_with_floor.testing_set_current_state(PersonState.WAITING_FOR_ELEVATOR)
@@ -29,6 +31,7 @@ class TestPersonStateMachine:
         person_with_floor.update(Time(2.5))
 
         assert person_with_floor.testing_get_wait_time() == initial_wait_time + Time(2.5)
+
 
     def test_update_in_elevator_follows_elevator_position(self, person_with_floor: Person) -> None:
         """Test that person in elevator updates position based on elevator"""

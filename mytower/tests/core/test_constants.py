@@ -13,6 +13,7 @@ class TestDisplayConstants:
         assert constants.SCREEN_WIDTH > 0
         assert constants.SCREEN_HEIGHT > 0
 
+
     def test_performance_constants(self) -> None:
         """Test performance-related constants"""
         assert constants.FPS == 60
@@ -51,6 +52,7 @@ class TestGameGridConstants:
 class TestFloorConstants:
     """Test floor-related constants"""
 
+
     def test_floor_colors(self) -> None:
         """Test that all floor colors are valid RGB tuples"""
         floor_colors = [
@@ -69,6 +71,7 @@ class TestFloorConstants:
             assert len(color) == 3
             assert all(isinstance(c, int) and 0 <= c <= 255 for c in color)
 
+
     def test_floor_dimensions(self) -> None:
         """Test floor dimension constants"""
         assert constants.FLOORBOARD_HEIGHT == Pixels(4)  # Wrap in Pixels
@@ -81,6 +84,7 @@ class TestFloorConstants:
         assert constants.DEFAULT_FLOOR_HEIGHT > Blocks(0)  # Compare Blocks to Blocks
         assert constants.DEFAULT_FLOOR_LEFT_EDGE >= Blocks(0)  # Compare Blocks to Blocks
         assert constants.DEFAULT_FLOOR_WIDTH > Blocks(0)  # Compare Blocks to Blocks
+
 
     def test_floor_heights(self) -> None:
         """Test floor height constants"""
@@ -121,6 +125,7 @@ class TestGameBalanceConstants:
 class TestConstantTypes:
     """Test that constants have correct types"""
 
+
     def test_integer_constants(self) -> None:
         """Test that integer constants are actually integers"""
         int_constants = [
@@ -140,6 +145,7 @@ class TestConstantTypes:
         assert isinstance(constants.DEFAULT_FLOOR_LEFT_EDGE, Blocks)
         assert isinstance(constants.DEFAULT_FLOOR_WIDTH, Blocks)
 
+
     def test_float_constants(self) -> None:
         """Test that float constants are actually floats"""
         float_constants = [
@@ -150,6 +156,7 @@ class TestConstantTypes:
 
         for const in float_constants:
             assert isinstance(const, float)
+
 
     def test_rgb_constants(self) -> None:
         """Test that RGB constants are tuples of 3 integers"""

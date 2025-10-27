@@ -15,9 +15,11 @@ from mytower.game.utilities.demo_builder import build_model_building
 class TestDemoBuilder:
     """Test demo building functionality"""
 
+
     def test_build_model_building_success(self, mock_logger_provider: MagicMock) -> None:
         """Test successful demo building creation"""
         mock_controller = MagicMock(spec=GameController)
+
 
         # Mock successful command executions
         def mock_execute(command):
@@ -82,9 +84,11 @@ class TestDemoBuilder:
         ]
         assert len(person_calls) == 4
 
+
     def test_build_model_building_with_failures(self, mock_logger_provider: MagicMock) -> None:
         """Test demo building creation with some command failures"""
         mock_controller = MagicMock(spec=GameController)
+
 
         # Mock some failures
         def mock_execute_with_failures(command):
@@ -109,12 +113,14 @@ class TestDemoBuilder:
         # Verify it still attempted all operations
         assert mock_controller.execute_command.call_count > 20
 
+
     def test_build_model_building_command_types(self, mock_logger_provider: MagicMock) -> None:
         """Test that the correct command types are used"""
         mock_controller = MagicMock(spec=GameController)
 
         # Mock to return incrementing floor numbers
         floor_counter = [0]  # Use list to modify in closure
+
 
         def mock_execute(command):
             if isinstance(command, AddFloorCommand):
@@ -146,12 +152,14 @@ class TestDemoBuilder:
         assert len(elevator_commands) == 1
         assert len(person_commands) == 4
 
+
     def test_build_model_building_floor_sequence(self, mock_logger_provider: MagicMock) -> None:
         """Test that floors are added in the expected sequence"""
         mock_controller = MagicMock(spec=GameController)
 
         # Track the order of floor types
         floor_types_order = []
+
 
         def mock_execute(command):
             if isinstance(command, AddFloorCommand):
@@ -193,12 +201,14 @@ class TestDemoBuilder:
 
         assert floor_types_order == expected_sequence
 
+
     def test_build_model_building_person_placement(self, mock_logger_provider: MagicMock) -> None:
         """Test that people are placed with correct parameters"""
         mock_controller = MagicMock(spec=GameController)
 
         # Track person commands
         person_commands = []
+
 
         def mock_execute(command):
             if isinstance(command, AddFloorCommand):
@@ -231,6 +241,7 @@ class TestDemoBuilder:
 
         assert actual_people == expected_people
 
+
     def test_build_model_building_elevator_bank_parameters(self, mock_logger_provider: MagicMock) -> None:
         """Test that elevator bank is created with correct parameters"""
         mock_controller = MagicMock(spec=GameController)
@@ -238,6 +249,7 @@ class TestDemoBuilder:
         # Track elevator bank command
         bank_command = None
         top_floor = 18  # Expected based on the number of floors
+
 
         def mock_execute(command):
             nonlocal bank_command

@@ -26,6 +26,7 @@ class GameController:
     Acts as the interface between external systems (pygame, GraphQL) and the model
     """
 
+
     def __init__(
         self, model: GameModel, logger_provider: LoggerProvider, fail_fast: bool, print_exceptions: bool
     ) -> None:
@@ -35,6 +36,7 @@ class GameController:
 
         self._model: GameModel = model
         self._command_history: list[Command[Any]] = []  # For potential undo functionality
+
 
     # Command execution
     def execute_command(self, command: Command[Any]) -> CommandResult[Any]:

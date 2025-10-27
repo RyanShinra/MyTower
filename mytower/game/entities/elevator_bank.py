@@ -36,6 +36,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     An elevator bank managing multiple elevators serving a range of floors.
     """
 
+
     class DirQueue(NamedTuple):
         queue: deque[PersonProtocol]
         direction: VerticalDirection
@@ -44,6 +45,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     EMPTY_DEQUE: Final[deque[PersonProtocol]] = deque()
 
     _id_generator: IDGenerator = IDGenerator("elevator_bank")
+
 
     def __init__(
         self,
@@ -144,6 +146,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         if floor < self._min_floor or floor > self._max_floor:
             raise ValueError(f"Floor {floor} out of range {self._min_floor}-{self._max_floor}")
 
+
     @override
     def request_elevator(self, floor: int, direction: VerticalDirection) -> None:
         self._validate_floor(floor)
@@ -160,6 +163,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             )
 
         floor_request.add(direction)
+
 
     @override
     def add_waiting_passenger(self, passenger: PersonProtocol) -> None:
@@ -203,6 +207,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             raise KeyError(f"Why can't we get a current Queue on floor: {passenger.current_floor_num}")
         # TODO: Do we want a max queue length?
         current_queue.append(passenger)
+
 
     @override
     def try_dequeue_waiting_passenger(self, floor: int, direction: VerticalDirection) -> PersonProtocol | None:
@@ -276,6 +281,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
     ) -> ElevatorDestination:
         return self._select_next_floor(destinations, direction)
 
+
     def _get_waiting_passengers(self, floor: int, nom_direction: VerticalDirection) -> ElevatorBank.DirQueue:
         """Helper method to get passengers waiting on a floor in a specific direction"""
         self._logger.debug(f"Getting waiting passengers on floor {floor} for direction {nom_direction}")
@@ -316,6 +322,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         # TODO: Update this once we add building extents
         return max(Blocks(1), self.horizontal_position - Blocks(1))
 
+
     @override
     def update(self, dt: Time) -> None:  # Accept both for now during transition
         """Update elevator status over time increment dt (in seconds)"""
@@ -329,6 +336,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             elif el.elevator_state == ElevatorState.READY_TO_MOVE:
                 self._update_ready_elevator(el)
         pass
+
 
     def _update_idle_elevator(self, elevator: ElevatorProtocol, dt: Time) -> None:
         """Idle means it arrived at this floor with nobody who wanted to disembark on this floor"""
@@ -377,6 +385,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         return
 
+
     def _update_ready_elevator(self, elevator: ElevatorProtocol) -> None:
         floor: int = elevator.current_floor_int
         nom_direction: Final[VerticalDirection] = elevator.nominal_direction
@@ -403,6 +412,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
             self._logger.debug(f"No new destination - staying at floor {next_destination.floor}")
 
         return
+
 
     def _get_next_destination(
         self, elevator: ElevatorProtocol, current_floor: int, current_direction: VerticalDirection
@@ -458,6 +468,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         return destinations
 
+
     def _select_next_floor(
         self, destinations: list[ElevatorDestination], direction: VerticalDirection
     ) -> ElevatorDestination:
@@ -475,6 +486,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         else:
             # Going down or stationary (what??) go to the highest floor below us
             return max(destinations)
+
 
     def _get_floor_requests_in_dir_from_floor(
         self, start_floor: int, search_direction: VerticalDirection, req_direction: VerticalDirection

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 
 class PersonRenderer:
+
     def __init__(
         self,
         person_config: PersonConfigProtocol,
@@ -26,6 +27,7 @@ class PersonRenderer:
         self._logger: MyTowerLogger = logger_provider.get_logger("PersonRenderer")
         self._cosmetics: PersonCosmeticsProtocol = person_cosmetics
         self._config: PersonConfigProtocol = person_config
+
 
     # Someday this will be replaced with a proper transform system
     def y_position(self, surface: Surface, vert_position: Blocks) -> Pixels:
@@ -48,6 +50,7 @@ class PersonRenderer:
         block_half_width: Pixels = Pixels(int(BLOCK_WIDTH.in_pixels / 2.0))
         x_centered: Pixels = x_left + block_half_width
         return x_centered
+
 
     def draw(self, drawing_surface: Surface, person: PersonSnapshot) -> None:
         """Draw the person on the given surface"""

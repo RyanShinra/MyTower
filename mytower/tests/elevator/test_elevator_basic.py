@@ -14,6 +14,8 @@ from mytower.tests.conftest import PersonFactory
 
 
 class TestElevatorBasics:
+
+
     def test_initial_state(self, elevator: Elevator) -> None:
         """Test that elevator initializes with correct values"""
         assert elevator.elevator_state == ElevatorState.IDLE
@@ -30,6 +32,7 @@ class TestElevatorBasics:
         elevator.set_destination(destination)
         assert elevator.destination_floor == 5
         assert elevator.nominal_direction == VerticalDirection.UP
+
 
     def test_avail_capacity(
         self, elevator: Elevator, mock_person_factory: PersonFactory, mock_elevator_config: MagicMock
@@ -54,6 +57,7 @@ class TestElevatorBasics:
         with pytest.raises(ValueError):
             elevator.testing_set_passengers(oh_no_too_many)
 
+
     def test_door_open_setter_and_getter(self, elevator: Elevator) -> None:
         # Doors start closed - sensible, yes?
         assert elevator.door_open == False
@@ -63,6 +67,7 @@ class TestElevatorBasics:
 
         elevator.door_open = False
         assert elevator.door_open == False
+
 
     def test_testing_set_current_vertical_pos(self, elevator: Elevator) -> None:
         elevator.testing_set_current_vertical_pos(Blocks(2.0))
@@ -82,6 +87,7 @@ class TestElevatorBasics:
     def test_idle_wait_timeout_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_wait_timeout property returns the value from config"""
         assert elevator.idle_wait_timeout == mock_elevator_config.IDLE_WAIT_TIMEOUT
+
 
     def test_idle_time_property(self, elevator: Elevator, mock_elevator_config: MagicMock) -> None:
         """Test that idle_time property returns the value in Elevator.py"""

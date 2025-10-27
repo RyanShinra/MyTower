@@ -5,6 +5,8 @@ from mytower.game.entities.entities_protocol import ElevatorDestination
 
 
 class TestStateMachine:
+
+
     def test_update_idle_stays_idle(self, elevator: Elevator) -> None:
         """Test that IDLE elevator transitions to MOVING when destination is set"""
         # Set up conditions for transition
@@ -20,6 +22,7 @@ class TestStateMachine:
         # Check if state transitioned correctly - should be MOVING now
         assert elevator.elevator_state == ElevatorState.MOVING
 
+
     def test_update_ready_to_move_to_moving(self, elevator: Elevator) -> None:
         """Test transition from IDLE to MOVING state"""
         # Set up conditions for transition
@@ -33,6 +36,7 @@ class TestStateMachine:
         # Check if state transitioned correctly
         assert elevator.elevator_state == ElevatorState.MOVING
 
+
     def test_update_ready_to_move_to_still_not_moving(self, elevator: Elevator) -> None:
         """Test transition from IDLE to MOVING state"""
         # Set up conditions for transition
@@ -45,6 +49,7 @@ class TestStateMachine:
 
         # Check if state transitioned correctly
         assert elevator.elevator_state == ElevatorState.IDLE
+
 
     def test_update_moving_to_arrived(self, elevator: Elevator) -> None:
         """Test transition from MOVING to ARRIVED state when reaching destination"""

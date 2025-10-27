@@ -12,6 +12,7 @@ from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Veloci
 class TestElevatorConfig:
     """Test ElevatorConfig dataclass"""
 
+
     def test_default_values(self) -> None:
         """Test that ElevatorConfig has expected default values"""
         config = ElevatorConfig()
@@ -35,6 +36,7 @@ class TestElevatorConfig:
 class TestElevatorCosmetics:
     """Test ElevatorCosmetics dataclass"""
 
+
     def test_default_values(self) -> None:
         """Test that ElevatorCosmetics has expected default values"""
         cosmetics = ElevatorCosmetics()
@@ -45,6 +47,7 @@ class TestElevatorCosmetics:
         assert cosmetics.OPEN_COLOR == (200, 200, 50)
         assert cosmetics.SHAFT_OVERHEAD_HEIGHT == Blocks(1.0).in_meters
         assert cosmetics.ELEVATOR_WIDTH == Blocks(1.0).in_meters
+
 
     def test_color_types(self) -> None:
         """Test that all colors are RGB tuples"""
@@ -60,6 +63,7 @@ class TestElevatorCosmetics:
 class TestPersonConfig:
     """Test PersonConfig dataclass"""
 
+
     def test_default_values(self) -> None:
         """Test that PersonConfig has expected default values"""
         config = PersonConfig()
@@ -70,6 +74,7 @@ class TestPersonConfig:
         assert config.MAX_WAIT_TIME == Time(90.0)
         assert config.IDLE_TIMEOUT == Time(5.0)
         assert config.RADIUS == Meters(1.75 / 2.0)
+
 
     def test_positive_values(self) -> None:
         """Test that all config values are positive"""
@@ -83,6 +88,7 @@ class TestPersonConfig:
 
 class TestPersonCosmetics:
     """Test PersonCosmetics dataclass"""
+
 
     def test_default_values(self) -> None:
         """Test that PersonCosmetics has expected default values"""
@@ -99,6 +105,7 @@ class TestPersonCosmetics:
         assert cosmetics.INITIAL_MIN_BLUE == 0
         assert len(cosmetics.COLOR_PALETTE) == 9
         assert all(isinstance(color, tuple) and len(color) == 3 for color in cosmetics.COLOR_PALETTE)
+
 
     def test_color_ranges(self) -> None:
         """Test that color values are within valid RGB range"""
@@ -125,6 +132,7 @@ class TestPersonCosmetics:
 class TestUIConfig:
     """Test UIConfig dataclass"""
 
+
     def test_default_values(self) -> None:
         """Test that UIConfig has expected default values"""
         config = UIConfig()
@@ -136,6 +144,7 @@ class TestUIConfig:
         assert config.BUTTON_HOVER_COLOR == (180, 180, 180)
         assert config.UI_FONT_SIZE == 20
         assert config.FLOOR_LABEL_FONT_SIZE == 18
+
 
     def test_font_configurations(self) -> None:
         """Test font configuration types and values"""
@@ -153,6 +162,7 @@ class TestUIConfig:
 class TestGameConfig:
     """Test GameConfig main configuration class"""
 
+
     def test_initialization(self) -> None:
         """Test that GameConfig initializes properly"""
         config = GameConfig()
@@ -163,6 +173,7 @@ class TestGameConfig:
         assert config.elevator_cosmetics is not None
         assert config.ui_config is not None
         assert config.initial_speed == 2.0
+
 
     def test_property_types(self) -> None:
         """Test that properties return correct types"""
@@ -175,6 +186,7 @@ class TestGameConfig:
         assert isinstance(config.ui_config, UIConfig)
         assert isinstance(config.initial_speed, float)
 
+
     def test_config_consistency(self) -> None:
         """Test that configurations are internally consistent"""
         config = GameConfig()
@@ -186,6 +198,7 @@ class TestGameConfig:
         assert config.elevator.IDLE_WAIT_TIMEOUT > Time(0.0)
         assert config.person.IDLE_TIMEOUT > Time(0.0)
         assert config.person.MAX_WAIT_TIME > config.person.IDLE_TIMEOUT  # Max wait should be longer than idle timeout
+
 
     def test_multiple_instances_independent(self) -> None:
         """Test that multiple GameConfig instances are independent"""

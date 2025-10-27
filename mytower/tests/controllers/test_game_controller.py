@@ -20,6 +20,7 @@ from mytower.game.models.model_snapshots import (
 class TestGameControllerBasics:
     """Test basic GameController functionality"""
 
+
     def test_initialization(self, mock_logger_provider: MagicMock) -> None:
         """Test GameController initialization"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -31,6 +32,7 @@ class TestGameControllerBasics:
         assert controller._model == mock_model
         assert controller._fail_fast is False
         assert len(controller._command_history) == 0
+
 
     def test_initialization_with_fail_fast(self, mock_logger_provider: MagicMock) -> None:
         """Test GameController initialization with fail_fast enabled"""
@@ -45,6 +47,7 @@ class TestGameControllerBasics:
 
 class TestCommandExecution:
     """Test command execution functionality"""
+
 
     def test_execute_successful_command(self, mock_logger_provider: MagicMock) -> None:
         """Test executing a successful command"""
@@ -66,6 +69,7 @@ class TestCommandExecution:
         assert controller._command_history[0] == mock_command
         mock_command.execute.assert_called_once_with(mock_model)
 
+
     def test_execute_failed_command(self, mock_logger_provider: MagicMock) -> None:
         """Test executing a failed command"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -84,6 +88,7 @@ class TestCommandExecution:
         assert result.error == "Test error"
         assert len(controller._command_history) == 0  # Failed commands not added to history
         mock_command.execute.assert_called_once_with(mock_model)
+
 
     def test_execute_command_exception_without_fail_fast(self, mock_logger_provider: MagicMock) -> None:
         """Test command execution with exception when fail_fast is False"""
@@ -105,6 +110,7 @@ class TestCommandExecution:
         assert "Command crashed: Test exception" in result.error
         assert len(controller._command_history) == 0
 
+
     def test_execute_command_exception_with_fail_fast(self, mock_logger_provider: MagicMock) -> None:
         """Test command execution with exception when fail_fast is True"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -124,6 +130,7 @@ class TestCommandExecution:
 class TestQueryInterface:
     """Test query interface methods"""
 
+
     def test_get_building_state(self, mock_logger_provider: MagicMock) -> None:
         """Test getting building state"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -137,6 +144,7 @@ class TestQueryInterface:
 
         assert result == mock_building_snapshot
         mock_model.get_building_snapshot.assert_called_once()
+
 
     def test_get_person_state(self, mock_logger_provider: MagicMock) -> None:
         """Test getting person state by ID"""
@@ -152,6 +160,7 @@ class TestQueryInterface:
         assert result == mock_person_snapshot
         mock_model.get_person_by_id.assert_called_once_with("person_123")
 
+
     def test_get_person_state_not_found(self, mock_logger_provider: MagicMock) -> None:
         """Test getting person state when person not found"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -164,6 +173,7 @@ class TestQueryInterface:
 
         assert result is None
         mock_model.get_person_by_id.assert_called_once_with("nonexistent")
+
 
     def test_get_elevator_state(self, mock_logger_provider: MagicMock) -> None:
         """Test getting elevator state by ID"""
@@ -179,6 +189,7 @@ class TestQueryInterface:
         assert result == mock_elevator_snapshot
         mock_model.get_elevator_by_id.assert_called_once_with("elevator_456")
 
+
     def test_get_all_people(self, mock_logger_provider: MagicMock) -> None:
         """Test getting all people"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -192,6 +203,7 @@ class TestQueryInterface:
 
         assert result == mock_people_list
         mock_model.get_all_people.assert_called_once()
+
 
     def test_get_all_elevators(self, mock_logger_provider: MagicMock) -> None:
         """Test getting all elevators"""
@@ -207,6 +219,7 @@ class TestQueryInterface:
         assert result == mock_elevators_list
         mock_model.get_all_elevators.assert_called_once()
 
+
     def test_get_all_elevator_banks(self, mock_logger_provider: MagicMock) -> None:
         """Test getting all elevator banks"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -220,6 +233,7 @@ class TestQueryInterface:
 
         assert result == mock_banks_list
         mock_model.get_all_elevator_banks.assert_called_once()
+
 
     def test_get_all_floors(self, mock_logger_provider: MagicMock) -> None:
         """Test getting all floors"""
@@ -239,6 +253,7 @@ class TestQueryInterface:
 class TestSimulationManagement:
     """Test simulation management functionality"""
 
+
     def test_update(self, mock_logger_provider: MagicMock) -> None:
         """Test updating simulation"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -249,6 +264,7 @@ class TestSimulationManagement:
         controller.update(1.5)
 
         mock_model.update.assert_called_once_with(Time(1.5))
+
 
     def test_is_paused(self, mock_logger_provider: MagicMock) -> None:
         """Test checking if game is paused"""
@@ -261,6 +277,7 @@ class TestSimulationManagement:
         result: bool = controller.is_paused()
 
         assert result is True
+
 
     def test_set_paused(self, mock_logger_provider: MagicMock) -> None:
         """Test setting paused state"""
@@ -275,6 +292,7 @@ class TestSimulationManagement:
         controller.set_paused(False)
         mock_model.set_pause_state.assert_called_with(False)
 
+
     def test_set_speed(self, mock_logger_provider: MagicMock) -> None:
         """Test setting game speed"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -285,6 +303,7 @@ class TestSimulationManagement:
         controller.set_speed(2.5)
 
         mock_model.set_speed.assert_called_once_with(2.5)
+
 
     def test_speed_property(self, mock_logger_provider: MagicMock) -> None:
         """Test getting current speed"""
@@ -298,6 +317,7 @@ class TestSimulationManagement:
 
         assert result == 3.0
 
+
     def test_get_game_time(self, mock_logger_provider: MagicMock) -> None:
         """Test getting current game time"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -309,6 +329,7 @@ class TestSimulationManagement:
         result: float = controller.get_game_time()
 
         assert result == 12345.67
+
 
     def test_get_command_history(self, mock_logger_provider: MagicMock) -> None:
         """Test getting command history"""
@@ -334,6 +355,7 @@ class TestSimulationManagement:
         assert len(history) == 2
         assert history[0] == "Command 1"
         assert history[1] == "Command 2"
+
 
     def test_get_command_history_only_successful_commands(self, mock_logger_provider: MagicMock) -> None:
         """Test that command history only contains successful commands"""
