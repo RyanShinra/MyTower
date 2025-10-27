@@ -48,10 +48,10 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
 
             logger.info(
                 f"Frame {frame_count}: "
-                f"Process={frame_elapsed_time*1000:.2f}ms, "
-                f"Sleep(target)={sleep_duration*1000:.2f}ms, "
-                f"Sleep(actual)={actual_sleep*1000:.2f}ms, "
-                f"Wall-time speedup={speedup:.2f}x"
+                f"Process={frame_elapsed_time * 1000:.2f}ms, "
+                f"Sleep(target)={sleep_duration * 1000:.2f}ms, "
+                f"Sleep(actual)={actual_sleep * 1000:.2f}ms, "
+                f"Wall-time speedup={speedup:.2f}x"  # pyright: ignore[reportImplicitStringConcatenation]
             )
             last_log_time = time.perf_counter()
 
