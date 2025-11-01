@@ -28,7 +28,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
 
         # Diagnostic logging every 5 seconds
         if frame_count % (target_fps * 5) == 0:
-            current_time = time.perf_counter()
+            current_time: float = time.perf_counter()
             elapsed_wall_time: float = current_time - last_log_time
             expected_time: float = 5.0
             speedup: float = expected_time / elapsed_wall_time if elapsed_wall_time > 0 else 0
