@@ -48,7 +48,11 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
         current_time: float = time.perf_counter()
         sleep_duration: float = next_frame_time - current_time
 
-        if sleep_duration > 0.001:  # Only sleep if > 1ms needed
+        # Only sleep if > 1ms needed.
+        # Rationale: time.sleep() is imprecise for sub-millisecond durations due to OS timer granularity,
+        # and sleeping for very short intervals can introduce unnecessary overhead. Most OSes cannot reliably
+        # sleep for less than 1ms, so we avoid sleeping unless the required duration exceeds this threshold.
+        if sleep_duration > 0.001:
             time.sleep(sleep_duration)
         elif sleep_duration < -frame_interval:
             # We're more than one frame behind - reset schedule
