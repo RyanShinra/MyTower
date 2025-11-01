@@ -11,49 +11,54 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
     logger.info(f"Starting simulation loop at target {target_fps} FPS")
 
     frame_interval: float = 1.0 / target_fps
-    last_log_time: float = time.perf_counter()
     frame_count: int = 0
+    last_log_time: float = time.perf_counter()
+    sim_start_time: float = time.perf_counter()
 
-    # Simple game loop
-    # TODO: Add proper & graceful shutdown handling
+    # Schedule first frame NOW
+    next_frame_time: float = time.perf_counter()
+
     while True:
         frame_start_time: float = time.perf_counter()
 
-        # Be sure to use the game_bridge here, not the game_controller directly
+        # Always advance by fixed interval (deterministic)
         bridge.update_game(frame_interval)
-
-        frame_end_time: float = time.perf_counter()
-        frame_elapsed_time: float = frame_end_time - frame_start_time
-        sleep_duration: float = frame_interval - frame_elapsed_time
-
-        # Log actual vs intended sleep
-        pre_sleep: float = time.perf_counter()
-        if sleep_duration > 0:
-            time.sleep(sleep_duration)
-        else:
-            # We're running behind, consider logging a warning if this happens often
-            logger.warning(f"Simulation loop is running behind schedule by {-sleep_duration:.4f} seconds")
-            pass
-
-        post_sleep: float = time.perf_counter()
-        actual_sleep: float = post_sleep - pre_sleep
 
         frame_count += 1
 
-        # Log every 5 seconds
+        # Diagnostic logging every 5 seconds
         if frame_count % (target_fps * 5) == 0:
-            elapsed_wall_time: float = time.perf_counter() - last_log_time
-            expected_time: float = 5.0  # Should be ~5 seconds
+            current_time: float = time.perf_counter()
+            elapsed_wall_time: float = current_time - last_log_time
+            expected_time: float = 5.0
             speedup: float = expected_time / elapsed_wall_time if elapsed_wall_time > 0 else 0
+
+            frame_process_time: float = current_time - frame_start_time
 
             logger.info(
                 f"Frame {frame_count}: "
-                f"Process={frame_elapsed_time * 1000:.2f}ms, "
-                f"Sleep(target)={sleep_duration * 1000:.2f}ms, "
-                f"Sleep(actual)={actual_sleep * 1000:.2f}ms, "
-                f"Wall-time speedup={speedup:.2f}x"  # pyright: ignore[reportImplicitStringConcatenation]
+                f"Process={frame_process_time * 1000:.2f}ms, "
+                f"Wall-time speedup={speedup:.2f}x, "
+                f"Avg FPS={frame_count / (current_time - sim_start_time):.1f}"  # type: ignore
             )
-            last_log_time = time.perf_counter()
+            last_log_time = current_time
+
+        # Schedule NEXT frame (absolute timing)
+        next_frame_time += frame_interval
+        current_time: float = time.perf_counter()
+        sleep_duration: float = next_frame_time - current_time
+
+        # Only sleep if > 1ms needed.
+        # Rationale: time.sleep() is imprecise for sub-millisecond durations due to OS timer granularity,
+        # and sleeping for very short intervals can introduce unnecessary overhead. Most OSes cannot reliably
+        # sleep for less than 1ms, so we avoid sleeping unless the required duration exceeds this threshold.
+        if sleep_duration > 0.001:
+            time.sleep(sleep_duration)
+        elif sleep_duration < -frame_interval:
+            # We're more than one frame behind - reset schedule
+            logger.warning(f"Simulation loop is severely behind schedule by {-sleep_duration:.4f}s - resetting")
+            next_frame_time = time.perf_counter()
+        # else: slightly behind but catchable, just don't sleep
 
 def start_simulation_thread(
     bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60

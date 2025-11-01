@@ -174,3 +174,9 @@ mytower/scratch.py
 mytower/scratch.py
 mytower/scratch.py
 folderstructure.txt
+
+# AWS credentials
+   .aws/
+   *.pem
+   *.key
+   credentials
