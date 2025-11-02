@@ -96,20 +96,20 @@ def setup_logger(
 
     return logger
 
-# Create a root logger for the game
-root_logger = setup_logger(
-    name="mytower",
-    level=TRACE,  # Capture all logs at the logger level
-    log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
-    file_level=TRACE,  # Write all levels to file
-    console_level=DEBUG,  # Only show DEBUG and higher in console
-)
+# # Create a root logger for the game
+# root_logger = setup_logger(
+#     name="mytower",
+#     level=TRACE,  # Capture all logs at the logger level
+#     log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
+#     file_level=TRACE,  # Write all levels to file
+#     console_level=DEBUG,  # Only show DEBUG and higher in console
+# )
 
 # Create function to get module-specific loggers
-def get_logger(module_name: str) -> MyTowerLogger:
-    """Get a logger for a specific module."""
-    # Prepend mytower to create a hierarchy
-    return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
+# def get_logger(module_name: str) -> MyTowerLogger:
+#     """Get a logger for a specific module."""
+#     # Prepend mytower to create a hierarchy
+#     return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
 
 
 # Create a LoggerProvider:
