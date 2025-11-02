@@ -211,7 +211,7 @@ class GameConfig:
         self._person_cosmetics: PersonCosmeticsProtocol = PersonCosmetics()
         self._elevator_cosmetics: ElevatorCosmeticsProtocol = ElevatorCosmetics()
         self._ui_config: UIConfigProtocol = UIConfig()
-        self._initial_speed: float = 2.0  # TODO: Change this back to 1.0
+        self._initial_speed: float = 1.0  # Initial game speed multiplier
         # etc.
     @property
     def elevator(self) -> ElevatorConfigProtocol:
