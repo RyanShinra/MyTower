@@ -146,4 +146,4 @@ echo "🏷️  Creating git tag..."
 TAG="deploy-$(date +%Y%m%d-%H%M%S)"
 git tag -a $TAG -m "Deployed to AWS: $COMMIT"
 echo "   ✅ Tagged: $TAG"
-echo "   Push tag with: git push origin $TAG"s
+echo "   Push tag with: git push origin $TAG"
