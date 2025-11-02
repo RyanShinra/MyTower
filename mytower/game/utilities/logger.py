@@ -114,9 +114,8 @@ def setup_logger(
 
 # Create a LoggerProvider:
 class LoggerProvider:
-
-
-    def __init__(self, root_logger: MyTowerLogger | None = None, log_level: int = logging.INFO):
+    """Provides loggers for different modules, sharing a root logger."""
+    def __init__(self, root_logger: MyTowerLogger | None = None, log_level: int = logging.INFO, log_file: str | None = None, file_log_level: int = TRACE) -> None:
         if root_logger:
             self._root_logger = root_logger
         else:
@@ -124,8 +123,8 @@ class LoggerProvider:
             self._root_logger: logging.Logger = setup_logger(
                 name="mytower",
                 level=log_level,
-                log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
-                file_level=TRACE,  # Always log everything to file
+                log_file=f"{log_file}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log" if log_file else None,
+                file_level=file_log_level,  # Default Trace log everything to file
                 console_level=log_level,  # Use specified level for console
             )
         self._loggers: dict[str, MyTowerLogger] = {}

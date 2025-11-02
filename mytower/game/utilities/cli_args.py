@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 import logging  # Add this import
 from dataclasses import dataclass
-
+from mytower.game.utilities.logger import TRACE as MyTower_TRACE
 
 @dataclass
 class GameArgs:
@@ -36,7 +36,8 @@ class GameArgs:
     log_level: int = logging.INFO  # Default log level
     print_exceptions: bool = False  # Whether to print full exceptions
     fail_fast: bool = False  # Whether to exit on first error
-
+    log_file: str | None = None  # Path to log file, None if not logging to file
+    file_log_level: int = MyTower_TRACE  # Default file log level
 
     def __post_init__(self) -> None:
         """Validate arguments after initialization"""
@@ -52,6 +53,7 @@ class GameArgs:
 
         if self.mode == "remote" and not self.remote_url:
             raise ValueError("Remote mode requires --remote URL")
+
 
 
 def parse_args() -> GameArgs:
@@ -128,6 +130,20 @@ Keyboard Controls (Desktop mode):
         "--fail-fast", action="store_true", help="Raise exceptions instead of catching them (for debugging)"
     )
 
+    log_file_options = parser.add_argument_group("Log File Options")
+    log_file_options.add_argument(
+        "--log-file",
+        type=str,
+        metavar="FILE",
+        help="Prefix path to log file with `YYYYMMDD_HHMMSS` appended (e.g., logs/mytower_20240101_120000.log)",
+    )
+    log_file_options.add_argument( "--file-log-level",
+        type=str,
+        choices=["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default=None,
+        help="Set file logging level (default: TRACE if only --log-file is used)",
+    )
+
     args: argparse.Namespace = parser.parse_args()
 
     # Determine mode from arguments
@@ -155,6 +171,10 @@ Keyboard Controls (Desktop mode):
     }
     log_level: int = log_level_map[args.log_level]
 
+    file_log_level: int = MyTower_TRACE  # Default to TRACE
+    if args.file_log_level:
+        file_log_level = log_level_map[args.file_log_level]
+
     # Construct and validate GameArgs
     game_args = GameArgs(
         mode=mode,
@@ -165,6 +185,8 @@ Keyboard Controls (Desktop mode):
         log_level=log_level,
         print_exceptions=args.print_exceptions,
         fail_fast=args.fail_fast,
+        log_file=args.log_file,
+        file_log_level=file_log_level,
     )
 
     return game_args
