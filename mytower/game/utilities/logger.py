@@ -1,7 +1,7 @@
 # game/logger.py
+import datetime
 import logging
 import os
-from datetime import datetime
 from typing import Any, cast
 
 # Define log levels with descriptive names
