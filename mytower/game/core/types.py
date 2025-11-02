@@ -10,13 +10,6 @@
 from enum import Enum
 from typing import NewType, TypeAlias
 
-
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-
-# We'll initialize the logger properly in main.py
-logger_provider = LoggerProvider()
-logger: MyTowerLogger = logger_provider.get_logger("types")
-
 # pylint: disable=c0103
 # Type definitions for colors
 # RGB color type as a tuple of three integers
@@ -45,7 +38,6 @@ class VerticalDirection(Enum):
     DOWN = -1
     STATIONARY = 0
     UP = 1
-
 
     def invert(self) -> "VerticalDirection":  # More compatible type annotation
         if self == VerticalDirection.UP:
