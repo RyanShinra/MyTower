@@ -36,7 +36,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
 
             frame_process_time: float = current_time - frame_start_time
 
-            logger.info(
+            logger.debug(
                 f"Frame {frame_count}: "
                 f"Process={frame_process_time * 1000:.2f}ms, "
                 f"Wall-time speedup={speedup:.2f}x, "
@@ -60,7 +60,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
             actual_sleep: float = after_sleep - before_sleep
 
             if actual_sleep < sleep_duration:
-                if sleep_log_counter % 300 == 0:  # Log every 5 seconds if running at 60 FPS
+                if sleep_log_counter % 10 == 0:  # Log every 166ms if running at 60 FPS
                     logger.warning(
                         f"Slept for {actual_sleep:.6f}s, which is less than scheduled {sleep_duration:.6f}s"
                     )
