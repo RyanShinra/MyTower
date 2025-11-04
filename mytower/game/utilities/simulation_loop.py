@@ -17,6 +17,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
 
     # Schedule first frame NOW
     next_frame_time: float = time.perf_counter()
+    sleep_log_counter: int = 0
 
     while True:
         frame_start_time: float = time.perf_counter()
@@ -53,7 +54,18 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
         # and sleeping for very short intervals can introduce unnecessary overhead. Most OSes cannot reliably
         # sleep for less than 1ms, so we avoid sleeping unless the required duration exceeds this threshold.
         if sleep_duration > 0.001:
+            before_sleep: float = time.perf_counter()
             time.sleep(sleep_duration)
+            after_sleep: float = time.perf_counter()
+            actual_sleep: float = after_sleep - before_sleep
+
+            if actual_sleep < sleep_duration:
+                if sleep_log_counter % 300 == 0:  # Log every 5 seconds if running at 60 FPS
+                    logger.warning(
+                        f"Slept for {actual_sleep:.6f}s, which is less than scheduled {sleep_duration:.6f}s"
+                    )
+                sleep_log_counter += 1
+
         elif sleep_duration < -frame_interval:
             # We're more than one frame behind - reset schedule
             logger.warning(f"Simulation loop is severely behind schedule by {-sleep_duration:.4f}s - resetting")
