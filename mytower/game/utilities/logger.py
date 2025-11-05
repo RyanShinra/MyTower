@@ -119,12 +119,15 @@ class LoggerProvider:
         if root_logger:
             self._root_logger = root_logger
         else:
+            file_name_part, file_ext_part = os.path.splitext(log_file) if log_file else ("mytower", ".log")
+            date_string: str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+
             # Pass log_level to setup_logger
             self._root_logger: logging.Logger = setup_logger(
                 name="mytower",
                 level=log_level,
                 log_file=(
-                    f"{os.path.splitext(log_file)[0]}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}{os.path.splitext(log_file)[1]}"
+                    f"{file_name_part}_{date_string}{file_ext_part}"
                     if log_file else None
                 ),
                 file_level=file_log_level,  # Default Trace log everything to file
