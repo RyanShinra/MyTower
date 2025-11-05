@@ -25,6 +25,9 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
         # Always advance by fixed interval (deterministic)
         bridge.update_game(frame_interval)
 
+        # Capture time immediately after game update for accurate frame processing time measurement
+        frame_end_time: float = time.perf_counter()
+
         frame_count += 1
 
         # Diagnostic logging every 5 seconds
@@ -34,7 +37,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
             expected_time: float = 5.0
             speedup: float = expected_time / elapsed_wall_time if elapsed_wall_time > 0 else 0
 
-            frame_process_time: float = current_time - frame_start_time
+            frame_process_time: float = frame_end_time - frame_start_time
 
             logger.debug(
                 f"Frame {frame_count}: "
