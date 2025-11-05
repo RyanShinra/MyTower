@@ -60,7 +60,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
             actual_sleep: float = after_sleep - before_sleep
 
             if actual_sleep < sleep_duration:
-                if sleep_log_counter % 10 == 0:  # Log every 166ms if running at 60 FPS
+                if sleep_log_counter % 10 == 0:  # Log every 10th occurrence of sleep shortfall (not every 10 frames)
                     logger.warning(
                         f"Slept for {actual_sleep:.6f}s, which is less than scheduled {sleep_duration:.6f}s"
                     )
