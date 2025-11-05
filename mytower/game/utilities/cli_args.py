@@ -137,7 +137,8 @@ Keyboard Controls (Desktop mode):
         metavar="FILE",
         help="Prefix path to log file with timestamp appended in strftime format `%Y%m%d_%H%M%S` (e.g., logs/mytower_20240101_120000.log)",
     )
-    log_file_options.add_argument( "--file-log-level",
+    log_file_options.add_argument(
+        "--file-log-level",
         type=str,
         choices=["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         default=None,
