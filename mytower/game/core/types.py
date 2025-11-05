@@ -10,14 +10,6 @@
 from enum import Enum
 from typing import NewType, TypeAlias
 
-import pygame
-
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
-
-# We'll initialize the logger properly in main.py
-logger_provider = LoggerProvider()
-logger: MyTowerLogger = logger_provider.get_logger("types")
-
 # pylint: disable=c0103
 # Type definitions for colors
 # RGB color type as a tuple of three integers
@@ -30,8 +22,6 @@ Color: TypeAlias = RGB | RGBA
 # Pygame-specific types
 MousePos: TypeAlias = tuple[int, int]
 MouseButtons: TypeAlias = tuple[bool, bool, bool]
-PygameSurface: TypeAlias = pygame.Surface
-
 
 # Floor types as an Enum
 class FloorType(Enum):
@@ -48,7 +38,6 @@ class VerticalDirection(Enum):
     DOWN = -1
     STATIONARY = 0
     UP = 1
-
 
     def invert(self) -> "VerticalDirection":  # More compatible type annotation
         if self == VerticalDirection.UP:

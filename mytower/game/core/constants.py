@@ -16,7 +16,6 @@ from typing import Final
 from mytower.game.core.primitive_constants import BLOCK_FLOAT_TOLERANCE
 from mytower.game.core.types import RGB, Money
 from mytower.game.core.units import Blocks, Pixels
-from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 # Re-export for backward compatibility
 __all__ = [
@@ -33,10 +32,6 @@ STARTING_MONEY: Final[Money] = Money(1000000)
 # Time control
 MIN_TIME_MULTIPLIER: Final[float] = 0.1
 MAX_TIME_MULTIPLIER: Final[float] = 10.0
-
-# We'll initialize this logger properly in main.py
-logger_provider = LoggerProvider()
-logger: MyTowerLogger = logger_provider.get_logger("constants")
 
 # Display constants
 SCREEN_WIDTH: Final[int] = 1600

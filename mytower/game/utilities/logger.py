@@ -1,7 +1,7 @@
 # game/logger.py
+import datetime
 import logging
 import os
-from datetime import datetime
 from typing import Any, cast
 
 # Define log levels with descriptive names
@@ -96,36 +96,41 @@ def setup_logger(
 
     return logger
 
-# Create a root logger for the game
-root_logger = setup_logger(
-    name="mytower",
-    level=TRACE,  # Capture all logs at the logger level
-    log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
-    file_level=TRACE,  # Write all levels to file
-    console_level=DEBUG,  # Only show DEBUG and higher in console
-)
+# # Create a root logger for the game
+# root_logger = setup_logger(
+#     name="mytower",
+#     level=TRACE,  # Capture all logs at the logger level
+#     log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
+#     file_level=TRACE,  # Write all levels to file
+#     console_level=DEBUG,  # Only show DEBUG and higher in console
+# )
 
 # Create function to get module-specific loggers
-def get_logger(module_name: str) -> MyTowerLogger:
-    """Get a logger for a specific module."""
-    # Prepend mytower to create a hierarchy
-    return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
+# def get_logger(module_name: str) -> MyTowerLogger:
+#     """Get a logger for a specific module."""
+#     # Prepend mytower to create a hierarchy
+#     return cast(MyTowerLogger, logging.getLogger(f"mytower.{module_name}"))
 
 
 # Create a LoggerProvider:
 class LoggerProvider:
-
-
-    def __init__(self, root_logger: MyTowerLogger | None = None, log_level: int = logging.INFO):
+    """Provides loggers for different modules, sharing a root logger."""
+    def __init__(self, root_logger: MyTowerLogger | None = None, log_level: int = logging.INFO, log_file: str | None = None, file_log_level: int = TRACE) -> None:
         if root_logger:
             self._root_logger = root_logger
         else:
+            file_name_part, file_ext_part = os.path.splitext(log_file) if log_file else ("mytower", ".log")
+            date_string: str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+
             # Pass log_level to setup_logger
             self._root_logger: logging.Logger = setup_logger(
                 name="mytower",
                 level=log_level,
-                log_file=f"logs/mytower_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
-                file_level=TRACE,  # Always log everything to file
+                log_file=(
+                    f"{file_name_part}_{date_string}{file_ext_part}"
+                    if log_file else None
+                ),
+                file_level=file_log_level,  # Default Trace log everything to file
                 console_level=log_level,  # Use specified level for console
             )
         self._loggers: dict[str, MyTowerLogger] = {}

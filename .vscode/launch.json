@@ -10,7 +10,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "mytower.main",
-            "args": ["--log-level", "DEBUG"],
+                "args": ["--log-level", "DEBUG", "--log-file", "logs/mytower", "--file-log-level", "DEBUG"],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": false
@@ -20,7 +20,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "mytower.main",
-            "args": ["--demo"],
+                "args": ["--demo", "--log-file", "logs/mytower", "--file-log-level", "DEBUG"],
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -29,7 +29,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "mytower.main",
-            "args": ["--with-graphql", "--demo", "--port", "8000"],
+                "args": ["--with-graphql", "--demo", "--port", "8000", "--log-file", "logs/mytower", "--file-log-level", "DEBUG"],
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -38,7 +38,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "mytower.main",
-            "args": ["--headless", "--demo"],
+                "args": ["--headless", "--demo", "--log-file", "logs/mytower", "--file-log-level", "DEBUG"],
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -47,7 +47,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "mytower.main",
-            "args": ["--headless", "--with-graphql", "--demo", "--port", "8000"],
+                "args": ["--headless", "--with-graphql", "--demo", "--port", "8000", "--log-file", "logs/mytower", "--file-log-level", "DEBUG"],
             "console": "integratedTerminal",
             "justMyCode": false
         },

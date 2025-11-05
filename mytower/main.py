@@ -321,7 +321,7 @@ def main() -> NoReturn:
     args: GameArgs = parse_args()
     print_startup_banner(args)
 
-    logger_provider = LoggerProvider(log_level=args.log_level)
+    logger_provider = LoggerProvider(log_level=args.log_level, log_file=args.log_file, file_log_level=args.file_log_level)
     logger: MyTowerLogger = logger_provider.get_logger("Main")
 
     # Log startup configuration
@@ -330,7 +330,9 @@ def main() -> NoReturn:
     if args.fail_fast:
         logger.info("Fail-fast mode enabled")
 
-    logger.info(f"Log level set to {logger.get_level_name(args.log_level)}")
+    logger.info(f"Console Log level set to {logger.get_level_name(args.log_level)}")
+    if args.log_file:
+        logger.info(f"Trace Logging to file: {args.log_file}")
 
     # Route to appropriate mode
     if args.mode == "headless":
