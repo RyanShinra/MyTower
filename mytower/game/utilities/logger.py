@@ -123,7 +123,10 @@ class LoggerProvider:
             self._root_logger: logging.Logger = setup_logger(
                 name="mytower",
                 level=log_level,
-                log_file=f"{log_file}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log" if log_file else None,
+                log_file=(
+                    f"{os.path.splitext(log_file)[0]}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}{os.path.splitext(log_file)[1]}"
+                    if log_file else None
+                ),
                 file_level=file_log_level,  # Default Trace log everything to file
                 console_level=log_level,  # Use specified level for console
             )
