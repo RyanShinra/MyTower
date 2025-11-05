@@ -32,8 +32,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
 
         # Diagnostic logging every 5 seconds
         if frame_count % (target_fps * 5) == 0:
-            current_time: float = time.perf_counter()
-            elapsed_wall_time: float = current_time - last_log_time
+            elapsed_wall_time: float = frame_end_time - last_log_time
             expected_time: float = 5.0
             speedup: float = expected_time / elapsed_wall_time if elapsed_wall_time > 0 else 0
 
@@ -43,14 +42,13 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
                 f"Frame {frame_count}: "
                 f"Process={frame_process_time * 1000:.2f}ms, "
                 f"Wall-time speedup={speedup:.2f}x, "
-                f"Avg FPS={frame_count / (current_time - sim_start_time):.1f}"
+                f"Avg FPS={frame_count / (frame_end_time - sim_start_time):.1f}"
             )
-            last_log_time = current_time
+            last_log_time = frame_end_time
 
         # Schedule NEXT frame (absolute timing)
         next_frame_time += frame_interval
-        current_time: float = time.perf_counter()
-        sleep_duration: float = next_frame_time - current_time
+        sleep_duration: float = next_frame_time - frame_end_time
 
         # Only sleep if > 1ms needed.
         # Rationale: time.sleep() is imprecise for sub-millisecond durations due to OS timer granularity,
@@ -62,7 +60,8 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
             after_sleep: float = time.perf_counter()
             actual_sleep: float = after_sleep - before_sleep
 
-            if actual_sleep < sleep_duration:
+            if actual_sleep < sleep_duration - 0.001:  # 1ms tolerance
+                # Log a warning but not too frequently
                 if sleep_log_counter % 10 == 0:  # Log every 10th occurrence of sleep shortfall (not every 10 frames)
                     logger.warning(
                         f"Slept for {actual_sleep:.6f}s, which is less than scheduled {sleep_duration:.6f}s"
