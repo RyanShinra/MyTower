@@ -164,7 +164,7 @@ class Subscription:
         Args:
             interval_ms: Polling interval in milliseconds (5 to 10000, default: 100ms for 10 FPS)
 
-        Throws:
+        Raises:
             ValueError: If interval_ms is out of allowed range (5 to 10000)
 
         Yields:
