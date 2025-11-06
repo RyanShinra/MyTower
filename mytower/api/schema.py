@@ -101,7 +101,7 @@ class Mutation:
     def add_elevator_sync(self, elevator_bank_id: str) -> str:
         return get_game_bridge().execute_add_elevator_sync(elevator_bank_id)
 
-
+# TODO: Consider using the logging library instead of print statements for better control over output
 @strawberry.type
 class Subscription:
     """
