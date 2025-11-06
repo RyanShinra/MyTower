@@ -107,7 +107,7 @@ async def subscribe_to_building_state(
             for elevator in building_state["elevators"][:3]:  # Show first 3
                 print(
                     f"  🛗 {elevator['id'][:8]}... @ {elevator['verticalPosition']:.1f} "
-                    f"[{elevator['elevatorState']}] ({elevator['passengerCount']} passengers)"
+                    f"[{elevator['elevatorState']}] ({elevator['passengerCount']} passengers)" # pyright: ignore[reportImplicitStringConcatenation]
                 )
 
             # Show people status
