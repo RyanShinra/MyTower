@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, AsyncGenerator
 
+import asyncio
 import strawberry
 
 from mytower.api import unit_scalars  # Import the module to register scalars
@@ -100,9 +101,59 @@ class Mutation:
         return get_game_bridge().execute_add_elevator_sync(elevator_bank_id)
 
 
+@strawberry.type
+class Subscription:
+    """
+    GraphQL subscriptions for real-time building state updates via WebSocket.
+    """
+
+    @strawberry.subscription
+    async def building_state_stream(
+        self,
+        interval_ms: int = 50,  # ~20 FPS by default
+    ) -> AsyncGenerator[BuildingSnapshotGQL | None, None]:
+        """
+        Stream building state updates in real-time.
+
+        Args:
+            interval_ms: Polling interval in milliseconds (default: 50ms for ~20 FPS)
+
+        Yields:
+            BuildingSnapshotGQL: Current building state snapshot, or None if game not running
+        """
+        interval_seconds = interval_ms / 1000.0
+
+        while True:
+            snapshot: BuildingSnapshot | None = get_building_state()
+            yield convert_building_snapshot(snapshot) if snapshot else None
+            await asyncio.sleep(interval_seconds)
+
+    @strawberry.subscription
+    async def game_time_stream(
+        self,
+        interval_ms: int = 100,  # 10 FPS by default
+    ) -> AsyncGenerator[Time, None]:
+        """
+        Stream game time updates.
+
+        Args:
+            interval_ms: Polling interval in milliseconds (default: 100ms for 10 FPS)
+
+        Yields:
+            Time: Current game time in seconds
+        """
+        interval_seconds = interval_ms / 1000.0
+
+        while True:
+            snapshot: BuildingSnapshot | None = get_building_state()
+            yield snapshot.time if snapshot else Time(0.0)
+            await asyncio.sleep(interval_seconds)
+
+
 schema = strawberry.Schema(
     query=Query,
     mutation=Mutation,
+    subscription=Subscription,
     scalar_overrides={
         Time: unit_scalars.Time,
         Blocks: unit_scalars.Blocks,

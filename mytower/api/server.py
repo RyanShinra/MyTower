@@ -1,12 +1,22 @@
 import uvicorn
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
+from strawberry.subscriptions import GRAPHQL_TRANSPORT_WS_PROTOCOL, GRAPHQL_WS_PROTOCOL
 
 from mytower.api.schema import schema
 
 app = FastAPI(title="MyTower GraphQL API")
 
-graphql_app: GraphQLRouter[None, None] = GraphQLRouter(schema)
+# Enable WebSocket subscriptions with both protocols for maximum compatibility
+# - graphql-transport-ws: Modern protocol (recommended)
+# - graphql-ws: Legacy protocol for backward compatibility
+graphql_app: GraphQLRouter[None, None] = GraphQLRouter(
+    schema,
+    subscription_protocols=[
+        GRAPHQL_TRANSPORT_WS_PROTOCOL,
+        GRAPHQL_WS_PROTOCOL,
+    ],
+)
 app.include_router(graphql_app, prefix="/graphql")
 
 @app.get("/")
