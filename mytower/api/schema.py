@@ -117,7 +117,7 @@ class Subscription:
         Stream building state updates in real-time.
 
         Args:
-            interval_ms: Polling interval in milliseconds (5 to 10000,default: 50ms for ~20 FPS)
+            interval_ms: Polling interval in milliseconds (5 to 10000, default: 50ms for ~20 FPS)
 
         Throws:
             ValueError: If interval_ms is out of allowed range (5 to 10000)
