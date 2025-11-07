@@ -60,19 +60,19 @@ class TestBuildingStateStreamSubscription:
         # Assert
         assert result is None
 
-    async def test_subscription_validates_interval_ms_min_bound(self) -> None:
+    async def test_subscription_validates_interval_ms_min_bound(self, mock_game_bridge: Mock) -> None:
         """Verify ValueError raised for interval_ms < 5."""
         # Arrange: No dependency needed for validation test
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         # Act & Assert
         with pytest.raises(ValueError, match="interval_ms must be between 5 and 10000"):
             stream = subscription.building_state_stream(interval_ms=4)
             await anext(stream)
 
-    async def test_subscription_validates_interval_ms_max_bound(self) -> None:
+    async def test_subscription_validates_interval_ms_max_bound(self, mock_game_bridge: Mock) -> None:
         """Verify ValueError raised for interval_ms > 10000."""
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         with pytest.raises(ValueError, match="interval_ms must be between 5 and 10000"):
             stream = subscription.building_state_stream(interval_ms=10001)
@@ -214,9 +214,9 @@ class TestGameTimeStreamSubscription:
         assert result == Time(0.0)
 
     @pytest.mark.parametrize("invalid_interval", [4, 10001, -1, 0])
-    async def test_subscription_validates_interval_ms_bounds(self, invalid_interval: int) -> None:
+    async def test_subscription_validates_interval_ms_bounds(self, mock_game_bridge: Mock, invalid_interval: int) -> None:
         """Verify parameter validation works for invalid values."""
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         with pytest.raises(ValueError, match="interval_ms must be between 5 and 10000"):
             stream = subscription.game_time_stream(interval_ms=invalid_interval)

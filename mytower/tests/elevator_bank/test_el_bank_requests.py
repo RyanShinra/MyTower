@@ -25,14 +25,14 @@ class TestRequestElevator:
         # This should pass w/o raising an exception
         elevator_bank.request_elevator(floor, direction)
 
-        requests: Final[set[VerticalDirection]] = elevator_bank.get_requests_for_floor(floor)
+        requests: Final[set[VerticalDirection]] = elevator_bank.floor_requests[floor]
         assert direction in requests
         assert len(requests) == 1
 
         for other_floor in range(elevator_bank.min_floor, elevator_bank.max_floor + 1, 1):
             if other_floor == floor:
                 continue  # Obviously, THIS floor won't be 0
-            assert len(elevator_bank.get_requests_for_floor(other_floor)) == 0  # all the other floors should be empty
+            assert len(elevator_bank.floor_requests[other_floor]) == 0  # all the other floors should be empty
 
 
     @pytest.mark.parametrize("floor", VALID_FLOORS)
@@ -49,7 +49,7 @@ class TestRequestElevator:
         elevator_bank.request_elevator(floor, VerticalDirection.UP)
         elevator_bank.request_elevator(floor, VerticalDirection.DOWN)
 
-        assert len(elevator_bank.get_requests_for_floor(floor)) == 2
+        assert len(elevator_bank.floor_requests[floor]) == 2
 
 
     @pytest.mark.parametrize("direction", DIRECTIONS)
@@ -63,7 +63,7 @@ class TestRequestElevator:
             elevator_bank.request_elevator(req_floor, direction)
 
         for tgt_floor in TestRequestElevator.VALID_FLOORS:
-            requests: set[VerticalDirection] = elevator_bank.get_requests_for_floor(tgt_floor)
+            requests: set[VerticalDirection] = elevator_bank.floor_requests[tgt_floor]
             assert direction in requests
             assert len(requests) == 1
 

@@ -18,8 +18,11 @@ from mytower.api.graphql_types import (
     BuildingSnapshotGQL,
     ElevatorBankSnapshotGQL,
     ElevatorSnapshotGQL,
+    ElevatorStateGQL,
     FloorSnapshotGQL,
     PersonSnapshotGQL,
+    PersonStateGQL,
+    VerticalDirectionGQL,
 )
 from mytower.game.core.types import ElevatorState, FloorType, PersonState, VerticalDirection
 from mytower.game.core.units import Blocks, Time
@@ -76,10 +79,10 @@ def mock_building_snapshot() -> BuildingSnapshot:
         elevator_banks=[
             ElevatorBankSnapshot(
                 id="bank_456",
-                h_cell=5,
+                horizontal_position=Blocks(5.0),
                 min_floor=1,
                 max_floor=10,
-                elevator_ids=["elevator_123"],
+                floor_requests={},
             )
         ],
         people=[
@@ -127,21 +130,12 @@ def mock_building_snapshot_gql() -> BuildingSnapshotGQL:
                 vertical_position=Blocks(10.0),
                 horizontal_position=Blocks(5.0),
                 destination_floor=5,
-                elevator_state=ElevatorState.MOVING,
-                nominal_direction=VerticalDirection.UP,
+                state=ElevatorStateGQL.MOVING,
+                nominal_direction=VerticalDirectionGQL.UP,
                 door_open=False,
                 passenger_count=2,
                 available_capacity=13,
                 max_capacity=15,
-            )
-        ],
-        elevator_banks=[
-            ElevatorBankSnapshotGQL(
-                id="bank_456",
-                h_cell=5,
-                min_floor=1,
-                max_floor=10,
-                elevator_ids=["elevator_123"],
             )
         ],
         people=[
@@ -152,10 +146,10 @@ def mock_building_snapshot_gql() -> BuildingSnapshotGQL:
                 current_horizontal_position=Blocks(10.0),
                 destination_floor_num=5,
                 destination_horizontal_position=Blocks(15.0),
-                state=PersonState.WAITING_FOR_ELEVATOR,
+                state=PersonStateGQL.WAITING_FOR_ELEVATOR,
                 waiting_time=Time(10.5),
                 mad_fraction=0.3,
-                draw_color=(255, 200, 100),
+                _draw_color=(255, 200, 100),
             )
         ],
     )

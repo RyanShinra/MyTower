@@ -2,7 +2,9 @@
 from __future__ import annotations  # Defer type evaluation
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Final, override
+from typing import TYPE_CHECKING, Final
+
+from typing_extensions import override
 
 from mytower.game.core.constants import (
     APARTMENT_COLOR,
