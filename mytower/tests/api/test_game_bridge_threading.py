@@ -249,9 +249,9 @@ class TestSubscriptionWithGameBridgeMock:
             result3 = await anext(stream)
             assert result3 is not None
 
-    async def test_subscription_handles_game_bridge_lock_timeout(self, mock_game_bridge) -> None:
-        """Verify subscription handles potential lock timeouts gracefully."""
-        # Simulate a slow get_building_state call (potential lock contention)
+    async def test_subscription_handles_slow_synchronous_game_bridge_calls(self, mock_game_bridge) -> None:
+        """Verify subscription handles slow synchronous get_building_snapshot calls gracefully."""
+        # Simulate a slow synchronous call (e.g., due to lock contention in the game thread)
         import time
 
         def slow_get_state():
@@ -263,7 +263,7 @@ class TestSubscriptionWithGameBridgeMock:
 
         stream = subscription.building_state_stream(interval_ms=50)
 
-        # Should still work, just slower
+        # Should still work, just slower (note: this blocks the event loop as expected)
         result = await anext(stream)
         assert result is None
 
