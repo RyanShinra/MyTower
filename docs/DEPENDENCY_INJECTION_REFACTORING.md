@@ -100,10 +100,14 @@ def mock_game_bridge() -> Mock:
 ### 4. Refactored Tests
 
 **Before** (Monkey Patching):
+
+> Note: `get_building_state` is a convenience function in `schema.py` that wraps `get_game_bridge().get_building_snapshot()`.
+
 ```python
 async def test_subscription_yields_snapshot(mock_building_snapshot):
     subscription = Subscription()
 
+    # Patching the convenience function, which wraps the actual game bridge call
     with patch("mytower.api.schema.get_building_state", return_value=mock_building_snapshot):
         stream = subscription.building_state_stream(interval_ms=50)
         result = await anext(stream)
