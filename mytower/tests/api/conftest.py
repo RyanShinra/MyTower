@@ -9,10 +9,11 @@ Provides mock objects for:
 """
 
 from typing import Any
-from unittest.mock import MagicMock
+from unittest.mock import Mock
 
 import pytest
 
+from mytower.api.game_bridge import GameBridge
 from mytower.api.graphql_types import (
     BuildingSnapshotGQL,
     ElevatorBankSnapshotGQL,
@@ -161,15 +162,15 @@ def mock_building_snapshot_gql() -> BuildingSnapshotGQL:
 
 
 @pytest.fixture
-def mock_game_bridge() -> MagicMock:
+def mock_game_bridge() -> Mock:
     """
-    Create a mock GameBridge for testing subscriptions.
+    Create a type-safe mock GameBridge for testing subscriptions.
 
     By default, returns None (game not running).
     Tests can override with:
         mock_game_bridge.get_building_snapshot.return_value = snapshot
     """
-    bridge = MagicMock()
+    bridge = Mock(spec=GameBridge)
     bridge.get_building_snapshot.return_value = None
     return bridge
 

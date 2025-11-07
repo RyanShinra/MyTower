@@ -10,10 +10,11 @@ Tests cover:
 
 import asyncio
 import threading
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
+from mytower.api.graphql_types import BuildingSnapshotGQL
 from mytower.api.schema import Subscription
 from mytower.game.core.units import Time
 from mytower.game.models.model_snapshots import BuildingSnapshot
@@ -231,7 +232,7 @@ class TestSubscriptionWithGameBridgeMock:
         with patch("mytower.api.schema.get_building_state") as mock_get_state:
             mock_get_state.side_effect = [None, None, mock_building_snapshot]
 
-            with patch("mytower.api.schema.convert_building_snapshot", return_value=MagicMock()):
+            with patch("mytower.api.schema.convert_building_snapshot", return_value=Mock(spec=BuildingSnapshotGQL)):
                 stream = subscription.building_state_stream(interval_ms=5)
 
                 # First two yields: None
@@ -326,7 +327,7 @@ class TestRealWorldScenarios:
         subscription = Subscription()
 
         with patch("mytower.api.schema.get_building_state", return_value=mock_building_snapshot):
-            with patch("mytower.api.schema.convert_building_snapshot", return_value=MagicMock()):
+            with patch("mytower.api.schema.convert_building_snapshot", return_value=Mock(spec=BuildingSnapshotGQL)):
                 # Create mix of subscription types
                 building_streams = [
                     subscription.building_state_stream(interval_ms=50)

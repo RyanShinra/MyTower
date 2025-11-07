@@ -10,10 +10,11 @@ Tests cover:
 """
 
 import asyncio
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
+from mytower.api.graphql_types import BuildingSnapshotGQL
 from mytower.api.schema import Subscription
 from mytower.game.core.units import Time
 from mytower.game.models.model_snapshots import BuildingSnapshot
@@ -210,7 +211,7 @@ class TestSubscriptionEdgeCases:
             ]
 
             with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
-                mock_convert.return_value = MagicMock()
+                mock_convert.return_value = Mock(spec=BuildingSnapshotGQL)
 
                 stream = subscription.building_state_stream(interval_ms=5)
 
@@ -235,7 +236,7 @@ class TestSubscriptionEdgeCases:
 
         with patch("mytower.api.schema.get_building_state", return_value=mock_empty_snapshot):
             with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
-                mock_convert.return_value = MagicMock()
+                mock_convert.return_value = Mock(spec=BuildingSnapshotGQL)
 
                 stream = subscription.building_state_stream(interval_ms=50)
                 result = await anext(stream)
@@ -248,7 +249,7 @@ class TestSubscriptionEdgeCases:
         """Verify game_time_stream handles snapshot with time=0."""
         subscription = Subscription()
 
-        mock_snapshot = MagicMock(spec=BuildingSnapshot)
+        mock_snapshot = Mock(spec=BuildingSnapshot)
         mock_snapshot.time = Time(0.0)
 
         with patch("mytower.api.schema.get_building_state", return_value=mock_snapshot):
@@ -261,7 +262,7 @@ class TestSubscriptionEdgeCases:
         """Verify subscription can handle negative time values (edge case)."""
         subscription = Subscription()
 
-        mock_snapshot = MagicMock(spec=BuildingSnapshot)
+        mock_snapshot = Mock(spec=BuildingSnapshot)
         mock_snapshot.time = Time(-10.0)  # Unusual but possible
 
         with patch("mytower.api.schema.get_building_state", return_value=mock_snapshot):

@@ -8,7 +8,7 @@ Tests cover:
 - Iteration patterns
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -95,7 +95,7 @@ class TestBuildingStateStreamSubscription:
 
         with patch("mytower.api.schema.get_building_state", return_value=mock_building_snapshot):
             with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
-                mock_convert.return_value = MagicMock(spec=BuildingSnapshotGQL)
+                mock_convert.return_value = Mock(spec=BuildingSnapshotGQL)
 
                 stream = subscription.building_state_stream(interval_ms=50)
                 await anext(stream)
@@ -199,7 +199,7 @@ class TestGameTimeStreamSubscription:
         subscription = Subscription()
 
         # Create mock snapshot with specific time
-        mock_snapshot = MagicMock(spec=BuildingSnapshot)
+        mock_snapshot = Mock(spec=BuildingSnapshot)
         mock_snapshot.time = Time(123.456)
 
         with patch("mytower.api.schema.get_building_state", return_value=mock_snapshot):
@@ -213,11 +213,11 @@ class TestGameTimeStreamSubscription:
         subscription = Subscription()
 
         # Create snapshots with progressing time
-        snapshot1 = MagicMock(spec=BuildingSnapshot)
+        snapshot1 = Mock(spec=BuildingSnapshot)
         snapshot1.time = Time(10.0)
-        snapshot2 = MagicMock(spec=BuildingSnapshot)
+        snapshot2 = Mock(spec=BuildingSnapshot)
         snapshot2.time = Time(20.0)
-        snapshot3 = MagicMock(spec=BuildingSnapshot)
+        snapshot3 = Mock(spec=BuildingSnapshot)
         snapshot3.time = Time(30.0)
 
         with patch("mytower.api.schema.get_building_state") as mock_get_state:
