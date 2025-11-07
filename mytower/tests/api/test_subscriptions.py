@@ -6,6 +6,8 @@ Tests cover:
 - Snapshot yielding behavior
 - Type conversion correctness
 - Iteration patterns
+
+Uses dependency injection instead of monkey patching for better type safety.
 """
 
 from unittest.mock import Mock, patch
@@ -24,48 +26,49 @@ class TestBuildingStateStreamSubscription:
 
     async def test_subscription_yields_snapshot_when_game_running(
         self,
+        mock_game_bridge: Mock,
         mock_building_snapshot: BuildingSnapshot,
         mock_building_snapshot_gql: BuildingSnapshotGQL,
     ) -> None:
         """Verify subscription yields converted snapshot when game is running."""
-        # Arrange
-        subscription = Subscription()
+        # Arrange: Set up mock to return snapshot
+        mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        with patch("mytower.api.schema.get_building_state", return_value=mock_building_snapshot):
-            with patch(
-                "mytower.api.schema.convert_building_snapshot",
-                return_value=mock_building_snapshot_gql,
-            ):
-                # Act: Get first yielded value
-                stream = subscription.building_state_stream(interval_ms=50)
-                result = await anext(stream)
-
-                # Assert
-                assert result is mock_building_snapshot_gql
-                assert isinstance(result, BuildingSnapshotGQL)
-
-    async def test_subscription_yields_none_when_game_not_running(self) -> None:
-        """Verify subscription yields None when get_building_state() returns None."""
-        # Arrange
-        subscription = Subscription()
-
-        with patch("mytower.api.schema.get_building_state", return_value=None):
-            # Act
+        with patch("mytower.api.schema.convert_building_snapshot", return_value=mock_building_snapshot_gql):
+            # Act: Inject dependency (NO PATCHING!)
+            subscription = Subscription(game_bridge=mock_game_bridge)
             stream = subscription.building_state_stream(interval_ms=50)
             result = await anext(stream)
 
             # Assert
-            assert result is None
+            assert result is mock_building_snapshot_gql
+            assert isinstance(result, BuildingSnapshotGQL)
+
+    async def test_subscription_yields_none_when_game_not_running(
+        self,
+        mock_game_bridge: Mock,
+    ) -> None:
+        """Verify subscription yields None when get_building_snapshot() returns None."""
+        # Arrange: Mock returns None (game not started)
+        mock_game_bridge.get_building_snapshot.return_value = None
+
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.building_state_stream(interval_ms=50)
+        result = await anext(stream)
+
+        # Assert
+        assert result is None
 
     async def test_subscription_validates_interval_ms_min_bound(self) -> None:
         """Verify ValueError raised for interval_ms < 5."""
-        # Arrange
+        # Arrange: No dependency needed for validation test
         subscription = Subscription()
 
         # Act & Assert
         with pytest.raises(ValueError, match="interval_ms must be between 5 and 10000"):
             stream = subscription.building_state_stream(interval_ms=4)
-            await anext(stream)  # Force execution of generator
+            await anext(stream)
 
     async def test_subscription_validates_interval_ms_max_bound(self) -> None:
         """Verify ValueError raised for interval_ms > 10000."""
@@ -76,60 +79,74 @@ class TestBuildingStateStreamSubscription:
             await anext(stream)
 
     @pytest.mark.parametrize("interval_ms", [5, 50, 100, 1000, 10000])
-    async def test_subscription_accepts_valid_interval_ms(self, interval_ms: int) -> None:
+    async def test_subscription_accepts_valid_interval_ms(
+        self,
+        mock_game_bridge: Mock,
+        interval_ms: int,
+    ) -> None:
         """Verify subscription accepts valid interval_ms values."""
-        subscription = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = None
 
-        with patch("mytower.api.schema.get_building_state", return_value=None):
-            # Should not raise
-            stream = subscription.building_state_stream(interval_ms=interval_ms)
-            result = await anext(stream)
-            assert result is None  # None because no game running
+        # Act: Should not raise
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.building_state_stream(interval_ms=interval_ms)
+        result = await anext(stream)
+
+        # Assert
+        assert result is None
 
     async def test_subscription_converts_snapshot_correctly(
         self,
+        mock_game_bridge: Mock,
         mock_building_snapshot: BuildingSnapshot,
     ) -> None:
         """Verify convert_building_snapshot() is called with correct args."""
-        subscription = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        with patch("mytower.api.schema.get_building_state", return_value=mock_building_snapshot):
-            with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
-                mock_convert.return_value = Mock(spec=BuildingSnapshotGQL)
+        with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
+            mock_convert.return_value = Mock(spec=BuildingSnapshotGQL)
 
-                stream = subscription.building_state_stream(interval_ms=50)
-                await anext(stream)
-
-                # Assert convert_building_snapshot was called with the snapshot
-                mock_convert.assert_called_once_with(mock_building_snapshot)
-
-    async def test_subscription_calls_get_building_state_on_each_iteration(self) -> None:
-        """Verify get_building_state() called repeatedly in loop."""
-        subscription = Subscription()
-
-        with patch("mytower.api.schema.get_building_state", return_value=None) as mock_get_state:
-            stream = subscription.building_state_stream(interval_ms=5)  # Fast interval
-
-            # Get 3 iterations
-            await anext(stream)
-            await anext(stream)
+            # Act: Inject dependency
+            subscription = Subscription(game_bridge=mock_game_bridge)
+            stream = subscription.building_state_stream(interval_ms=50)
             await anext(stream)
 
-            # Should have been called 3 times
-            assert mock_get_state.call_count == 3
+            # Assert convert_building_snapshot was called with the snapshot
+            mock_convert.assert_called_once_with(mock_building_snapshot)
+
+    async def test_subscription_calls_get_building_state_on_each_iteration(
+        self,
+        mock_game_bridge: Mock,
+    ) -> None:
+        """Verify get_building_snapshot() called repeatedly in loop."""
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = None
+
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.building_state_stream(interval_ms=5)
+
+        # Get 3 iterations
+        await anext(stream)
+        await anext(stream)
+        await anext(stream)
+
+        # Assert: Should have been called 3 times
+        assert mock_game_bridge.get_building_snapshot.call_count == 3
 
     async def test_subscription_handles_changing_snapshot_state(
         self,
+        mock_game_bridge: Mock,
         mock_building_snapshot: BuildingSnapshot,
         mock_building_snapshot_gql: BuildingSnapshotGQL,
     ) -> None:
         """Verify subscription picks up changes in snapshot state across iterations."""
-        subscription = Subscription()
-
-        # Create two different snapshots
+        # Arrange: Create two different snapshots
         snapshot1 = mock_building_snapshot
         snapshot2 = BuildingSnapshot(
-            time=Time(999.0),  # Different time
+            time=Time(999.0),
             money=999999,
             floors=[],
             elevators=[],
@@ -137,24 +154,25 @@ class TestBuildingStateStreamSubscription:
             people=[],
         )
 
-        with patch("mytower.api.schema.get_building_state") as mock_get_state:
-            # First call returns snapshot1, second returns snapshot2
-            mock_get_state.side_effect = [snapshot1, snapshot2]
+        # Mock will return different snapshots on successive calls
+        mock_game_bridge.get_building_snapshot.side_effect = [snapshot1, snapshot2]
 
-            with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
-                mock_convert.side_effect = [mock_building_snapshot_gql, mock_building_snapshot_gql]
+        with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
+            mock_convert.side_effect = [mock_building_snapshot_gql, mock_building_snapshot_gql]
 
-                stream = subscription.building_state_stream(interval_ms=5)
+            # Act: Inject dependency
+            subscription = Subscription(game_bridge=mock_game_bridge)
+            stream = subscription.building_state_stream(interval_ms=5)
 
-                # First iteration
-                await anext(stream)
-                assert mock_get_state.call_count == 1
-                mock_convert.assert_called_with(snapshot1)
+            # First iteration
+            await anext(stream)
+            assert mock_game_bridge.get_building_snapshot.call_count == 1
+            mock_convert.assert_called_with(snapshot1)
 
-                # Second iteration
-                await anext(stream)
-                assert mock_get_state.call_count == 2
-                mock_convert.assert_called_with(snapshot2)
+            # Second iteration
+            await anext(stream)
+            assert mock_game_bridge.get_building_snapshot.call_count == 2
+            mock_convert.assert_called_with(snapshot2)
 
 
 @pytest.mark.asyncio
@@ -163,27 +181,37 @@ class TestGameTimeStreamSubscription:
 
     async def test_subscription_yields_time_when_game_running(
         self,
+        mock_game_bridge: Mock,
         mock_building_snapshot: BuildingSnapshot,
     ) -> None:
         """Verify subscription yields game time from snapshot."""
-        subscription = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        with patch("mytower.api.schema.get_building_state", return_value=mock_building_snapshot):
-            stream = subscription.game_time_stream(interval_ms=100)
-            result = await anext(stream)
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.game_time_stream(interval_ms=100)
+        result = await anext(stream)
 
-            assert result == mock_building_snapshot.time
-            assert isinstance(result, Time)
+        # Assert
+        assert result == mock_building_snapshot.time
+        assert isinstance(result, Time)
 
-    async def test_subscription_yields_zero_when_game_not_running(self) -> None:
+    async def test_subscription_yields_zero_when_game_not_running(
+        self,
+        mock_game_bridge: Mock,
+    ) -> None:
         """Verify subscription yields Time(0.0) when no snapshot."""
-        subscription = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = None
 
-        with patch("mytower.api.schema.get_building_state", return_value=None):
-            stream = subscription.game_time_stream(interval_ms=100)
-            result = await anext(stream)
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.game_time_stream(interval_ms=100)
+        result = await anext(stream)
 
-            assert result == Time(0.0)
+        # Assert
+        assert result == Time(0.0)
 
     @pytest.mark.parametrize("invalid_interval", [4, 10001, -1, 0])
     async def test_subscription_validates_interval_ms_bounds(self, invalid_interval: int) -> None:
@@ -194,25 +222,30 @@ class TestGameTimeStreamSubscription:
             stream = subscription.game_time_stream(interval_ms=invalid_interval)
             await anext(stream)
 
-    async def test_subscription_extracts_time_from_snapshot(self) -> None:
+    async def test_subscription_extracts_time_from_snapshot(
+        self,
+        mock_game_bridge: Mock,
+    ) -> None:
         """Verify time extraction from BuildingSnapshot.time."""
-        subscription = Subscription()
-
-        # Create mock snapshot with specific time
+        # Arrange: Create mock snapshot with specific time
         mock_snapshot = Mock(spec=BuildingSnapshot)
         mock_snapshot.time = Time(123.456)
+        mock_game_bridge.get_building_snapshot.return_value = mock_snapshot
 
-        with patch("mytower.api.schema.get_building_state", return_value=mock_snapshot):
-            stream = subscription.game_time_stream(interval_ms=100)
-            result = await anext(stream)
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.game_time_stream(interval_ms=100)
+        result = await anext(stream)
 
-            assert result == Time(123.456)
+        # Assert
+        assert result == Time(123.456)
 
-    async def test_subscription_tracks_time_progression(self) -> None:
+    async def test_subscription_tracks_time_progression(
+        self,
+        mock_game_bridge: Mock,
+    ) -> None:
         """Verify subscription tracks time as it progresses."""
-        subscription = Subscription()
-
-        # Create snapshots with progressing time
+        # Arrange: Create snapshots with progressing time
         snapshot1 = Mock(spec=BuildingSnapshot)
         snapshot1.time = Time(10.0)
         snapshot2 = Mock(spec=BuildingSnapshot)
@@ -220,25 +253,35 @@ class TestGameTimeStreamSubscription:
         snapshot3 = Mock(spec=BuildingSnapshot)
         snapshot3.time = Time(30.0)
 
-        with patch("mytower.api.schema.get_building_state") as mock_get_state:
-            mock_get_state.side_effect = [snapshot1, snapshot2, snapshot3]
+        mock_game_bridge.get_building_snapshot.side_effect = [snapshot1, snapshot2, snapshot3]
 
-            stream = subscription.game_time_stream(interval_ms=5)
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.game_time_stream(interval_ms=5)
 
-            result1 = await anext(stream)
-            result2 = await anext(stream)
-            result3 = await anext(stream)
+        result1 = await anext(stream)
+        result2 = await anext(stream)
+        result3 = await anext(stream)
 
-            assert result1 == Time(10.0)
-            assert result2 == Time(20.0)
-            assert result3 == Time(30.0)
+        # Assert
+        assert result1 == Time(10.0)
+        assert result2 == Time(20.0)
+        assert result3 == Time(30.0)
 
     @pytest.mark.parametrize("interval_ms", [5, 100, 1000, 10000])
-    async def test_subscription_accepts_valid_intervals(self, interval_ms: int) -> None:
+    async def test_subscription_accepts_valid_intervals(
+        self,
+        mock_game_bridge: Mock,
+        interval_ms: int,
+    ) -> None:
         """Verify subscription accepts all valid interval values."""
-        subscription = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = None
 
-        with patch("mytower.api.schema.get_building_state", return_value=None):
-            stream = subscription.game_time_stream(interval_ms=interval_ms)
-            result = await anext(stream)
-            assert result == Time(0.0)
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.game_time_stream(interval_ms=interval_ms)
+        result = await anext(stream)
+
+        # Assert
+        assert result == Time(0.0)

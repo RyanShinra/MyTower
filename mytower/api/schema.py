@@ -6,6 +6,7 @@ import strawberry
 
 from mytower.api import unit_scalars  # Import the module to register scalars
 from mytower.api.game_bridge import get_game_bridge
+from mytower.api.game_bridge_protocol import GameBridgeProtocol
 from mytower.api.graphql_types import BuildingSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL
 from mytower.api.type_conversions import convert_building_snapshot, convert_person_snapshot
 from mytower.game.controllers.controller_commands import (
@@ -106,7 +107,20 @@ class Mutation:
 class Subscription:
     """
     GraphQL subscriptions for real-time building state updates via WebSocket.
+
+    Supports dependency injection for testing. If game_bridge is not provided,
+    uses the global singleton GameBridge instance.
     """
+
+    def __init__(self, game_bridge: GameBridgeProtocol | None = None) -> None:
+        """
+        Initialize subscription with optional game bridge dependency.
+
+        Args:
+            game_bridge: GameBridge instance to use for state access.
+                        If None, uses global singleton via get_game_bridge().
+        """
+        self._game_bridge = game_bridge or get_game_bridge()
 
     @strawberry.subscription
     async def building_state_stream(
@@ -132,7 +146,7 @@ class Subscription:
 
         try:
             while True:
-                snapshot: BuildingSnapshot | None = get_building_state()
+                snapshot: BuildingSnapshot | None = self._game_bridge.get_building_snapshot()
                 yield convert_building_snapshot(snapshot) if snapshot else None
                 await asyncio.sleep(interval_seconds)
 
@@ -176,7 +190,7 @@ class Subscription:
         interval_seconds: float = interval_ms / 1000.0
         try:
             while True:
-                snapshot: BuildingSnapshot | None = get_building_state()
+                snapshot: BuildingSnapshot | None = self._game_bridge.get_building_snapshot()
                 yield snapshot.time if snapshot else Time(0.0)
                 await asyncio.sleep(interval_seconds)
         except asyncio.CancelledError:

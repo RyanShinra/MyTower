@@ -13,7 +13,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from mytower.api.game_bridge import GameBridge
+from mytower.api.game_bridge_protocol import GameBridgeProtocol
 from mytower.api.graphql_types import (
     BuildingSnapshotGQL,
     ElevatorBankSnapshotGQL,
@@ -166,11 +166,14 @@ def mock_game_bridge() -> Mock:
     """
     Create a type-safe mock GameBridge for testing subscriptions.
 
+    Uses GameBridgeProtocol for maximum flexibility and type safety.
     By default, returns None (game not running).
-    Tests can override with:
+
+    Usage in tests:
+        subscription = Subscription(game_bridge=mock_game_bridge)
         mock_game_bridge.get_building_snapshot.return_value = snapshot
     """
-    bridge = Mock(spec=GameBridge)
+    bridge = Mock(spec=GameBridgeProtocol)
     bridge.get_building_snapshot.return_value = None
     return bridge
 
