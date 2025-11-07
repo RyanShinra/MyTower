@@ -1,5 +1,7 @@
 from typing import Any
+from collections.abc import AsyncGenerator
 
+import asyncio
 import strawberry
 
 from mytower.api import unit_scalars  # Import the module to register scalars
@@ -99,10 +101,99 @@ class Mutation:
     def add_elevator_sync(self, elevator_bank_id: str) -> str:
         return get_game_bridge().execute_add_elevator_sync(elevator_bank_id)
 
+# TODO: Consider using the logging library instead of print statements for better control over output
+@strawberry.type
+class Subscription:
+    """
+    GraphQL subscriptions for real-time building state updates via WebSocket.
+    """
+
+    @strawberry.subscription
+    async def building_state_stream(
+        self,
+        interval_ms: int = 50,  # ~20 FPS by default
+    ) -> AsyncGenerator[BuildingSnapshotGQL | None, None]:  # noqa: UP043
+        """
+        Stream building state updates in real-time.
+
+        Args:
+            interval_ms: Polling interval in milliseconds (5 to 10000, default: 50ms for ~20 FPS)
+
+        Raises:
+            ValueError: If interval_ms is out of allowed range (5 to 10000)
+
+        Yields:
+            BuildingSnapshotGQL: Current building state snapshot, or None if game not running
+        """
+        if not (5 <= interval_ms <= 10000):
+            raise ValueError("interval_ms must be between 5 and 10000")
+
+        interval_seconds: float = interval_ms / 1000.0
+
+        try:
+            while True:
+                snapshot: BuildingSnapshot | None = get_building_state()
+                yield convert_building_snapshot(snapshot) if snapshot else None
+                await asyncio.sleep(interval_seconds)
+
+        except asyncio.CancelledError:
+            # Client disconnected or subscription was cancelled
+            # This is NORMAL - not an error condition
+            print(f"Subscription cancelled (client likely disconnected)")  # noqa: F541
+            raise  # Re-raise so Strawberry knows we handled it
+
+        except Exception as e:
+            # Unexpected error - log it
+            print(f"Subscription error: {e}")
+            raise
+
+        finally:
+            # Cleanup code runs whether cancelled, errored, or completed
+            print("Building State Subscription stream cleaned up")
+            # Could release resources, decrement counter, etc.
+
+
+    @strawberry.subscription
+    async def game_time_stream(
+        self,
+        interval_ms: int = 100,  # 10 FPS by default
+    ) -> AsyncGenerator[Time, None]:  # noqa: UP043
+        """
+        Stream game time updates.
+
+        Args:
+            interval_ms: Polling interval in milliseconds (5 to 10000, default: 100ms for 10 FPS)
+
+        Raises:
+            ValueError: If interval_ms is out of allowed range (5 to 10000)
+
+        Yields:
+            Time: Current game time in seconds
+        """
+        if not (5 <= interval_ms <= 10000):
+            raise ValueError("interval_ms must be between 5 and 10000")
+
+        interval_seconds: float = interval_ms / 1000.0
+        try:
+            while True:
+                snapshot: BuildingSnapshot | None = get_building_state()
+                yield snapshot.time if snapshot else Time(0.0)
+                await asyncio.sleep(interval_seconds)
+        except asyncio.CancelledError:
+            # Client disconnected or subscription was cancelled
+            print(f"Game time subscription cancelled (client likely disconnected)")  # noqa: F541
+            raise
+        except Exception as e:
+            print(f"Game time subscription error: {e}")
+            raise
+        finally:
+            print("Game time subscription stream cleaned up")
+
 
 schema = strawberry.Schema(
     query=Query,
     mutation=Mutation,
+    subscription=Subscription,
     scalar_overrides={
         Time: unit_scalars.Time,
         Blocks: unit_scalars.Blocks,
