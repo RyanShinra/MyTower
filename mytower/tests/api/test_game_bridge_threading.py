@@ -252,8 +252,10 @@ class TestSubscriptionWithGameBridgeMock:
     async def test_subscription_handles_game_bridge_lock_timeout(self, mock_game_bridge) -> None:
         """Verify subscription handles potential lock timeouts gracefully."""
         # Simulate a slow get_building_state call (potential lock contention)
-        async def slow_get_state():
-            await asyncio.sleep(0.01)
+        import time
+
+        def slow_get_state():
+            time.sleep(0.01)
             return None
 
         mock_game_bridge.get_building_snapshot.side_effect = slow_get_state

@@ -24,16 +24,16 @@ class TestSchemaStructure:
 
     def test_schema_includes_subscription_type(self) -> None:
         """Verify schema has Subscription type defined."""
-        assert schema.subscription_type is not None
-        assert schema.subscription_type == Subscription
+        assert schema.subscription is not None
+        assert schema.subscription == Subscription
 
     def test_schema_has_query_type(self) -> None:
         """Verify schema has Query type (baseline test)."""
-        assert schema.query_type is not None
+        assert schema.query is not None
 
     def test_schema_has_mutation_type(self) -> None:
         """Verify schema has Mutation type (baseline test)."""
-        assert schema.mutation_type is not None
+        assert schema.mutation is not None
 
     def test_subscription_type_is_strawberry_type(self) -> None:
         """Verify Subscription is decorated with @strawberry.type."""
@@ -44,21 +44,21 @@ class TestSchemaStructure:
 class TestSubscriptionFieldDefinitions:
     """Test subscription field definitions and metadata."""
 
-    def test_building_state_stream_field_exists(self) -> None:
+    def test_building_state_stream_field_exists(self, mock_game_bridge) -> None:
         """Verify building_state_stream field is defined in Subscription."""
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
         assert hasattr(subscription, "building_state_stream")
         assert callable(subscription.building_state_stream)
 
-    def test_game_time_stream_field_exists(self) -> None:
+    def test_game_time_stream_field_exists(self, mock_game_bridge) -> None:
         """Verify game_time_stream field is defined in Subscription."""
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
         assert hasattr(subscription, "game_time_stream")
         assert callable(subscription.game_time_stream)
 
-    def test_building_state_stream_is_async_generator(self) -> None:
+    def test_building_state_stream_is_async_generator(self, mock_game_bridge) -> None:
         """Verify building_state_stream returns AsyncGenerator."""
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
         result = subscription.building_state_stream(interval_ms=50)
 
         # Check it's an async generator
@@ -66,9 +66,9 @@ class TestSubscriptionFieldDefinitions:
         assert hasattr(result, "asend")
         assert hasattr(result, "aclose")
 
-    def test_game_time_stream_is_async_generator(self) -> None:
+    def test_game_time_stream_is_async_generator(self, mock_game_bridge) -> None:
         """Verify game_time_stream returns AsyncGenerator."""
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
         result = subscription.game_time_stream(interval_ms=100)
 
         # Check it's an async generator
@@ -206,9 +206,9 @@ class TestTypeSystem:
 class TestSubscriptionBehaviorIntegration:
     """Integration tests for subscription behavior with schema."""
 
-    async def test_subscription_instance_can_be_created(self) -> None:
+    async def test_subscription_instance_can_be_created(self, mock_game_bridge) -> None:
         """Verify Subscription can be instantiated."""
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
         assert subscription is not None
         assert isinstance(subscription, Subscription)
 

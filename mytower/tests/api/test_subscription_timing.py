@@ -55,7 +55,8 @@ class TestSubscriptionTiming:
             # Act: Inject dependency
             subscription = Subscription(game_bridge=mock_game_bridge)
             stream = subscription.building_state_stream(interval_ms=250)
-            await anext(stream)
+            await anext(stream)  # First yield (no sleep yet)
+            await anext(stream)  # Second iteration triggers sleep
 
             # Assert: Verify sleep was called with correct seconds value
             mock_sleep.assert_called_once_with(0.250)
@@ -181,15 +182,16 @@ class TestSubscriptionTiming:
 
             # First yield should happen immediately (no prior sleep)
             await anext(stream)
-            mock_sleep.assert_called_once_with(0.1)
+            assert mock_sleep.call_count == 0  # No sleep yet
 
-            # Second yield should sleep again
+            # Second yield triggers first sleep
+            await anext(stream)
+            mock_sleep.assert_called_with(0.1)
+            assert mock_sleep.call_count == 1
+
+            # Third yield triggers second sleep
             await anext(stream)
             assert mock_sleep.call_count == 2
-
-            # Third yield
-            await anext(stream)
-            assert mock_sleep.call_count == 3
 
 
 @pytest.mark.asyncio
@@ -205,7 +207,8 @@ class TestTimingEdgeCases:
             # Act: Inject dependency
             subscription = Subscription(game_bridge=mock_game_bridge)
             stream = subscription.building_state_stream(interval_ms=5)
-            await anext(stream)
+            await anext(stream)  # First yield
+            await anext(stream)  # Triggers sleep
 
             # Assert: Should sleep for exactly 0.005 seconds
             mock_sleep.assert_called_once_with(0.005)
@@ -219,7 +222,8 @@ class TestTimingEdgeCases:
             # Act: Inject dependency
             subscription = Subscription(game_bridge=mock_game_bridge)
             stream = subscription.building_state_stream(interval_ms=10000)
-            await anext(stream)
+            await anext(stream)  # First yield
+            await anext(stream)  # Triggers sleep
 
             # Assert: Should sleep for exactly 10.0 seconds
             mock_sleep.assert_called_once_with(10.0)
@@ -235,9 +239,11 @@ class TestTimingEdgeCases:
             stream1 = subscription.building_state_stream(interval_ms=50)
             stream2 = subscription.building_state_stream(interval_ms=200)
 
-            # Consume one from each
-            await anext(stream1)
+            # Consume one from each to trigger their sleeps
+            await anext(stream1)  # First yield from stream1
+            await anext(stream1)  # Triggers sleep with 0.05
             assert mock_sleep.call_args_list[-1][0][0] == 0.05
 
-            await anext(stream2)
+            await anext(stream2)  # First yield from stream2
+            await anext(stream2)  # Triggers sleep with 0.20
             assert mock_sleep.call_args_list[-1][0][0] == 0.20
