@@ -212,54 +212,60 @@ class TestSubscriptionBehaviorIntegration:
         assert subscription is not None
         assert isinstance(subscription, Subscription)
 
-    async def test_building_state_stream_can_be_called(self) -> None:
+    async def test_building_state_stream_can_be_called(self, mock_game_bridge) -> None:
         """Verify building_state_stream can be called and returns generator."""
-        subscription = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = None
 
-        from unittest.mock import patch
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        generator = subscription.building_state_stream(interval_ms=50)
 
-        with patch("mytower.api.schema.get_building_state", return_value=None):
-            generator = subscription.building_state_stream(interval_ms=50)
-            assert generator is not None
+        # Assert
+        assert generator is not None
 
-            # Clean up generator
-            await generator.aclose()
+        # Clean up generator
+        await generator.aclose()
 
-    async def test_game_time_stream_can_be_called(self) -> None:
+    async def test_game_time_stream_can_be_called(self, mock_game_bridge) -> None:
         """Verify game_time_stream can be called and returns generator."""
-        subscription = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = None
 
-        from unittest.mock import patch
+        # Act: Inject dependency
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        generator = subscription.game_time_stream(interval_ms=100)
 
-        with patch("mytower.api.schema.get_building_state", return_value=None):
-            generator = subscription.game_time_stream(interval_ms=100)
-            assert generator is not None
+        # Assert
+        assert generator is not None
 
-            # Clean up generator
-            await generator.aclose()
+        # Clean up generator
+        await generator.aclose()
 
-    async def test_multiple_subscription_instances(self) -> None:
+    async def test_multiple_subscription_instances(self, mock_game_bridge) -> None:
         """Verify multiple Subscription instances can coexist."""
-        sub1 = Subscription()
-        sub2 = Subscription()
+        # Arrange
+        mock_game_bridge.get_building_snapshot.return_value = None
+
+        # Act: Create multiple subscriptions with same injected dependency
+        sub1 = Subscription(game_bridge=mock_game_bridge)
+        sub2 = Subscription(game_bridge=mock_game_bridge)
 
         assert sub1 is not sub2  # Different instances
 
-        from unittest.mock import patch
+        gen1 = sub1.building_state_stream(interval_ms=50)
+        gen2 = sub2.building_state_stream(interval_ms=100)
 
-        with patch("mytower.api.schema.get_building_state", return_value=None):
-            gen1 = sub1.building_state_stream(interval_ms=50)
-            gen2 = sub2.building_state_stream(interval_ms=100)
+        # Both should work independently
+        result1 = await anext(gen1)
+        result2 = await anext(gen2)
 
-            # Both should work independently
-            result1 = await anext(gen1)
-            result2 = await anext(gen2)
+        # Assert
+        assert result1 is None
+        assert result2 is None
 
-            assert result1 is None
-            assert result2 is None
-
-            await gen1.aclose()
-            await gen2.aclose()
+        await gen1.aclose()
+        await gen2.aclose()
 
 
 class TestSchemaValidation:
