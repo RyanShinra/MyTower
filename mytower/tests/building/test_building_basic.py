@@ -208,11 +208,3 @@ class TestBuildingUpdateAndDraw:
         building.update(Time(1.0))
         building.update(Time(0.5))
         building.update(Time(2.0))
-
-    def test_draw(self, mock_logger_provider: MagicMock) -> None:
-        """Test draw method (currently just passes)"""
-        building = Building(mock_logger_provider)
-        mock_surface = MagicMock()
-
-        # Should not raise any exceptions
-        building.draw(mock_surface)

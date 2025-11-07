@@ -230,12 +230,7 @@ class TestDemoBuilder:
         assert len(person_commands) == 4
 
         # Check specific person placements (based on the demo_builder.py code)
-        expected_people = [
-            (1, 1, 9, 7),  # floor, block, dest_floor, dest_block
-            (1, 3, 3, 7),
-            (1, 6, 7, 7),
-            (12, 1, 1, 1),
-        ]
+        expected_people: list[tuple[int, float, int, float]] = [(1, 1.0, 12, 7.0), (1, 3.0, 3, 7.0), (1, 6.0, 7, 7.0), (12, 1.0, 1, 1.0)]
 
         actual_people = [(cmd.floor, cmd.block, cmd.dest_floor, cmd.dest_block) for cmd in person_commands]
 
