@@ -172,7 +172,7 @@ class TestGameConfig:
         assert config.person_cosmetics is not None
         assert config.elevator_cosmetics is not None
         assert config.ui_config is not None
-        assert config.initial_speed == 2.0
+        assert config.initial_speed == 1.0
 
 
     def test_property_types(self) -> None:
