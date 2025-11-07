@@ -204,6 +204,7 @@ class TestSubscriptionPerformance:
         try:
             await task
         except asyncio.CancelledError:
+            # Cancellation is expected here; we are testing cleanup after cancelling the subscription.
             pass
 
         # Verify stream can be garbage collected (no reference leaks)
