@@ -374,6 +374,7 @@ class TestRealWorldScenarios:
             try:
                 await task1
             except asyncio.CancelledError:
+                # Task cancellation is expected here; ignore the exception.
                 pass
 
             # Second subscription should work fine
