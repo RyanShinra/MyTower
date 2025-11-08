@@ -144,7 +144,7 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        # Use getattr for safe access - _game_bridge won't exist when called via Strawberry schema
+        # Use getattr for safe access - _game_bridge will be None when called via Strawberry schema
         game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
 
         try:
@@ -191,7 +191,7 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        # Use getattr for safe access - _game_bridge won't exist when called via Strawberry schema
+        # Use getattr for safe access - _game_bridge will be None when called via Strawberry schema
         game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
 
         try:
