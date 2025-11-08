@@ -1,12 +1,17 @@
 import uvicorn
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
-
 from mytower.api.schema import schema
 
 app = FastAPI(title="MyTower GraphQL API")
 
-graphql_app: GraphQLRouter[None, None] = GraphQLRouter(schema)
+# WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
+# Both protocols are supported by default:
+# - graphql-transport-ws: Modern protocol (recommended)
+# - graphql-ws: Legacy protocol for backward compatibility
+# Strawberry's GraphQLRouter automatically handles protocol negotiation
+
+graphql_app: GraphQLRouter[None, None] = GraphQLRouter(schema=schema)
 app.include_router(graphql_app, prefix="/graphql")
 
 @app.get("/")
