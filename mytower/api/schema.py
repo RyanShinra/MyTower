@@ -145,8 +145,7 @@ class Subscription:
 
         interval_seconds: float = interval_ms / 1000.0
         # Use getattr for safe access - _game_bridge won't exist when called via Strawberry schema
-        injected_bridge: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
-        game_bridge: GameBridgeProtocol = injected_bridge if injected_bridge else get_game_bridge()
+        game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
 
         try:
             while True:
@@ -193,8 +192,7 @@ class Subscription:
 
         interval_seconds: float = interval_ms / 1000.0
         # Use getattr for safe access - _game_bridge won't exist when called via Strawberry schema
-        injected_bridge: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
-        game_bridge: GameBridgeProtocol = injected_bridge if injected_bridge else get_game_bridge()
+        game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
 
         try:
             while True:
