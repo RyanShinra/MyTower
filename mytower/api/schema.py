@@ -108,10 +108,17 @@ class Subscription:
     """
     GraphQL subscriptions for real-time building state updates via WebSocket.
 
-    Note: Strawberry doesn't instantiate subscription classes. Methods are called directly
-    on the class, so dependency injection must be done via function parameters or context,
-    not via __init__. For testing, use context injection or monkey-patching get_game_bridge().
+    Supports dependency injection for testing by accepting an optional game_bridge parameter.
     """
+
+    def __init__(self, game_bridge: GameBridgeProtocol | None = None) -> None:
+        """
+        Initialize the Subscription with an optional game bridge for dependency injection.
+
+        Args:
+            game_bridge: Optional GameBridgeProtocol instance for testing. If None, uses get_game_bridge()
+        """
+        self._game_bridge = game_bridge
 
     @strawberry.subscription
     async def building_state_stream(
@@ -134,7 +141,7 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        game_bridge: GameBridgeProtocol = get_game_bridge()
+        game_bridge: GameBridgeProtocol = self._game_bridge if self._game_bridge else get_game_bridge()
 
         try:
             while True:
@@ -180,7 +187,7 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        game_bridge: GameBridgeProtocol = get_game_bridge()
+        game_bridge: GameBridgeProtocol = self._game_bridge if self._game_bridge else get_game_bridge()
 
         try:
             while True:
