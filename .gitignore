@@ -180,3 +180,5 @@ folderstructure.txt
    *.pem
    *.key
    credentials
+
+logs/*

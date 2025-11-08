@@ -108,19 +108,10 @@ class Subscription:
     """
     GraphQL subscriptions for real-time building state updates via WebSocket.
 
-    Supports dependency injection for testing. If game_bridge is not provided,
-    uses the global singleton GameBridge instance.
+    Note: Strawberry doesn't instantiate subscription classes. Methods are called directly
+    on the class, so dependency injection must be done via function parameters or context,
+    not via __init__. For testing, use context injection or monkey-patching get_game_bridge().
     """
-
-    def __init__(self, game_bridge: GameBridgeProtocol | None = None) -> None:
-        """
-        Initialize subscription with optional game bridge dependency.
-
-        Args:
-            game_bridge: GameBridge instance to use for state access.
-                        If None, uses global singleton via get_game_bridge().
-        """
-        self._game_bridge = game_bridge or get_game_bridge()
 
     @strawberry.subscription
     async def building_state_stream(
@@ -143,10 +134,11 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
+        game_bridge: GameBridgeProtocol = get_game_bridge()
 
         try:
             while True:
-                snapshot: BuildingSnapshot | None = self._game_bridge.get_building_snapshot()
+                snapshot: BuildingSnapshot | None = game_bridge.get_building_snapshot()
                 yield convert_building_snapshot(snapshot) if snapshot else None
                 await asyncio.sleep(interval_seconds)
 
@@ -188,9 +180,11 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
+        game_bridge: GameBridgeProtocol = get_game_bridge()
+
         try:
             while True:
-                snapshot: BuildingSnapshot | None = self._game_bridge.get_building_snapshot()
+                snapshot: BuildingSnapshot | None = game_bridge.get_building_snapshot()
                 yield snapshot.time if snapshot else Time(0.0)
                 await asyncio.sleep(interval_seconds)
         except asyncio.CancelledError:

@@ -153,7 +153,7 @@ async def main() -> None:
         await subscribe_to_game_time()
     else:
         # Full building state stream
-        await subscribe_to_building_state()
+        await subscribe_to_building_state(interval_ms=1000)
 
 
 if __name__ == "__main__":

@@ -8,15 +8,16 @@ Tests cover:
 - Type system correctness
 """
 
-from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING
 
 import pytest
-import strawberry
-from strawberry.types import Info
 
 from mytower.api.graphql_types import BuildingSnapshotGQL
 from mytower.api.schema import Subscription, schema
-from mytower.game.core.units import Time
+
+if TYPE_CHECKING:
+    from unittest.mock import Mock
+    from pytest import MonkeyPatch
 
 
 class TestSchemaStructure:
@@ -44,37 +45,37 @@ class TestSchemaStructure:
 class TestSubscriptionFieldDefinitions:
     """Test subscription field definitions and metadata."""
 
-    def test_building_state_stream_field_exists(self, mock_game_bridge) -> None:
+    def test_building_state_stream_field_exists(self) -> None:
         """Verify building_state_stream field is defined in Subscription."""
-        subscription = Subscription(game_bridge=mock_game_bridge)
+        subscription = Subscription()
         assert hasattr(subscription, "building_state_stream")
         assert callable(subscription.building_state_stream)
 
-    def test_game_time_stream_field_exists(self, mock_game_bridge) -> None:
+    def test_game_time_stream_field_exists(self) -> None:
         """Verify game_time_stream field is defined in Subscription."""
-        subscription = Subscription(game_bridge=mock_game_bridge)
+        subscription = Subscription()
         assert hasattr(subscription, "game_time_stream")
         assert callable(subscription.game_time_stream)
 
-    def test_building_state_stream_is_async_generator(self, mock_game_bridge) -> None:
+    def test_building_state_stream_is_async_generator(self) -> None:
         """Verify building_state_stream returns AsyncGenerator."""
-        subscription = Subscription(game_bridge=mock_game_bridge)
-        result = subscription.building_state_stream(interval_ms=50)
+        subscription = Subscription()
+        result = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
 
         # Check it's an async generator
-        assert hasattr(result, "__anext__")
-        assert hasattr(result, "asend")
-        assert hasattr(result, "aclose")
+        assert hasattr(result, "__anext__")  # type: ignore[arg-type]
+        assert hasattr(result, "asend")  # type: ignore[arg-type]
+        assert hasattr(result, "aclose")  # type: ignore[arg-type]
 
-    def test_game_time_stream_is_async_generator(self, mock_game_bridge) -> None:
+    def test_game_time_stream_is_async_generator(self) -> None:
         """Verify game_time_stream returns AsyncGenerator."""
-        subscription = Subscription(game_bridge=mock_game_bridge)
-        result = subscription.game_time_stream(interval_ms=100)
+        subscription = Subscription()
+        result = subscription.game_time_stream(interval_ms=100)  # type: ignore[call-arg]
 
         # Check it's an async generator
-        assert hasattr(result, "__anext__")
-        assert hasattr(result, "asend")
-        assert hasattr(result, "aclose")
+        assert hasattr(result, "__anext__")  # type: ignore[arg-type]
+        assert hasattr(result, "asend")  # type: ignore[arg-type]
+        assert hasattr(result, "aclose")  # type: ignore[arg-type]
 
     def test_building_state_stream_has_correct_signature(self) -> None:
         """Verify building_state_stream has correct parameter signature."""
@@ -137,13 +138,13 @@ class TestStrawberryDecorators:
         assert hasattr(Subscription, "__strawberry_definition__")
 
         # Check it's a type definition
-        definition = Subscription.__strawberry_definition__
+        definition = getattr(Subscription, "__strawberry_definition__", None)
         assert definition is not None
 
     def test_building_state_stream_has_subscription_decorator(self) -> None:
         """Verify @strawberry.subscription is applied to building_state_stream."""
         # Check the method exists and has strawberry metadata
-        method = getattr(Subscription, "building_state_stream")
+        method = Subscription.building_state_stream
         assert method is not None
 
         # Strawberry decorators add metadata that we can inspect
@@ -152,7 +153,7 @@ class TestStrawberryDecorators:
 
     def test_game_time_stream_has_subscription_decorator(self) -> None:
         """Verify @strawberry.subscription is applied to game_time_stream."""
-        method = getattr(Subscription, "game_time_stream")
+        method = Subscription.game_time_stream
         assert method is not None
         assert callable(method)
 
@@ -206,66 +207,84 @@ class TestTypeSystem:
 class TestSubscriptionBehaviorIntegration:
     """Integration tests for subscription behavior with schema."""
 
-    async def test_subscription_instance_can_be_created(self, mock_game_bridge) -> None:
+    async def test_subscription_instance_can_be_created(self) -> None:
         """Verify Subscription can be instantiated."""
-        subscription = Subscription(game_bridge=mock_game_bridge)
+        subscription = Subscription()
         assert subscription is not None
         assert isinstance(subscription, Subscription)
 
-    async def test_building_state_stream_can_be_called(self, mock_game_bridge) -> None:
+    async def test_building_state_stream_can_be_called(
+        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
+    ) -> None:
         """Verify building_state_stream can be called and returns generator."""
         # Arrange
         mock_game_bridge.get_building_snapshot.return_value = None
 
-        # Act: Inject dependency
-        subscription = Subscription(game_bridge=mock_game_bridge)
-        generator = subscription.building_state_stream(interval_ms=50)
+        # Mock get_game_bridge to return our mock
+        from mytower.api import game_bridge
+        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
+
+        # Act
+        subscription = Subscription()
+        generator = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
 
         # Assert
         assert generator is not None
 
         # Clean up generator
-        await generator.aclose()
+        await generator.aclose()  # type: ignore[misc]
 
-    async def test_game_time_stream_can_be_called(self, mock_game_bridge) -> None:
+    async def test_game_time_stream_can_be_called(
+        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
+    ) -> None:
         """Verify game_time_stream can be called and returns generator."""
         # Arrange
         mock_game_bridge.get_building_snapshot.return_value = None
 
-        # Act: Inject dependency
-        subscription = Subscription(game_bridge=mock_game_bridge)
-        generator = subscription.game_time_stream(interval_ms=100)
+        # Mock get_game_bridge to return our mock
+        from mytower.api import game_bridge
+        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
+
+        # Act
+        subscription = Subscription()
+        generator = subscription.game_time_stream(interval_ms=100)  # type: ignore[call-arg]
 
         # Assert
         assert generator is not None
 
         # Clean up generator
-        await generator.aclose()
+        await generator.aclose()  # type: ignore[misc]
 
-    async def test_multiple_subscription_instances(self, mock_game_bridge) -> None:
+    async def test_multiple_subscription_instances(
+        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
+    ) -> None:
         """Verify multiple Subscription instances can coexist."""
         # Arrange
         mock_game_bridge.get_building_snapshot.return_value = None
 
-        # Act: Create multiple subscriptions with same injected dependency
-        sub1 = Subscription(game_bridge=mock_game_bridge)
-        sub2 = Subscription(game_bridge=mock_game_bridge)
+        # Mock get_game_bridge to return our mock
+        from mytower.api import game_bridge
+        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
+
+        # Act: Create multiple subscriptions
+        sub1 = Subscription()
+        sub2 = Subscription()
 
         assert sub1 is not sub2  # Different instances
 
-        gen1 = sub1.building_state_stream(interval_ms=50)
-        gen2 = sub2.building_state_stream(interval_ms=100)
+        gen1 = sub1.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
+        gen2 = sub2.building_state_stream(interval_ms=100)  # type: ignore[call-arg]
 
         # Both should work independently
-        result1 = await anext(gen1)
-        result2 = await anext(gen2)
+        result1 = await anext(gen1)  # type: ignore[arg-type]
+        result2 = await anext(gen2)  # type: ignore[arg-type]
 
         # Assert
         assert result1 is None
         assert result2 is None
 
-        await gen1.aclose()
-        await gen2.aclose()
+        await gen1.aclose()  # type: ignore[misc]
+        await gen2.aclose()  # type: ignore[misc]
 
 
 class TestSchemaValidation:
