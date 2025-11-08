@@ -8,7 +8,6 @@ Provides mock objects for:
 - GraphQL schema components
 """
 
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
