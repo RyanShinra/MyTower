@@ -115,10 +115,13 @@ class Subscription:
         """
         Initialize the Subscription with an optional game bridge for dependency injection.
 
+        Note: This constructor is only used when directly instantiating Subscription in tests.
+        When executed through Strawberry's schema, this __init__ is NOT called.
+
         Args:
             game_bridge: Optional GameBridgeProtocol instance for testing. If None, uses get_game_bridge()
         """
-        self._game_bridge = game_bridge
+        self._game_bridge: GameBridgeProtocol | None = game_bridge
 
     @strawberry.subscription
     async def building_state_stream(
@@ -141,7 +144,9 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        game_bridge: GameBridgeProtocol = self._game_bridge if self._game_bridge else get_game_bridge()
+        # Use getattr for safe access - _game_bridge won't exist when called via Strawberry schema
+        injected_bridge: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
+        game_bridge: GameBridgeProtocol = injected_bridge if injected_bridge else get_game_bridge()
 
         try:
             while True:
@@ -187,7 +192,9 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        game_bridge: GameBridgeProtocol = self._game_bridge if self._game_bridge else get_game_bridge()
+        # Use getattr for safe access - _game_bridge won't exist when called via Strawberry schema
+        injected_bridge: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
+        game_bridge: GameBridgeProtocol = injected_bridge if injected_bridge else get_game_bridge()
 
         try:
             while True:
