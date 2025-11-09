@@ -1,128 +1,195 @@
 /**
- * WebGameView - OO game rendering class for the MyTower web client.
+ * WebGameView - Main game coordinator
+ * Matches Python's DesktopView architecture
  */
 
-import { type Client } from 'graphql-ws';
-import { createClient } from 'graphql-ws';
+import { createClient, type Client } from 'graphql-ws';
 import { GraphQLClient } from 'graphql-request';
+import { BACKGROUND_COLOR } from './rendering/constants';
+import { FloorRenderer } from './rendering/FloorRenderer';
+import { ElevatorRenderer } from './rendering/ElevatorRenderer';
+import { PersonRenderer } from './rendering/PersonRenderer';
+import { UIRenderer } from './rendering/UIRenderer';
+
+// Import generated types
+import type { 
+  BuildingSnapshotGql,
+  FloorTypeGql 
+} from './generated/graphql';
 
 export class WebGameView {
-    private canvas: HTMLCanvasElement;
-    private context: CanvasRenderingContext2D;
-    private animationFrameId: number | null = null;
-    private frameCount: number = 0;
+  private canvas: HTMLCanvasElement;
+  private context: CanvasRenderingContext2D;
+  private animationFrameId: number | null = null;
+  private frameCount: number = 0;
 
-    // GraphQL clients
-    private wsClient: Client;              // For subscriptions
-    private gqlClient: GraphQLClient;      // For mutations/queries
+  // GraphQL clients
+  private wsClient: Client;
+  private gqlClient: GraphQLClient;
+  
+  // Renderers (Single Responsibility Principle!)
+  private floorRenderer: FloorRenderer;
+  private elevatorRenderer: ElevatorRenderer;
+  private personRenderer: PersonRenderer;
+  private uiRenderer: UIRenderer;
+  
+  // Game state
+  private currentSnapshot: BuildingSnapshotGql | null = null;
 
-    // Game state (will come from subscription)
-    private currentSnapshot: any = null;
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Could not get 2D context from canvas');
+    }
+    this.context = ctx;
 
-    constructor(canvas: HTMLCanvasElement) {
-        this.canvas = canvas;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            throw new Error('Could not get 2D context from canvas');
+    // Initialize renderers
+    const canvasHeight = canvas.height;
+    this.floorRenderer = new FloorRenderer(this.context, canvasHeight);
+    this.elevatorRenderer = new ElevatorRenderer(this.context, canvasHeight);
+    this.personRenderer = new PersonRenderer(this.context, canvasHeight);
+    this.uiRenderer = new UIRenderer(this.context, canvasHeight);
+
+    // Initialize GraphQL clients
+    this.wsClient = createClient({ url: 'ws://localhost:8000/graphql' });
+    this.gqlClient = new GraphQLClient('http://localhost:8000/graphql');
+
+    // Start
+    this.subscribeToBuilding();
+    this.startRenderLoop();
+    
+    console.log('🎮 WebGameView initialized with typed units system');
+  }
+
+  private subscribeToBuilding(): void {
+    const subscription = `
+      subscription BuildingStateStream {
+        buildingStateStream(intervalMs: 50) {
+          time
+          money
+          floors {
+            floorNumber
+            floorType
+            floorHeight
+            leftEdgeBlock
+            floorWidth
+            personCount
+            floorColor { r g b }
+            floorboardColor { r g b }
+          }
+          elevators {
+            id
+            verticalPosition
+            horizontalPosition
+            destinationFloor
+            elevatorState
+            nominalDirection
+            doorOpen
+            passengerCount
+          }
+          people {
+            personId
+            currentFloorNum
+            currentVerticalPosition
+            currentHorizontalPosition
+            destinationFloorNum
+            destinationHorizontalPosition
+            state
+            waitingTime
+            madFraction
+            drawColor { r g b }
+          }
         }
-        this.context = ctx;
+      }
+    `;
 
-        // Initialize GraphQL clients
-        this.wsClient = createClient({
-            url: 'ws://localhost:8000/graphql'
-        });
+    this.wsClient.subscribe(
+      { query: subscription },
+      {
+        next: (result: any) => {
+          this.currentSnapshot = result.data?.buildingStateStream;
+        },
+        error: (error: any) => {
+          console.error('❌ Subscription error:', error);
+        },
+      }
+    );
+  }
 
-        this.gqlClient = new GraphQLClient('http://localhost:8000/graphql');
+  private startRenderLoop(): void {
+    const render = () => {
+      this.draw();
+      this.animationFrameId = requestAnimationFrame(render);
+    };
+    render();
+  }
 
-        // Start the render loop
-        this.startRenderLoop();
+  private draw(): void {
+    // Clear canvas
+    this.context.fillStyle = BACKGROUND_COLOR;
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        console.log('🎮 WebGameView initialized');
-        console.log('📡 GraphQL clients ready');
+    if (!this.currentSnapshot) {
+      this.uiRenderer.drawWaitingMessage();
+      return;
     }
 
-    private startRenderLoop(): void {
-        const render = () => {
-            this.draw();
-            this.animationFrameId = requestAnimationFrame(render);
-        };
-        render();
+    // Delegate to specialized renderers
+    this.drawFloors();
+    this.drawElevators();
+    this.drawPeople();
+    this.drawUI();
+  }
+
+  private drawFloors(): void {
+    if (!this.currentSnapshot) return;
+    for (const floor of this.currentSnapshot.floors) {
+      this.floorRenderer.drawFloor(floor);
     }
+  }
 
-    private draw(): void {
-        // Clear canvas
-        this.context.fillStyle = '#f0f0f0'; // BACKGROUND_COLOR equivalent
-        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw "Hello World" text
-        this.context.fillStyle = '#000000';
-        this.context.font = '48px Arial';
-        this.context.textAlign = 'center';
-        this.context.textBaseline = 'middle';
-        this.context.fillText(
-            'Hello, MyTower!',
-            this.canvas.width / 2,
-            this.canvas.height / 2
-        );
-
-        // Draw a simple "building" outline
-        this.drawSimpleBuilding();
-
-        // Draw frame counter (proof it's animating)
-        this.frameCount++;
-        this.context.fillStyle = '#666';
-        this.context.font = '14px monospace';
-        this.context.textAlign = 'left';
-        this.context.fillText(
-            `Frame: ${this.frameCount}`,
-            10,
-            this.canvas.height - 10
-        );
+  private drawElevators(): void {
+    if (!this.currentSnapshot) return;
+    for (const elevator of this.currentSnapshot.elevators) {
+      this.elevatorRenderer.drawElevator(elevator);
     }
+  }
 
-    private drawSimpleBuilding(): void {
-        const buildingWidth = 400;
-        const buildingHeight = 600;
-        const x = (this.canvas.width - buildingWidth) / 2;
-        const y = (this.canvas.height - buildingHeight) / 2 + 100;
-
-        // Building outline
-        this.context.strokeStyle = '#333333';
-        this.context.lineWidth = 2;
-        this.context.strokeRect(x, y, buildingWidth, buildingHeight);
-
-        // Draw some "floors"
-        const floorHeight = 60;
-        for (let i = 0; i < 10; i++) {
-            const floorY = y + buildingHeight - (i * floorHeight);
-            this.context.strokeRect(x, floorY, buildingWidth, floorHeight);
-        }
+  private drawPeople(): void {
+    if (!this.currentSnapshot) return;
+    for (const person of this.currentSnapshot.people) {
+      this.personRenderer.drawPerson(person);
     }
+  }
 
-    // Public API for mutations (will be called from Svelte buttons)
-    public async addFloor(floorType: string): Promise<void> {
-        const mutation = `
+  private drawUI(): void {
+    if (!this.currentSnapshot) return;
+    this.frameCount++;
+    this.uiRenderer.drawGameStats(this.currentSnapshot.time, this.currentSnapshot.money);
+    this.uiRenderer.drawFrameCounter(this.frameCount);
+  }
+
+  public async addFloor(floorType: FloorTypeGql): Promise<void> {
+    const mutation = `
       mutation AddFloor($floorType: FloorTypeGQL!) {
         addFloor(floorType: $floorType)
       }
     `;
-
-        try {
-            await this.gqlClient.request(mutation, { floorType });
-            console.log(`✅ Added floor: ${floorType}`);
-        } catch (error) {
-            console.error('❌ Failed to add floor:', error);
-        }
+    
+    try {
+      await this.gqlClient.request(mutation, { floorType });
+      console.log(`✅ Added floor: ${floorType}`);
+    } catch (error) {
+      console.error('❌ Failed to add floor:', error);
     }
+  }
 
-    public cleanup(): void {
-        if (this.animationFrameId !== null) {
-            cancelAnimationFrame(this.animationFrameId);
-        }
-
-        // Close WebSocket connection
-        this.wsClient.dispose();
-
-        console.log('🧹 WebGameView cleaned up');
+  public cleanup(): void {
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
     }
+    this.wsClient.dispose();
+    console.log('🧹 WebGameView cleaned up');
+  }
 }
