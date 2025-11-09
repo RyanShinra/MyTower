@@ -165,7 +165,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         # TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
         if dest_horiz_position < Blocks(0) or dest_horiz_position > self.building.building_width:
             raise ValueError(
-                f"Destination block {dest_horiz_position} is out of bounds (0-{float(self.building.building_width)})"
+                f"dest_horiz_position {dest_horiz_position} is out of bounds (0-{float(self.building.building_width)})"
             )
 
         # Validation passed - set destinations directly
