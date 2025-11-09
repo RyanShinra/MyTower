@@ -16,6 +16,7 @@ from mytower.game.controllers.controller_commands import (
     AddPersonCommand, Command, CommandResult)
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
+from mytower.game.core.units import Blocks
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
 
@@ -135,9 +136,9 @@ class GameBridge:
         raise RuntimeError(f"Failed to add floor: {result.error}")
 
 
-    def execute_add_person_sync(self, floor: int, block: float, dest_floor: int, dest_block: int) -> str:
+    def execute_add_person_sync(self, floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks) -> str:
         """Type-safe person addition"""
-        command = AddPersonCommand(floor=floor, block=block, dest_floor=dest_floor, dest_block=dest_block)
+        command = AddPersonCommand(floor=floor, init_horiz_position=init_horiz_position, dest_floor=dest_floor, dest_horiz_position=dest_horiz_position)
         result: CommandResult[str] = self.execute_command_sync(command)
 
         if result.success and result.data is not None:
@@ -145,9 +146,9 @@ class GameBridge:
         raise RuntimeError(f"Failed to add person: {result.error}")
 
 
-    def execute_add_elevator_bank_sync(self, h_cell: int, min_floor: int, max_floor: int) -> str:
+    def execute_add_elevator_bank_sync(self, horiz_position: Blocks, min_floor: int, max_floor: int) -> str:
         """Type-safe elevator bank addition"""
-        command = AddElevatorBankCommand(h_cell=h_cell, min_floor=min_floor, max_floor=max_floor)
+        command = AddElevatorBankCommand(horiz_position=horiz_position, min_floor=min_floor, max_floor=max_floor)
         result: CommandResult[str] = self.execute_command_sync(command)
 
         if result.success and result.data is not None:

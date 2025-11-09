@@ -104,14 +104,14 @@ class GameModel:
             raise RuntimeError(f"Failed to add floor of type {floor_type.name}: {str(e)}") from e
 
 
-    def add_elevator_bank(self, h_cell: int, min_floor: int, max_floor: int) -> str:
+    def add_elevator_bank(self, horiz_position: Blocks, min_floor: int, max_floor: int) -> str:
         """Add a new elevator bank to the building"""
         try:
             elevator_bank = ElevatorBank(
                 logger_provider=self._logger_provider,
                 cosmetics_config=self._config.elevator_cosmetics,
                 building=self._building,
-                horizontal_position=h_cell,
+                horizontal_position=horiz_position,
                 min_floor=min_floor,
                 max_floor=max_floor,
             )
@@ -152,7 +152,7 @@ class GameModel:
             raise RuntimeError(f"Failed to add elevator to bank {el_bank_id}: {str(e)}") from e
 
 
-    def add_person(self, floor: int, block: float, dest_floor: int, dest_block: float) -> str:
+    def add_person(self, floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
             # Concrete construction
@@ -160,18 +160,18 @@ class GameModel:
                 logger_provider=self._logger_provider,
                 building=self._building,
                 initial_floor_number=floor,
-                initial_horiz_position=block,
+                initial_horiz_position=init_horiz_position,
                 config=self._config,
             )
 
-            new_person.set_destination(dest_floor_num=dest_floor, dest_horiz_pos=Blocks(dest_block))
+            new_person.set_destination(dest_floor_num=dest_floor, dest_horiz_pos=dest_horiz_position)
 
             self._people[new_person.person_id] = new_person  # Stored as protocol
             return new_person.person_id
 
         except Exception as e:
             self._logger.exception(f"Failed to add person: {e}")
-            raise RuntimeError(f"Failed to add person at floor {floor}, block {block}: {str(e)}") from e
+            raise RuntimeError(f"Failed to add person at floor {floor}, horiz_position {init_horiz_position}: {str(e)}") from e
 
 
     # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.  # noqa: E501
