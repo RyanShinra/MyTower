@@ -164,7 +164,7 @@ class GameModel:
                 config=self._config,
             )
 
-            new_person.set_destination(dest_floor_num=dest_floor, dest_horiz_pos=dest_horiz_position)
+            new_person.set_destination(dest_floor_num=dest_floor, dest_horiz_position=dest_horiz_position)
 
             self._people[new_person.person_id] = new_person  # Stored as protocol
             return new_person.person_id
