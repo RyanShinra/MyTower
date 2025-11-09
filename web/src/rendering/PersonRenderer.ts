@@ -6,7 +6,7 @@
 import { Blocks } from '../units/Blocks';
 import { PERSON_RADIUS, PIXELS_PER_BLOCK } from './constants';
 import { CoordinateTransform } from './CoordinateTransform';
-import type { PersonSnapshotGql } from '../generated/graphql';
+import type { ColorGql, PersonSnapshotGql } from '../generated/graphql';
 
 export class PersonRenderer {
   private transform: CoordinateTransform;
@@ -76,9 +76,9 @@ export class PersonRenderer {
   private drawPersonCircle(
     x: number,
     y: number,
-    color: { r: number; g: number; b: number }
+    color: ColorGql
   ): void {
-    this.context.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+    this.context.fillStyle = `rgb(${color.red}, ${color.green}, ${color.blue})`;
     this.context.beginPath();
     this.context.arc(x, y, PERSON_RADIUS, 0, 2 * Math.PI);
     this.context.fill();

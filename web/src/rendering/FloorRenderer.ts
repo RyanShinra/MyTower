@@ -7,7 +7,7 @@ import { Blocks } from '../units/Blocks';
 import { Pixels } from '../units/Pixels';
 import { FLOORBOARD_HEIGHT, PIXELS_PER_BLOCK } from './constants';
 import { CoordinateTransform } from './CoordinateTransform';
-import type { FloorSnapshotGql } from '../generated/graphql';
+import type { ColorGql, FloorSnapshotGql } from '../generated/graphql';
 
 export class FloorRenderer {
   private transform: CoordinateTransform;
@@ -56,9 +56,9 @@ export class FloorRenderer {
     y: number,
     width: number,
     height: number,
-    color: { r: number; g: number; b: number }
+    color: ColorGql
   ): void {
-    this.context.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+    this.context.fillStyle = `rgb(${color.red}, ${color.green}, ${color.blue})`;
     this.context.fillRect(x, y, width, height);
   }
 
@@ -66,9 +66,9 @@ export class FloorRenderer {
     x: number,
     y: number,
     width: number,
-    color: { r: number; g: number; b: number }
+    color: ColorGql
   ): void {
-    this.context.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+    this.context.fillStyle = `rgb(${color.red}, ${color.green}, ${color.blue})`;
     this.context.fillRect(x, y, width, FLOORBOARD_HEIGHT);
   }
 
