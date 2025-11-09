@@ -12,9 +12,8 @@
 from __future__ import annotations  # Defer type evaluation
 
 import threading
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, override
 
-from typing_extensions import override
 
 from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
 from mytower.game.core.id_generator import IDGenerator
@@ -44,7 +43,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         logger_provider: LoggerProvider,
         building: BuildingProtocol,
         initial_floor_number: int,
-        initial_horiz_position: float,
+        initial_horiz_position: Blocks,
         config: GameConfig,
     ) -> None:
         # Assign unique ID and increment counter
@@ -53,8 +52,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: BuildingProtocol = building
         self._current_vert_position: Blocks = Blocks(initial_floor_number)
-        self._current_horiz_position: Blocks = Blocks(initial_horiz_position)
-        self._dest_horiz_position: Blocks = Blocks(initial_horiz_position)
+        self._current_horiz_position: Blocks = initial_horiz_position
+        self._dest_horiz_position: Blocks = initial_horiz_position
         self._dest_floor_num: int = initial_floor_number
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY

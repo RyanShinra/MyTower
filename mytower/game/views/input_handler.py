@@ -173,7 +173,7 @@ class InputHandler:
 
         # For simplicity, add elevator bank at horizontal position 0.75 of floor width, spanning all floors
         command = AddElevatorBankCommand(
-            horiz_position=snapshot.floors[0].floor_width * 0.75,  # Place near right edge (already in Blocks)
+            horiz_position=snapshot.floors[0].floor_width * 0.75,
             min_floor=1,
             max_floor=len(snapshot.floors),
         )
