@@ -24,7 +24,7 @@ class AddFloorInput:
 class AddPersonInput:
     """Input for adding a new person to the building"""
 
-    floor: int
+    init_floor: int
     init_horiz_position: Blocks
     dest_floor: int
     dest_horiz_position: Blocks

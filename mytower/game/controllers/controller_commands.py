@@ -51,7 +51,7 @@ class AddFloorCommand(Command[int]):
 
 @dataclass
 class AddPersonCommand(Command[str]):
-    floor: int
+    init_floor: int
     init_horiz_position: Blocks
     dest_floor: int
     dest_horiz_position: Blocks
@@ -59,11 +59,11 @@ class AddPersonCommand(Command[str]):
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
-        if self.floor == self.dest_floor and self.init_horiz_position == self.dest_horiz_position:
+        if self.init_floor == self.dest_floor and self.init_horiz_position == self.dest_horiz_position:
             return CommandResult(success=False, error="Source and destination cannot be the same")
         # NOTE: We will need to revisit this validation if we add basement floors
-        if self.floor < 1:
-            return CommandResult(success=False, error=f"Invalid source floor: {self.floor:.1f}")
+        if self.init_floor < 1:
+            return CommandResult(success=False, error=f"Invalid source floor: {self.init_floor:.1f}")
         if self.dest_floor < 1:
             return CommandResult(success=False, error=f"Invalid destination floor: {self.dest_floor:.1f}")
         if self.dest_horiz_position < Blocks(0.0):
@@ -72,14 +72,14 @@ class AddPersonCommand(Command[str]):
             return CommandResult(success=False, error=f"Invalid source horiz_position: {self.init_horiz_position.value:.2f}")
 
         person_id: str = model.add_person(
-            floor=self.floor, init_horiz_position=self.init_horiz_position, dest_floor=self.dest_floor, dest_horiz_position=self.dest_horiz_position
+            init_floor=self.init_floor, init_horiz_position=self.init_horiz_position, dest_floor=self.dest_floor, dest_horiz_position=self.dest_horiz_position
         )
         return CommandResult(success=True, data=person_id)
 
     @override
     def get_description(self) -> str:
         return (
-            f"Add person at floor {self.floor:.1f}, horiz_position {self.init_horiz_position.value:.2f} "
+            f"Add person at floor {self.init_floor:.1f}, horiz_position {self.init_horiz_position.value:.2f} "
             f"with destination floor {self.dest_floor:.1f}, horiz_position {self.dest_horiz_position.value:.2f}"
         )
 

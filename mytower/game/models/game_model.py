@@ -152,14 +152,14 @@ class GameModel:
             raise RuntimeError(f"Failed to add elevator to bank {el_bank_id}: {str(e)}") from e
 
 
-    def add_person(self, floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks) -> str:
+    def add_person(self, init_floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks) -> str:
         """Add a new person to the building, returns person ID if successful"""
         try:
             # Concrete construction
             new_person: Final[Person] = Person(
                 logger_provider=self._logger_provider,
                 building=self._building,
-                initial_floor_number=floor,
+                initial_floor_number=init_floor,
                 initial_horiz_position=init_horiz_position,
                 config=self._config,
             )
@@ -171,7 +171,7 @@ class GameModel:
 
         except Exception as e:
             self._logger.exception(f"Failed to add person: {e}")
-            raise RuntimeError(f"Failed to add person at floor {floor}, horiz_position {init_horiz_position}: {str(e)}") from e
+            raise RuntimeError(f"Failed to add person at floor {init_floor}, horiz_position {init_horiz_position}: {str(e)}") from e
 
 
     # TODO: #17 The person will likely have dependencies such as being owned by a floor or elevator. We should make sure they are removed from it during this. Other remove methods will also have this issue.  # noqa: E501

@@ -136,9 +136,9 @@ class GameBridge:
         raise RuntimeError(f"Failed to add floor: {result.error}")
 
 
-    def execute_add_person_sync(self, floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks) -> str:
+    def execute_add_person_sync(self, init_floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks) -> str:
         """Type-safe person addition"""
-        command = AddPersonCommand(floor=floor, init_horiz_position=init_horiz_position, dest_floor=dest_floor, dest_horiz_position=dest_horiz_position)
+        command = AddPersonCommand(init_floor=init_floor, init_horiz_position=init_horiz_position, dest_floor=dest_floor, dest_horiz_position=dest_horiz_position)
         result: CommandResult[str] = self.execute_command_sync(command)
 
         if result.success and result.data is not None:

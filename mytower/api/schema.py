@@ -70,7 +70,7 @@ class Mutation:
     @strawberry.mutation
     def add_person(self, input: AddPersonInput) -> str:
         command = AddPersonCommand(
-            floor=input.floor,
+            init_floor=input.init_floor,
             init_horiz_position=input.init_horiz_position,
             dest_floor=input.dest_floor,
             dest_horiz_position=input.dest_horiz_position
@@ -103,7 +103,7 @@ class Mutation:
     @strawberry.mutation
     def add_person_sync(self, input: AddPersonInput) -> str:
         return get_game_bridge().execute_add_person_sync(
-            input.floor,
+            input.init_floor,
             input.init_horiz_position,
             input.dest_floor,
             input.dest_horiz_position

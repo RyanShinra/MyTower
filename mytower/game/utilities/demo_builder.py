@@ -54,11 +54,11 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
 
 
     def add_person(
-        current_floor_num: int, init_horiz_position: Blocks, dest_floor_num: int, dest_horiz_position: Blocks
+        init_floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks
     ) -> str:
         result: Final[CommandResult[str]] = controller.execute_command(
             AddPersonCommand(
-                floor=current_floor_num, init_horiz_position=init_horiz_position, dest_floor=dest_floor_num, dest_horiz_position=dest_horiz_position
+                init_floor=init_floor, init_horiz_position=init_horiz_position, dest_floor=dest_floor, dest_horiz_position=dest_horiz_position
             )
         )
         if result.success and result.data is not None:
@@ -90,9 +90,9 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
     elevator_bank_id: str = add_elevator_bank(horiz_position=Blocks(14), min_floor=1, max_floor=top_floor)
     add_elevator(elevator_bank_id)
 
-    add_person(current_floor_num=1, init_horiz_position=Blocks(1.0), dest_floor_num=12, dest_horiz_position=Blocks(7.0))
-    add_person(current_floor_num=1, init_horiz_position=Blocks(3.0), dest_floor_num=3, dest_horiz_position=Blocks(7.0))
-    add_person(current_floor_num=1, init_horiz_position=Blocks(6.0), dest_floor_num=7, dest_horiz_position=Blocks(7.0))
-    add_person(current_floor_num=12, init_horiz_position=Blocks(1.0), dest_floor_num=1, dest_horiz_position=Blocks(1.0))
+    add_person(init_floor=1, init_horiz_position=Blocks(1.0), dest_floor=12, dest_horiz_position=Blocks(7.0))
+    add_person(init_floor=1, init_horiz_position=Blocks(3.0), dest_floor=3, dest_horiz_position=Blocks(7.0))
+    add_person(init_floor=1, init_horiz_position=Blocks(6.0), dest_floor=7, dest_horiz_position=Blocks(7.0))
+    add_person(init_floor=12, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
 
     demo_logger.info("Demo building complete.")
