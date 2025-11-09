@@ -139,12 +139,12 @@ class InputHandler:
         right_bounds: int = int(snapshot.floors[0].floor_width) + left_bounds
 
         start_floor: int = random.randint(1, len(snapshot.floors))
-        start_block: float = random.uniform(left_bounds, right_bounds)
+        start_horiz_position: float = random.uniform(left_bounds, right_bounds)
 
         dest_floor: int = random.randint(1, len(snapshot.floors))
-        dest_block: float = random.uniform(left_bounds, right_bounds)
+        dest_horiz_position: float = random.uniform(left_bounds, right_bounds)
 
-        command = AddPersonCommand(floor=start_floor, block=start_block, dest_floor=dest_floor, dest_block=dest_block)
+        command = AddPersonCommand(init_floor=start_floor, init_horiz_position=Blocks(start_horiz_position), dest_floor=dest_floor, dest_horiz_position=Blocks(dest_horiz_position))
         cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddPerson command: {cmd_id} (from floor {start_floor} to floor {dest_floor})")
 
@@ -171,11 +171,9 @@ class InputHandler:
             self._logger.info("Only one elevator bank available during demo; skipping addition")
             return
 
-        # For simplicity, add elevator bank at horizontal cell 0, spanning all floors
+        # For simplicity, add elevator bank at horizontal position 0.75 of floor width, spanning all floors
         command = AddElevatorBankCommand(
-            h_cell=int(
-                snapshot.floors[0].floor_width * 0.75
-            ),  # Place near right edge # TODO: Let's turn this into block units
+            horiz_position=snapshot.floors[0].floor_width * 0.75,
             min_floor=1,
             max_floor=len(snapshot.floors),
         )

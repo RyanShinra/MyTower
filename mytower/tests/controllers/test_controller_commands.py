@@ -9,6 +9,7 @@ from mytower.game.controllers.controller_commands import (
     CommandResult,
 )
 from mytower.game.core.types import FloorType
+from mytower.game.core.units import Blocks
 from mytower.game.models.game_model import GameModel
 
 
@@ -100,20 +101,20 @@ class TestAddPersonCommand:
 
     def test_command_creation(self) -> None:
         """Test creating AddPersonCommand"""
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4.0)
+        command: Final[AddPersonCommand] = AddPersonCommand(init_floor=1, init_horiz_position=Blocks(2.5), dest_floor=3, dest_horiz_position=Blocks(4.0))
 
-        assert command.floor == 1
-        assert command.block == 2.5
+        assert command.init_floor == 1
+        assert command.init_horiz_position == Blocks(2.5)
         assert command.dest_floor == 3
-        assert command.dest_block == 4.0
+        assert command.dest_horiz_position == Blocks(4.0)
 
     def test_get_description(self) -> None:
         """Test command description generation"""
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=2.5, dest_floor=3, dest_block=4.0)
+        command: Final[AddPersonCommand] = AddPersonCommand(init_floor=1, init_horiz_position=Blocks(2.5), dest_floor=3, dest_horiz_position=Blocks(4.0))
 
         description: Final[str] = command.get_description()
-        assert "Add person at floor 1.0, block 2.50" in description
-        assert "destination floor 3.0, block 4.00" in description
+        assert "Add person at floor 1.0, horiz_position 2.50" in description
+        assert "destination floor 3.0, horiz_position 4.00" in description
 
 
     def test_execute_success(self) -> None:
@@ -121,20 +122,20 @@ class TestAddPersonCommand:
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
         mock_model.add_person.return_value = "person_123"
 
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=2, block=1.0, dest_floor=5, dest_block=3.0)
+        command: Final[AddPersonCommand] = AddPersonCommand(init_floor=2, init_horiz_position=Blocks(1.0), dest_floor=5, dest_horiz_position=Blocks(3.0))
         result: Final[CommandResult[str]] = command.execute(mock_model)
 
         assert result.success is True
         assert result.data == "person_123"
         assert result.error is None
-        mock_model.add_person.assert_called_once_with(floor=2, block=1.0, dest_floor=5, dest_block=3.0)
+        mock_model.add_person.assert_called_once_with(init_floor=2, init_horiz_position=Blocks(1.0), dest_floor=5, dest_horiz_position=Blocks(3.0))
 
 
     def test_execute_same_source_and_destination_fails(self) -> None:
         """Test that same source and destination causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
 
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=2, block=1.0, dest_floor=2, dest_block=1.0)
+        command: Final[AddPersonCommand] = AddPersonCommand(init_floor=2, init_horiz_position=Blocks(1.0), dest_floor=2, dest_horiz_position=Blocks(1.0))
         result: Final[CommandResult[str]] = command.execute(mock_model)
 
         assert result.success is False
@@ -148,14 +149,14 @@ class TestAddPersonCommand:
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
 
         # Invalid source floor
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=0, block=1.0, dest_floor=2, dest_block=2.0)
+        command: Final[AddPersonCommand] = AddPersonCommand(init_floor=0, init_horiz_position=Blocks(1.0), dest_floor=2, dest_horiz_position=Blocks(2.0))
         result: Final[CommandResult[str]] = command.execute(mock_model)
         assert result.success is False
         assert result.error is not None
         assert "Invalid source floor: 0" in result.error
 
         # Invalid destination floor
-        command2: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=1.0, dest_floor=-1, dest_block=2.0)
+        command2: Final[AddPersonCommand] = AddPersonCommand(init_floor=1, init_horiz_position=Blocks(1.0), dest_floor=-1, dest_horiz_position=Blocks(2.0))
         result2: Final[CommandResult[str]] = command2.execute(mock_model)
         assert result2.success is False
         assert result2.error is not None
@@ -163,22 +164,22 @@ class TestAddPersonCommand:
 
 
     def test_execute_invalid_block_validation(self) -> None:
-        """Test block validation"""
+        """Test horiz_position validation"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
 
-        # Invalid source block
-        command: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=-1.0, dest_floor=2, dest_block=2.0)
+        # Invalid source horiz_position
+        command: Final[AddPersonCommand] = AddPersonCommand(init_floor=1, init_horiz_position=Blocks(-1.0), dest_floor=2, dest_horiz_position=Blocks(2.0))
         result: Final[CommandResult[str]] = command.execute(mock_model)
         assert result.success is False
         assert result.error is not None
-        assert "Invalid source block: -1.0" in result.error
+        assert "Invalid source horiz_position: -1.0" in result.error
 
-        # Invalid destination block
-        command2: Final[AddPersonCommand] = AddPersonCommand(floor=1, block=1.0, dest_floor=2, dest_block=-2.0)
+        # Invalid destination horiz_position
+        command2: Final[AddPersonCommand] = AddPersonCommand(init_floor=1, init_horiz_position=Blocks(1.0), dest_floor=2, dest_horiz_position=Blocks(-2.0))
         result2: Final[CommandResult[str]] = command2.execute(mock_model)
         assert result2.success is False
         assert result2.error is not None
-        assert "Invalid destination block: -2" in result2.error
+        assert "Invalid destination horiz_position: -2" in result2.error
 
 
 class TestAddElevatorBankCommand:
@@ -186,18 +187,18 @@ class TestAddElevatorBankCommand:
 
     def test_command_creation(self) -> None:
         """Test creating AddElevatorBankCommand"""
-        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(h_cell=5, min_floor=1, max_floor=10)
+        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(horiz_position=Blocks(5), min_floor=1, max_floor=10)
 
-        assert command.h_cell == 5
+        assert command.horiz_position == Blocks(5)
         assert command.min_floor == 1
         assert command.max_floor == 10
 
     def test_get_description(self) -> None:
         """Test command description generation"""
-        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(h_cell=3, min_floor=2, max_floor=8)
+        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(horiz_position=Blocks(3), min_floor=2, max_floor=8)
 
         description: Final[str] = command.get_description()
-        assert "Add elevator bank at horizontal cell 3.0" in description
+        assert "Add elevator bank at horizontal position 3.0" in description
         assert "from floor 2.0 to 8.0" in description
 
 
@@ -206,25 +207,25 @@ class TestAddElevatorBankCommand:
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
         mock_model.add_elevator_bank.return_value = "bank_456"
 
-        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(h_cell=2, min_floor=1, max_floor=5)
+        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(horiz_position=Blocks(2), min_floor=1, max_floor=5)
         result: Final[CommandResult[str]] = command.execute(mock_model)
 
         assert result.success is True
         assert result.data == "bank_456"
         assert result.error is None
-        mock_model.add_elevator_bank.assert_called_once_with(h_cell=2, min_floor=1, max_floor=5)
+        mock_model.add_elevator_bank.assert_called_once_with(horiz_position=Blocks(2), min_floor=1, max_floor=5)
 
 
     def test_execute_invalid_h_cell_fails(self) -> None:
-        """Test that invalid horizontal cell causes failure"""
+        """Test that invalid horizontal position causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
 
-        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(h_cell=-1, min_floor=1, max_floor=5)
+        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(horiz_position=Blocks(-1), min_floor=1, max_floor=5)
         result: Final[CommandResult[str]] = command.execute(mock_model)
 
         assert result.success is False
         assert result.error is not None
-        assert "Invalid horizontal cell: -1" in result.error
+        assert "Invalid horizontal position: -1" in result.error
         mock_model.add_elevator_bank.assert_not_called()
 
 
@@ -232,7 +233,7 @@ class TestAddElevatorBankCommand:
         """Test that invalid min floor causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
 
-        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(h_cell=1, min_floor=0, max_floor=5)
+        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(horiz_position=Blocks(1), min_floor=0, max_floor=5)
         result: Final[CommandResult[str]] = command.execute(mock_model)
 
         assert result.success is False
@@ -245,7 +246,7 @@ class TestAddElevatorBankCommand:
         """Test that max floor less than min floor causes failure"""
         mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
 
-        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(h_cell=1, min_floor=5, max_floor=3)
+        command: Final[AddElevatorBankCommand] = AddElevatorBankCommand(horiz_position=Blocks(1), min_floor=5, max_floor=3)
         result: Final[CommandResult[str]] = command.execute(mock_model)
 
         assert result.success is False

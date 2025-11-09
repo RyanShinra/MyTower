@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 
 from typing_extensions import override
 
+from mytower.game.core.units import Blocks
+
 if TYPE_CHECKING:
     from mytower.game.core.types import FloorType
     from mytower.game.models.game_model import GameModel
@@ -49,50 +51,50 @@ class AddFloorCommand(Command[int]):
 
 @dataclass
 class AddPersonCommand(Command[str]):
-    floor: int
-    block: float
+    init_floor: int
+    init_horiz_position: Blocks
     dest_floor: int
-    dest_block: float
+    dest_horiz_position: Blocks
 
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
-        if self.floor == self.dest_floor and self.block == self.dest_block:
+        if self.init_floor == self.dest_floor and self.init_horiz_position == self.dest_horiz_position:
             return CommandResult(success=False, error="Source and destination cannot be the same")
         # NOTE: We will need to revisit this validation if we add basement floors
-        if self.floor < 1:
-            return CommandResult(success=False, error=f"Invalid source floor: {self.floor:.1f}")
+        if self.init_floor < 1:
+            return CommandResult(success=False, error=f"Invalid source floor: {self.init_floor:.1f}")
         if self.dest_floor < 1:
             return CommandResult(success=False, error=f"Invalid destination floor: {self.dest_floor:.1f}")
-        if self.dest_block < 0.0:
-            return CommandResult(success=False, error=f"Invalid destination block: {self.dest_block:.2f}")
-        if self.block < 0.0:
-            return CommandResult(success=False, error=f"Invalid source block: {self.block:.2f}")
+        if self.dest_horiz_position < Blocks(0.0):
+            return CommandResult(success=False, error=f"Invalid destination horiz_position: {self.dest_horiz_position.value:.2f}")
+        if self.init_horiz_position < Blocks(0.0):
+            return CommandResult(success=False, error=f"Invalid source horiz_position: {self.init_horiz_position.value:.2f}")
 
         person_id: str = model.add_person(
-            floor=self.floor, block=self.block, dest_floor=self.dest_floor, dest_block=self.dest_block
+            init_floor=self.init_floor, init_horiz_position=self.init_horiz_position, dest_floor=self.dest_floor, dest_horiz_position=self.dest_horiz_position
         )
         return CommandResult(success=True, data=person_id)
 
     @override
     def get_description(self) -> str:
         return (
-            f"Add person at floor {self.floor:.1f}, block {self.block:.2f} "
-            f"with destination floor {self.dest_floor:.1f}, block {self.dest_block:.2f}"
+            f"Add person at floor {self.init_floor:.1f}, horiz_position {self.init_horiz_position.value:.2f} "
+            f"with destination floor {self.dest_floor:.1f}, horiz_position {self.dest_horiz_position.value:.2f}"
         )
 
 
 @dataclass
 class AddElevatorBankCommand(Command[str]):
-    h_cell: int
+    horiz_position: Blocks
     min_floor: int
     max_floor: int
 
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
-        if self.h_cell < 0:
-            return CommandResult(success=False, error=f"Invalid horizontal cell: {self.h_cell:.6f}")
+        if self.horiz_position < Blocks(0):
+            return CommandResult(success=False, error=f"Invalid horizontal position: {self.horiz_position.value:.6f}")
 
         # NOTE: This will need to be revisited if we add basement floors
         if self.min_floor < 1:
@@ -102,14 +104,14 @@ class AddElevatorBankCommand(Command[str]):
                 success=False, error=f"max_floor must be >= min_floor: {self.max_floor:.1f} < {self.min_floor:.1f}"
             )
         el_bank_id: str = model.add_elevator_bank(
-            h_cell=self.h_cell, min_floor=self.min_floor, max_floor=self.max_floor
+            horiz_position=self.horiz_position, min_floor=self.min_floor, max_floor=self.max_floor
         )
         return CommandResult(success=True, data=el_bank_id)
 
     @override
     def get_description(self) -> str:
         return (
-            f"Add elevator bank at horizontal cell {self.h_cell:.2f} "
+            f"Add elevator bank at horizontal position {self.horiz_position.value:.2f} "
             f"from floor {self.min_floor:.1f} to {self.max_floor:.1f}"
         )
 

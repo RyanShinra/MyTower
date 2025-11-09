@@ -12,9 +12,8 @@
 from __future__ import annotations  # Defer type evaluation
 
 import threading
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, override
 
-from typing_extensions import override
 
 from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
 from mytower.game.core.id_generator import IDGenerator
@@ -44,7 +43,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         logger_provider: LoggerProvider,
         building: BuildingProtocol,
         initial_floor_number: int,
-        initial_horiz_position: float,
+        initial_horiz_position: Blocks,
         config: GameConfig,
     ) -> None:
         # Assign unique ID and increment counter
@@ -53,8 +52,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
         self._logger: MyTowerLogger = logger_provider.get_logger("person")
         self._building: BuildingProtocol = building
         self._current_vert_position: Blocks = Blocks(initial_floor_number)
-        self._current_horiz_position: Blocks = Blocks(initial_horiz_position)
-        self._dest_horiz_position: Blocks = Blocks(initial_horiz_position)
+        self._current_horiz_position: Blocks = initial_horiz_position
+        self._dest_horiz_position: Blocks = initial_horiz_position
         self._dest_floor_num: int = initial_floor_number
         self._state: PersonState = PersonState.IDLE
         self._direction: HorizontalDirection = HorizontalDirection.STATIONARY
@@ -157,21 +156,21 @@ class Person(PersonProtocol, PersonTestingProtocol):
 
 
     @override
-    def set_destination(self, dest_floor_num: int, dest_horiz_pos: Blocks) -> None:
+    def set_destination(self, dest_floor_num: int, dest_horiz_position: Blocks) -> None:
         # Check if destination values are out of bounds and raise warnings
         # TODO: This will need be revised if we ever have buildings with negative floor numbers
         if dest_floor_num < 0 or dest_floor_num > self.building.num_floors:
             raise ValueError(f"Destination floor {dest_floor_num} is out of bounds (0-{self.building.num_floors})")
 
         # TODO: We will need to revisit this when buildings don't start at block 0 (the far left edge of the screen)
-        if dest_horiz_pos < Blocks(0) or dest_horiz_pos > self.building.building_width:
+        if dest_horiz_position < Blocks(0) or dest_horiz_position > self.building.building_width:
             raise ValueError(
-                f"Destination block {dest_horiz_pos} is out of bounds (0-{float(self.building.building_width)})"
+                f"dest_horiz_position {dest_horiz_position} is out of bounds (0-{float(self.building.building_width)})"
             )
 
         # Validation passed - set destinations directly
         self._dest_floor_num = dest_floor_num
-        self._dest_horiz_position = dest_horiz_pos
+        self._dest_horiz_position = dest_horiz_position
 
 
     @override
