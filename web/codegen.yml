@@ -1,0 +1,29 @@
+
+# GraphQL Code Generator Configuration
+# Generates TypeScript types from Python GraphQL schema
+
+overwrite: true
+schema: http://localhost:8000/graphql
+generates:
+  src/generated/graphql.ts:
+    plugins:
+      - typescript
+    config:
+      # Map your custom scalars to TypeScript types
+      scalars:
+        Time: number
+        Blocks: number
+        Meters: number
+        Pixels: number
+        Velocity: number
+      
+      # Generate clean, readable types
+      skipTypename: false
+      enumsAsTypes: true
+      immutableTypes: true
+      
+      # Use `type` instead of `interface` (more flexible)
+      declarationKind: 'type'
+      
+      # Add helpful comments
+      addDocBlocks: true
