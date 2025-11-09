@@ -75,15 +75,15 @@ export class WebGameView {
             leftEdgeBlock
             floorWidth
             personCount
-            floorColor { r g b }
-            floorboardColor { r g b }
+            floorColor { red green blue }
+            floorboardColor { red green blue }
           }
           elevators {
             id
             verticalPosition
             horizontalPosition
             destinationFloor
-            elevatorState
+            state
             nominalDirection
             doorOpen
             passengerCount
@@ -98,7 +98,7 @@ export class WebGameView {
             state
             waitingTime
             madFraction
-            drawColor { r g b }
+            drawColor { red green blue }
           }
         }
       }
