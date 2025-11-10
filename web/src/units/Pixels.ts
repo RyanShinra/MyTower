@@ -13,6 +13,9 @@ export class Pixels {
 
   private constructor(value: number) {
     // Pixels are always integers
+    if (!Number.isFinite(value)) {
+      throw new Error(`Pixels value must be finite, got ${value}`);
+    }
     const intValue = Math.round(value);
     this._value = intValue as PixelsValue;
   }
