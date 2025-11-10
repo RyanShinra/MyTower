@@ -1,5 +1,3 @@
-# type: ignore
-# TODO: There's some idioms in here that mypy / pyright doesn't like; fix them later.
 """
 GraphQL scalar types for dimensional units.
 
