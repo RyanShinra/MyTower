@@ -26,9 +26,19 @@ export class UIRenderer {
     );
   }
 
+  public showConnectionError(message: string): void {
+    this.context.fillStyle = '#ff0000';
+    this.context.font = '24px Helvetica';
+    this.context.textAlign = 'center';
+    this.context.textBaseline = 'middle';
+    const centerX = this.context.canvas.width / 2;
+    const centerY = this.canvasHeight / 2;
+    this.context.fillText(message, centerX, centerY);
+  }
+
   public drawWaitingMessage(): void {
     this.context.fillStyle = '#666';
-    this.context.font = '24px Arial';
+    this.context.font = '24px Helvetica';
     this.context.textAlign = 'center';
     this.context.textBaseline = 'middle';
     
@@ -40,8 +50,8 @@ export class UIRenderer {
       centerX,
       centerY
     );
-    
-    this.context.font = '16px Arial';
+
+    this.context.font = '16px Helvetica';
     this.context.fillText(
       'Make sure MyTower is running in hybrid or headless mode',
       centerX,
