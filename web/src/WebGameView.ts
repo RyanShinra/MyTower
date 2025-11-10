@@ -61,6 +61,16 @@ export class WebGameView {
     this.startRenderLoop();
     
     console.log('🎮 WebGameView initialized with typed units system');
+
+    // Handle WebSocket connection errors and closures
+    this.wsClient.on('error', (error: any) => {
+      console.error('WebSocket connection error:', error);
+      this.uiRenderer.showConnectionError('Connection to game server failed.');
+    });
+    this.wsClient.on('closed', () => {
+      console.warn('WebSocket connection closed');
+      this.uiRenderer.showConnectionError('Connection to game server lost.');
+    });
   }
 
   private subscribeToBuilding(): void {
