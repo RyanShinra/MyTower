@@ -4,7 +4,7 @@
  */
 
 import type { PixelsValue } from './types';
-import { METERS_PER_BLOCK, PIXELS_PER_METER, PIXELS_PER_BLOCK } from './constants';
+import { PIXELS_PER_METER, PIXELS_PER_BLOCK } from './constants';
 import { Blocks } from './Blocks';
 import { Meters } from './Meters';
 
