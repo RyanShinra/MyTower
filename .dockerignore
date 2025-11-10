@@ -1,0 +1,65 @@
+# Python caches and bytecode
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.Python
+
+# Virtual environments
+.venv
+venv
+env
+ENV
+
+# Git repository
+.git
+.gitignore
+.gitattributes
+
+# Testing and coverage
+.pytest_cache
+.coverage
+htmlcov
+.tox
+.mypy_cache
+.ruff_cache
+*.cover
+.hypothesis
+
+# Logs
+logs/
+*.log
+
+# Development files
+.env
+.env.local
+.env.*.local
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+
+# Web frontend (built separately)
+web/node_modules
+web/dist
+web/.vite
+
+# Documentation
+*.md
+docs/
+notes/
+
+# AWS and deployment
+.aws/
+deploy-to-aws.sh
+
+# Test and scratch files
+scratch*.py
+interview-*.py
+test-*.py
