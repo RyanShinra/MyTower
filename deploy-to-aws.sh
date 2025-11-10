@@ -81,11 +81,66 @@ echo "📤 Pushing image to ECR (this may take a few minutes)..."
 docker push $IMAGE_URI
 
 if [ $? -ne 0 ]; then
-    echo "❌ Push to ECR failed!"
+    echo "❌ Error: Failed to push image to ECR!"
+    echo "   This could be due to:"
+    echo "   - Network connectivity issues"
+    echo "   - ECR repository does not exist"
+    echo "   - Insufficient permissions"
     exit 1
 fi
 
 echo "   ✅ Image pushed successfully"
+echo ""
+
+# Verify push by pulling image
+echo "🔍 Verifying image push (pulling from ECR)..."
+docker pull $IMAGE_URI
+
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to pull image from ECR!"
+    echo "   The image was pushed but cannot be pulled back."
+    echo "   This indicates the push may have been incomplete or corrupted."
+    echo "   Please retry the deployment."
+    exit 1
+fi
+
+echo "   ✅ Image verified - pull successful"
+echo ""
+
+# Create deployment metadata
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+DEPLOY_TAG="deploy-$(date +%Y%m%d-%H%M%S)"
+METADATA_FILE="deployments/${DEPLOY_TAG}.json"
+
+echo "📝 Creating deployment metadata..."
+mkdir -p deployments
+
+cat > "$METADATA_FILE" << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "deploy_tag": "$DEPLOY_TAG",
+  "branch": "$BRANCH",
+  "commit": "$COMMIT",
+  "commit_full": "$(git rev-parse HEAD)",
+  "image_uri": "$IMAGE_URI",
+  "region": "$REGION",
+  "repository": "$REPOSITORY_NAME"
+}
+EOF
+
+echo "   ✅ Metadata saved to: $METADATA_FILE"
+echo ""
+
+# Create git tag for successful deployment
+echo "🏷️  Creating git tag..."
+git tag -a $DEPLOY_TAG -m "Deployed to AWS: $COMMIT on $TIMESTAMP"
+
+if [ $? -ne 0 ]; then
+    echo "⚠️  Warning: Failed to create git tag (deployment was successful)"
+else
+    echo "   ✅ Tagged: $DEPLOY_TAG"
+    echo "   💡 Push tag with: git push origin $DEPLOY_TAG"
+fi
 echo ""
 
 # Check if there are running tasks
@@ -140,10 +195,5 @@ echo "   Branch: $BRANCH"
 echo "   Commit: $COMMIT"
 echo "   Image: $IMAGE_URI"
 echo "   Region: $REGION"
-
-# After successful deployment, add this before the summary:
-echo "🏷️  Creating git tag..."
-TAG="deploy-$(date +%Y%m%d-%H%M%S)"
-git tag -a $TAG -m "Deployed to AWS: $COMMIT"
-echo "   ✅ Tagged: $TAG"
-echo "   Push tag with: git push origin $TAG"
+echo "   Deploy Tag: $DEPLOY_TAG"
+echo "   Metadata: $METADATA_FILE"
