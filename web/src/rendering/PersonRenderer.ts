@@ -52,9 +52,7 @@ export class PersonRenderer {
     const destX = this.calculateXPosition(person.destinationHorizontalPosition);
     // If destinationVerticalPosition exists, use it; otherwise, convert floorNum to vertical position
     const destY = this.calculateYPosition(
-      typeof person.destinationVerticalPosition === 'number'
-        ? person.destinationVerticalPosition
-        : person.destinationFloorNum - 0.5
+      person.destinationFloorNum - 0.5
     );
 
     // TODO: Remove this once we have proper state management
