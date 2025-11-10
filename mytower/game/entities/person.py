@@ -67,7 +67,7 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if initial_floor_number < 0 or initial_floor_number > building.num_floors:
             raise ValueError(f"Initial floor {initial_floor_number} is out of bounds (0-{building.num_floors})")
 
-        if initial_horiz_position < 0 or initial_horiz_position > float(building.building_width):
+        if initial_horiz_position < Blocks(0) or initial_horiz_position > building.building_width:
             raise ValueError(f"Initial block {initial_horiz_position} is out of bounds (0-{building.building_width})")
 
         self._current_floor: FloorProtocol | None = None
