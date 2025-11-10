@@ -124,6 +124,9 @@ export class WebGameView {
         error: (error: any) => {
           console.error('❌ Subscription error:', error);
         },
+        complete: () => {
+          console.log('ℹ️ Subscription completed');
+        }
       }
     );
   }
