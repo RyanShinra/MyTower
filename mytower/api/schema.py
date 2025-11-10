@@ -63,12 +63,14 @@ class Mutation:
 
     @strawberry.mutation
     def add_floor(self, input: AddFloorInput) -> str:
+        input.validate()
         domain_floor_type = FloorType(input.floor_type.value)
         command = AddFloorCommand(floor_type=domain_floor_type)
         return queue_command(command)
 
     @strawberry.mutation
     def add_person(self, input: AddPersonInput) -> str:
+        input.validate()
         command = AddPersonCommand(
             init_floor=input.init_floor,
             init_horiz_position=input.init_horiz_position,
@@ -79,6 +81,7 @@ class Mutation:
 
     @strawberry.mutation
     def add_elevator_bank(self, input: AddElevatorBankInput) -> str:
+        input.validate()
         command = AddElevatorBankCommand(
             horiz_position=input.horiz_position,
             min_floor=input.min_floor,
@@ -88,6 +91,7 @@ class Mutation:
 
     @strawberry.mutation
     def add_elevator(self, input: AddElevatorInput) -> str:
+        input.validate()
         command = AddElevatorCommand(elevator_bank_id=input.elevator_bank_id)
         return queue_command(command)
 
@@ -97,11 +101,13 @@ class Mutation:
     # Not recommended for production use due to blocking nature
     @strawberry.mutation
     def add_floor_sync(self, input: AddFloorInput) -> int:
+        input.validate()
         domain_floor_type = FloorType(input.floor_type.value)
         return get_game_bridge().execute_add_floor_sync(domain_floor_type)
 
     @strawberry.mutation
     def add_person_sync(self, input: AddPersonInput) -> str:
+        input.validate()
         return get_game_bridge().execute_add_person_sync(
             input.init_floor,
             input.init_horiz_position,
@@ -111,6 +117,7 @@ class Mutation:
 
     @strawberry.mutation
     def add_elevator_bank_sync(self, input: AddElevatorBankInput) -> str:
+        input.validate()
         return get_game_bridge().execute_add_elevator_bank_sync(
             input.horiz_position,
             input.min_floor,
@@ -119,6 +126,7 @@ class Mutation:
 
     @strawberry.mutation
     def add_elevator_sync(self, input: AddElevatorInput) -> str:
+        input.validate()
         return get_game_bridge().execute_add_elevator_sync(input.elevator_bank_id)
 
 # TODO: Consider using the logging library instead of print statements for better control over output
