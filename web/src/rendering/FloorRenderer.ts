@@ -4,7 +4,6 @@
  */
 
 import { Blocks } from '../units/Blocks';
-import { Pixels } from '../units/Pixels';
 import { FLOORBOARD_HEIGHT, PIXELS_PER_BLOCK } from './constants';
 import { CoordinateTransform } from './CoordinateTransform';
 import type { ColorGql, FloorSnapshotGql } from '../generated/graphql';
