@@ -66,10 +66,12 @@ export class WebGameView {
     this.wsClient.on('error', (error: any) => {
       console.error('WebSocket connection error:', error);
       this.uiRenderer.showConnectionError('Connection to game server failed.');
+      this.currentSnapshot = null;
     });
     this.wsClient.on('closed', () => {
       console.warn('WebSocket connection closed');
       this.uiRenderer.showConnectionError('Connection to game server lost.');
+      this.currentSnapshot = null;
     });
   }
 
@@ -123,6 +125,8 @@ export class WebGameView {
         },
         error: (error: any) => {
           console.error('❌ Subscription error:', error);
+          this.uiRenderer.showConnectionError('Subscription to game server failed.');
+          this.currentSnapshot = null;
         },
         complete: () => {
           console.log('ℹ️ Subscription completed');

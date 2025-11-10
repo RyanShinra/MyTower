@@ -23,7 +23,6 @@
 
     <div class="info">
         <h1>MyTower Web</h1>
-        <p>Canvas rendered, WebSocket coming soon...</p>
     </div>
 </div>
 
