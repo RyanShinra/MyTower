@@ -31,7 +31,7 @@ export class Meters {
   }
 
   public toBlocks(): import('./Blocks').Blocks {
-    return Blocks.from(this._value * METERS_PER_BLOCK);
+    return Blocks.from(this._value / METERS_PER_BLOCK);
   }
 
   public add(other: Meters): Meters {
