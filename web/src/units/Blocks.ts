@@ -60,6 +60,9 @@ export class Blocks {
   }
 
   public div(scalar: number): Blocks {
+    if (scalar === 0) {
+      throw new Error('Cannot divide Blocks by zero');
+    }
     return Blocks.from(this._value / scalar);
   }
 
