@@ -77,7 +77,7 @@ class AddElevatorBankInput:
             raise ValueError(f"Maximum floor must be between 1 and 100, got {self.max_floor}")
 
         # Validate max >= min
-        if not self.max_floor < self.min_floor:
+        if self.max_floor < self.min_floor:
             raise ValueError(
                 f"Maximum floor ({self.max_floor}) must be greater than or equal to minimum floor ({self.min_floor})"
             )
