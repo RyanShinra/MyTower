@@ -5,6 +5,7 @@ Provides the GameBridge class for safe command queuing and state retrieval,
 and exposes a singleton instance for use throughout the application.
 """
 
+import logging
 import queue
 import threading
 from queue import Queue
@@ -18,6 +19,8 @@ from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks
 from mytower.game.models.model_snapshots import BuildingSnapshot
+
+logger = logging.getLogger("mytower.api.game_bridge")
 
 
 class GameBridge:
@@ -41,6 +44,11 @@ class GameBridge:
         bridge.get_building_state()
     """
 
+    # Command result TTL in seconds - results older than this are cleaned up
+    COMMAND_RESULT_TTL_SECONDS: float = 60.0
+    # How often to run cleanup (every N seconds)
+    CLEANUP_INTERVAL_SECONDS: float = 10.0
+
 
     def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
 
@@ -53,7 +61,9 @@ class GameBridge:
         self._game_thread_id: int | None = None
 
         self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
-        self._command_results: dict[str, CommandResult[Any]] = {}
+        # Store command results with timestamps: {command_id: (timestamp, result)}
+        self._command_results: dict[str, tuple[float, CommandResult[Any]]] = {}
+        self._last_cleanup_time: float = time()
 
         self._latest_snapshot: BuildingSnapshot | None = None
         self._snapshot_interval_s: float = 1.0 / snapshot_fps
@@ -66,6 +76,28 @@ class GameBridge:
     def game_thread_ready(self) -> threading.Event:
         return self._game_thread_ready
 
+    def _cleanup_old_command_results(self) -> None:
+        """
+        Remove command results older than COMMAND_RESULT_TTL_SECONDS.
+        Must be called with _update_lock held.
+        """
+        current_time = time()
+        cutoff_time = current_time - self.COMMAND_RESULT_TTL_SECONDS
+
+        # Find expired command IDs
+        expired_ids = [
+            cmd_id for cmd_id, (timestamp, _) in self._command_results.items()
+            if timestamp < cutoff_time
+        ]
+
+        # Remove expired results
+        if expired_ids:
+            for cmd_id in expired_ids:
+                del self._command_results[cmd_id]
+            logger.info(
+                f"Cleaned up {len(expired_ids)} old command results "
+                f"(total remaining: {len(self._command_results)})"
+            )
 
     def update_game(self, dt: float) -> None:
         """Update the game controller and process commands"""
@@ -87,10 +119,19 @@ class GameBridge:
         # End of with self._command_lock, releases self._command_lock
 
         with self._update_lock:
+            current_time = time()
+
+            # Execute commands and store results with timestamps
             for cmd_id, command in commands_this_frame:
-                self._command_results[cmd_id] = self._controller.execute_command(command)
+                result = self._controller.execute_command(command)
+                self._command_results[cmd_id] = (current_time, result)
 
             self._controller.update(dt)
+
+            # Periodic cleanup of old command results
+            if current_time - self._last_cleanup_time >= self.CLEANUP_INTERVAL_SECONDS:
+                self._cleanup_old_command_results()
+                self._last_cleanup_time = current_time
 
             new_snapshot: BuildingSnapshot = self._controller.get_building_state()
         # End of with self._update_lock, releases self._update_lock
@@ -119,11 +160,16 @@ class GameBridge:
 
     def get_command_result_sync(self, command_id: str) -> CommandResult[Any] | None:
         with self._update_lock:
-            return self._command_results.get(command_id, None)
+            result_tuple = self._command_results.get(command_id, None)
+            if result_tuple is None:
+                return None
+            # Extract just the result from the (timestamp, result) tuple
+            return result_tuple[1]
 
     def get_all_command_results_sync(self) -> dict[str, CommandResult[Any]]:
         with self._update_lock:
-            return dict(self._command_results)  # Return a copy
+            # Extract just the results from the (timestamp, result) tuples
+            return {cmd_id: result for cmd_id, (_, result) in self._command_results.items()}
 
 
     def execute_add_floor_sync(self, floor_type: FloorType) -> int:
