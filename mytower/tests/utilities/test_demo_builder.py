@@ -8,6 +8,7 @@ from mytower.game.controllers.controller_commands import (
     CommandResult,
 )
 from mytower.game.controllers.game_controller import GameController
+from mytower.game.core.units import Blocks
 from mytower.game.entities.floor import FloorType
 from mytower.game.utilities.demo_builder import build_model_building
 
@@ -64,7 +65,7 @@ class TestDemoBuilder:
         ]
         assert len(bank_calls) == 1
         bank_command = bank_calls[0][0][0]
-        assert bank_command.h_cell == 14
+        assert bank_command.horiz_position == Blocks(14)
         assert bank_command.min_floor == 1
         assert bank_command.max_floor == 1  # Based on mocked return value
 
@@ -237,7 +238,7 @@ class TestDemoBuilder:
             (12, 1.0, 1, 1.0),
         ]
 
-        actual_people = [(cmd.floor, cmd.block, cmd.dest_floor, cmd.dest_block) for cmd in person_commands]
+        actual_people = [(cmd.init_floor, cmd.init_horiz_position.value, cmd.dest_floor, cmd.dest_horiz_position.value) for cmd in person_commands]
 
         assert actual_people == expected_people
 
@@ -270,6 +271,6 @@ class TestDemoBuilder:
 
         # Verify elevator bank parameters
         assert bank_command is not None
-        assert bank_command.h_cell == 14
+        assert bank_command.horiz_position == Blocks(14)
         assert bank_command.min_floor == 1
         assert bank_command.max_floor == top_floor

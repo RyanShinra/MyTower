@@ -11,6 +11,7 @@ from mytower.game.controllers.controller_commands import (
     CommandResult,
 )
 from mytower.game.controllers.game_controller import GameController
+from mytower.game.core.units import Blocks
 from mytower.game.entities.floor import FloorType
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
@@ -30,9 +31,9 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             return -1
 
 
-    def add_elevator_bank(h_cell: int, min_floor: int, max_floor: int) -> str:
+    def add_elevator_bank(horiz_position: Blocks, min_floor: int, max_floor: int) -> str:
         result: Final[CommandResult[str]] = controller.execute_command(
-            AddElevatorBankCommand(h_cell=h_cell, min_floor=min_floor, max_floor=max_floor)
+            AddElevatorBankCommand(horiz_position=horiz_position, min_floor=min_floor, max_floor=max_floor)
         )
         if result.success and result.data is not None:
             return result.data  # Return the new elevator bank ID
@@ -53,11 +54,11 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
 
 
     def add_person(
-        current_floor_num: int, current_block_float: float, dest_floor_num: int, dest_block_num: float
+        init_floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks
     ) -> str:
         result: Final[CommandResult[str]] = controller.execute_command(
             AddPersonCommand(
-                floor=current_floor_num, block=current_block_float, dest_floor=dest_floor_num, dest_block=dest_block_num
+                init_floor=init_floor, init_horiz_position=init_horiz_position, dest_floor=dest_floor, dest_horiz_position=dest_horiz_position
             )
         )
         if result.success and result.data is not None:
@@ -86,12 +87,12 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
     add_floor(FloorType.APARTMENT)
     top_floor: int = add_floor(FloorType.APARTMENT)
 
-    elevator_bank_id: str = add_elevator_bank(h_cell=14, min_floor=1, max_floor=top_floor)
+    elevator_bank_id: str = add_elevator_bank(horiz_position=Blocks(14), min_floor=1, max_floor=top_floor)
     add_elevator(elevator_bank_id)
 
-    add_person(current_floor_num=1, current_block_float=1.0, dest_floor_num=12, dest_block_num=7.0)
-    add_person(current_floor_num=1, current_block_float=3.0, dest_floor_num=3, dest_block_num=7.0)
-    add_person(current_floor_num=1, current_block_float=6.0, dest_floor_num=7, dest_block_num=7.0)
-    add_person(current_floor_num=12, current_block_float=1.0, dest_floor_num=1, dest_block_num=1.0)
+    add_person(init_floor=1, init_horiz_position=Blocks(1.0), dest_floor=12, dest_horiz_position=Blocks(7.0))
+    add_person(init_floor=1, init_horiz_position=Blocks(3.0), dest_floor=3, dest_horiz_position=Blocks(7.0))
+    add_person(init_floor=1, init_horiz_position=Blocks(6.0), dest_floor=7, dest_horiz_position=Blocks(7.0))
+    add_person(init_floor=12, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
 
     demo_logger.info("Demo building complete.")

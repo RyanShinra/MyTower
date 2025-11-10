@@ -51,7 +51,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
         self,
         logger_provider: LoggerProvider,
         building: BuildingProtocol,  # Changed to protocol
-        horizontal_position: int,
+        horizontal_position: Blocks,
         min_floor: int,
         max_floor: int,
         cosmetics_config: ElevatorCosmeticsProtocol,
@@ -62,7 +62,7 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
         # Passengers waiting for the elevator on each floor
         self._building: BuildingProtocol = building
-        self._horizontal_position: Blocks = Blocks(horizontal_position)
+        self._horizontal_position: Blocks = horizontal_position
         self._min_floor: int = min_floor
         self._max_floor: int = max_floor
         self._cosmetics_config: ElevatorCosmeticsProtocol = cosmetics_config
