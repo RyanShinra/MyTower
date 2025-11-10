@@ -246,7 +246,7 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     def graphql_thread_target() -> None:
         logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
         logger.info("If running in Docker: Use the port from your -p flag")
-        run_server(host="127.0.0.1", port=args.port)
+        run_server(host="0.0.0.0", port=args.port)
 
     graphql_thread = threading.Thread(target=graphql_thread_target, daemon=True, name="GraphQLServer")
     graphql_thread.start()

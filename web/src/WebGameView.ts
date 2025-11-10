@@ -52,8 +52,9 @@ export class WebGameView {
     this.uiRenderer = new UIRenderer(this.context, canvasHeight);
 
     // Initialize GraphQL clients
-    this.wsClient = createClient({ url: 'ws://localhost:8000/graphql' });
-    this.gqlClient = new GraphQLClient('http://localhost:8000/graphql');
+    const SERVER_HOST = '192.168.50.59'; 
+    this.wsClient = createClient({ url: `ws://${SERVER_HOST}:8000/graphql` });
+    this.gqlClient = new GraphQLClient(`http://${SERVER_HOST}:8000/graphql`);
 
     // Start
     this.subscribeToBuilding();
