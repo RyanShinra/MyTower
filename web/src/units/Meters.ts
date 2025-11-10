@@ -47,6 +47,9 @@ export class Meters {
   }
 
   public div(scalar: number): Meters {
+    if (scalar === 0) {
+      throw new Error('Cannot divide Meters by zero');
+    }
     return Meters.from(this._value / scalar);
   }
 
