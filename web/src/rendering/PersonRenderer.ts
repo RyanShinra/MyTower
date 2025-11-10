@@ -50,7 +50,12 @@ export class PersonRenderer {
     
     // Calculate destination for debugging
     const destX = this.calculateXPosition(person.destinationHorizontalPosition);
-    const destY = this.calculateYPosition(person.destinationFloorNum);
+    // If destinationVerticalPosition exists, use it; otherwise, convert floorNum to vertical position
+    const destY = this.calculateYPosition(
+      typeof person.destinationVerticalPosition === 'number'
+        ? person.destinationVerticalPosition
+        : person.destinationFloorNum - 0.5
+    );
 
     // TODO: Remove this once we have proper state management
     // Skip drawing if at destination (demo purposes)
