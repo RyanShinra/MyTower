@@ -1,3 +1,38 @@
+[project]
+name = "mytower"
+version = "0.1.0"
+description = "SimTower-inspired elevator simulation game"
+readme = "README.md"
+requires-python = ">=3.12"  # ✅ Minimum 3.12, but Docker uses 3.13
+license = { text = "GPL-3.0-or-later" }
+authors = [
+    { name = "Ryan" }
+]
+
+dependencies = [
+    "pygame>=2.5.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "strawberry-graphql[fastapi]>=0.245.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "black>=24.10.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[project.scripts]
+mytower = "mytower.main:main"
+
+[build-system]
+requires = ["setuptools>=75.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 # spell-checker: ignore-file
 [tool.black]
 line-length = 120
