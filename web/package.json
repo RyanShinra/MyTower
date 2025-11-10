@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "codegen": "graphql-codegen --config codegen.yml",
-    "codegen:watch": "graphql-codegen --config codegen.yml --watch"
+    "codegen:watch": "graphql-codegen --config codegen.yml --watch",
+    "check-updates": "npm outdated",
+    "update-all": "ncu -u && npm install"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^6.0.1",
@@ -17,14 +19,12 @@
     "@graphql-codegen/typescript-operations": "^5.0.2",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tsconfig/svelte": "^5.0.5",
-    "@types/node": "^24.6.0",
-    "svelte": "^5.39.6",
-    "svelte-check": "^4.3.2",
+    "@types/node": "^24.10.0",
+    "npm-check-updates": "^19.1.2",
+    "svelte": "^5.43.5",
+    "svelte-check": "^4.3.3",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@7.1.14"
-  },
-  "overrides": {
-    "vite": "npm:rolldown-vite@7.1.14"
+    "vite": "^7.2.2"
   },
   "dependencies": {
     "graphql": "^16.12.0",
