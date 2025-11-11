@@ -135,27 +135,28 @@ class AddElevatorInputModel(BaseModel):
     @field_validator("elevator_bank_id")
     @classmethod
     def validate_elevator_bank_id(cls, v: str) -> str:
-        """Validate elevator bank ID is non-empty, reasonable length, and valid format"""
-        # Strip whitespace for validation
-        stripped_id = v.strip()
+        """Validate elevator bank ID (must not have leading/trailing whitespace)"""
+        # Reject IDs with leading or trailing whitespace
+        if v != v.strip():
+            raise ValueError("Elevator bank ID must not have leading or trailing whitespace")
 
         # Validate non-empty
-        if not stripped_id:
+        if not v:
             raise ValueError("Elevator bank ID cannot be empty")
 
         # Validate max length
-        if len(stripped_id) > MAX_ELEVATOR_BANK_ID_LENGTH:
+        if len(v) > MAX_ELEVATOR_BANK_ID_LENGTH:
             raise ValueError(
-                f"Elevator bank ID must be {MAX_ELEVATOR_BANK_ID_LENGTH} characters or less, got {len(stripped_id)} characters"
+                f"Elevator bank ID must be {MAX_ELEVATOR_BANK_ID_LENGTH} characters or less, got {len(v)} characters"
             )
 
         # Validate format: alphanumeric + hyphens/underscores
-        if not ELEVATOR_BANK_ID_PATTERN.match(stripped_id):
+        if not ELEVATOR_BANK_ID_PATTERN.match(v):
             raise ValueError(
                 "Elevator bank ID must contain only alphanumeric characters, hyphens, and underscores"
             )
 
-        return stripped_id
+        return v
 
 
 # ============================================================================

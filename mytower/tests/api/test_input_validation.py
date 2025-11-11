@@ -394,10 +394,23 @@ class TestAddElevatorInputModel:
         model = AddElevatorInputModel(elevator_bank_id=max_length_id)
         assert model.elevator_bank_id == max_length_id
 
-    def test_id_with_leading_trailing_whitespace(self) -> None:
-        """Should strip whitespace from ID"""
-        model = AddElevatorInputModel(elevator_bank_id="  bank-123  ")
-        assert model.elevator_bank_id == "bank-123"
+    def test_id_with_leading_whitespace(self) -> None:
+        """Should reject ID with leading whitespace"""
+        with pytest.raises(ValidationError) as exc_info:
+            AddElevatorInputModel(elevator_bank_id="  bank-123")
+        assert "must not have leading or trailing whitespace" in str(exc_info.value)
+
+    def test_id_with_trailing_whitespace(self) -> None:
+        """Should reject ID with trailing whitespace"""
+        with pytest.raises(ValidationError) as exc_info:
+            AddElevatorInputModel(elevator_bank_id="bank-123  ")
+        assert "must not have leading or trailing whitespace" in str(exc_info.value)
+
+    def test_id_with_leading_and_trailing_whitespace(self) -> None:
+        """Should reject ID with leading and trailing whitespace"""
+        with pytest.raises(ValidationError) as exc_info:
+            AddElevatorInputModel(elevator_bank_id="  bank-123  ")
+        assert "must not have leading or trailing whitespace" in str(exc_info.value)
 
     # Negative tests
 
