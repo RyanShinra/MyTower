@@ -243,7 +243,7 @@ self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO
 **Issue:** Subscriptions use `print()` instead of proper logging.
 
 ```python
-print(f"Subscription cancelled (client likely disconnected)")  # noqa: F541
+print(f"Subscription cancelled (client likely disconnected)")
 print(f"Subscription error: {e}")
 ```
 
