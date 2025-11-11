@@ -77,9 +77,8 @@ app.add_middleware(
 
 **Suggested Fix:**
 ```python
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 import strawberry
-from strawberry.experimental.pydantic import type as pydantic_type
 
 class AddFloorInputModel(BaseModel):
     floor_type: FloorTypeGQL
@@ -87,14 +86,16 @@ class AddFloorInputModel(BaseModel):
     horiz_position: int
     elevator_bank_id: str
 
-    @validator("init_floor")
-    def floor_must_be_valid(cls, v):
+    @field_validator("init_floor")
+    @classmethod
+    def floor_must_be_valid(cls, v: int) -> int:
         if v < 0 or v > 100:  # Example bounds
             raise ValueError("init_floor must be between 0 and 100")
         return v
 
-    @validator("elevator_bank_id")
-    def bank_id_not_empty(cls, v):
+    @field_validator("elevator_bank_id")
+    @classmethod
+    def bank_id_not_empty(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError("elevator_bank_id must not be empty")
         return v
@@ -440,7 +441,7 @@ uvicorn.run(app, host=host, port=port)  # No log config
 
 **Suggested Fix:**
 ```python
-log_config = uvicorn.config.LOGGING_CONFIG
+log_config = copy.deepcopy(uvicorn.config.LOGGING_CONFIG)
 log_config["formatters"]["default"]["fmt"] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 uvicorn.run(
