@@ -1,8 +1,14 @@
 from __future__ import annotations
 
 import math
+import sys
 from dataclasses import dataclass, field
-from typing import overload, override
+from typing import overload
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 from mytower.game.core.primitive_constants import (
     BLOCK_FLOAT_TOLERANCE,

@@ -11,8 +11,14 @@
 
 from __future__ import annotations  # Defer type evaluation
 
+import sys
 import threading
-from typing import TYPE_CHECKING, Final, override
+from typing import TYPE_CHECKING, Final
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol

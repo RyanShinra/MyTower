@@ -16,8 +16,14 @@
 
 from __future__ import annotations  # Defer type evaluation
 
+import sys
 from collections import deque
-from typing import TYPE_CHECKING, Final, NamedTuple, override
+from typing import TYPE_CHECKING, Final, NamedTuple
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 from mytower.game.core.id_generator import IDGenerator
 from mytower.game.core.types import ElevatorState, VerticalDirection
