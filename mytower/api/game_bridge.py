@@ -57,9 +57,9 @@ class GameBridge:
         self._game_thread_id: int | None = None
 
         self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
-        # Fixed-size cache for command results (prevents unbounded memory growth)
+        # Command result cache with fixed-size eviction (prevents unbounded memory growth)
         self._command_results: dict[str, CommandResult[Any]] = {}
-        self._command_ids: Deque[str] = deque(maxlen=self.MAX_COMMAND_RESULTS)
+        self._command_ids: Deque[str] = deque(maxlen=self.MAX_COMMAND_RESULTS)  # Tracks insertion order
 
         self._latest_snapshot: BuildingSnapshot | None = None
         self._snapshot_interval_s: float = 1.0 / snapshot_fps
