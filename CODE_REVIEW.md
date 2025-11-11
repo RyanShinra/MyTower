@@ -77,16 +77,32 @@ app.add_middleware(
 
 **Suggested Fix:**
 ```python
-@strawberry.input
-class AddFloorInput:
+from pydantic import BaseModel, field_validator
+import strawberry
+
+class AddFloorInputModel(BaseModel):
     floor_type: FloorTypeGQL
+    init_floor: int
+    horiz_position: int
+    elevator_bank_id: str
 
-    @strawberry.field
-    def validate(self) -> None:
-        # Add validation logic
-        pass
+    @field_validator("init_floor")
+    @classmethod
+    def floor_must_be_valid(cls, v: int) -> int:
+        if v < 0 or v > 100:  # Example bounds
+            raise ValueError("init_floor must be between 0 and 100")
+        return v
 
-# Or use Pydantic validators with Strawberry
+    @field_validator("elevator_bank_id")
+    @classmethod
+    def bank_id_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("elevator_bank_id must not be empty")
+        return v
+
+@strawberry.experimental.pydantic.input(model=AddFloorInputModel, all_fields=True)
+class AddFloorInput:
+    pass
 ```
 
 **Files to modify:** `mytower/api/input_types.py`, add validation layer
@@ -227,7 +243,7 @@ self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO
 **Issue:** Subscriptions use `print()` instead of proper logging.
 
 ```python
-print(f"Subscription cancelled (client likely disconnected)")  # noqa: F541
+print(f"Subscription cancelled (client likely disconnected)")
 print(f"Subscription error: {e}")
 ```
 
@@ -323,7 +339,6 @@ logs/
 .vscode
 web/node_modules
 web/dist
-*.md
 docs/
 notes/
 .env*
@@ -426,7 +441,7 @@ uvicorn.run(app, host=host, port=port)  # No log config
 
 **Suggested Fix:**
 ```python
-log_config = uvicorn.config.LOGGING_CONFIG
+log_config = copy.deepcopy(uvicorn.config.LOGGING_CONFIG)
 log_config["formatters"]["default"]["fmt"] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 uvicorn.run(
@@ -527,7 +542,7 @@ Here's a proposed series of commits to address these issues. Each commit is focu
    - Files: `mytower/api/server.py`, `requirements-base.txt`
 
 2. **Fix command_results memory leak in GameBridge**
-   - Implement LRU cache (functools.lru_cache or custom)
+   - Implement LRU cache for command_results (use collections.OrderedDict with manual size management, functools.lru_cache, or a custom implementation; if using cachetools.LRUCache, add cachetools to requirements-base.txt)
    - Add periodic cleanup task
    - Add metrics for results dict size
    - Files: `mytower/api/game_bridge.py`
