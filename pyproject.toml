@@ -14,6 +14,7 @@ dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "strawberry-graphql[fastapi]>=0.245.0",
+    "pydantic>=2.0.0",
 ]
 
 [project.optional-dependencies]
