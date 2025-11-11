@@ -7,9 +7,10 @@ and exposes a singleton instance for use throughout the application.
 
 import queue
 import threading
+from collections import deque
 from queue import Queue
 from time import time
-from typing import Any, TypeVar
+from typing import Any, Deque, TypeVar
 
 from mytower.game.controllers.controller_commands import (
     AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
@@ -41,6 +42,9 @@ class GameBridge:
         bridge.get_building_state()
     """
 
+    # Max command results to keep in memory (~1MB, fits in L3 cache)
+    # Supports potential undo/replay features while preventing unbounded growth
+    MAX_COMMAND_RESULTS = 4000
 
     def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
 
@@ -53,7 +57,9 @@ class GameBridge:
         self._game_thread_id: int | None = None
 
         self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
+        # Command result cache with fixed-size eviction (prevents unbounded memory growth)
         self._command_results: dict[str, CommandResult[Any]] = {}
+        self._command_ids: Deque[str] = deque(maxlen=self.MAX_COMMAND_RESULTS)  # Tracks insertion order
 
         self._latest_snapshot: BuildingSnapshot | None = None
         self._snapshot_interval_s: float = 1.0 / snapshot_fps
@@ -88,7 +94,16 @@ class GameBridge:
 
         with self._update_lock:
             for cmd_id, command in commands_this_frame:
-                self._command_results[cmd_id] = self._controller.execute_command(command)
+                result = self._controller.execute_command(command)
+
+                # If deque is at capacity, remove the oldest result before adding new one
+                if len(self._command_ids) == self.MAX_COMMAND_RESULTS:
+                    oldest_id = self._command_ids[0]  # Peek at oldest (will be evicted on append)
+                    self._command_results.pop(oldest_id, None)
+
+                # Add new result and track its ID (deque auto-evicts oldest if at maxlen)
+                self._command_ids.append(cmd_id)
+                self._command_results[cmd_id] = result
 
             self._controller.update(dt)
 
