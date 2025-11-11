@@ -119,7 +119,7 @@ class AddElevatorBankInputModel(BaseModel):
             raise ValueError(f"Maximum floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}")
         return v
 
-    def model_post_init(self, __context) -> None:
+    def model_post_init(self, _context) -> None:
         """Validate that max_floor >= min_floor after all fields are set"""
         if self.max_floor < self.min_floor:
             raise ValueError(
