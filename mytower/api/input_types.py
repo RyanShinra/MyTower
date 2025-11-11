@@ -9,11 +9,18 @@ for the GraphQL API layer.
 Uses Pydantic for robust input validation with field validators.
 """
 
-import re
 import strawberry
 from pydantic import BaseModel, field_validator
 
 from mytower.api.graphql_types import FloorTypeGQL
+from mytower.api.validation_constants import (
+    ELEVATOR_BANK_ID_PATTERN,
+    MAX_ELEVATOR_BANK_ID_LENGTH,
+    MAX_FLOOR_NUMBER,
+    MAX_POSITION_BLOCKS,
+    MIN_FLOOR_NUMBER,
+    MIN_POSITION_BLOCKS,
+)
 from mytower.game.core.units import Blocks
 
 
@@ -41,33 +48,41 @@ class AddPersonInputModel(BaseModel):
     @field_validator("init_floor")
     @classmethod
     def validate_init_floor(cls, v: int) -> int:
-        """Validate initial floor is in valid range (1-100)"""
-        if not (1 <= v <= 100):
-            raise ValueError(f"Initial floor must be between 1 and 100, got {v}")
+        """Validate initial floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
+            raise ValueError(
+                f"Initial floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}"
+            )
         return v
 
     @field_validator("dest_floor")
     @classmethod
     def validate_dest_floor(cls, v: int) -> int:
-        """Validate destination floor is in valid range (1-100)"""
-        if not (1 <= v <= 100):
-            raise ValueError(f"Destination floor must be between 1 and 100, got {v}")
+        """Validate destination floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
+            raise ValueError(
+                f"Destination floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}"
+            )
         return v
 
     @field_validator("init_horiz_position")
     @classmethod
     def validate_init_position(cls, v: Blocks) -> Blocks:
-        """Validate initial horizontal position is in valid range (0-100 blocks)"""
-        if not (0 <= v.value <= 100):
-            raise ValueError(f"Initial horizontal position must be between 0 and 100 blocks, got {v.value}")
+        """Validate initial horizontal position is in valid range"""
+        if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
+            raise ValueError(
+                f"Initial horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+            )
         return v
 
     @field_validator("dest_horiz_position")
     @classmethod
     def validate_dest_position(cls, v: Blocks) -> Blocks:
-        """Validate destination horizontal position is in valid range (0-100 blocks)"""
-        if not (0 <= v.value <= 100):
-            raise ValueError(f"Destination horizontal position must be between 0 and 100 blocks, got {v.value}")
+        """Validate destination horizontal position is in valid range"""
+        if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
+            raise ValueError(
+                f"Destination horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+            )
         return v
 
 
@@ -81,25 +96,27 @@ class AddElevatorBankInputModel(BaseModel):
     @field_validator("horiz_position")
     @classmethod
     def validate_position(cls, v: Blocks) -> Blocks:
-        """Validate horizontal position is in valid range (0-100 blocks)"""
-        if not (0 <= v.value <= 100):
-            raise ValueError(f"Horizontal position must be between 0 and 100 blocks, got {v.value}")
+        """Validate horizontal position is in valid range"""
+        if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
+            raise ValueError(
+                f"Horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+            )
         return v
 
     @field_validator("min_floor")
     @classmethod
     def validate_min_floor(cls, v: int) -> int:
-        """Validate minimum floor is in valid range (1-100)"""
-        if not (1 <= v <= 100):
-            raise ValueError(f"Minimum floor must be between 1 and 100, got {v}")
+        """Validate minimum floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
+            raise ValueError(f"Minimum floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}")
         return v
 
     @field_validator("max_floor")
     @classmethod
     def validate_max_floor(cls, v: int) -> int:
-        """Validate maximum floor is in valid range (1-100)"""
-        if not (1 <= v <= 100):
-            raise ValueError(f"Maximum floor must be between 1 and 100, got {v}")
+        """Validate maximum floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
+            raise ValueError(f"Maximum floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}")
         return v
 
     def model_post_init(self, __context) -> None:
@@ -126,12 +143,14 @@ class AddElevatorInputModel(BaseModel):
         if not stripped_id:
             raise ValueError("Elevator bank ID cannot be empty")
 
-        # Validate max length (100 characters)
-        if len(stripped_id) > 100:
-            raise ValueError(f"Elevator bank ID must be 100 characters or less, got {len(stripped_id)} characters")
+        # Validate max length
+        if len(stripped_id) > MAX_ELEVATOR_BANK_ID_LENGTH:
+            raise ValueError(
+                f"Elevator bank ID must be {MAX_ELEVATOR_BANK_ID_LENGTH} characters or less, got {len(stripped_id)} characters"
+            )
 
         # Validate format: alphanumeric + hyphens/underscores
-        if not re.match(r"^[a-zA-Z0-9_-]+$", stripped_id):
+        if not ELEVATOR_BANK_ID_PATTERN.match(stripped_id):
             raise ValueError(
                 "Elevator bank ID must contain only alphanumeric characters, hyphens, and underscores"
             )
