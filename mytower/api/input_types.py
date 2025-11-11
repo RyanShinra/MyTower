@@ -10,7 +10,7 @@ Uses Pydantic for robust input validation with field validators.
 """
 
 import strawberry
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from mytower.api.graphql_types import FloorTypeGQL
 from mytower.api.validation_constants import (
@@ -39,6 +39,8 @@ class AddFloorInputModel(BaseModel):
 
 class AddPersonInputModel(BaseModel):
     """Pydantic model for adding a new person to the building"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     init_floor: int
     init_horiz_position: Blocks
@@ -88,6 +90,8 @@ class AddPersonInputModel(BaseModel):
 
 class AddElevatorBankInputModel(BaseModel):
     """Pydantic model for adding a new elevator bank to the building"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     horiz_position: Blocks
     min_floor: int
