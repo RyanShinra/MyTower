@@ -52,9 +52,15 @@ export class WebGameView {
     this.uiRenderer = new UIRenderer(this.context, canvasHeight);
 
     // Initialize GraphQL clients
-    const SERVER_HOST = '192.168.50.59'; 
-    this.wsClient = createClient({ url: `ws://${SERVER_HOST}:8000/graphql` });
-    this.gqlClient = new GraphQLClient(`http://${SERVER_HOST}:8000/graphql`);
+    // Use environment variable if set, otherwise default to current hostname (production)
+    // This allows local dev override via .env while production "just works"
+    const SERVER_HOST = import.meta.env.VITE_SERVER_HOST || window.location.hostname;
+    const SERVER_PORT = import.meta.env.VITE_SERVER_PORT || '8000';
+
+    console.log(`🌐 Connecting to game server at ${SERVER_HOST}:${SERVER_PORT}`);
+
+    this.wsClient = createClient({ url: `ws://${SERVER_HOST}:${SERVER_PORT}/graphql` });
+    this.gqlClient = new GraphQLClient(`http://${SERVER_HOST}:${SERVER_PORT}/graphql`);
 
     // Start
     this.subscribeToBuilding();
