@@ -526,7 +526,7 @@ Here's a proposed series of commits to address these issues. Each commit is focu
    - Files: `mytower/api/server.py`, `requirements-base.txt`
 
 2. **Fix command_results memory leak in GameBridge**
-   - Implement LRU cache (functools.lru_cache or custom)
+   - Implement LRU cache for command_results (use collections.OrderedDict with manual size management, cachetools.LRUCache, or a custom implementation)
    - Add periodic cleanup task
    - Add metrics for results dict size
    - Files: `mytower/api/game_bridge.py`
