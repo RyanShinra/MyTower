@@ -59,8 +59,10 @@ export class WebGameView {
 
     console.log(`🌐 Connecting to game server at ${SERVER_HOST}:${SERVER_PORT}`);
 
-    this.wsClient = createClient({ url: `ws://${SERVER_HOST}:${SERVER_PORT}/graphql` });
-    this.gqlClient = new GraphQLClient(`http://${SERVER_HOST}:${SERVER_PORT}/graphql`);
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const httpProtocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+    this.wsClient = createClient({ url: `${wsProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql` });
+    this.gqlClient = new GraphQLClient(`${httpProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`);
 
     // Start
     this.subscribeToBuilding();
