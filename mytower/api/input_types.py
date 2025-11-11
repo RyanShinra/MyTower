@@ -140,13 +140,13 @@ class AddElevatorInputModel(BaseModel):
     @classmethod
     def validate_elevator_bank_id(cls, v: str) -> str:
         """Validate elevator bank ID (must not have leading/trailing whitespace)"""
+        # Validate non-empty (after stripping whitespace)
+        if not v.strip():
+            raise ValueError("Elevator bank ID cannot be empty")
+
         # Reject IDs with leading or trailing whitespace
         if v != v.strip():
             raise ValueError("Elevator bank ID must not have leading or trailing whitespace")
-
-        # Validate non-empty
-        if not v:
-            raise ValueError("Elevator bank ID cannot be empty")
 
         # Validate max length
         if len(v) > MAX_ELEVATOR_BANK_ID_LENGTH:
