@@ -323,7 +323,6 @@ logs/
 .vscode
 web/node_modules
 web/dist
-*.md
 docs/
 notes/
 .env*
