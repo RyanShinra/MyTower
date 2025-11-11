@@ -162,6 +162,19 @@ class AddElevatorInputModel(BaseModel):
 # ============================================================================
 # Strawberry GraphQL Input Types
 # ============================================================================
+#
+# NOTE: Using strawberry.experimental.pydantic API
+#
+# This API is marked as experimental and may change in future Strawberry releases.
+# To prevent breaking changes, strawberry-graphql is pinned to <1.0.0 in requirements.
+#
+# Current version: 0.245.0+
+# Status: Experimental (as of 2025-11)
+#
+# Migration plan:
+# - Monitor: https://github.com/strawberry-graphql/strawberry/discussions
+# - When stable API is released, migrate and remove version pin
+# - Check for updates quarterly or when major features are needed
 
 
 @strawberry.experimental.pydantic.input(model=AddFloorInputModel, all_fields=True)
