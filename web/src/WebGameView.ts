@@ -61,26 +61,33 @@ export class WebGameView {
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const httpProtocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-    this.wsClient = createClient({ url: `${wsProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql` });
+    
+    // Create WebSocket client with explicit configuration
+    // Note: graphql-ws v6.x uses the modern 'graphql-transport-ws' protocol by default
+    this.wsClient = createClient({ 
+      url: `${wsProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`,
+      // Handle WebSocket connection errors and closures BEFORE subscribing
+      on: {
+        error: (error: any) => {
+          console.error('WebSocket connection error:', error);
+          this.uiRenderer.showConnectionError('Connection to game server failed.');
+          this.currentSnapshot = null;
+        },
+        closed: () => {
+          console.warn('WebSocket connection closed');
+          this.uiRenderer.showConnectionError('Connection to game server lost.');
+          this.currentSnapshot = null;
+        },
+      },
+    });
+    
     this.gqlClient = new GraphQLClient(`${httpProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`);
 
-    // Start
+    // Start subscription and rendering
     this.subscribeToBuilding();
     this.startRenderLoop();
     
     console.log('🎮 WebGameView initialized with typed units system');
-
-    // Handle WebSocket connection errors and closures
-    this.wsClient.on('error', (error: any) => {
-      console.error('WebSocket connection error:', error);
-      this.uiRenderer.showConnectionError('Connection to game server failed.');
-      this.currentSnapshot = null;
-    });
-    this.wsClient.on('closed', () => {
-      console.warn('WebSocket connection closed');
-      this.uiRenderer.showConnectionError('Connection to game server lost.');
-      this.currentSnapshot = null;
-    });
   }
 
   private subscribeToBuilding(): void {
