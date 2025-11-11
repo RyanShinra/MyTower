@@ -5,8 +5,8 @@ These constants define the acceptable ranges and formats for mutation inputs
 to prevent invalid data, DoS attacks, and other security issues.
 """
 
-from typing import Final
 import re
+from typing import Final
 
 # Floor number validation
 MIN_FLOOR_NUMBER: Final[int] = 1
