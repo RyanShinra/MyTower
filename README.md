@@ -13,8 +13,6 @@ MyTower uses modern Python features including:
 - Better error messages
 - 25% faster execution (useful for game simulation)
 
-If you need Python 3.11 support, use `typing_extensions.override` instead.
-
 A SimTower-inspired elevator simulation game built as a learning project for Python PCAP exam preparation.
 
 ## Architecture Highlights
