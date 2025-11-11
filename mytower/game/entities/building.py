@@ -1,12 +1,6 @@
 from __future__ import annotations  # Defer type evaluation
 
-import sys
-from typing import Final
-
-if sys.version_info >= (3, 12):
-    from typing import override
-else:
-    from typing_extensions import override
+from typing import Final, override
 
 
 from mytower.game.core.types import FloorType

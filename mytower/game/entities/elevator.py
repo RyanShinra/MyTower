@@ -18,9 +18,7 @@
 from __future__ import annotations  # Defer type evaluation
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Final, override
 
 from mytower.game.core.config import ElevatorConfigProtocol, ElevatorCosmeticsProtocol
 from mytower.game.core.id_generator import IDGenerator
