@@ -77,16 +77,31 @@ app.add_middleware(
 
 **Suggested Fix:**
 ```python
-@strawberry.input
-class AddFloorInput:
+from pydantic import BaseModel, validator
+import strawberry
+from strawberry.experimental.pydantic import type as pydantic_type
+
+class AddFloorInputModel(BaseModel):
     floor_type: FloorTypeGQL
+    init_floor: int
+    horiz_position: int
+    elevator_bank_id: str
 
-    @strawberry.field
-    def validate(self) -> None:
-        # Add validation logic
-        pass
+    @validator("init_floor")
+    def floor_must_be_valid(cls, v):
+        if v < 0 or v > 100:  # Example bounds
+            raise ValueError("init_floor must be between 0 and 100")
+        return v
 
-# Or use Pydantic validators with Strawberry
+    @validator("elevator_bank_id")
+    def bank_id_not_empty(cls, v):
+        if not v or not v.strip():
+            raise ValueError("elevator_bank_id must not be empty")
+        return v
+
+@strawberry.experimental.pydantic.input(model=AddFloorInputModel, all_fields=True)
+class AddFloorInput:
+    pass
 ```
 
 **Files to modify:** `mytower/api/input_types.py`, add validation layer
