@@ -9,6 +9,7 @@ FROM python:3.13-slim AS builder
 # Install system dependencies for building Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create virtual environment
@@ -26,6 +27,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Stage 2: Runtime (lean production image)
 # ============================================================================
 FROM python:3.13-slim
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash mytower
@@ -51,7 +57,7 @@ EXPOSE 8000
 
 # Health check for AWS load balancer
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"
+    CMD curl -f http://localhost:8000/ || exit 1
 
 # Environment variables (can be overridden at runtime)
 ENV PYTHONUNBUFFERED=1 \
