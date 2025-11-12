@@ -12,5 +12,5 @@ typing_extensions>=4.15.0
 pydantic>=2.0.0
 
 # Optional but recommended for production
-python-multipart==0.0.20  # For form data handling
-python-dotenv==1.0.1      # For environment variable management
+python-multipart>=0.0.20  # For form data handling
+python-dotenv>=1.0.1      # For environment variable management
