@@ -2,11 +2,15 @@
 # Shared dependencies for all environments
 
 # Core dependencies
-strawberry-graphql>=0.234.0
+# strawberry-graphql pinned to <1.0.0 due to use of experimental Pydantic integration
+# API: strawberry.experimental.pydantic may change before v1.0 stable release
+# Review: Check for stable Pydantic API when Strawberry hits 1.0 or quarterly
+strawberry-graphql>=0.245.0,<1.0.0
 uvicorn>=0.24.0
 fastapi>=0.104.0
 typing_extensions>=4.15.0
+pydantic>=2.0.0
 
 # Optional but recommended for production
-python-multipart==0.0.20  # For form data handling
-python-dotenv==1.0.1      # For environment variable management
+python-multipart>=0.0.20  # For form data handling
+python-dotenv>=1.0.1      # For environment variable management
