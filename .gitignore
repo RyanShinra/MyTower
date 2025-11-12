@@ -159,20 +159,21 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 # .vscode/
-output1.txt
-mytower/interview-sample.py
-mytower/interview-sample3.py
-mytower/interview-sample2.py
-interview-sample.py
-interview-sample2.py
-interview-sample3.py
-mytower/.DS_Store
-.DS_Store
-mytower/scratch.py
+
+# Scratch and interview files
+scratch*.py
+interview-*.py
+**/scratch*.py
+
+# IDE files
 .idea
 .vs
-mytower/scratch.py
-mytower/scratch.py
+
+# macOS files
+.DS_Store
+
+# Temporary files
+output1.txt
 folderstructure.txt
 
 # AWS credentials
