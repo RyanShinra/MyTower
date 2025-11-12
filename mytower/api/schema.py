@@ -2,6 +2,7 @@ from typing import Any
 from collections.abc import AsyncGenerator
 
 import asyncio
+import logging
 import strawberry
 
 from mytower.api import unit_scalars  # Import the module to register scalars
@@ -20,6 +21,9 @@ from mytower.game.controllers.controller_commands import (
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
 from mytower.game.models.model_snapshots import BuildingSnapshot
+
+# Configure logging for subscriptions
+logger = logging.getLogger(__name__)
 
 # Convenience functions
 def queue_command(command: Command[Any]) -> str:
@@ -159,33 +163,45 @@ class Subscription:
         Yields:
             BuildingSnapshotGQL: Current building state snapshot, or None if game not running
         """
+        logger.info(f"📡 New building state subscription started (interval: {interval_ms}ms)")
+        
         if not (5 <= interval_ms <= 10000):
+            logger.error(f"❌ Invalid interval_ms: {interval_ms}")
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
         # Use getattr for safe access - _game_bridge will be None when called via Strawberry schema
         game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
+        
+        message_count = 0
 
         try:
             while True:
                 snapshot: BuildingSnapshot | None = game_bridge.get_building_snapshot()
+                message_count += 1
+                
+                if message_count == 1:
+                    logger.info("✅ First snapshot sent to client")
+                elif message_count % 100 == 0:
+                    logger.debug(f"📊 Sent {message_count} snapshots to client")
+                
                 yield convert_building_snapshot(snapshot) if snapshot else None
                 await asyncio.sleep(interval_seconds)
 
         except asyncio.CancelledError:
             # Client disconnected or subscription was cancelled
             # This is NORMAL - not an error condition
-            print(f"Subscription cancelled (client likely disconnected)")  # noqa: F541
+            logger.info(f"🔌 Subscription cancelled (client disconnected) - sent {message_count} messages")
             raise  # Re-raise so Strawberry knows we handled it
 
         except Exception as e:
             # Unexpected error - log it
-            print(f"Subscription error: {e}")
+            logger.error(f"❌ Subscription error: {e}", exc_info=True)
             raise
 
         finally:
             # Cleanup code runs whether cancelled, errored, or completed
-            print("Building State Subscription stream cleaned up")
+            logger.info(f"🧹 Building State Subscription cleaned up - total messages: {message_count}")
             # Could release resources, decrement counter, etc.
 
 
@@ -206,7 +222,10 @@ class Subscription:
         Yields:
             Time: Current game time in seconds
         """
+        logger.info(f"📡 New game time subscription started (interval: {interval_ms}ms)")
+        
         if not (5 <= interval_ms <= 10000):
+            logger.error(f"❌ Invalid interval_ms: {interval_ms}")
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
@@ -220,13 +239,13 @@ class Subscription:
                 await asyncio.sleep(interval_seconds)
         except asyncio.CancelledError:
             # Client disconnected or subscription was cancelled
-            print(f"Game time subscription cancelled (client likely disconnected)")  # noqa: F541
+            logger.info(f"🔌 Game time subscription cancelled (client disconnected)")
             raise
         except Exception as e:
-            print(f"Game time subscription error: {e}")
+            logger.error(f"❌ Game time subscription error: {e}", exc_info=True)
             raise
         finally:
-            print("Game time subscription stream cleaned up")
+            logger.info("🧹 Game time subscription cleaned up")
 
 
 schema = strawberry.Schema(
