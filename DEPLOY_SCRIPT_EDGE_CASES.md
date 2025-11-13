@@ -96,18 +96,24 @@
 
 All recommended improvements have been implemented in the deployment script:
 
-### ✅ run-task.sh existence check (Lines 296-313)
+### ✅ run-task.sh existence check (Lines 308-324)
 - Checks if file exists before calling
 - Validates file is executable
+- Verifies execution success with exit code
 - Shows clear warnings and next steps
+- Tracks task start status for summary
 
-### ✅ Metadata file verification (Lines 189-194)
+### ✅ Metadata file verification (Lines 189-207)
+- Uses jq for proper JSON escaping when available
+- Falls back to heredoc with special character escaping
 - Verifies file was created after write
 - Shows warning if creation failed
 - Sets placeholder value on failure
 
-### ✅ ECS command success check (Lines 232-260)
+### ✅ ECS command success check (Lines 240-261)
+- Creates temp file for stderr with automatic cleanup (trap)
 - Checks exit code of `aws ecs list-tasks`
+- Displays error details when available
 - Gracefully handles missing cluster
 - Shows deployment summary and exits cleanly
 
@@ -116,20 +122,26 @@ All recommended improvements have been implemented in the deployment script:
 - Sets safe fallback value
 - Warns user about detached HEAD state
 
-### ✅ Image digest verification (Lines 102-128)
-- Captures image digest after push
-- Verifies pulled image matches pushed digest
-- Prevents deployment of tampered or mutable tag images
+### ✅ Image digest verification (Lines 89-135)
+- Captures local image ID before push
+- Compares with image ID after pull from ECR
+- Verifies pulled image matches original
+- Warns explicitly when digest unavailable
+- Prevents deployment of tampered images
 
-### ✅ Safe JSON generation (Lines 145-195)
-- Uses jq for proper JSON escaping when available
-- Falls back to heredoc for environments without jq
+### ✅ Safe JSON generation (Lines 157-207)
+- Prefers jq for proper JSON escaping when available
+- Falls back to heredoc with basic escaping (backslash, quotes)
 - Prevents malformed JSON from special characters
+- Checks write success for both methods
 
-### ✅ Summary accuracy (Lines 198-220, 243-244, 299-303)
+### ✅ Summary accuracy (Lines 327-343)
 - Tracks git tag creation success
+- Tracks task start success
 - Sets placeholder values when operations fail
+- Conditional success message based on task start
 - Summary only shows actual successful operations
+- Note added when task wasn't started
 
 ## Conclusion
 

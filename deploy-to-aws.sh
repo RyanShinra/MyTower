@@ -87,6 +87,8 @@ echo ""
 echo "📤 Pushing image to ECR (this may take a few minutes)..."
 
 # Get image digest before push for verification
+# We capture the local image ID (sha256 hash) before pushing, then compare it
+# to the ID after pulling from ECR. This ensures the pushed and pulled images match.
 PUSH_DIGEST=$(docker inspect --format='{{index .Id}}' "$IMAGE_URI" 2>/dev/null)
 
 docker push "$IMAGE_URI"
@@ -179,17 +181,23 @@ else
             METADATA_FILE="(not created - write error)"
         fi
     else
-        # Fallback to heredoc (basic usage, assumes no special chars in variables)
+        # Fallback to heredoc - escape special JSON characters
+        BRANCH_ESC=$(printf '%s' "$BRANCH" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        COMMIT_ESC=$(printf '%s' "$COMMIT" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        COMMIT_FULL_ESC=$(printf '%s' "$COMMIT_FULL" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        IMAGE_URI_ESC=$(printf '%s' "$IMAGE_URI" | sed 's/\\/\\\\/g; s/"/\\"/g')
+        REPOSITORY_ESC=$(printf '%s' "$REPOSITORY_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
         if cat > "$METADATA_FILE" << EOF
 {
   "timestamp": "$TIMESTAMP",
   "deploy_tag": "$DEPLOY_TAG",
-  "branch": "$BRANCH",
-  "commit": "$COMMIT",
-  "commit_full": "$COMMIT_FULL",
-  "image_uri": "$IMAGE_URI",
+  "branch": "$BRANCH_ESC",
+  "commit": "$COMMIT_ESC",
+  "commit_full": "$COMMIT_FULL_ESC",
+  "image_uri": "$IMAGE_URI_ESC",
   "region": "$REGION",
-  "repository": "$REPOSITORY_NAME"
+  "repository": "$REPOSITORY_ESC"
 }
 EOF
         then
@@ -230,6 +238,8 @@ echo ""
 # Check if there are running tasks
 echo "🔍 Checking for running tasks..."
 ECS_ERROR=$(mktemp)
+trap 'rm -f "$ECS_ERROR"' EXIT  # Ensure cleanup on any exit
+
 RUNNING_TASKS=$(aws ecs list-tasks \
     --cluster mytower-cluster \
     --desired-status RUNNING \
@@ -243,7 +253,6 @@ if [ $ECS_EXIT_CODE -ne 0 ]; then
     if [ -s "$ECS_ERROR" ]; then
         echo "   Error details: $(cat "$ECS_ERROR")"
     fi
-    rm -f "$ECS_ERROR"
     echo "   Deployment successful! Manually start tasks if needed."
     echo ""
     echo "✅ Deployment complete!"
@@ -293,6 +302,9 @@ fi
 # Start new task
 echo "🎮 Starting new task with updated image..."
 
+# Track task start success
+TASK_STARTED=false
+
 # Check if run-task.sh exists and is executable
 if [ ! -f "./run-task.sh" ]; then
     echo "   ⚠️  Warning: run-task.sh not found"
@@ -309,11 +321,16 @@ else
         echo "   Check the script output above for details"
     else
         echo "   ✅ Task started successfully"
+        TASK_STARTED=true
     fi
 fi
 
 echo ""
-echo "✅ Deployment complete!"
+if [ "$TASK_STARTED" = true ]; then
+    echo "✅ Deployment complete!"
+else
+    echo "✅ Deployment complete (task start skipped or failed)"
+fi
 echo ""
 echo "📝 Deployment Summary:"
 echo "   Branch: $BRANCH"
@@ -322,3 +339,7 @@ echo "   Image: $IMAGE_URI"
 echo "   Region: $REGION"
 echo "   Deploy Tag: $DEPLOY_TAG"
 echo "   Metadata: $METADATA_FILE"
+if [ "$TASK_STARTED" = false ]; then
+    echo ""
+    echo "   ⚠️  Note: Task was not started automatically"
+fi
