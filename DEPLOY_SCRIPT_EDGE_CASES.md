@@ -96,22 +96,22 @@
 
 All recommended improvements have been implemented in the deployment script:
 
-### ✅ run-task.sh existence check (Lines 308-324)
+### ✅ run-task.sh existence check (Lines 286-302)
 - Checks if file exists before calling
 - Validates file is executable
 - Verifies execution success with exit code
 - Shows clear warnings and next steps
 - Tracks task start status for summary
 
-### ✅ Metadata file verification (Lines 189-207)
+### ✅ Metadata file verification (Lines 167-185)
 - Uses jq for proper JSON escaping when available
 - Falls back to heredoc with special character escaping
 - Verifies file was created after write
 - Shows warning if creation failed
 - Sets placeholder value on failure
 
-### ✅ ECS command success check (Lines 240-261)
-- Creates temp file for stderr with automatic cleanup (trap)
+### ✅ ECS command success check (Lines 218-239)
+- Creates temp file for stderr with automatic cleanup (trap on EXIT)
 - Checks exit code of `aws ecs list-tasks`
 - Displays error details when available
 - Gracefully handles missing cluster
@@ -122,20 +122,19 @@ All recommended improvements have been implemented in the deployment script:
 - Sets safe fallback value
 - Warns user about detached HEAD state
 
-### ✅ Image digest verification (Lines 89-135)
-- Captures local image ID before push
-- Compares with image ID after pull from ECR
-- Verifies pulled image matches original
-- Warns explicitly when digest unavailable
-- Prevents deployment of tampered images
+### ✅ Image pull verification (Lines 102-115)
+- Attempts to pull pushed image back from ECR
+- Verifies push succeeded and image is accessible
+- Ensures pull permissions are working
+- Exits with clear error if pull fails
 
-### ✅ Safe JSON generation (Lines 157-207)
+### ✅ Safe JSON generation (Lines 135-185)
 - Prefers jq for proper JSON escaping when available
 - Falls back to heredoc with basic escaping (backslash, quotes)
 - Prevents malformed JSON from special characters
 - Checks write success for both methods
 
-### ✅ Summary accuracy (Lines 327-343)
+### ✅ Summary accuracy (Lines 305-321)
 - Tracks git tag creation success
 - Tracks task start success
 - Sets placeholder values when operations fail

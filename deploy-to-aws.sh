@@ -85,12 +85,6 @@ echo ""
 
 # Push to ECR
 echo "📤 Pushing image to ECR (this may take a few minutes)..."
-
-# Get image digest before push for verification
-# We capture the local image ID (sha256 hash) before pushing, then compare it
-# to the ID after pulling from ECR. This ensures the pushed and pulled images match.
-PUSH_DIGEST=$(docker inspect --format='{{index .Id}}' "$IMAGE_URI" 2>/dev/null)
-
 docker push "$IMAGE_URI"
 
 if [ $? -ne 0 ]; then
@@ -105,9 +99,8 @@ fi
 echo "   ✅ Image pushed successfully"
 echo ""
 
-# Verify push by pulling image
+# Verify push by pulling image back from ECR
 echo "🔍 Verifying image push (pulling from ECR)..."
-
 docker pull "$IMAGE_URI"
 
 if [ $? -ne 0 ]; then
@@ -116,21 +109,6 @@ if [ $? -ne 0 ]; then
     echo "   This indicates the push may have been incomplete or corrupted."
     echo "   Please retry the deployment."
     exit 1
-fi
-
-# Verify pulled image matches original image
-if [ -n "$PUSH_DIGEST" ]; then
-    PULL_DIGEST=$(docker inspect --format='{{index .Id}}' "$IMAGE_URI" 2>/dev/null)
-    if [ "$PUSH_DIGEST" != "$PULL_DIGEST" ]; then
-        echo "❌ Error: Image digest mismatch!"
-        echo "   Original: $PUSH_DIGEST"
-        echo "   Pulled:   $PULL_DIGEST"
-        echo "   The image may have been modified between push and pull."
-        exit 1
-    fi
-    echo "   ✅ Image digest verified"
-else
-    echo "   ⚠️  Warning: Could not verify image digest (digest unavailable)"
 fi
 
 echo "   ✅ Image verified - pull successful"
