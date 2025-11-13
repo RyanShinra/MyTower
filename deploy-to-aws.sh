@@ -119,6 +119,13 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 DEPLOY_TAG="deploy-$(date -u +%Y%m%d-%H%M%S)"
 METADATA_FILE="deployments/${DEPLOY_TAG}.json"
 
+# Capture full commit hash before heredoc to handle errors
+COMMIT_FULL=$(git rev-parse HEAD)
+if [ $? -ne 0 ]; then
+    echo "   ⚠️  Warning: Failed to get full commit hash"
+    COMMIT_FULL="unknown"
+fi
+
 echo "📝 Creating deployment metadata..."
 mkdir -p deployments
 
@@ -131,7 +138,7 @@ else
   "deploy_tag": "$DEPLOY_TAG",
   "branch": "$BRANCH",
   "commit": "$COMMIT",
-  "commit_full": "$(git rev-parse HEAD)",
+  "commit_full": "$COMMIT_FULL",
   "image_uri": "$IMAGE_URI",
   "region": "$REGION",
   "repository": "$REPOSITORY_NAME"
@@ -151,7 +158,7 @@ echo "🏷️  Creating git tag..."
 git tag -a "$DEPLOY_TAG" -m "Deployed to AWS: $COMMIT on $TIMESTAMP"
 
 if [ $? -ne 0 ]; then
-    echo "⚠️  Warning: Failed to create git tag (deployment was successful)"
+    echo "   ⚠️  Warning: Failed to create git tag (deployment was successful)"
 else
     echo "   ✅ Tagged: $DEPLOY_TAG"
 
@@ -172,7 +179,7 @@ echo "🔍 Checking for running tasks..."
 RUNNING_TASKS=$(aws ecs list-tasks \
     --cluster mytower-cluster \
     --desired-status RUNNING \
-    --region $REGION \
+    --region "$REGION" \
     --query 'taskArns' \
     --output text 2>&1)
 
