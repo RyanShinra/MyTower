@@ -38,11 +38,11 @@
 **Current behavior**: Exit code checked, script exits before tagging
 **Status**: Properly handled - this is the main fix from PR-8
 
-### 8. ⚠️ Metadata Directory Creation
+### 8. ✅ Metadata Directory Creation
 **Scenario**: `deployments/` directory has bad permissions or disk full
-**Current behavior**: `mkdir -p` will fail silently if permissions wrong
+**Current behavior**: Exit code of `mkdir` is checked; warning shown if directory creation fails
 **Risk**: Low - heredoc write will fail if directory creation failed
-**Recommendation**: Check exit code of mkdir
+**Status**: Properly handled with exit code check and warning
 
 ### 9. ⚠️ Metadata File Write Failure
 **Scenario**: Disk full or permission denied
