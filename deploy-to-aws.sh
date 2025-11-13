@@ -181,9 +181,10 @@ RUNNING_TASKS=$(aws ecs list-tasks \
     --desired-status RUNNING \
     --region "$REGION" \
     --query 'taskArns' \
-    --output text 2>&1)
+    --output text 2>/dev/null)
+ECS_EXIT_CODE=$?
 
-if [ $? -ne 0 ]; then
+if [ $ECS_EXIT_CODE -ne 0 ]; then
     echo "   ⚠️  Warning: Failed to check ECS tasks (cluster may not exist)"
     echo "   Deployment successful! Manually start tasks if needed."
     echo ""

@@ -96,16 +96,16 @@
 
 All recommended improvements have been implemented in the deployment script:
 
-### ✅ run-task.sh existence check (Lines 230-238)
+### ✅ run-task.sh existence check (Lines 236-246)
 - Checks if file exists before calling
 - Validates file is executable
 - Shows clear warnings and next steps
 
-### ✅ Metadata file verification (Lines 141-145)
+### ✅ Metadata file verification (Lines 148-152)
 - Verifies file was created after write
 - Shows warning if creation failed
 
-### ✅ ECS command success check (Lines 179-193)
+### ✅ ECS command success check (Lines 177-200)
 - Checks exit code of `aws ecs list-tasks`
 - Gracefully handles missing cluster
 - Shows deployment summary and exits cleanly
