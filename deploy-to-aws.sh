@@ -101,6 +101,10 @@ echo ""
 
 # Verify push by pulling image
 echo "🔍 Verifying image push (pulling from ECR)..."
+
+# Get image digest after push for verification
+PUSHED_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI" 2>/dev/null | cut -d'@' -f2)
+
 docker pull "$IMAGE_URI"
 
 if [ $? -ne 0 ]; then
@@ -109,6 +113,18 @@ if [ $? -ne 0 ]; then
     echo "   This indicates the push may have been incomplete or corrupted."
     echo "   Please retry the deployment."
     exit 1
+fi
+
+# Verify pulled image matches pushed image digest
+if [ -n "$PUSHED_DIGEST" ]; then
+    PULLED_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI" 2>/dev/null | cut -d'@' -f2)
+    if [ "$PUSHED_DIGEST" != "$PULLED_DIGEST" ]; then
+        echo "❌ Error: Image digest mismatch!"
+        echo "   Pushed: $PUSHED_DIGEST"
+        echo "   Pulled: $PULLED_DIGEST"
+        echo "   The image may have been modified between push and pull."
+        exit 1
+    fi
 fi
 
 echo "   ✅ Image verified - pull successful"
@@ -131,8 +147,32 @@ mkdir -p deployments
 
 if [ $? -ne 0 ]; then
     echo "   ⚠️  Warning: Failed to create deployments directory"
+    METADATA_FILE="(not created - directory error)"
 else
-    cat > "$METADATA_FILE" << EOF
+    # Use jq for safe JSON generation if available, otherwise use heredoc with basic escaping
+    if command -v jq >/dev/null 2>&1; then
+        jq -n \
+            --arg timestamp "$TIMESTAMP" \
+            --arg deploy_tag "$DEPLOY_TAG" \
+            --arg branch "$BRANCH" \
+            --arg commit "$COMMIT" \
+            --arg commit_full "$COMMIT_FULL" \
+            --arg image_uri "$IMAGE_URI" \
+            --arg region "$REGION" \
+            --arg repository "$REPOSITORY_NAME" \
+            '{
+                timestamp: $timestamp,
+                deploy_tag: $deploy_tag,
+                branch: $branch,
+                commit: $commit,
+                commit_full: $commit_full,
+                image_uri: $image_uri,
+                region: $region,
+                repository: $repository
+            }' > "$METADATA_FILE"
+    else
+        # Fallback to heredoc (basic usage, assumes no special chars in variables)
+        cat > "$METADATA_FILE" << EOF
 {
   "timestamp": "$TIMESTAMP",
   "deploy_tag": "$DEPLOY_TAG",
@@ -144,11 +184,13 @@ else
   "repository": "$REPOSITORY_NAME"
 }
 EOF
+    fi
 
     if [ -f "$METADATA_FILE" ]; then
         echo "   ✅ Metadata saved to: $METADATA_FILE"
     else
         echo "   ⚠️  Warning: Failed to create metadata file"
+        METADATA_FILE="(not created - write error)"
     fi
 fi
 echo ""
@@ -157,9 +199,12 @@ echo ""
 echo "🏷️  Creating git tag..."
 git tag -a "$DEPLOY_TAG" -m "Deployed to AWS: $COMMIT on $TIMESTAMP"
 
+TAG_CREATED=false
 if [ $? -ne 0 ]; then
     echo "   ⚠️  Warning: Failed to create git tag (deployment was successful)"
+    DEPLOY_TAG="(not created - git tag failed)"
 else
+    TAG_CREATED=true
     echo "   ✅ Tagged: $DEPLOY_TAG"
 
     # Automatically push the tag

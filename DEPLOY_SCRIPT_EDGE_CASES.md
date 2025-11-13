@@ -96,16 +96,17 @@
 
 All recommended improvements have been implemented in the deployment script:
 
-### ✅ run-task.sh existence check (Lines 237-247)
+### ✅ run-task.sh existence check (Lines 282-292)
 - Checks if file exists before calling
 - Validates file is executable
 - Shows clear warnings and next steps
 
-### ✅ Metadata file verification (Lines 148-152)
+### ✅ Metadata file verification (Lines 189-194)
 - Verifies file was created after write
 - Shows warning if creation failed
+- Sets placeholder value on failure
 
-### ✅ ECS command success check (Lines 177-200)
+### ✅ ECS command success check (Lines 222-246)
 - Checks exit code of `aws ecs list-tasks`
 - Gracefully handles missing cluster
 - Shows deployment summary and exits cleanly
@@ -114,6 +115,21 @@ All recommended improvements have been implemented in the deployment script:
 - Detects empty branch name
 - Sets safe fallback value
 - Warns user about detached HEAD state
+
+### ✅ Image digest verification (Lines 102-128)
+- Captures image digest after push
+- Verifies pulled image matches pushed digest
+- Prevents deployment of tampered or mutable tag images
+
+### ✅ Safe JSON generation (Lines 145-195)
+- Uses jq for proper JSON escaping when available
+- Falls back to heredoc for environments without jq
+- Prevents malformed JSON from special characters
+
+### ✅ Summary accuracy (Lines 198-220, 243-244, 299-303)
+- Tracks git tag creation success
+- Sets placeholder values when operations fail
+- Summary only shows actual successful operations
 
 ## Conclusion
 
