@@ -85,6 +85,10 @@ echo ""
 
 # Push to ECR
 echo "📤 Pushing image to ECR (this may take a few minutes)..."
+
+# Get image digest before push for verification
+PUSH_DIGEST=$(docker inspect --format='{{index .Id}}' "$IMAGE_URI" 2>/dev/null)
+
 docker push "$IMAGE_URI"
 
 if [ $? -ne 0 ]; then
@@ -102,9 +106,6 @@ echo ""
 # Verify push by pulling image
 echo "🔍 Verifying image push (pulling from ECR)..."
 
-# Get image digest after push for verification
-PUSHED_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI" 2>/dev/null | cut -d'@' -f2)
-
 docker pull "$IMAGE_URI"
 
 if [ $? -ne 0 ]; then
@@ -115,16 +116,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Verify pulled image matches pushed image digest
-if [ -n "$PUSHED_DIGEST" ]; then
-    PULLED_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI" 2>/dev/null | cut -d'@' -f2)
-    if [ "$PUSHED_DIGEST" != "$PULLED_DIGEST" ]; then
+# Verify pulled image matches original image
+if [ -n "$PUSH_DIGEST" ]; then
+    PULL_DIGEST=$(docker inspect --format='{{index .Id}}' "$IMAGE_URI" 2>/dev/null)
+    if [ "$PUSH_DIGEST" != "$PULL_DIGEST" ]; then
         echo "❌ Error: Image digest mismatch!"
-        echo "   Pushed: $PUSHED_DIGEST"
-        echo "   Pulled: $PULLED_DIGEST"
+        echo "   Original: $PUSH_DIGEST"
+        echo "   Pulled:   $PULL_DIGEST"
         echo "   The image may have been modified between push and pull."
         exit 1
     fi
+    echo "   ✅ Image digest verified"
+else
+    echo "   ⚠️  Warning: Could not verify image digest (digest unavailable)"
 fi
 
 echo "   ✅ Image verified - pull successful"
@@ -143,15 +147,14 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "📝 Creating deployment metadata..."
-mkdir -p deployments
 
-if [ $? -ne 0 ]; then
+if ! mkdir -p deployments; then
     echo "   ⚠️  Warning: Failed to create deployments directory"
     METADATA_FILE="(not created - directory error)"
 else
     # Use jq for safe JSON generation if available, otherwise use heredoc with basic escaping
     if command -v jq >/dev/null 2>&1; then
-        jq -n \
+        if jq -n \
             --arg timestamp "$TIMESTAMP" \
             --arg deploy_tag "$DEPLOY_TAG" \
             --arg branch "$BRANCH" \
@@ -169,10 +172,15 @@ else
                 image_uri: $image_uri,
                 region: $region,
                 repository: $repository
-            }' > "$METADATA_FILE"
+            }' > "$METADATA_FILE"; then
+            echo "   ✅ Metadata saved to: $METADATA_FILE"
+        else
+            echo "   ⚠️  Warning: Failed to write metadata file with jq"
+            METADATA_FILE="(not created - write error)"
+        fi
     else
         # Fallback to heredoc (basic usage, assumes no special chars in variables)
-        cat > "$METADATA_FILE" << EOF
+        if cat > "$METADATA_FILE" << EOF
 {
   "timestamp": "$TIMESTAMP",
   "deploy_tag": "$DEPLOY_TAG",
@@ -184,13 +192,12 @@ else
   "repository": "$REPOSITORY_NAME"
 }
 EOF
-    fi
-
-    if [ -f "$METADATA_FILE" ]; then
-        echo "   ✅ Metadata saved to: $METADATA_FILE"
-    else
-        echo "   ⚠️  Warning: Failed to create metadata file"
-        METADATA_FILE="(not created - write error)"
+        then
+            echo "   ✅ Metadata saved to: $METADATA_FILE"
+        else
+            echo "   ⚠️  Warning: Failed to create metadata file"
+            METADATA_FILE="(not created - write error)"
+        fi
     fi
 fi
 echo ""
@@ -198,10 +205,11 @@ echo ""
 # Create git tag for successful deployment
 echo "🏷️  Creating git tag..."
 git tag -a "$DEPLOY_TAG" -m "Deployed to AWS: $COMMIT on $TIMESTAMP"
+TAG_EXIT_CODE=$?
 
-TAG_CREATED=false
-if [ $? -ne 0 ]; then
+if [ $TAG_EXIT_CODE -ne 0 ]; then
     echo "   ⚠️  Warning: Failed to create git tag (deployment was successful)"
+    TAG_CREATED=false
     DEPLOY_TAG="(not created - git tag failed)"
 else
     TAG_CREATED=true
@@ -221,16 +229,21 @@ fi
 echo ""
 # Check if there are running tasks
 echo "🔍 Checking for running tasks..."
+ECS_ERROR=$(mktemp)
 RUNNING_TASKS=$(aws ecs list-tasks \
     --cluster mytower-cluster \
     --desired-status RUNNING \
     --region "$REGION" \
     --query 'taskArns' \
-    --output text 2>/dev/null)
+    --output text 2>"$ECS_ERROR")
 ECS_EXIT_CODE=$?
 
 if [ $ECS_EXIT_CODE -ne 0 ]; then
-    echo "   ⚠️  Warning: Failed to check ECS tasks (cluster may not exist)"
+    echo "   ⚠️  Warning: Failed to check ECS tasks"
+    if [ -s "$ECS_ERROR" ]; then
+        echo "   Error details: $(cat "$ECS_ERROR")"
+    fi
+    rm -f "$ECS_ERROR"
     echo "   Deployment successful! Manually start tasks if needed."
     echo ""
     echo "✅ Deployment complete!"
@@ -244,6 +257,7 @@ if [ $ECS_EXIT_CODE -ne 0 ]; then
     echo "   Metadata: $METADATA_FILE"
     exit 0
 fi
+rm -f "$ECS_ERROR"
 
 if [ -n "$RUNNING_TASKS" ] && [ "$RUNNING_TASKS" != "None" ]; then
     echo "   ⚠️  Found running task(s)"
@@ -289,6 +303,13 @@ elif [ ! -x "./run-task.sh" ]; then
     echo "   Run: chmod +x run-task.sh"
 else
     ./run-task.sh
+    TASK_EXIT_CODE=$?
+    if [ $TASK_EXIT_CODE -ne 0 ]; then
+        echo "   ⚠️  Warning: run-task.sh failed (exit code: $TASK_EXIT_CODE)"
+        echo "   Check the script output above for details"
+    else
+        echo "   ✅ Task started successfully"
+    fi
 fi
 
 echo ""
