@@ -52,30 +52,90 @@ export class WebGameView {
     this.uiRenderer = new UIRenderer(this.context, canvasHeight);
 
     // Initialize GraphQL clients
-    const SERVER_HOST = '192.168.50.59'; 
-    this.wsClient = createClient({ url: `ws://${SERVER_HOST}:8000/graphql` });
-    this.gqlClient = new GraphQLClient(`http://${SERVER_HOST}:8000/graphql`);
+    // Use environment variable if set, otherwise default to current hostname (production)
+    // This allows local dev override via .env while production "just works"
+    const SERVER_HOST = import.meta.env.VITE_SERVER_HOST || window.location.hostname;
+    const SERVER_PORT = import.meta.env.VITE_SERVER_PORT || '8000';
 
-    // Start
+    console.log(`🌐 Connecting to game server at ${SERVER_HOST}:${SERVER_PORT}`);
+    console.log(`🔍 Client info: ${navigator.userAgent}`);
+    console.log(`🔍 Page protocol: ${window.location.protocol}`);
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const httpProtocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+    const wsUrl = `${wsProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`;
+    
+    console.log(`🔍 WebSocket URL: ${wsUrl}`);
+    
+    // Create WebSocket client with explicit configuration
+    // Note: graphql-ws v6.x uses the modern 'graphql-transport-ws' protocol by default
+    this.wsClient = createClient({ 
+      url: wsUrl,
+      // Handle WebSocket connection errors and closures BEFORE subscribing
+      on: {
+        connecting: () => {
+          console.log('🔌 WebSocket connecting...');
+        },
+        opened: (socket: any) => {
+          console.log('✅ WebSocket opened successfully');
+          console.log(`🔍 Socket readyState: ${socket?.readyState}`);
+          console.log(`🔍 Socket protocol: ${socket?.protocol}`);
+          console.log(`🔍 Socket url: ${socket?.url}`);
+        },
+        connected: (socket: any, payload: any) => {
+          console.log('✅ WebSocket connected and acknowledged');
+          console.log(`🔍 Connection payload:`, payload);
+        },
+        ping: (received: boolean, payload: any) => {
+          console.log(`🏓 Ping ${received ? 'received' : 'sent'}`, payload);
+        },
+        pong: (received: boolean, payload: any) => {
+          console.log(`🏓 Pong ${received ? 'received' : 'sent'}`, payload);
+        },
+        message: (message: any) => {
+          console.log('📨 WebSocket message:', message);
+        },
+        error: (error: any) => {
+          console.error('❌ WebSocket connection error:', error);
+          console.error('🔍 Error type:', typeof error);
+          console.error('🔍 Error constructor:', error?.constructor?.name);
+          if (error instanceof Event) {
+            console.error('🔍 Event type:', error.type);
+            console.error('🔍 Event target:', error.target);
+          }
+          if (error instanceof CloseEvent) {
+            console.error('🔍 Close code:', error.code);
+            console.error('🔍 Close reason:', error.reason);
+            console.error('🔍 Was clean:', error.wasClean);
+          }
+          this.uiRenderer.showConnectionError('Connection to game server failed.');
+          this.currentSnapshot = null;
+        },
+        closed: (event: any) => {
+          console.warn('🔌 WebSocket connection closed');
+          if (event) {
+            console.warn('🔍 Close event code:', event.code);
+            console.warn('🔍 Close event reason:', event.reason);
+            console.warn('🔍 Was clean:', event.wasClean);
+          }
+          this.uiRenderer.showConnectionError('Connection to game server lost.');
+          this.currentSnapshot = null;
+        },
+      },
+    });
+    
+    this.gqlClient = new GraphQLClient(`${httpProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`);
+
+    // Start subscription and rendering
     this.subscribeToBuilding();
     this.startRenderLoop();
     
     console.log('🎮 WebGameView initialized with typed units system');
-
-    // Handle WebSocket connection errors and closures
-    this.wsClient.on('error', (error: any) => {
-      console.error('WebSocket connection error:', error);
-      this.uiRenderer.showConnectionError('Connection to game server failed.');
-      this.currentSnapshot = null;
-    });
-    this.wsClient.on('closed', () => {
-      console.warn('WebSocket connection closed');
-      this.uiRenderer.showConnectionError('Connection to game server lost.');
-      this.currentSnapshot = null;
-    });
   }
 
   private subscribeToBuilding(): void {
+    console.log('📡 Starting subscription to building state stream...');
+    
     const subscription = `
       subscription BuildingStateStream {
         buildingStateStream(intervalMs: 50) {
@@ -117,19 +177,29 @@ export class WebGameView {
       }
     `;
 
+    let messageCount = 0;
     this.wsClient.subscribe(
       { query: subscription },
       {
         next: (result: any) => {
+          messageCount++;
+          if (messageCount === 1) {
+            console.log('✅ First subscription message received!');
+          }
+          if (messageCount % 100 === 0) {
+            console.log(`📊 Received ${messageCount} subscription messages`);
+          }
           this.currentSnapshot = result.data?.buildingStateStream;
         },
         error: (error: any) => {
           console.error('❌ Subscription error:', error);
+          console.error('🔍 Error details:', JSON.stringify(error, null, 2));
           this.uiRenderer.showConnectionError('Subscription to game server failed.');
           this.currentSnapshot = null;
         },
         complete: () => {
           console.log('ℹ️ Subscription completed');
+          console.log(`📊 Total messages received: ${messageCount}`);
         }
       }
     );

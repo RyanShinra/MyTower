@@ -13,7 +13,9 @@ dependencies = [
     "pygame>=2.5.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
-    "strawberry-graphql[fastapi]>=0.245.0",
+    # strawberry-graphql pinned <1.0.0 - see requirements-base.txt for rationale
+    "strawberry-graphql[fastapi]>=0.245.0,<1.0.0",
+    "pydantic>=2.0.0",
 ]
 
 [project.optional-dependencies]

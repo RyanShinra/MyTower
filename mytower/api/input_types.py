@@ -5,107 +5,201 @@ These input types provide proper GraphQL design patterns where mutations
 accept input objects rather than individual parameters. They mirror the
 command objects from controller_commands.py but are specifically designed
 for the GraphQL API layer.
+
+Uses Pydantic for robust input validation with field validators.
 """
 
-import re
 import strawberry
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from mytower.api.graphql_types import FloorTypeGQL
+from mytower.api.validation_constants import (
+    ELEVATOR_BANK_ID_PATTERN,
+    MAX_ELEVATOR_BANK_ID_LENGTH,
+    MAX_FLOOR_NUMBER,
+    MAX_POSITION_BLOCKS,
+    MIN_FLOOR_NUMBER,
+    MIN_POSITION_BLOCKS,
+)
 from mytower.game.core.units import Blocks
 
 
-@strawberry.input
-class AddFloorInput:
-    """Input for adding a new floor to the building"""
+# ============================================================================
+# Pydantic Models with Validation
+# ============================================================================
+
+
+class AddFloorInputModel(BaseModel):
+    """Pydantic model for adding a new floor to the building"""
 
     floor_type: FloorTypeGQL
 
-    def validate(self) -> None:
-        """Validate floor input. FloorTypeGQL is an enum and already validated by Strawberry."""
-        # Floor type is an enum, so no additional validation needed
-        pass
+    # Floor type is an enum, validated automatically by Pydantic
 
 
-@strawberry.input
-class AddPersonInput:
-    """Input for adding a new person to the building"""
+class AddPersonInputModel(BaseModel):
+    """Pydantic model for adding a new person to the building"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     init_floor: int
     init_horiz_position: Blocks
     dest_floor: int
     dest_horiz_position: Blocks
 
-    def validate(self) -> None:
-        """Validate person input parameters."""
-        # Validate floor numbers (1-100 range)
-        if not (1 <= self.init_floor <= 100):
-            raise ValueError(f"Initial floor must be between 1 and 100, got {self.init_floor}")
-        if not (1 <= self.dest_floor <= 100):
-            raise ValueError(f"Destination floor must be between 1 and 100, got {self.dest_floor}")
-
-        # Validate positions (0-100 blocks range)
-        if not (0 <= self.init_horiz_position.value <= 100):
+    @field_validator("init_floor")
+    @classmethod
+    def validate_init_floor(cls, v: int) -> int:
+        """Validate initial floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
             raise ValueError(
-                f"Initial horizontal position must be between 0 and 100 blocks, got {self.init_horiz_position.value}"
+                f"Initial floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}"
             )
-        if not (0 <= self.dest_horiz_position.value <= 100):
+        return v
+
+    @field_validator("dest_floor")
+    @classmethod
+    def validate_dest_floor(cls, v: int) -> int:
+        """Validate destination floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
             raise ValueError(
-                f"Destination horizontal position must be between 0 and 100 blocks, got {self.dest_horiz_position.value}"
+                f"Destination floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}"
             )
+        return v
+
+    @field_validator("init_horiz_position")
+    @classmethod
+    def validate_init_position(cls, v: Blocks) -> Blocks:
+        """Validate initial horizontal position is in valid range"""
+        if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
+            raise ValueError(
+                f"Initial horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+            )
+        return v
+
+    @field_validator("dest_horiz_position")
+    @classmethod
+    def validate_dest_position(cls, v: Blocks) -> Blocks:
+        """Validate destination horizontal position is in valid range"""
+        if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
+            raise ValueError(
+                f"Destination horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+            )
+        return v
 
 
-@strawberry.input
-class AddElevatorBankInput:
-    """Input for adding a new elevator bank to the building"""
+class AddElevatorBankInputModel(BaseModel):
+    """Pydantic model for adding a new elevator bank to the building"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     horiz_position: Blocks
     min_floor: int
     max_floor: int
 
-    def validate(self) -> None:
-        """Validate elevator bank input parameters."""
-        # Validate horizontal position (0-100 blocks range)
-        if not (0 <= self.horiz_position.value <= 100):
+    @field_validator("horiz_position")
+    @classmethod
+    def validate_position(cls, v: Blocks) -> Blocks:
+        """Validate horizontal position is in valid range"""
+        if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
             raise ValueError(
-                f"Horizontal position must be between 0 and 100 blocks, got {self.horiz_position.value}"
+                f"Horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
             )
+        return v
 
-        # Validate floor numbers (1-100 range)
-        if not (1 <= self.min_floor <= 100):
-            raise ValueError(f"Minimum floor must be between 1 and 100, got {self.min_floor}")
-        if not (1 <= self.max_floor <= 100):
-            raise ValueError(f"Maximum floor must be between 1 and 100, got {self.max_floor}")
+    @field_validator("min_floor")
+    @classmethod
+    def validate_min_floor(cls, v: int) -> int:
+        """Validate minimum floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
+            raise ValueError(f"Minimum floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}")
+        return v
 
-        # Validate max >= min
+    @field_validator("max_floor")
+    @classmethod
+    def validate_max_floor(cls, v: int) -> int:
+        """Validate maximum floor is in valid range"""
+        if not (MIN_FLOOR_NUMBER <= v <= MAX_FLOOR_NUMBER):
+            raise ValueError(f"Maximum floor must be between {MIN_FLOOR_NUMBER} and {MAX_FLOOR_NUMBER}, got {v}")
+        return v
+
+    def model_post_init(self, _context) -> None:
+        """Validate that max_floor >= min_floor after all fields are set"""
         if self.max_floor < self.min_floor:
             raise ValueError(
                 f"Maximum floor ({self.max_floor}) must be greater than or equal to minimum floor ({self.min_floor})"
             )
 
 
-@strawberry.input
-class AddElevatorInput:
-    """Input for adding a new elevator to an existing elevator bank"""
+class AddElevatorInputModel(BaseModel):
+    """Pydantic model for adding a new elevator to an existing elevator bank"""
 
     elevator_bank_id: str
 
-    def validate(self) -> None:
-        """Validate elevator input parameters."""
-        # Strip whitespace for validation
-        stripped_id = self.elevator_bank_id.strip()
-
-        # Validate non-empty
-        if not stripped_id:
+    @field_validator("elevator_bank_id")
+    @classmethod
+    def validate_elevator_bank_id(cls, v: str) -> str:
+        """Validate elevator bank ID (must not have leading/trailing whitespace)"""
+        # Validate non-empty (after stripping whitespace)
+        if not v.strip():
             raise ValueError("Elevator bank ID cannot be empty")
 
-        # Validate max length (100 characters)
-        if len(stripped_id) > 100:
+        # Reject IDs with leading or trailing whitespace
+        if v != v.strip():
+            raise ValueError("Elevator bank ID must not have leading or trailing whitespace")
+
+        # Validate max length
+        if len(v) > MAX_ELEVATOR_BANK_ID_LENGTH:
             raise ValueError(
-                f"Elevator bank ID must be 100 characters or less, got {len(stripped_id)} characters"
+                f"Elevator bank ID must be {MAX_ELEVATOR_BANK_ID_LENGTH} characters or less, got {len(v)} characters"
             )
 
         # Validate format: alphanumeric + hyphens/underscores
-        if not re.match(r"^[a-zA-Z0-9_-]+$", stripped_id):
+        if not ELEVATOR_BANK_ID_PATTERN.match(v):
             raise ValueError(
                 "Elevator bank ID must contain only alphanumeric characters, hyphens, and underscores"
             )
+
+        return v
+
+
+# ============================================================================
+# Strawberry GraphQL Input Types
+# ============================================================================
+#
+# NOTE: Using strawberry.experimental.pydantic API
+#
+# This API is marked as experimental and may change in future Strawberry releases.
+# To prevent breaking changes, strawberry-graphql is pinned to <1.0.0 in requirements.
+#
+# Current version: 0.245.0+
+# Status: Experimental (as of 2025-11)
+#
+# Migration plan:
+# - Monitor: https://github.com/strawberry-graphql/strawberry/discussions
+# - When stable API is released, migrate and remove version pin
+# - Check for updates quarterly or when major features are needed
+
+
+@strawberry.experimental.pydantic.input(model=AddFloorInputModel, all_fields=True)
+class AddFloorInput:
+    """Input for adding a new floor to the building"""
+    pass
+
+
+@strawberry.experimental.pydantic.input(model=AddPersonInputModel, all_fields=True)
+class AddPersonInput:
+    """Input for adding a new person to the building"""
+    pass
+
+
+@strawberry.experimental.pydantic.input(model=AddElevatorBankInputModel, all_fields=True)
+class AddElevatorBankInput:
+    """Input for adding a new elevator bank to the building"""
+    pass
+
+
+@strawberry.experimental.pydantic.input(model=AddElevatorInputModel, all_fields=True)
+class AddElevatorInput:
+    """Input for adding a new elevator to an existing elevator bank"""
+    pass

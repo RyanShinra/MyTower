@@ -4,4 +4,4 @@
 -r requirements-base.txt
 
 # Production server enhancements
-uvicorn[standard]==0.34.0  # Full uvicorn with better performance
+uvicorn[standard]>=0.34.0  # Full uvicorn with better performance
