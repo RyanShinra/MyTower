@@ -41,6 +41,13 @@ fi
 
 BRANCH=$(git branch --show-current)
 COMMIT=$(git rev-parse --short HEAD)
+
+# Warn if in detached HEAD state
+if [ -z "$BRANCH" ]; then
+    echo "   ⚠️  Warning: Git is in detached HEAD state"
+    BRANCH="detached-HEAD"
+fi
+
 echo "   ✅ Branch: $BRANCH"
 echo "   ✅ Commit: $COMMIT"
 echo ""
@@ -81,13 +88,85 @@ echo "📤 Pushing image to ECR (this may take a few minutes)..."
 docker push $IMAGE_URI
 
 if [ $? -ne 0 ]; then
-    echo "❌ Push to ECR failed!"
+    echo "❌ Error: Failed to push image to ECR!"
+    echo "   This could be due to:"
+    echo "   - Network connectivity issues"
+    echo "   - ECR repository does not exist"
+    echo "   - Insufficient permissions"
     exit 1
 fi
 
 echo "   ✅ Image pushed successfully"
 echo ""
 
+# Verify push by pulling image
+echo "🔍 Verifying image push (pulling from ECR)..."
+docker pull $IMAGE_URI
+
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to pull image from ECR!"
+    echo "   The image was pushed but cannot be pulled back."
+    echo "   This indicates the push may have been incomplete or corrupted."
+    echo "   Please retry the deployment."
+    exit 1
+fi
+
+echo "   ✅ Image verified - pull successful"
+echo ""
+
+# Create deployment metadata
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+DEPLOY_TAG="deploy-$(date +%Y%m%d-%H%M%S)"
+METADATA_FILE="deployments/${DEPLOY_TAG}.json"
+
+echo "📝 Creating deployment metadata..."
+mkdir -p deployments
+
+if [ $? -ne 0 ]; then
+    echo "   ⚠️  Warning: Failed to create deployments directory"
+else
+    cat > "$METADATA_FILE" << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "deploy_tag": "$DEPLOY_TAG",
+  "branch": "$BRANCH",
+  "commit": "$COMMIT",
+  "commit_full": "$(git rev-parse HEAD)",
+  "image_uri": "$IMAGE_URI",
+  "region": "$REGION",
+  "repository": "$REPOSITORY_NAME"
+}
+EOF
+
+    if [ -f "$METADATA_FILE" ]; then
+        echo "   ✅ Metadata saved to: $METADATA_FILE"
+    else
+        echo "   ⚠️  Warning: Failed to create metadata file"
+    fi
+fi
+echo ""
+
+# Create git tag for successful deployment
+echo "🏷️  Creating git tag..."
+git tag -a $DEPLOY_TAG -m "Deployed to AWS: $COMMIT on $TIMESTAMP"
+
+if [ $? -ne 0 ]; then
+    echo "⚠️  Warning: Failed to create git tag (deployment was successful)"
+else
+    echo "   ✅ Tagged: $DEPLOY_TAG"
+
+    # Automatically push the tag
+    echo "📤 Pushing tag to remote..."
+    git push origin $DEPLOY_TAG
+
+    if [ $? -ne 0 ]; then
+        echo "   ⚠️  Warning: Failed to push tag (tag created locally)"
+        echo "   💡 Push manually with: git push origin $DEPLOY_TAG"
+    else
+        echo "   ✅ Tag pushed to remote"
+    fi
+fi
+echo ""
 # Check if there are running tasks
 echo "🔍 Checking for running tasks..."
 RUNNING_TASKS=$(aws ecs list-tasks \
@@ -95,7 +174,23 @@ RUNNING_TASKS=$(aws ecs list-tasks \
     --desired-status RUNNING \
     --region $REGION \
     --query 'taskArns' \
-    --output text)
+    --output text 2>&1)
+
+if [ $? -ne 0 ]; then
+    echo "   ⚠️  Warning: Failed to check ECS tasks (cluster may not exist)"
+    echo "   Deployment successful! Manually start tasks if needed."
+    echo ""
+    echo "✅ Deployment complete!"
+    echo ""
+    echo "📝 Deployment Summary:"
+    echo "   Branch: $BRANCH"
+    echo "   Commit: $COMMIT"
+    echo "   Image: $IMAGE_URI"
+    echo "   Region: $REGION"
+    echo "   Deploy Tag: $DEPLOY_TAG"
+    echo "   Metadata: $METADATA_FILE"
+    exit 0
+fi
 
 if [ -n "$RUNNING_TASKS" ] && [ "$RUNNING_TASKS" != "None" ]; then
     echo "   ⚠️  Found running task(s)"
@@ -130,7 +225,18 @@ fi
 
 # Start new task
 echo "🎮 Starting new task with updated image..."
-./run-task.sh
+
+# Check if run-task.sh exists and is executable
+if [ ! -f "./run-task.sh" ]; then
+    echo "   ⚠️  Warning: run-task.sh not found"
+    echo "   Deployment successful, but cannot start new task automatically"
+    echo "   Create and run run-task.sh manually to start the task"
+elif [ ! -x "./run-task.sh" ]; then
+    echo "   ⚠️  Warning: run-task.sh is not executable"
+    echo "   Run: chmod +x run-task.sh"
+else
+    ./run-task.sh
+fi
 
 echo ""
 echo "✅ Deployment complete!"
