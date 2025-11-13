@@ -106,7 +106,7 @@ All recommended improvements have been implemented in the deployment script:
 - Shows warning if creation failed
 - Sets placeholder value on failure
 
-### ✅ ECS command success check (Lines 222-246)
+### ✅ ECS command success check (Lines 232-260)
 - Checks exit code of `aws ecs list-tasks`
 - Gracefully handles missing cluster
 - Shows deployment summary and exits cleanly
