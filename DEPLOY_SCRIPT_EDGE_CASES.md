@@ -96,7 +96,7 @@
 
 All recommended improvements have been implemented in the deployment script:
 
-### ✅ run-task.sh existence check (Lines 282-292)
+### ✅ run-task.sh existence check (Lines 296-313)
 - Checks if file exists before calling
 - Validates file is executable
 - Shows clear warnings and next steps
