@@ -176,7 +176,7 @@ def person_with_floor(
         logger_provider=mock_logger_provider,
         building=mock_building_with_floor,
         initial_floor_number=PERSON_DEFAULT_FLOOR,
-        initial_horiz_position=Blocks(PERSON_DEFAULT_BLOCK),
+        initial_horiz_position=PERSON_DEFAULT_BLOCK,
         config=mock_game_config,
     )
 
