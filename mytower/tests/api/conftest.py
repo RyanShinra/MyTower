@@ -15,7 +15,6 @@ import pytest
 from mytower.api.game_bridge_protocol import GameBridgeProtocol
 from mytower.api.graphql_types import (
     BuildingSnapshotGQL,
-    ElevatorBankSnapshotGQL,
     ElevatorSnapshotGQL,
     ElevatorStateGQL,
     FloorSnapshotGQL,

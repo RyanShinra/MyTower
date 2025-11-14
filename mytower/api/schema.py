@@ -8,7 +8,7 @@ import strawberry
 from mytower.api import unit_scalars  # Import the module to register scalars
 from mytower.api.game_bridge import get_game_bridge
 from mytower.api.game_bridge_protocol import GameBridgeProtocol
-from mytower.api.graphql_types import BuildingSnapshotGQL, FloorTypeGQL, PersonSnapshotGQL
+from mytower.api.graphql_types import BuildingSnapshotGQL, PersonSnapshotGQL
 from mytower.api.input_types import AddElevatorBankInput, AddElevatorInput, AddFloorInput, AddPersonInput
 from mytower.api.type_conversions import convert_building_snapshot, convert_person_snapshot
 from mytower.game.controllers.controller_commands import (
@@ -164,7 +164,7 @@ class Subscription:
             BuildingSnapshotGQL: Current building state snapshot, or None if game not running
         """
         logger.info(f"📡 New building state subscription started (interval: {interval_ms}ms)")
-        
+
         if not (5 <= interval_ms <= 10000):
             logger.error(f"❌ Invalid interval_ms: {interval_ms}")
             raise ValueError("interval_ms must be between 5 and 10000")
@@ -172,19 +172,19 @@ class Subscription:
         interval_seconds: float = interval_ms / 1000.0
         # Use getattr for safe access - _game_bridge will be None when called via Strawberry schema
         game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
-        
+
         message_count = 0
 
         try:
             while True:
                 snapshot: BuildingSnapshot | None = game_bridge.get_building_snapshot()
                 message_count += 1
-                
+
                 if message_count == 1:
                     logger.info("✅ First snapshot sent to client")
                 elif message_count % 100 == 0:
                     logger.debug(f"📊 Sent {message_count} snapshots to client")
-                
+
                 yield convert_building_snapshot(snapshot) if snapshot else None
                 await asyncio.sleep(interval_seconds)
 
@@ -223,7 +223,7 @@ class Subscription:
             Time: Current game time in seconds
         """
         logger.info(f"📡 New game time subscription started (interval: {interval_ms}ms)")
-        
+
         if not (5 <= interval_ms <= 10000):
             logger.error(f"❌ Invalid interval_ms: {interval_ms}")
             raise ValueError("interval_ms must be between 5 and 10000")
@@ -239,7 +239,7 @@ class Subscription:
                 await asyncio.sleep(interval_seconds)
         except asyncio.CancelledError:
             # Client disconnected or subscription was cancelled
-            logger.info(f"🔌 Game time subscription cancelled (client disconnected)")
+            logger.info("🔌 Game time subscription cancelled (client disconnected)")
             raise
         except Exception as e:
             logger.error(f"❌ Game time subscription error: {e}", exc_info=True)

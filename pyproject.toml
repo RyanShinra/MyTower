@@ -23,9 +23,9 @@ dev = [
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
     "pytest-asyncio>=0.24.0",
-    "black>=24.10.0",
     "ruff>=0.8.0",
     "mypy>=1.13.0",
+    "flake8>=7.0.0",
 ]
 
 [project.scripts]
@@ -36,29 +36,9 @@ requires = ["setuptools>=75.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 # spell-checker: ignore-file
-[tool.black]
-line-length = 120
-target-version = ["py312"]
-skip-string-normalization = false
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-# NOTE: Black's blank line checks conflict with custom formatting rules
-# where functions with >5 lines have 2 blank lines before them.
-# This is intentional and approved by custom Flake8 rules.
-# Black will report files as needing reformatting, but do not apply
-# those changes as they will break the custom blank line formatting.
+# NOTE: We use Ruff Format instead of Black (faster, identical output)
+# Ruff Format is configured to ignore blank line checks (E301-E306)
+# because we use custom 2-blank-line spacing rules via Flake8 X303 plugin.
 
 [tool.coverage.run]
 # Enable branch measurement to match `--cov-branch`
@@ -107,7 +87,14 @@ select = [
 ignore = [
     "E501",  # line too long (handled by formatter)
     "E203",  # whitespace before ':'
+    # Custom blank line rules - we use our own 2-blank-line system via Flake8 X303
+    "E301",  # expected 1 blank line, found 0
+    "E302",  # expected 2 blank lines, found N
     "E303",  # too many blank lines (using custom X303)
+    "E304",  # blank lines found after function decorator
+    "E305",  # expected 2 blank lines after class or function definition
+    "E306",  # expected 1 blank line before a nested definition
+    # Code style preferences
     "E701",  # multiple statements on one line (colon)
     "E702",  # multiple statements on one line (semicolon)
     "E712",  # comparison to True/False (explicitly testing bool values in tests)

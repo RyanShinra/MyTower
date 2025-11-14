@@ -10,7 +10,6 @@ Tests cover:
 Uses dependency injection instead of monkey patching.
 """
 
-import asyncio
 import time
 from unittest.mock import patch
 
