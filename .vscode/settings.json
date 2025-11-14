@@ -101,10 +101,15 @@
     "coverage-gutters.showLineCoverage": true,
     "coverage-gutters.showRulerCoverage": true,
     "coverage-gutters.coverageReportFileName": "coverage.xml",
-    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.typeCheckingMode": "standard",  // Changed from "strict" - Strawberry GraphQL wrappers cause false positives in strict mode
     "python.analysis.languageServerMode": "full",
     "python.analysis.diagnosticMode": "workspace",  // Scan all workspace files
     "python.analysis.enablePytestSupport": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        // Strawberry GraphQL wraps Pydantic models with StrawberryTypeFromPydantic,
+        // which hides attributes from the type checker. These attributes exist at runtime.
+        "reportAttributeAccessIssue": "warning"  // Downgrade from error to warning
+    },
 
     "editor.inlineSuggest.enabled": true,
     "editor.inlineSuggest.experimental.triggerCommandOnProviderChange": false,
