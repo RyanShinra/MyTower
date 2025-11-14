@@ -12,7 +12,9 @@
 from __future__ import annotations  # Defer type evaluation
 
 import threading
-from typing import TYPE_CHECKING, Final, override
+from typing import TYPE_CHECKING, Final
+
+from typing_extensions import override
 
 from mytower.game.core.config import GameConfig, PersonCosmeticsProtocol
 from mytower.game.core.id_generator import IDGenerator

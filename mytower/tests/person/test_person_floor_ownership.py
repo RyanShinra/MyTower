@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from mytower.game.core.types import PersonState
+from mytower.game.core.units import Blocks
 from mytower.game.entities.person import Person
 
 

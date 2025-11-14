@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import overload, override
+from typing import overload
+
+from typing_extensions import override
 
 from mytower.game.core.primitive_constants import (
     BLOCK_FLOAT_TOLERANCE,
