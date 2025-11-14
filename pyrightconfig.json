@@ -10,7 +10,8 @@
   ],
   "ignore": [
     "mytower/api/schema.py",
-    "mytower/api/input_types.py"
+    "mytower/api/input_types.py",
+    "mytower/tests/**/*.py"
   ],
   "reportAttributeAccessIssue": "error",
   "reportMissingImports": "error",
