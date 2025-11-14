@@ -15,7 +15,7 @@ MyTower uses modern Python features and benefits significantly from 3.13's impro
 - ~7% reduced memory footprint (lower AWS costs)
 
 **Type System (Critical for Protocol-Heavy Architecture):**
-- Native `typing.override` decorator (PEP 698)
+- `typing.override` decorator (PEP 698, available since Python 3.12)
 - Enhanced `typing.TypeIs` for type narrowing
 - `typing.ReadOnly` for TypedDict
 - Type parameter defaults
