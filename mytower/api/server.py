@@ -29,7 +29,12 @@ app = FastAPI(title="MyTower GraphQL API")
 # Production example:
 #   MYTOWER_CORS_ORIGINS="https://example.com,https://app.example.com"
 origins_env = os.getenv("MYTOWER_CORS_ORIGINS", "*")
-allowed_origins = [origin.strip() for origin in origins_env.split(",")]
+# Filter out empty strings after stripping whitespace
+allowed_origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+
+# Fallback to wildcard if no valid origins provided (handles empty string or whitespace-only env var)
+if not allowed_origins:
+    allowed_origins = ["*"]
 
 # Disable credentials if using wildcard origins (CORS security requirement)
 use_credentials = "*" not in allowed_origins

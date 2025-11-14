@@ -11,7 +11,7 @@ Tests cover:
 """
 
 import os
-from typing import Generator
+from typing import Callable, Generator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -32,7 +32,7 @@ def clean_env() -> Generator[None, None, None]:
 
 
 @pytest.fixture
-def test_client_factory():
+def test_client_factory() -> Callable[[], TestClient]:
     """Factory to create test client with fresh server instance."""
     def _create_client() -> TestClient:
         # Import here to ensure environment variables are read fresh
@@ -257,3 +257,67 @@ class TestCORSEndpointCoverage:
             headers={"Origin": "https://example.com", "Access-Control-Request-Method": "POST"},
         )
         assert "access-control-allow-origin" in response.headers
+
+
+class TestCORSEdgeCases:
+    """Tests for edge case handling in CORS configuration."""
+
+    def test_empty_string_fallback_to_wildcard(self, clean_env, test_client_factory) -> None:
+        """Should fallback to wildcard when MYTOWER_CORS_ORIGINS is empty string."""
+        os.environ["MYTOWER_CORS_ORIGINS"] = ""
+        client = test_client_factory()
+        response = client.options(
+            "/graphql",
+            headers={"Origin": "https://example.com", "Access-Control-Request-Method": "POST"},
+        )
+        assert response.headers["access-control-allow-origin"] == "*"
+        # Credentials should be disabled with wildcard
+        assert response.headers.get("access-control-allow-credentials") != "true"
+
+    def test_whitespace_only_fallback_to_wildcard(self, clean_env, test_client_factory) -> None:
+        """Should fallback to wildcard when MYTOWER_CORS_ORIGINS is whitespace only."""
+        os.environ["MYTOWER_CORS_ORIGINS"] = "   "
+        client = test_client_factory()
+        response = client.options(
+            "/graphql",
+            headers={"Origin": "https://example.com", "Access-Control-Request-Method": "POST"},
+        )
+        assert response.headers["access-control-allow-origin"] == "*"
+        assert response.headers.get("access-control-allow-credentials") != "true"
+
+    def test_empty_list_items_fallback_to_wildcard(self, clean_env, test_client_factory) -> None:
+        """Should fallback to wildcard when MYTOWER_CORS_ORIGINS has only empty items."""
+        os.environ["MYTOWER_CORS_ORIGINS"] = " , , "
+        client = test_client_factory()
+        response = client.options(
+            "/graphql",
+            headers={"Origin": "https://example.com", "Access-Control-Request-Method": "POST"},
+        )
+        assert response.headers["access-control-allow-origin"] == "*"
+        assert response.headers.get("access-control-allow-credentials") != "true"
+
+    def test_mixed_valid_and_empty_origins(self, clean_env, test_client_factory) -> None:
+        """Should filter out empty origins and keep valid ones."""
+        os.environ["MYTOWER_CORS_ORIGINS"] = "https://example.com, ,https://app.example.com, "
+        client = test_client_factory()
+        response = client.options(
+            "/graphql",
+            headers={
+                "Origin": "https://example.com",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+        assert response.headers["access-control-allow-origin"] == "https://example.com"
+        # Credentials should be enabled (no wildcard in the filtered list)
+        assert response.headers.get("access-control-allow-credentials") == "true"
+
+    def test_commas_only_fallback_to_wildcard(self, clean_env, test_client_factory) -> None:
+        """Should fallback to wildcard when MYTOWER_CORS_ORIGINS is only commas."""
+        os.environ["MYTOWER_CORS_ORIGINS"] = ",,,"
+        client = test_client_factory()
+        response = client.options(
+            "/graphql",
+            headers={"Origin": "https://example.com", "Access-Control-Request-Method": "POST"},
+        )
+        assert response.headers["access-control-allow-origin"] == "*"
+        assert response.headers.get("access-control-allow-credentials") != "true"
