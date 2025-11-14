@@ -18,6 +18,9 @@ services:
       - MYTOWER_MODE=headless
       - MYTOWER_PORT=8000
       - MYTOWER_LOG_LEVEL=DEBUG  # More verbose for local testing
+      # CORS: Defaults to "*" (all origins) for local testing
+      # For production, set to comma-separated list: "https://example.com,https://app.example.com"
+      # - MYTOWER_CORS_ORIGINS=https://example.com,https://app.example.com
       - PYTHONUNBUFFERED=1
 
     # Restart policy
