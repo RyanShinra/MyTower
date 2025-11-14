@@ -144,7 +144,12 @@ class InputHandler:
         dest_floor: int = random.randint(1, len(snapshot.floors))
         dest_horiz_position: float = random.uniform(left_bounds, right_bounds)
 
-        command = AddPersonCommand(init_floor=start_floor, init_horiz_position=Blocks(start_horiz_position), dest_floor=dest_floor, dest_horiz_position=Blocks(dest_horiz_position))
+        command = AddPersonCommand(
+            init_floor=start_floor,
+            init_horiz_position=Blocks(start_horiz_position),
+            dest_floor=dest_floor,
+            dest_horiz_position=Blocks(dest_horiz_position),
+        )
         cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddPerson command: {cmd_id} (from floor {start_floor} to floor {dest_floor})")
 

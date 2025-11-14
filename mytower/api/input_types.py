@@ -73,7 +73,8 @@ class AddPersonInputModel(BaseModel):
         """Validate initial horizontal position is in valid range"""
         if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
             raise ValueError(
-                f"Initial horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+                f"Initial horizontal position must be between {MIN_POSITION_BLOCKS} "
+                f"and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
             )
         return v
 
@@ -83,7 +84,8 @@ class AddPersonInputModel(BaseModel):
         """Validate destination horizontal position is in valid range"""
         if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
             raise ValueError(
-                f"Destination horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+                f"Destination horizontal position must be between {MIN_POSITION_BLOCKS} "
+                f"and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
             )
         return v
 
@@ -103,7 +105,8 @@ class AddElevatorBankInputModel(BaseModel):
         """Validate horizontal position is in valid range"""
         if not (MIN_POSITION_BLOCKS <= v.value <= MAX_POSITION_BLOCKS):
             raise ValueError(
-                f"Horizontal position must be between {MIN_POSITION_BLOCKS} and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
+                f"Horizontal position must be between {MIN_POSITION_BLOCKS} "
+                f"and {MAX_POSITION_BLOCKS} blocks, got {v.value}"
             )
         return v
 

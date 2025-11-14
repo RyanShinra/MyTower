@@ -138,8 +138,9 @@ class Subscription:
         """
         Initialize the Subscription with an optional game bridge for dependency injection.
 
-        Note: When Strawberry creates instances via the schema, __init__() is called with no arguments (game_bridge=None).
-        Tests can directly instantiate with a mock game_bridge for dependency injection.
+        Note: When Strawberry creates instances via the schema, __init__() is called with no
+        arguments (game_bridge=None). Tests can directly instantiate with a mock game_bridge
+        for dependency injection.
 
         Args:
             game_bridge: Optional GameBridgeProtocol instance for testing. If None, uses get_game_bridge()

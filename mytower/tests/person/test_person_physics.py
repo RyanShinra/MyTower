@@ -70,7 +70,9 @@ class TestPersonPhysics:
         person_with_floor.testing_set_current_horiz_position(Blocks(0.5))
         person_with_floor.direction = HorizontalDirection.LEFT
         person_with_floor.testing_set_current_state(PersonState.WALKING)
-        person_with_floor.set_destination(dest_floor_num=person_with_floor.current_floor_num, dest_horiz_position=Blocks(0))
+        person_with_floor.set_destination(
+            dest_floor_num=person_with_floor.current_floor_num, dest_horiz_position=Blocks(0)
+        )
 
         person_with_floor.update_walking(Time(5.0))
         assert person_with_floor.current_horizontal_position >= Blocks(0), "Person should not move past left boundary"

@@ -42,7 +42,8 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
                 f"Frame {frame_count}: "
                 f"Process={frame_process_time * 1000:.2f}ms, "
                 f"Wall-time speedup={speedup:.2f}x, "
-                f"Avg FPS={frame_count / (frame_end_time - sim_start_time):.1f}"  # pyright: ignore[reportImplicitStringConcatenation]
+                # pyright: ignore[reportImplicitStringConcatenation]
+                f"Avg FPS={frame_count / (frame_end_time - sim_start_time):.1f}"
             )
             last_log_time = frame_end_time
 

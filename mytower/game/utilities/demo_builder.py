@@ -58,7 +58,10 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
     ) -> str:
         result: Final[CommandResult[str]] = controller.execute_command(
             AddPersonCommand(
-                init_floor=init_floor, init_horiz_position=init_horiz_position, dest_floor=dest_floor, dest_horiz_position=dest_horiz_position
+                init_floor=init_floor,
+                init_horiz_position=init_horiz_position,
+                dest_floor=dest_floor,
+                dest_horiz_position=dest_horiz_position,
             )
         )
         if result.success and result.data is not None:

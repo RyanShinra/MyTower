@@ -214,7 +214,9 @@ class TestGameTimeStreamSubscription:
         assert result == Time(0.0)
 
     @pytest.mark.parametrize("invalid_interval", [4, 10001, -1, 0])
-    async def test_subscription_validates_interval_ms_bounds(self, mock_game_bridge: Mock, invalid_interval: int) -> None:
+    async def test_subscription_validates_interval_ms_bounds(
+        self, mock_game_bridge: Mock, invalid_interval: int
+    ) -> None:
         """Verify parameter validation works for invalid values."""
         subscription = Subscription(game_bridge=mock_game_bridge)
 
