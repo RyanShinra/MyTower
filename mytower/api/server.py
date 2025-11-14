@@ -1,7 +1,9 @@
 import logging
+import os
 
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 
 from mytower.api.schema import schema
@@ -14,6 +16,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="MyTower GraphQL API")
+
+# Configure CORS middleware
+# For production, set MYTOWER_CORS_ORIGINS to a comma-separated list of allowed origins
+# e.g., MYTOWER_CORS_ORIGINS="https://example.com,https://app.example.com"
+allowed_origins = os.getenv("MYTOWER_CORS_ORIGINS", "*").split(",")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
 # Both protocols are supported by default:
