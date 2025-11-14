@@ -8,6 +8,7 @@ from typing import cast
 from unittest.mock import Mock
 
 from mytower.game.core.types import ElevatorState, PersonState
+from mytower.game.core.units import Blocks
 from mytower.game.entities.entities_protocol import ElevatorProtocol, PersonProtocol
 from mytower.game.entities.person import Person
 from mytower.tests.conftest import PERSON_DEFAULT_BLOCK, PERSON_DEFAULT_FLOOR

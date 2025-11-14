@@ -52,7 +52,7 @@ class TestSubscriptionErrorHandling:
         mock_game_bridge.get_building_snapshot.return_value = None
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        with patch("builtins.print") as mock_print:
+        with patch("mytower.api.schema.logger") as mock_logger:
             stream = subscription.building_state_stream(interval_ms=50)
 
             task = asyncio.create_task(self._consume_stream(stream))
@@ -67,12 +67,12 @@ class TestSubscriptionErrorHandling:
             # Give finally block time to execute
             await asyncio.sleep(0.01)
 
-            # Verify cleanup message was printed
+            # Verify cleanup message was logged
             cleanup_calls = [
-                call for call in mock_print.call_args_list
-                if "Building State Subscription stream cleaned up" in str(call)
+                call for call in mock_logger.info.call_args_list
+                if "Building State Subscription cleaned up" in str(call)
             ]
-            assert len(cleanup_calls) > 0, "Cleanup message not printed"
+            assert len(cleanup_calls) > 0, "Cleanup message not logged"
 
     async def test_subscription_handles_get_building_state_exception(self, mock_game_bridge) -> None:
         """Verify exception from get_building_state() propagates."""
@@ -107,7 +107,7 @@ class TestSubscriptionErrorHandling:
         mock_game_bridge.get_building_snapshot.side_effect = RuntimeError("Test error")
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        with patch("builtins.print") as mock_print:
+        with patch("mytower.api.schema.logger") as mock_logger:
             stream = subscription.building_state_stream(interval_ms=50)
 
             try:
@@ -120,7 +120,7 @@ class TestSubscriptionErrorHandling:
 
             # Verify cleanup happened
             cleanup_calls = [
-                call for call in mock_print.call_args_list
+                call for call in mock_logger.info.call_args_list
                 if "cleaned up" in str(call)
             ]
             assert len(cleanup_calls) > 0
