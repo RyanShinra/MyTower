@@ -130,7 +130,7 @@ class LoggerProvider:
             date_string: str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
             # Pass log_level to setup_logger
-            self._root_logger: logging.Logger = setup_logger(
+            self._root_logger = setup_logger(
                 name="mytower",
                 level=log_level,
                 log_file=(

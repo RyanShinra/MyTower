@@ -162,7 +162,7 @@ class TestPersonCurrentFloorProperty:
             logger_provider=mock_logger_provider,
             building=mock_building_with_floor,
             initial_floor_number=5,
-            initial_horiz_position=10.0,
+            initial_horiz_position=Blocks(10.0),
             config=mock_game_config,
         )
 
