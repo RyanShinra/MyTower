@@ -68,15 +68,28 @@ class GameBridge:
         self._update_lock = threading.Lock()
         self._command_lock = threading.Lock()
         self._snapshot_lock = threading.Lock()
+        self._metrics_lock = threading.Lock()  # Protects queue metrics
 
         self._game_thread_id: int | None = None
 
         # Command queue size: Priority order: constructor arg > env var > default
+        # Validate and parse queue size
         if command_queue_size is not None:
+            if command_queue_size <= 0:
+                raise ValueError(f"command_queue_size must be positive, got {command_queue_size}")
             self._queue_size = command_queue_size
         else:
             env_queue_size = os.getenv("MYTOWER_COMMAND_QUEUE_SIZE")
-            self._queue_size = int(env_queue_size) if env_queue_size else self.DEFAULT_COMMAND_QUEUE_SIZE
+            if env_queue_size:
+                try:
+                    parsed_size = int(env_queue_size)
+                    if parsed_size <= 0:
+                        raise ValueError(f"MYTOWER_COMMAND_QUEUE_SIZE must be positive, got {parsed_size}")
+                    self._queue_size = parsed_size
+                except ValueError as e:
+                    raise ValueError(f"Invalid MYTOWER_COMMAND_QUEUE_SIZE: {e}") from e
+            else:
+                self._queue_size = self.DEFAULT_COMMAND_QUEUE_SIZE
 
         self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=self._queue_size)
 
@@ -92,12 +105,13 @@ class GameBridge:
         self._game_thread_ready = threading.Event()
 
         # Initialize logger
+        self._logger: MyTowerLogger | None
         if logger_provider:
-            self._logger: MyTowerLogger = logger_provider.get_logger("GameBridge")
+            self._logger = logger_provider.get_logger("GameBridge")
         else:
-            self._logger = None  # type: ignore
+            self._logger = None
 
-        # Queue metrics
+        # Queue metrics (protected by _metrics_lock)
         self._queue_full_count = 0
         self._total_commands_queued = 0
         self._max_queue_size_seen = 0
@@ -177,41 +191,48 @@ class GameBridge:
         """
         command_id: str = f"cmd_{time()}"
 
-        # Sample queue size for monitoring (before queue operation)
+        # Sample queue size for monitoring (best-effort, may be stale in multi-threaded context)
         current_queue_size = self._command_queue.qsize()
 
-        # Track peak queue size (sampled before insertion)
-        if current_queue_size > self._max_queue_size_seen:
-            self._max_queue_size_seen = current_queue_size
+        # Track peak queue size with thread-safe update
+        with self._metrics_lock:
+            if current_queue_size > self._max_queue_size_seen:
+                self._max_queue_size_seen = current_queue_size
 
         # Log if queue is getting full (>75% capacity)
-        # Re-sample queue size to get fresh data for accurate warning
-        if self._logger:
-            fresh_queue_size = self._command_queue.qsize()
-            if fresh_queue_size > (self._queue_size * 0.75):
-                self._logger.warning(
-                    f"Command queue is {(fresh_queue_size / self._queue_size) * 100:.1f}% full "
-                    f"({fresh_queue_size}/{self._queue_size}). "
-                    f"Consider increasing MYTOWER_COMMAND_QUEUE_SIZE if this happens frequently."
-                )
+        if self._logger and current_queue_size > (self._queue_size * 0.75):
+            self._logger.warning(
+                f"Command queue is {(current_queue_size / self._queue_size) * 100:.1f}% full "
+                f"({current_queue_size}/{self._queue_size}). "
+                f"Consider increasing MYTOWER_COMMAND_QUEUE_SIZE if this happens frequently."
+            )
 
         try:
-            if timeout is not None:
-                # Use timeout (including 0 for non-blocking)
-                self._command_queue.put((command_id, command), timeout=timeout if timeout > 0 else False)
-            else:
-                # Block indefinitely (original behavior)
+            # Queue the command with appropriate blocking behavior
+            if timeout is None:
+                # Block indefinitely (default behavior)
                 self._command_queue.put((command_id, command))
+            elif timeout == 0:
+                # Non-blocking: use block=False instead of timeout=False (correct API usage)
+                self._command_queue.put((command_id, command), block=False)
+            else:
+                # Block with timeout
+                self._command_queue.put((command_id, command), timeout=timeout)
 
-            # Only increment after successful queue insertion
-            self._total_commands_queued += 1
+            # Only increment after successful queue insertion (thread-safe)
+            with self._metrics_lock:
+                self._total_commands_queued += 1
 
         except queue.Full:
-            self._queue_full_count += 1
+            # Track queue full events (thread-safe)
+            with self._metrics_lock:
+                self._queue_full_count += 1
+                full_count = self._queue_full_count
+
             if self._logger:
                 self._logger.error(
                     f"Command queue is FULL ({self._queue_size} commands). "
-                    f"Command rejected. Queue has been full {self._queue_full_count} times. "
+                    f"Command rejected. Queue has been full {full_count} times. "
                     f"Increase MYTOWER_COMMAND_QUEUE_SIZE environment variable."
                 )
             raise
@@ -244,14 +265,15 @@ class GameBridge:
             - full_count: Number of times queue was completely full
         """
         current_size = self._command_queue.qsize()
-        return {
-            "current_size": current_size,
-            "max_size": self._queue_size,
-            "utilization": (current_size / self._queue_size * 100) if self._queue_size > 0 else 0,
-            "total_queued": self._total_commands_queued,
-            "max_seen": self._max_queue_size_seen,
-            "full_count": self._queue_full_count,
-        }
+        with self._metrics_lock:
+            return {
+                "current_size": current_size,
+                "max_size": self._queue_size,
+                "utilization": (current_size / self._queue_size * 100) if self._queue_size > 0 else 0,
+                "total_queued": self._total_commands_queued,
+                "max_seen": self._max_queue_size_seen,
+                "full_count": self._queue_full_count,
+            }
 
 
     def execute_add_floor_sync(self, floor_type: FloorType) -> int:

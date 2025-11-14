@@ -50,6 +50,28 @@ class TestQueueSizeConfiguration:
         assert bridge._queue_size == GameBridge.DEFAULT_COMMAND_QUEUE_SIZE
         assert bridge._command_queue.maxsize == GameBridge.DEFAULT_COMMAND_QUEUE_SIZE
 
+    def test_invalid_queue_size_constructor(self, mock_controller):
+        """Verify ValueError is raised for invalid constructor queue size."""
+        with pytest.raises(ValueError, match="must be positive"):
+            GameBridge(controller=mock_controller, command_queue_size=0)
+
+        with pytest.raises(ValueError, match="must be positive"):
+            GameBridge(controller=mock_controller, command_queue_size=-10)
+
+    def test_invalid_queue_size_env_var(self, mock_controller, monkeypatch):
+        """Verify ValueError is raised for invalid environment variable."""
+        monkeypatch.setenv("MYTOWER_COMMAND_QUEUE_SIZE", "0")
+        with pytest.raises(ValueError, match="must be positive"):
+            GameBridge(controller=mock_controller)
+
+        monkeypatch.setenv("MYTOWER_COMMAND_QUEUE_SIZE", "-5")
+        with pytest.raises(ValueError, match="must be positive"):
+            GameBridge(controller=mock_controller)
+
+        monkeypatch.setenv("MYTOWER_COMMAND_QUEUE_SIZE", "not_a_number")
+        with pytest.raises(ValueError, match="Invalid MYTOWER_COMMAND_QUEUE_SIZE"):
+            GameBridge(controller=mock_controller)
+
     def test_constructor_queue_size(self, mock_controller):
         """Verify queue size can be configured via constructor."""
         custom_size = 50
@@ -128,21 +150,21 @@ class TestQueueMetrics:
         """Verify max_seen tracks the peak queue size."""
         bridge = GameBridge(controller=mock_controller, command_queue_size=10)
 
-        # Queue 5 commands
+        # Queue 5 commands (queue size: 5)
         for _ in range(5):
             bridge.queue_command(AddFloorCommand(FloorType.LOBBY))
 
-        # Process some commands
+        # Process some commands (queue size now: 3)
         bridge._command_queue.get()
         bridge._command_queue.get()
 
-        # Queue 2 more (total in queue: 3 + 2 = 5)
+        # Queue 2 more (queue size now: 5, same as peak)
         for _ in range(2):
             bridge.queue_command(AddFloorCommand(FloorType.LOBBY))
 
         metrics = bridge.get_queue_metrics()
 
-        # max_seen should be 5 (from first batch), not current size
+        # max_seen should be 5 (peak from first batch), current size is also 5
         assert metrics["max_seen"] == 5
         assert metrics["total_queued"] == 7
 
@@ -204,6 +226,7 @@ class TestQueueFullBehavior:
             try:
                 bridge.queue_command(AddFloorCommand(FloorType.LOBBY), timeout=0)
             except queue.Full:
+                # Expected: queue is full, we're testing the counter increments
                 pass
 
         metrics = bridge.get_queue_metrics()
@@ -227,6 +250,7 @@ class TestQueueFullBehavior:
         try:
             bridge.queue_command(AddFloorCommand(FloorType.LOBBY), timeout=0)
         except queue.Full:
+            # Expected: queue is full, testing that failed commands don't increment total_queued
             pass
 
         # total_queued should still be 2 (failed command not counted)
