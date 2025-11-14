@@ -208,6 +208,31 @@ class TestQueueFullBehavior:
 
         metrics = bridge.get_queue_metrics()
         assert metrics["full_count"] == 3
+        # Only the first command was successfully queued
+        assert metrics["total_queued"] == 1
+
+
+    def test_total_queued_only_increments_on_success(self, mock_controller):
+        """Verify total_queued only increments after successful queue insertion (race condition fix)."""
+        bridge = GameBridge(controller=mock_controller, command_queue_size=2)
+
+        # Successfully queue 2 commands
+        bridge.queue_command(AddFloorCommand(FloorType.LOBBY))
+        bridge.queue_command(AddFloorCommand(FloorType.LOBBY))
+
+        metrics = bridge.get_queue_metrics()
+        assert metrics["total_queued"] == 2
+
+        # Try to queue a third (should fail)
+        try:
+            bridge.queue_command(AddFloorCommand(FloorType.LOBBY), timeout=0)
+        except queue.Full:
+            pass
+
+        # total_queued should still be 2 (failed command not counted)
+        metrics = bridge.get_queue_metrics()
+        assert metrics["total_queued"] == 2
+        assert metrics["full_count"] == 1
 
 
 class TestQueueWarnings:

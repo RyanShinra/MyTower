@@ -176,20 +176,24 @@ class GameBridge:
             queue.Full: If timeout is 0 and queue is full
         """
         command_id: str = f"cmd_{time()}"
+
+        # Sample queue size for monitoring (before queue operation)
         current_queue_size = self._command_queue.qsize()
 
-        # Track metrics
-        self._total_commands_queued += 1
+        # Track peak queue size (sampled before insertion)
         if current_queue_size > self._max_queue_size_seen:
             self._max_queue_size_seen = current_queue_size
 
         # Log if queue is getting full (>75% capacity)
-        if self._logger and current_queue_size > (self._queue_size * 0.75):
-            self._logger.warning(
-                f"Command queue is {(current_queue_size / self._queue_size) * 100:.1f}% full "
-                f"({current_queue_size}/{self._queue_size}). "
-                f"Consider increasing MYTOWER_COMMAND_QUEUE_SIZE if this happens frequently."
-            )
+        # Re-sample queue size to get fresh data for accurate warning
+        if self._logger:
+            fresh_queue_size = self._command_queue.qsize()
+            if fresh_queue_size > (self._queue_size * 0.75):
+                self._logger.warning(
+                    f"Command queue is {(fresh_queue_size / self._queue_size) * 100:.1f}% full "
+                    f"({fresh_queue_size}/{self._queue_size}). "
+                    f"Consider increasing MYTOWER_COMMAND_QUEUE_SIZE if this happens frequently."
+                )
 
         try:
             if timeout is not None:
@@ -198,6 +202,9 @@ class GameBridge:
             else:
                 # Block indefinitely (original behavior)
                 self._command_queue.put((command_id, command))
+
+            # Only increment after successful queue insertion
+            self._total_commands_queued += 1
 
         except queue.Full:
             self._queue_full_count += 1
