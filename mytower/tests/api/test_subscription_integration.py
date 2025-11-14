@@ -17,6 +17,7 @@ from mytower.api.schema import Subscription, schema
 
 if TYPE_CHECKING:
     from unittest.mock import Mock
+
     from pytest import MonkeyPatch
 
 

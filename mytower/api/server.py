@@ -1,7 +1,9 @@
 import logging
+
 import uvicorn
 from fastapi import FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
+
 from mytower.api.schema import schema
 
 # Configure logging

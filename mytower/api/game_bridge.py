@@ -13,8 +13,13 @@ from time import time
 from typing import Any, TypeVar
 
 from mytower.game.controllers.controller_commands import (
-    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
-    AddPersonCommand, Command, CommandResult)
+    AddElevatorBankCommand,
+    AddElevatorCommand,
+    AddFloorCommand,
+    AddPersonCommand,
+    Command,
+    CommandResult,
+)
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks

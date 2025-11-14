@@ -2,17 +2,17 @@ from __future__ import annotations  # Defer type evaluation
 
 from typing import Final, override
 
-
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Time
-from mytower.game.entities.entities_protocol import \
-    ElevatorBankList  # Use alias
-from mytower.game.entities.entities_protocol import ElevatorList  # Use alias
-from mytower.game.entities.entities_protocol import FloorList  # Use alias
-from mytower.game.entities.entities_protocol import (BuildingProtocol,
-                                                     ElevatorBankProtocol,
-                                                     ElevatorProtocol,
-                                                     FloorProtocol)
+from mytower.game.entities.entities_protocol import (
+    BuildingProtocol,
+    ElevatorBankList,  # Use alias
+    ElevatorBankProtocol,
+    ElevatorList,  # Use alias
+    ElevatorProtocol,
+    FloorList,  # Use alias
+    FloorProtocol,
+)
 from mytower.game.entities.floor import Floor
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 

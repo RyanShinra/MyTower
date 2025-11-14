@@ -8,9 +8,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, TypeAlias
 
-from mytower.game.core.types import (Color, ElevatorState, FloorType,
-                                     HorizontalDirection, PersonState,
-                                     VerticalDirection)
+from mytower.game.core.types import Color, ElevatorState, FloorType, HorizontalDirection, PersonState, VerticalDirection
 from mytower.game.core.units import Blocks, Time, Velocity
 
 if TYPE_CHECKING:

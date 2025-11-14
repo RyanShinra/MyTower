@@ -1,8 +1,8 @@
-from typing import Any
-from collections.abc import AsyncGenerator
-
 import asyncio
 import logging
+from collections.abc import AsyncGenerator
+from typing import Any
+
 import strawberry
 
 from mytower.api import unit_scalars  # Import the module to register scalars

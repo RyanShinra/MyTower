@@ -23,7 +23,6 @@ from mytower.api.validation_constants import (
 )
 from mytower.game.core.units import Blocks
 
-
 # ============================================================================
 # Pydantic Models with Validation
 # ============================================================================

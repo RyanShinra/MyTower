@@ -14,6 +14,7 @@ from mytower.game.core.types import FloorType
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol
 
+
 @pytest.fixture
 def floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock) -> Floor:
     return Floor(

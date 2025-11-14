@@ -14,7 +14,9 @@ from __future__ import annotations
 import argparse
 import logging  # Add this import
 from dataclasses import dataclass
+
 from mytower.game.utilities.logger import TRACE as MyTower_TRACE
+
 
 @dataclass
 class GameArgs:
