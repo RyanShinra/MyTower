@@ -18,13 +18,26 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="MyTower GraphQL API")
 
 # Configure CORS middleware
-# For production, set MYTOWER_CORS_ORIGINS to a comma-separated list of allowed origins
-# e.g., MYTOWER_CORS_ORIGINS="https://example.com,https://app.example.com"
-allowed_origins = os.getenv("MYTOWER_CORS_ORIGINS", "*").split(",")
+# SECURITY WARNING: The default configuration allows all origins (*) which is suitable
+# for development only. For production, you MUST set MYTOWER_CORS_ORIGINS to a
+# comma-separated list of allowed origins.
+#
+# IMPORTANT: When using allow_credentials=True, wildcard origins (*) are not allowed
+# by CORS specification. The configuration below automatically disables credentials
+# when wildcard origins are detected.
+#
+# Production example:
+#   MYTOWER_CORS_ORIGINS="https://example.com,https://app.example.com"
+origins_env = os.getenv("MYTOWER_CORS_ORIGINS", "*")
+allowed_origins = [origin.strip() for origin in origins_env.split(",")]
+
+# Disable credentials if using wildcard origins (CORS security requirement)
+use_credentials = "*" not in allowed_origins
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_credentials=use_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
