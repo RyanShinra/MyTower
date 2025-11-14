@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generic, TypeVar
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, Generic, TypeVar, override
 
 from mytower.game.core.units import Blocks
 

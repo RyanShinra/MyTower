@@ -1,8 +1,6 @@
 from __future__ import annotations  # Defer type evaluation
 
-from typing import Final
-
-from typing_extensions import override
+from typing import Final, override
 
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Time

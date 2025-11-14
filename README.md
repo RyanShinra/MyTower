@@ -2,16 +2,31 @@
 
 ## Requirements
 
-- Python 3.12 or later
+- **Python 3.13** (recommended) or Python 3.12 minimum
 - Docker (for deployment)
 
-## Why Python 3.12+?
+## Why Python 3.13?
 
-MyTower uses modern Python features including:
+MyTower uses modern Python features and benefits significantly from 3.13's improvements:
+
+**Performance (Critical for Real-Time Game Simulation):**
+- 5-15% faster than Python 3.12
+- Experimental JIT compiler (up to 30% speedup for computation-heavy tasks)
+- ~7% reduced memory footprint (lower AWS costs)
+
+**Type System (Critical for Protocol-Heavy Architecture):**
 - Native `typing.override` decorator (PEP 698)
-- Improved type hints performance
-- Better error messages
-- 25% faster execution (useful for game simulation)
+- Enhanced `typing.TypeIs` for type narrowing
+- `typing.ReadOnly` for TypedDict
+- Type parameter defaults
+- Better variadic generics support
+
+**Developer Experience:**
+- Improved error messages with better tracebacks
+- Enhanced interactive interpreter with color support
+- Better debugging tools
+
+The project's real-time simulation (~20 FPS) with elevator physics, person AI, and collision detection benefits greatly from these performance improvements.
 
 A SimTower-inspired elevator simulation game built as a learning project for Python PCAP exam preparation.
 

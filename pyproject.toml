@@ -3,7 +3,7 @@ name = "mytower"
 version = "0.1.0"
 description = "SimTower-inspired elevator simulation game"
 readme = "README.md"
-requires-python = ">=3.12"  # ✅ Minimum 3.12, but Docker uses 3.13
+requires-python = ">=3.12"  # ✅ Requires 3.12 minimum, targets 3.13 for performance (5-15% faster, JIT, lower memory)
 license = { text = "GPL-3.0-or-later" }
 authors = [
     { name = "Ryan" }
