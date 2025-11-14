@@ -321,7 +321,9 @@ def main() -> NoReturn:
     args: GameArgs = parse_args()
     print_startup_banner(args)
 
-    logger_provider = LoggerProvider(log_level=args.log_level, log_file=args.log_file, file_log_level=args.file_log_level)
+    logger_provider = LoggerProvider(
+        log_level=args.log_level, log_file=args.log_file, file_log_level=args.file_log_level
+    )
     logger: MyTowerLogger = logger_provider.get_logger("Main")
 
     # Log startup configuration

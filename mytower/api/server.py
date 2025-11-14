@@ -1,8 +1,9 @@
 import logging
+
 import uvicorn
-from fastapi import FastAPI, WebSocket, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
+
 from mytower.api.schema import schema
 
 # Configure logging
@@ -56,10 +57,10 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
     logger.info(f"🚀 Starting server on {host}:{port}")
     logger.info(f"🔍 WebSocket URL: ws://{host}:{port}/graphql")
     logger.info(f"🔍 GraphQL endpoint: http://{host}:{port}/graphql")
-    
+
     uvicorn.run(
-        app, 
-        host=host, 
+        app,
+        host=host,
         port=port,
         log_level="info",
         access_log=True,

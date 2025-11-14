@@ -238,7 +238,10 @@ class TestDemoBuilder:
             (12, 1.0, 1, 1.0),
         ]
 
-        actual_people = [(cmd.init_floor, cmd.init_horiz_position.value, cmd.dest_floor, cmd.dest_horiz_position.value) for cmd in person_commands]
+        actual_people = [
+            (cmd.init_floor, cmd.init_horiz_position.value, cmd.dest_floor, cmd.dest_horiz_position.value)
+            for cmd in person_commands
+        ]
 
         assert actual_people == expected_people
 

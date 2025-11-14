@@ -23,8 +23,13 @@ from mytower.game.core.id_generator import IDGenerator
 from mytower.game.core.types import ElevatorState, VerticalDirection
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.entities_protocol import (
-    BuildingProtocol, ElevatorBankProtocol, ElevatorBankTestingProtocol,
-    ElevatorDestination, ElevatorProtocol, PersonProtocol)
+    BuildingProtocol,
+    ElevatorBankProtocol,
+    ElevatorBankTestingProtocol,
+    ElevatorDestination,
+    ElevatorProtocol,
+    PersonProtocol,
+)
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 if TYPE_CHECKING:

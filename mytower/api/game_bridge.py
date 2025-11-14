@@ -10,11 +10,16 @@ import threading
 from collections import deque
 from queue import Queue
 from time import time
-from typing import Any, Deque, TypeVar
+from typing import Any, TypeVar
 
 from mytower.game.controllers.controller_commands import (
-    AddElevatorBankCommand, AddElevatorCommand, AddFloorCommand,
-    AddPersonCommand, Command, CommandResult)
+    AddElevatorBankCommand,
+    AddElevatorCommand,
+    AddFloorCommand,
+    AddPersonCommand,
+    Command,
+    CommandResult,
+)
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks
@@ -59,7 +64,7 @@ class GameBridge:
         self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
         # Command result cache with fixed-size eviction (prevents unbounded memory growth)
         self._command_results: dict[str, CommandResult[Any]] = {}
-        self._command_ids: Deque[str] = deque(maxlen=self.MAX_COMMAND_RESULTS)  # Tracks insertion order
+        self._command_ids: deque[str] = deque(maxlen=self.MAX_COMMAND_RESULTS)  # Tracks insertion order
 
         self._latest_snapshot: BuildingSnapshot | None = None
         self._snapshot_interval_s: float = 1.0 / snapshot_fps
@@ -151,9 +156,16 @@ class GameBridge:
         raise RuntimeError(f"Failed to add floor: {result.error}")
 
 
-    def execute_add_person_sync(self, init_floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks) -> str:
+    def execute_add_person_sync(
+        self, init_floor: int, init_horiz_position: Blocks, dest_floor: int, dest_horiz_position: Blocks
+    ) -> str:
         """Type-safe person addition"""
-        command = AddPersonCommand(init_floor=init_floor, init_horiz_position=init_horiz_position, dest_floor=dest_floor, dest_horiz_position=dest_horiz_position)
+        command = AddPersonCommand(
+            init_floor=init_floor,
+            init_horiz_position=init_horiz_position,
+            dest_floor=dest_floor,
+            dest_horiz_position=dest_horiz_position,
+        )
         result: CommandResult[str] = self.execute_command_sync(command)
 
         if result.success and result.data is not None:

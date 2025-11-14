@@ -176,7 +176,7 @@ def person_with_floor(
         logger_provider=mock_logger_provider,
         building=mock_building_with_floor,
         initial_floor_number=PERSON_DEFAULT_FLOOR,
-        initial_horiz_position=float(PERSON_DEFAULT_BLOCK),
+        initial_horiz_position=PERSON_DEFAULT_BLOCK,
         config=mock_game_config,
     )
 
@@ -222,7 +222,7 @@ def elevator_bank(
         building=mock_building_no_floor,
         logger_provider=mock_logger_provider,
         cosmetics_config=mock_cosmetics_config,
-        horizontal_position=5,
+        horizontal_position=Blocks(5),
         max_floor=10,
         min_floor=1,
     )

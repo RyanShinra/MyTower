@@ -65,12 +65,19 @@ class AddPersonCommand(Command[str]):
         if self.dest_floor < 1:
             return CommandResult(success=False, error=f"Invalid destination floor: {self.dest_floor:.1f}")
         if self.dest_horiz_position < Blocks(0.0):
-            return CommandResult(success=False, error=f"Invalid destination horiz_position: {self.dest_horiz_position.value:.2f}")
+            return CommandResult(
+                success=False, error=f"Invalid destination horiz_position: {self.dest_horiz_position.value:.2f}"
+            )
         if self.init_horiz_position < Blocks(0.0):
-            return CommandResult(success=False, error=f"Invalid source horiz_position: {self.init_horiz_position.value:.2f}")
+            return CommandResult(
+                success=False, error=f"Invalid source horiz_position: {self.init_horiz_position.value:.2f}"
+            )
 
         person_id: str = model.add_person(
-            init_floor=self.init_floor, init_horiz_position=self.init_horiz_position, dest_floor=self.dest_floor, dest_horiz_position=self.dest_horiz_position
+            init_floor=self.init_floor,
+            init_horiz_position=self.init_horiz_position,
+            dest_floor=self.dest_floor,
+            dest_horiz_position=self.dest_horiz_position,
         )
         return CommandResult(success=True, data=person_id)
 

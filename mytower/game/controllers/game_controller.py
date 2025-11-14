@@ -13,10 +13,8 @@ from typing import Any, Final
 
 from mytower.game.controllers.controller_commands import Command, CommandResult
 from mytower.game.core.units import Time
-from mytower.game.models.game_model import (BuildingSnapshot, ElevatorSnapshot,
-                                            GameModel, PersonSnapshot)
-from mytower.game.models.model_snapshots import (ElevatorBankSnapshot,
-                                                 FloorSnapshot)
+from mytower.game.models.game_model import BuildingSnapshot, ElevatorSnapshot, GameModel, PersonSnapshot
+from mytower.game.models.model_snapshots import ElevatorBankSnapshot, FloorSnapshot
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 

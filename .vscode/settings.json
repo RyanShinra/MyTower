@@ -1,21 +1,13 @@
 {
     "git.suggestSmartCommit": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "never"
         }
     },
     "editor.formatOnSaveMode": "modifications",
-
-    // Black formatter settings
-    // NOTE: Black's blank line formatting conflicts with custom rules:
-    // - Functions with >5 lines get 2 blank lines (not PEP8, but custom requirement)
-    // - Functions with ≤5 lines get 1 blank line (PEP8 compliant)
-    // Black will complain about extra blank lines, but this is intentional.
-    // Use Black for checking other formatting issues, but ignore E30x blank line errors.
-    "black-formatter.args": ["--line-length=120"],
 
     // Flake8 linter settings
     "flake8.args": ["--config=.flake8"],
@@ -109,7 +101,7 @@
     "coverage-gutters.showLineCoverage": true,
     "coverage-gutters.showRulerCoverage": true,
     "coverage-gutters.coverageReportFileName": "coverage.xml",
-    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.typeCheckingMode": "standard",
     "python.analysis.languageServerMode": "full",
     "python.analysis.diagnosticMode": "workspace",  // Scan all workspace files
     "python.analysis.enablePytestSupport": true,

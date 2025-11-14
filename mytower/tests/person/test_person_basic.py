@@ -51,7 +51,7 @@ class TestPersonBasics:
                 logger_provider=mock_logger_provider,
                 building=mock_building_with_floor,
                 initial_floor_number=BUILDING_DEFAULT_NUM_FLOORS + 1,
-                initial_horiz_position=5,
+                initial_horiz_position=Blocks(5),
             )  # Floor too high
 
         with pytest.raises(ValueError, match="Initial floor -1 is out of bounds"):
@@ -60,7 +60,7 @@ class TestPersonBasics:
                 logger_provider=mock_logger_provider,
                 building=mock_building_with_floor,
                 initial_floor_number=-1,
-                initial_horiz_position=5,
+                initial_horiz_position=Blocks(5),
             )  # Floor too low
 
 
@@ -75,7 +75,7 @@ class TestPersonBasics:
                 logger_provider=mock_logger_provider,
                 building=mock_building_with_floor,
                 initial_floor_number=5,
-                initial_horiz_position=BUILDING_DEFAULT_FLOOR_WIDTH + 2,
+                initial_horiz_position=Blocks(BUILDING_DEFAULT_FLOOR_WIDTH + 2),
             )  # Block too high
 
         with pytest.raises(ValueError, match="Initial block -5.0 is out of bounds"):
@@ -84,7 +84,7 @@ class TestPersonBasics:
                 logger_provider=mock_logger_provider,
                 building=mock_building_with_floor,
                 initial_floor_number=5,
-                initial_horiz_position=-5.0,
+                initial_horiz_position=Blocks(-5.0),
             )  # Block too low
 
 
@@ -146,7 +146,7 @@ class TestPersonBasics:
                 logger_provider=mock_logger_provider,
                 building=mock_building_with_floor,
                 initial_floor_number=5,
-                initial_horiz_position=10.0,
+                initial_horiz_position=Blocks(10.0),
             )
             people.append(person)
 

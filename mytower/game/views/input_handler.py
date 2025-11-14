@@ -111,7 +111,7 @@ class InputHandler:
             return
 
         command = AddFloorCommand(floor_type=self._current_floor_type)
-        cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
+        cmd_id: str = self._enqueue_command(command)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddFloor command: {cmd_id} ({self._current_floor_type.value})")
 
         # Cycle to next floor type
@@ -144,8 +144,13 @@ class InputHandler:
         dest_floor: int = random.randint(1, len(snapshot.floors))
         dest_horiz_position: float = random.uniform(left_bounds, right_bounds)
 
-        command = AddPersonCommand(init_floor=start_floor, init_horiz_position=Blocks(start_horiz_position), dest_floor=dest_floor, dest_horiz_position=Blocks(dest_horiz_position))
-        cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
+        command = AddPersonCommand(
+            init_floor=start_floor,
+            init_horiz_position=Blocks(start_horiz_position),
+            dest_floor=dest_floor,
+            dest_horiz_position=Blocks(dest_horiz_position),
+        )
+        cmd_id: str = self._enqueue_command(command)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddPerson command: {cmd_id} (from floor {start_floor} to floor {dest_floor})")
 
 
@@ -177,7 +182,7 @@ class InputHandler:
             min_floor=1,
             max_floor=len(snapshot.floors),
         )
-        cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
+        cmd_id: str = self._enqueue_command(command)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddElevatorBank command: {cmd_id} (floors 1 to {len(snapshot.floors)})")
 
 
@@ -197,7 +202,7 @@ class InputHandler:
 
         # For simplicity, add elevator car to first elevator bank at floor 1
         command = AddElevatorCommand(elevator_bank_id=snapshot.elevator_banks[0].id)
-        cmd_id: str = self._enqueue_command(command)  # pyright: ignore[reportArgumentType]
+        cmd_id: str = self._enqueue_command(command)  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
         self._logger.info(f"Enqueued AddElevator command: {cmd_id} (bank {snapshot.elevator_banks[0].id} at floor 1)")
 
     def _cycle_floor_type(self) -> None:

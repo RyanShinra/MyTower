@@ -115,7 +115,14 @@ def setup_logger(
 # Create a LoggerProvider:
 class LoggerProvider:
     """Provides loggers for different modules, sharing a root logger."""
-    def __init__(self, root_logger: MyTowerLogger | None = None, log_level: int = logging.INFO, log_file: str | None = None, file_log_level: int = TRACE) -> None:
+
+    def __init__(
+        self,
+        root_logger: MyTowerLogger | None = None,
+        log_level: int = logging.INFO,
+        log_file: str | None = None,
+        file_log_level: int = TRACE,
+    ) -> None:
         if root_logger:
             self._root_logger = root_logger
         else:
@@ -123,7 +130,7 @@ class LoggerProvider:
             date_string: str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
             # Pass log_level to setup_logger
-            self._root_logger: logging.Logger = setup_logger(
+            self._root_logger = setup_logger(
                 name="mytower",
                 level=log_level,
                 log_file=(

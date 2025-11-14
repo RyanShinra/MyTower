@@ -157,7 +157,7 @@ class TestIntegratedUtilitiesDemo:
             logger_provider=mock_logger_provider,
             building=building_mock,  # BuildingProtocol satisfied by Mock
             initial_floor_number=5,
-            initial_horiz_position=10.0,
+            initial_horiz_position=Blocks(10.0),
             config=mock_game_config,
         )
 
