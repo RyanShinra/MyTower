@@ -1,0 +1,21 @@
+{
+  "include": [
+    "mytower"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".venv",
+    "venv"
+  ],
+  "ignore": [
+    "mytower/api/schema.py",
+    "mytower/api/input_types.py"
+  ],
+  "reportAttributeAccessIssue": "error",
+  "reportMissingImports": "error",
+  "reportMissingTypeStubs": "none",
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Linux",
+  "typeCheckingMode": "standard"
+}
