@@ -54,12 +54,24 @@ Override defaults by setting these:
 - `MYTOWER_MODE` - Game mode (default: `headless`)
 - `MYTOWER_PORT` - Server port (default: `8000`)
 - `MYTOWER_LOG_LEVEL` - Logging level (default: `INFO`, options: `DEBUG`, `INFO`, `WARNING`, `ERROR`)
+- `MYTOWER_CORS_ORIGINS` - CORS allowed origins (default: `*`)
+  - **Development**: Default `*` allows all origins (convenient but insecure)
+  - **Production**: Comma-separated list of allowed origins (e.g., `https://example.com,https://app.example.com`)
+  - **Security**: Credentials are automatically disabled when using wildcard (`*`)
+  - **Edge cases**: Empty strings, whitespace, or invalid values fall back to wildcard
 
 Example with custom settings:
 ```bash
 docker run -p 8080:8080 \
   -e MYTOWER_PORT=8080 \
   -e MYTOWER_LOG_LEVEL=DEBUG \
+  mytower-server
+```
+
+Example with production CORS configuration:
+```bash
+docker run -p 8000:8000 \
+  -e MYTOWER_CORS_ORIGINS="https://mytower.example.com,https://app.mytower.example.com" \
   mytower-server
 ```
 
