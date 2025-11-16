@@ -1,7 +1,9 @@
 import logging
+import os
 
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 
 from mytower.api.schema import schema
@@ -14,6 +16,41 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="MyTower GraphQL API")
+
+# Configure CORS middleware
+# SECURITY WARNING: The default configuration allows all origins (*) which is suitable
+# for development only. For production, you MUST set MYTOWER_CORS_ORIGINS to a
+# comma-separated list of allowed origins.
+#
+# IMPORTANT: When using allow_credentials=True, wildcard origins (*) are not allowed
+# by CORS specification. The configuration below automatically disables credentials
+# when wildcard origins are detected.
+#
+# Production example:
+#   MYTOWER_CORS_ORIGINS="https://example.com,https://app.example.com"
+origins_env: str = os.getenv("MYTOWER_CORS_ORIGINS", "*")
+# Filter out empty strings after stripping whitespace - avoiding double strip() calls
+origins_list: list[str] = origins_env.split(",")
+allowed_origins: list[str] = []
+for origin in origins_list:
+    stripped_origin: str = origin.strip()
+    if stripped_origin:
+        allowed_origins.append(stripped_origin)
+
+# Fallback to wildcard if no valid origins provided (handles empty string or whitespace-only env var)
+if not allowed_origins:
+    allowed_origins = ["*"]
+
+# Disable credentials if using wildcard origins (CORS security requirement)
+use_credentials: bool = "*" not in allowed_origins
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=use_credentials,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
 # Both protocols are supported by default:
