@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 from mytower.api.game_bridge import GameBridge, initialize_game_bridge
 from mytower.api.server import run_server
+from mytower.game.controllers.controller_commands import AdjustSpeedCommand, TogglePauseCommand
 from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.config import GameConfig
 from mytower.game.core.constants import BACKGROUND_COLOR, FPS, SCREEN_HEIGHT, SCREEN_WIDTH
@@ -159,11 +160,12 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_SPACE:
-                    game_controller.set_paused(not game_controller.is_paused())
+                    # Use command queue for consistency with hybrid mode
+                    bridge.queue_command(TogglePauseCommand())
                 elif event.key == pygame.K_UP:
-                    game_controller.set_speed(game_controller.speed + 0.25)
+                    bridge.queue_command(AdjustSpeedCommand(delta=0.25))
                 elif event.key == pygame.K_DOWN:
-                    game_controller.set_speed(game_controller.speed - 0.25)
+                    bridge.queue_command(AdjustSpeedCommand(delta=-0.25))
                 else:
                     input_handler.handle_keyboard_event(event, snapshot)
 
@@ -268,12 +270,12 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_SPACE:
-                    # TODO: These need to go on the GameBridge command queue to avoid race conditions
-                    game_controller.set_paused(not game_controller.is_paused())
+                    # Use command queue to avoid race conditions with GraphQL thread
+                    bridge.queue_command(TogglePauseCommand())
                 elif event.key == pygame.K_UP:
-                    game_controller.set_speed(game_controller.speed + 0.25)
+                    bridge.queue_command(AdjustSpeedCommand(delta=0.25))
                 elif event.key == pygame.K_DOWN:
-                    game_controller.set_speed(game_controller.speed - 0.25)
+                    bridge.queue_command(AdjustSpeedCommand(delta=-0.25))
                 else:
                     input_handler.handle_keyboard_event(event, snapshot)
 
