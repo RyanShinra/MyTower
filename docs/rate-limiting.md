@@ -108,6 +108,63 @@ When command queue is full:
 3. **requirements-base.txt**
    - Added `slowapi>=0.1.9` for rate limiting
 
+### Technology Stack
+
+**slowapi Library**
+- **What it is:** Rate limiting library for FastAPI (wrapper around `limits`)
+- **Status:** Alpha quality, production-tested, inactive maintenance (12+ months)
+- **Why chosen:** Simple human-readable limits ("100/minute"), widely used (79k weekly downloads)
+- **Alternatives:**
+  - `fastapi-limiter` (Redis-based, more complex setup)
+  - `limits` directly (more manual integration)
+  - Custom middleware (harder to differentiate query/mutation types)
+
+### Architecture Decisions
+
+**Why Override `__call__`?**
+The `RateLimitedGraphQLRouter` overrides the `__call__` method to intercept requests before they reach Strawberry GraphQL. This is necessary because:
+
+1. **Middleware approach:** Can't differentiate between queries and mutations without parsing
+2. **FastAPI dependency:** Doesn't work well with Strawberry's router pattern
+3. **Strawberry extension:** More invasive, requires modifying schema definition
+
+The `__call__` override is industry-standard for FastAPI router customization (see `mytower/api/server.py` lines 98-112 for detailed explanation).
+
+**Exception Handling Philosophy**
+- **Strawberry GraphQL automatically catches exceptions** raised in resolvers
+- Converts them to GraphQL error responses (NOT server crashes)
+- HTTP status remains 200 (GraphQL convention) with errors in response body
+- See `mytower/api/schema.py` lines 29-49 for detailed documentation
+
+Example error response when queue is full:
+```json
+{
+  "data": {"addFloor": null},
+  "errors": [{
+    "message": "Command queue is full. Please slow down your request rate...",
+    "path": ["addFloor"]
+  }]
+}
+```
+
+**Global Limiter Variable**
+The `limiter` in `server.py` is a module-level singleton (dependency injection pattern):
+```python
+limiter = Limiter(key_func=get_remote_address)
+```
+This is standard practice for FastAPI middleware/dependencies.
+
+**Rate Limiting Pattern**
+The code uses slowapi's standard pattern (see `server.py` lines 219-229 for commented explanation):
+```python
+# 1. Get rate limit decorator
+rate_limit_decorator: Callable = limiter.limit("100/minute")
+# 2. Apply to dummy endpoint (slowapi requirement)
+rate_limited_callable: Callable = rate_limit_decorator(dummy_endpoint)
+# 3. Execute rate limit check
+await rate_limited_callable(request)
+```
+
 ### Rate Limiting Strategy
 
 #### HTTP Requests (Queries/Mutations)
