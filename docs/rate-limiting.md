@@ -124,7 +124,34 @@ Tracks connections per IP in a dictionary:
 
 ## Testing
 
-To test rate limiting:
+### Unit Tests
+
+Comprehensive unit tests are available in `mytower/tests/api/test_rate_limiting.py`.
+
+To run the tests:
+
+```bash
+# Run all rate limiting tests
+make test -k test_rate_limiting
+
+# Or use pytest directly
+pytest mytower/tests/api/test_rate_limiting.py -v
+
+# Run specific test class
+pytest mytower/tests/api/test_rate_limiting.py::TestGraphQLRateLimiting -v
+```
+
+**Test Coverage:**
+- GraphQL query rate limiting
+- GraphQL mutation rate limiting
+- WebSocket connection limits per IP
+- Command queue backpressure handling
+- Environment variable configuration
+- Rate limit reset behavior
+- Per-IP isolation
+- Root endpoint rate limiting
+
+### Manual Testing
 
 1. **Test Mutation Rate Limit:**
 ```bash
