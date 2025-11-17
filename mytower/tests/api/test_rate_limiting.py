@@ -203,8 +203,8 @@ class TestWebSocketConnectionLimits:
         test_client_factory()
 
         # The default limit should be set
-        from mytower.api.server import MAX_WS_CONNECTIONS_PER_IP
-        assert MAX_WS_CONNECTIONS_PER_IP == 10
+        from mytower.api import server
+        assert server.MAX_WS_CONNECTIONS_PER_IP == 10
 
     def test_websocket_connection_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """Should respect MYTOWER_MAX_WS_CONNECTIONS environment variable."""
@@ -212,8 +212,8 @@ class TestWebSocketConnectionLimits:
         # Create client to trigger module reload with updated environment
         test_client_factory()
 
-        from mytower.api.server import MAX_WS_CONNECTIONS_PER_IP
-        assert MAX_WS_CONNECTIONS_PER_IP == 5
+        from mytower.api import server
+        assert server.MAX_WS_CONNECTIONS_PER_IP == 5
 
     def test_websocket_connection_tracking(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """WebSocket connections should be tracked per IP."""
@@ -224,8 +224,8 @@ class TestWebSocketConnectionLimits:
         # Try to open a WebSocket connection
         # Note: We can't easily test actual WebSocket connections with TestClient,
         # but we can verify the configuration is loaded correctly
-        from mytower.api.server import ws_connections
-        assert isinstance(ws_connections, dict)
+        from mytower.api import server
+        assert isinstance(server.ws_connections, dict)
 
     def test_websocket_limit_exceeded_response(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """Should return 429 when WebSocket connection limit is exceeded."""
@@ -234,9 +234,9 @@ class TestWebSocketConnectionLimits:
         test_client_factory()
 
         # Simulate exceeding the limit by manually setting the counter
-        from mytower.api.server import ws_connections
+        from mytower.api import server
         test_ip = "192.168.1.100"
-        ws_connections[test_ip] = 2  # Already at limit
+        server.ws_connections[test_ip] = 2  # Already at limit
 
         # Try to make a WebSocket upgrade request
         # This should be rejected before upgrade happens
@@ -423,8 +423,8 @@ class TestRateLimitingConfiguration:
             os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = rate_limit
             # Should not raise exception
             import importlib
-            import mytower.api.server
-            importlib.reload(mytower.api.server)
+            from mytower.api import server
+            importlib.reload(server)
 
     def test_environment_variable_precedence(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """Environment variables should override defaults."""
@@ -436,11 +436,10 @@ class TestRateLimitingConfiguration:
         # Create client to trigger module reload with updated environment
         test_client_factory()
 
-        from mytower.api.server import MAX_WS_CONNECTIONS_PER_IP
-        assert MAX_WS_CONNECTIONS_PER_IP == 5
+        from mytower.api import server
+        assert server.MAX_WS_CONNECTIONS_PER_IP == 5
 
         # The rate limiting configuration is logged on startup
         # We can verify it was loaded by checking the router
-        from mytower.api.server import graphql_app
-        assert graphql_app.query_rate == "150/minute"
-        assert graphql_app.mutation_rate == "75/minute"
+        assert server.graphql_app.query_rate == "150/minute"
+        assert server.graphql_app.mutation_rate == "75/minute"
