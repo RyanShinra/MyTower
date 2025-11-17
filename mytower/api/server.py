@@ -205,7 +205,10 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
 
             try:
                 # Pass request to parent GraphQLRouter
-                response = await super().__call__(request)
+                # Note: Parent expects ASGI (scope, receive, send) but FastAPI's
+                # Request wraps these. This works due to Starlette's design but
+                # type checkers complain about missing parameters.
+                response = await super().__call__(request)  # type: ignore[call-arg]
                 return response
             finally:
                 # ALWAYS decrement counter, even if exception occurs
@@ -291,7 +294,10 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 raise rate_limit_error from None
 
         # Pass request to parent GraphQLRouter for actual GraphQL processing
-        return await super().__call__(request)
+        # Note: Parent expects ASGI (scope, receive, send) but FastAPI's Request
+        # wraps these. This works due to Starlette's design but type checkers
+        # complain about missing parameters.
+        return await super().__call__(request)  # type: ignore[call-arg]
 
     async def _dummy_endpoint(self, request: Request) -> None:
         """
