@@ -105,8 +105,30 @@ app.add_middleware(
 # This prevents a single client from opening too many concurrent WebSocket connections
 ws_connections: defaultdict[str, int] = defaultdict(int)
 # Locks to synchronize access to ws_connections and prevent race conditions
-ws_connection_locks: defaultdict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
+ws_connection_locks: dict[str, asyncio.Lock] = {}
+# Global lock to ensure atomic creation of per-IP locks
+_ws_locks_creation_lock: asyncio.Lock = asyncio.Lock()
 MAX_WS_CONNECTIONS_PER_IP: int = int(os.getenv("MYTOWER_MAX_WS_CONNECTIONS", "10"))
+
+async def get_or_create_lock(ip: str) -> asyncio.Lock:
+    """
+    Get or create a lock for the given IP address.
+
+    This function ensures atomic lock creation to prevent race conditions
+    where multiple tasks might create different Lock instances for the same IP.
+
+    Args:
+        ip: The IP address to get/create a lock for
+
+    Returns:
+        The asyncio.Lock instance for this IP
+    """
+    if ip not in ws_connection_locks:
+        async with _ws_locks_creation_lock:
+            # Double-check pattern: another task might have created it while we waited
+            if ip not in ws_connection_locks:
+                ws_connection_locks[ip] = asyncio.Lock()
+    return ws_connection_locks[ip]
 
 async def decrement_ws_connection(ip: str) -> None:
     """
@@ -115,12 +137,18 @@ async def decrement_ws_connection(ip: str) -> None:
 
     Async-safe: Uses per-IP locks to prevent race conditions between concurrent async tasks.
     """
-    async with ws_connection_locks[ip]:
+    lock = await get_or_create_lock(ip)
+    async with lock:
         if ip in ws_connections:
             ws_connections[ip] -= 1
-            if ws_connections[ip] <= 0:
+            current_count = ws_connections[ip]
+            if current_count <= 0:
                 del ws_connections[ip]
                 # Do NOT delete the lock here; keep it for future synchronization
+            logger.info(
+                f"🔌 WebSocket disconnected: {ip} "
+                f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
+            )
 
 
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
@@ -214,7 +242,8 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         if upgrade_header == "websocket":
             # Check and increment connection count with synchronization
             # to prevent race conditions from concurrent requests
-            async with ws_connection_locks[client_ip]:
+            lock = await get_or_create_lock(client_ip)
+            async with lock:
                 # Check if client has exceeded WebSocket connection limit
                 if ws_connections[client_ip] >= MAX_WS_CONNECTIONS_PER_IP:
                     logger.warning(
@@ -236,11 +265,11 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # Track WebSocket connection (increment before, decrement after)
                 ws_connections[client_ip] += 1
                 current_count: int = ws_connections[client_ip]
-
-            logger.info(
-                f"🔌 WebSocket connected: {client_ip} "
-                f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
-            )
+                # Log inside lock to ensure consistency
+                logger.info(
+                    f"🔌 WebSocket connected: {client_ip} "
+                    f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
+                )
 
             try:
                 # Pass request to parent GraphQLRouter
@@ -252,13 +281,8 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             finally:
                 # ALWAYS decrement counter, even if exception occurs
                 # This ensures we don't leak connection counts
-                # Log before decrementing to show current state
-                current_count_before: int = ws_connections.get(client_ip, 0)
+                # Logging happens inside decrement_ws_connection under the lock
                 await decrement_ws_connection(client_ip)
-                logger.info(
-                    f"🔌 WebSocket disconnected: {client_ip} "
-                    f"({current_count_before - 1}/{MAX_WS_CONNECTIONS_PER_IP})"
-                )
 
         # ====================================================================
         # HTTP Rate Limiting (Queries and Mutations)
