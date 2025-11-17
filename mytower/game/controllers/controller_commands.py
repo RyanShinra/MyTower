@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, TypeVar, override
 
+from mytower.game.core.constants import MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER
 from mytower.game.core.units import Blocks
 
 if TYPE_CHECKING:
@@ -145,3 +146,50 @@ class AddElevatorCommand(Command[str]):
     @override
     def get_description(self) -> str:
         return f"Add elevator to bank {self.elevator_bank_id}"
+
+
+@dataclass
+class TogglePauseCommand(Command[bool]):
+    """Command to toggle the game's pause state"""
+
+    @override
+    def execute(self, model: GameModel) -> CommandResult[bool]:
+        current_state: bool = model.is_paused
+        new_state: bool = not current_state
+        model.set_pause_state(new_state)
+        return CommandResult(success=True, data=new_state)
+
+    @override
+    def get_description(self) -> str:
+        return "Toggle game pause state"
+
+
+@dataclass
+class AdjustSpeedCommand(Command[float]):
+    """Command to adjust the game speed by a delta value"""
+    delta: float
+
+    @override
+    def execute(self, model: GameModel) -> CommandResult[float]:
+        current_speed: float = model.speed
+        new_speed: float = current_speed + self.delta
+
+        # Validate speed bounds before applying
+        if new_speed < MIN_TIME_MULTIPLIER:
+            return CommandResult(
+                success=False,
+                error=f"Speed {new_speed:.2f} is below minimum {MIN_TIME_MULTIPLIER:.2f}"
+            )
+        if new_speed > MAX_TIME_MULTIPLIER:
+            return CommandResult(
+                success=False,
+                error=f"Speed {new_speed:.2f} exceeds maximum {MAX_TIME_MULTIPLIER:.2f}"
+            )
+
+        model.set_speed(new_speed)
+        return CommandResult(success=True, data=new_speed)
+
+    @override
+    def get_description(self) -> str:
+        sign: str = "+" if self.delta >= 0 else ""
+        return f"Adjust game speed by {sign}{self.delta:.2f}"
