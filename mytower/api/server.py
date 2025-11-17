@@ -104,6 +104,17 @@ app.add_middleware(
 ws_connections: defaultdict[str, int] = defaultdict(int)
 MAX_WS_CONNECTIONS_PER_IP: int = int(os.getenv("MYTOWER_MAX_WS_CONNECTIONS", "10"))
 
+def decrement_ws_connection(ip: str) -> None:
+    """
+    Decrement the WebSocket connection count for the given IP.
+    If the count reaches zero, remove the IP from the dictionary.
+    """
+    if ip in ws_connections:
+        ws_connections[ip] -= 1
+        if ws_connections[ip] <= 0:
+            del ws_connections[ip]
+
+
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
 # Both protocols are supported by default:
 # - graphql-transport-ws: Modern protocol (recommended)
@@ -243,6 +254,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         # ====================================================================
         # We need to parse the GraphQL request to determine if it's a query
         # or mutation so we can apply different rate limits.
+        is_mutation: bool = False  # Default to query (safer assumption for unknown operations)
         try:
             request_body: bytes = await request.body()
             if request_body:
@@ -283,14 +295,14 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                     f"✓ {operation_type} rate limit check passed for {client_ip}"
                 )
 
-        except RateLimitExceeded as rate_limit_error:
+        except RateLimitExceeded as main_rate_limit_error:
             # Rate limit exceeded - log and re-raise for FastAPI error handler
             # The re-raise is explicit (not naked) to make the flow clear
             operation_type = "Mutation" if is_mutation else "Query"  # type: ignore[possibly-undefined]
             logger.warning(
                 f"🚫 {operation_type} rate limit exceeded for {client_ip}"
             )
-            raise rate_limit_error from None
+            raise main_rate_limit_error from None
 
         except Exception as parse_error:
             # Couldn't parse request body - apply stricter limit as safety measure
@@ -299,18 +311,18 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             )
             try:
                 # Use mutation rate (stricter) when we can't determine type
-                rate_limit_decorator: RateLimitDecorator = limiter.limit(
+                fallback_decorator: RateLimitDecorator = limiter.limit(
                     self.mutation_rate
                 )
-                rate_limited_callable: AsyncEndpoint = rate_limit_decorator(
+                fallback_callable: AsyncEndpoint = fallback_decorator(
                     self._dummy_endpoint
                 )
-                await rate_limited_callable(request)
-            except RateLimitExceeded as rate_limit_error:
+                await fallback_callable(request)
+            except RateLimitExceeded as fallback_rate_limit_error:
                 logger.warning(
                     f"🚫 Rate limit exceeded for {client_ip} (default/unparseable)"
                 )
-                raise rate_limit_error from None
+                raise fallback_rate_limit_error from None
 
         # Pass request to parent GraphQLRouter for actual GraphQL processing
         # Note: Parent expects ASGI (scope, receive, send) but FastAPI's Request
@@ -345,7 +357,8 @@ app.include_router(graphql_app, prefix="/graphql")
 # Apply rate limiting to root endpoints
 @app.get("/")
 @limiter.limit(os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute"))
-def read_root(request: Request) -> dict[str, str]:
+# The `_request` parameter is required by the rate limiter decorator but is unused.
+def read_root(_request: Request) -> dict[str, str]:
     logger.info("📍 Root endpoint called")
     return {"message": "MyTower GraphQL API", "graphql": "/graphql"}
 
