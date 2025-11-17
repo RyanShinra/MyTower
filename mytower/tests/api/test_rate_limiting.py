@@ -11,7 +11,6 @@ Tests cover:
 - Cleanup on WebSocket disconnect
 """
 
-import json
 import os
 import queue
 import time
@@ -54,8 +53,7 @@ def test_client_factory() -> Callable[[], TestClient]:
         import importlib
         import mytower.api.server
         importlib.reload(mytower.api.server)
-        from mytower.api.server import app
-        return TestClient(app)
+        return TestClient(mytower.api.server.app)
     return _create_client
 
 
@@ -201,7 +199,8 @@ class TestWebSocketConnectionLimits:
 
     def test_websocket_connection_limit_default(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """Should use default WebSocket connection limit (10 per IP)."""
-        client = test_client_factory()
+        # Create client to trigger module reload with clean environment
+        test_client_factory()
 
         # The default limit should be set
         from mytower.api.server import MAX_WS_CONNECTIONS_PER_IP
@@ -210,7 +209,8 @@ class TestWebSocketConnectionLimits:
     def test_websocket_connection_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """Should respect MYTOWER_MAX_WS_CONNECTIONS environment variable."""
         os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "5"
-        client = test_client_factory()
+        # Create client to trigger module reload with updated environment
+        test_client_factory()
 
         from mytower.api.server import MAX_WS_CONNECTIONS_PER_IP
         assert MAX_WS_CONNECTIONS_PER_IP == 5
@@ -218,7 +218,8 @@ class TestWebSocketConnectionLimits:
     def test_websocket_connection_tracking(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """WebSocket connections should be tracked per IP."""
         os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "2"
-        client = test_client_factory()
+        # Create client to trigger module reload with updated environment
+        test_client_factory()
 
         # Try to open a WebSocket connection
         # Note: We can't easily test actual WebSocket connections with TestClient,
@@ -229,7 +230,8 @@ class TestWebSocketConnectionLimits:
     def test_websocket_limit_exceeded_response(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
         """Should return 429 when WebSocket connection limit is exceeded."""
         os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "1"
-        client = test_client_factory()
+        # Create client to trigger module reload with updated environment
+        test_client_factory()
 
         # Simulate exceeding the limit by manually setting the counter
         from mytower.api.server import ws_connections
@@ -264,12 +266,11 @@ class TestCommandQueueBackpressure:
         from mytower.game.controllers.controller_commands import AddFloorCommand
         from mytower.game.core.types import FloorType
 
-        try:
+        with pytest.raises(RuntimeError) as exc_info:
             queue_command(AddFloorCommand(FloorType.LOBBY))
-            assert False, "Should have raised RuntimeError"
-        except RuntimeError as e:
-            assert "Command queue is full" in str(e)
-            assert "slow down" in str(e).lower()
+
+        assert "Command queue is full" in str(exc_info.value)
+        assert "slow down" in str(exc_info.value).lower()
 
     def test_queue_command_uses_timeout(self, mock_game_bridge: Mock) -> None:
         """queue_command should pass timeout to game bridge."""
@@ -432,7 +433,8 @@ class TestRateLimitingConfiguration:
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "75/minute"
         os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "5"
 
-        client = test_client_factory()
+        # Create client to trigger module reload with updated environment
+        test_client_factory()
 
         from mytower.api.server import MAX_WS_CONNECTIONS_PER_IP
         assert MAX_WS_CONNECTIONS_PER_IP == 5

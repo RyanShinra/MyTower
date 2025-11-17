@@ -58,8 +58,10 @@ limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="MyTower GraphQL API")
 app.state.limiter = limiter
-# Type note: slowapi's handler signature is more specific than FastAPI's generic
-# ExceptionHandler type. This works at runtime but type checkers complain.
+# Type note: slowapi's _rate_limit_exceeded_handler expects a specific exception
+# type (RateLimitExceeded) but FastAPI's add_exception_handler uses a generic
+# protocol that expects Callable[[Request, Exception], Response]. The signatures
+# are compatible at runtime but type checkers flag this as incompatible.
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 # Configure CORS middleware
@@ -167,9 +169,22 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         """
         ASGI application interface with rate limiting.
 
-        Note: Signature simplified from parent's ASGI interface (scope, receive, send)
-        because FastAPI's Request object wraps these. Type checker may complain but
-        this is the standard pattern for FastAPI routers.
+        LISKOV SUBSTITUTION PRINCIPLE (LSP) NOTE:
+        This override technically violates LSP because the parent class expects
+        __call__(scope, receive, send) while we accept __call__(request).
+
+        Why this is safe:
+        1. FastAPI's routing system always calls routers with a Request object
+        2. The Request object wraps (scope, receive, send) internally
+        3. This pattern is standard in FastAPI ecosystem (see FastAPI's APIRouter)
+        4. Runtime behavior is correct; only static type checking complains
+
+        Alternative considered:
+        Accept (scope, receive, send) and construct Request manually, but this
+        duplicates FastAPI's internal logic and is more error-prone.
+
+        Type checker suppression: type: ignore[override] acknowledges the
+        signature mismatch while confirming runtime safety.
         """
         client_ip: str = get_remote_address(request)
 
@@ -214,10 +229,14 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # ALWAYS decrement counter, even if exception occurs
                 # This ensures we don't leak connection counts
                 ws_connections[client_ip] -= 1
+                current_count: int = ws_connections[client_ip]
                 logger.info(
                     f"🔌 WebSocket disconnected: {client_ip} "
-                    f"({ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP})"
+                    f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
+                # Clean up zero-count entries to prevent unbounded memory growth
+                if current_count <= 0:
+                    del ws_connections[client_ip]
 
         # ====================================================================
         # HTTP Rate Limiting (Queries and Mutations)
