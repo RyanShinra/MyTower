@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from collections import defaultdict
-from typing import Awaitable, Callable, DefaultDict
+from collections.abc import Awaitable, Callable
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -99,7 +99,7 @@ app.add_middleware(
 
 # WebSocket connection tracking per IP
 # This prevents a single client from opening too many concurrent WebSocket connections
-ws_connections: DefaultDict[str, int] = defaultdict(int)
+ws_connections: defaultdict[str, int] = defaultdict(int)
 MAX_WS_CONNECTIONS_PER_IP: int = int(os.getenv("MYTOWER_MAX_WS_CONNECTIONS", "10"))
 
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
@@ -311,7 +311,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         """
         pass
 
-graphql_app: RateLimitedGraphQLRouter[None, None] = RateLimitedGraphQLRouter(
+graphql_app: RateLimitedGraphQLRouter = RateLimitedGraphQLRouter(
     schema=schema,
     # Enable detailed logging for subscriptions
     subscription_protocols=["graphql-transport-ws", "graphql-ws"],
