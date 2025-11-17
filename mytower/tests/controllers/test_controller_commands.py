@@ -6,8 +6,11 @@ from mytower.game.controllers.controller_commands import (
     AddElevatorCommand,
     AddFloorCommand,
     AddPersonCommand,
+    AdjustSpeedCommand,
     CommandResult,
+    TogglePauseCommand,
 )
+from mytower.game.core.constants import MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks
 from mytower.game.models.game_model import GameModel
@@ -370,3 +373,182 @@ class TestAddElevatorCommand:
         assert "elevator_bank_id must be less than 64 characters" in result.error
         assert "got 65 characters" in result.error
         mock_model.add_elevator.assert_not_called()
+
+
+class TestTogglePauseCommand:
+    """Test TogglePauseCommand functionality"""
+
+    def test_command_creation(self) -> None:
+        """Test creating TogglePauseCommand"""
+        command: Final[TogglePauseCommand] = TogglePauseCommand()
+        assert command is not None
+
+    def test_get_description(self) -> None:
+        """Test command description generation"""
+        command: Final[TogglePauseCommand] = TogglePauseCommand()
+        description: Final[str] = command.get_description()
+        assert "Toggle game pause state" in description
+
+    def test_execute_pause_from_unpaused(self) -> None:
+        """Test pausing the game when currently unpaused"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.is_paused = False
+
+        command: Final[TogglePauseCommand] = TogglePauseCommand()
+        result: Final[CommandResult[bool]] = command.execute(mock_model)
+
+        assert result.success is True
+        assert result.data is True
+        assert result.error is None
+        mock_model.set_pause_state.assert_called_once_with(True)
+
+    def test_execute_unpause_from_paused(self) -> None:
+        """Test unpausing the game when currently paused"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.is_paused = True
+
+        command: Final[TogglePauseCommand] = TogglePauseCommand()
+        result: Final[CommandResult[bool]] = command.execute(mock_model)
+
+        assert result.success is True
+        assert result.data is False
+        assert result.error is None
+        mock_model.set_pause_state.assert_called_once_with(False)
+
+    def test_execute_multiple_toggles(self) -> None:
+        """Test multiple consecutive toggles"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        command: Final[TogglePauseCommand] = TogglePauseCommand()
+
+        # Start unpaused
+        mock_model.is_paused = False
+        result1: CommandResult[bool] = command.execute(mock_model)
+        assert result1.success is True
+        assert result1.data is True
+
+        # Now paused
+        mock_model.is_paused = True
+        result2: CommandResult[bool] = command.execute(mock_model)
+        assert result2.success is True
+        assert result2.data is False
+
+
+class TestAdjustSpeedCommand:
+    """Test AdjustSpeedCommand functionality"""
+
+    def test_command_creation(self) -> None:
+        """Test creating AdjustSpeedCommand"""
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=0.5)
+        assert command.delta == 0.5
+
+    def test_get_description_positive_delta(self) -> None:
+        """Test command description for positive delta"""
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=0.25)
+        description: Final[str] = command.get_description()
+        assert "Adjust game speed by +0.25" in description
+
+    def test_get_description_negative_delta(self) -> None:
+        """Test command description for negative delta"""
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=-0.5)
+        description: Final[str] = command.get_description()
+        assert "Adjust game speed by -0.50" in description
+
+    def test_execute_success_increase_speed(self) -> None:
+        """Test successfully increasing speed"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = 1.0
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=0.25)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is True
+        assert result.data == 1.25
+        assert result.error is None
+        mock_model.set_speed.assert_called_once_with(1.25)
+
+    def test_execute_success_decrease_speed(self) -> None:
+        """Test successfully decreasing speed"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = 1.0
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=-0.5)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is True
+        assert result.data == 0.5
+        assert result.error is None
+        mock_model.set_speed.assert_called_once_with(0.5)
+
+    def test_execute_at_minimum_boundary(self) -> None:
+        """Test adjusting speed exactly at minimum boundary"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = MIN_TIME_MULTIPLIER + 0.1
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=-0.1)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is True
+        assert result.data == MIN_TIME_MULTIPLIER
+        mock_model.set_speed.assert_called_once_with(MIN_TIME_MULTIPLIER)
+
+    def test_execute_at_maximum_boundary(self) -> None:
+        """Test adjusting speed exactly at maximum boundary"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = MAX_TIME_MULTIPLIER - 0.5
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=0.5)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is True
+        assert result.data == MAX_TIME_MULTIPLIER
+        mock_model.set_speed.assert_called_once_with(MAX_TIME_MULTIPLIER)
+
+    def test_execute_below_minimum_fails(self) -> None:
+        """Test that speed below minimum causes failure"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = MIN_TIME_MULTIPLIER
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=-0.1)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is False
+        assert result.error is not None
+        assert f"below minimum {MIN_TIME_MULTIPLIER:.2f}" in result.error
+        mock_model.set_speed.assert_not_called()
+
+    def test_execute_above_maximum_fails(self) -> None:
+        """Test that speed above maximum causes failure"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = MAX_TIME_MULTIPLIER
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=0.5)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is False
+        assert result.error is not None
+        assert f"exceeds maximum {MAX_TIME_MULTIPLIER:.2f}" in result.error
+        mock_model.set_speed.assert_not_called()
+
+    def test_execute_large_negative_delta_fails(self) -> None:
+        """Test that large negative delta causes failure"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = 1.0
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=-5.0)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is False
+        assert result.error is not None
+        mock_model.set_speed.assert_not_called()
+
+    def test_execute_large_positive_delta_fails(self) -> None:
+        """Test that large positive delta causes failure"""
+        mock_model: Final[MagicMock] = MagicMock(spec=GameModel)
+        mock_model.speed = 1.0
+
+        command: Final[AdjustSpeedCommand] = AdjustSpeedCommand(delta=20.0)
+        result: Final[CommandResult[float]] = command.execute(mock_model)
+
+        assert result.success is False
+        assert result.error is not None
+        mock_model.set_speed.assert_not_called()

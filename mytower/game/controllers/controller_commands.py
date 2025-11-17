@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, TypeVar, override
 
+from mytower.game.core.constants import MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER
 from mytower.game.core.units import Blocks
 
 if TYPE_CHECKING:
@@ -172,6 +173,19 @@ class AdjustSpeedCommand(Command[float]):
     def execute(self, model: GameModel) -> CommandResult[float]:
         current_speed: float = model.speed
         new_speed: float = current_speed + self.delta
+
+        # Validate speed bounds before applying
+        if new_speed < MIN_TIME_MULTIPLIER:
+            return CommandResult(
+                success=False,
+                error=f"Speed {new_speed:.2f} is below minimum {MIN_TIME_MULTIPLIER:.2f}"
+            )
+        if new_speed > MAX_TIME_MULTIPLIER:
+            return CommandResult(
+                success=False,
+                error=f"Speed {new_speed:.2f} exceeds maximum {MAX_TIME_MULTIPLIER:.2f}"
+            )
+
         model.set_speed(new_speed)
         return CommandResult(success=True, data=new_speed)
 
