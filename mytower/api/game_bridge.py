@@ -5,6 +5,7 @@ Provides the GameBridge class for safe command queuing and state retrieval,
 and exposes a singleton instance for use throughout the application.
 """
 
+import os
 import queue
 import threading
 from collections import deque
@@ -24,6 +25,7 @@ from mytower.game.controllers.game_controller import GameController
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks
 from mytower.game.models.model_snapshots import BuildingSnapshot
+from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 
 class GameBridge:
@@ -51,17 +53,46 @@ class GameBridge:
     # Supports potential undo/replay features while preventing unbounded growth
     MAX_COMMAND_RESULTS = 4000
 
-    def __init__(self, controller: GameController, snapshot_fps: int = 20) -> None:
+    # Default queue size - can be overridden via environment variable or constructor
+    DEFAULT_COMMAND_QUEUE_SIZE = 100
 
+    def __init__(
+        self,
+        controller: GameController,
+        snapshot_fps: int = 20,
+        command_queue_size: int | None = None,
+        logger_provider: LoggerProvider | None = None,
+    ) -> None:
         self._controller: GameController = controller
 
         self._update_lock = threading.Lock()
         self._command_lock = threading.Lock()
         self._snapshot_lock = threading.Lock()
+        self._metrics_lock = threading.Lock()  # Protects queue metrics
 
         self._game_thread_id: int | None = None
 
-        self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=10)  # TODO: Make configurable someday
+        # Command queue size: Priority order: constructor arg > env var > default
+        # Validate and parse queue size
+        if command_queue_size is not None:
+            if command_queue_size <= 0:
+                raise ValueError(f"command_queue_size must be positive, got {command_queue_size}")
+            self._queue_size = command_queue_size
+        else:
+            env_queue_size = os.getenv("MYTOWER_COMMAND_QUEUE_SIZE")
+            if env_queue_size:
+                try:
+                    parsed_size = int(env_queue_size)
+                    if parsed_size <= 0:
+                        raise ValueError(f"MYTOWER_COMMAND_QUEUE_SIZE must be positive, got {parsed_size}")
+                    self._queue_size = parsed_size
+                except ValueError as e:
+                    raise ValueError(f"Invalid MYTOWER_COMMAND_QUEUE_SIZE: {e}") from e
+            else:
+                self._queue_size = self.DEFAULT_COMMAND_QUEUE_SIZE
+
+        self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=self._queue_size)
+
         # Command result cache with fixed-size eviction (prevents unbounded memory growth)
         self._command_results: dict[str, CommandResult[Any]] = {}
         self._command_ids: deque[str] = deque(maxlen=self.MAX_COMMAND_RESULTS)  # Tracks insertion order
@@ -72,6 +103,21 @@ class GameBridge:
 
         # The update_game will clear (set) during startup
         self._game_thread_ready = threading.Event()
+
+        # Initialize logger
+        self._logger: MyTowerLogger | None
+        if logger_provider:
+            self._logger = logger_provider.get_logger("GameBridge")
+        else:
+            self._logger = None
+
+        # Queue metrics (protected by _metrics_lock)
+        self._queue_full_count = 0
+        self._total_commands_queued = 0
+        self._max_queue_size_seen = 0
+
+        if self._logger:
+            self._logger.info(f"GameBridge initialized with command queue size: {self._queue_size}")
 
     @property
     def game_thread_ready(self) -> threading.Event:
@@ -128,9 +174,69 @@ class GameBridge:
             return self._controller.execute_command(command)
 
     # TODO: Change the command_id to a sequential integer for easier tracking
-    def queue_command(self, command: Command[Any]) -> str:
+    def queue_command(self, command: Command[Any], timeout: float | None = None) -> str:
+        """
+        Queue a command for execution on the game thread.
+
+        Args:
+            command: The command to execute
+            timeout: Optional timeout in seconds. If None, blocks indefinitely.
+                    Set to 0 for non-blocking (raises queue.Full if queue is full)
+
+        Returns:
+            Command ID for tracking the result
+
+        Raises:
+            queue.Full: If timeout is 0 and queue is full
+        """
         command_id: str = f"cmd_{time()}"
-        self._command_queue.put((command_id, command))
+
+        # Sample queue size for monitoring (best-effort, may be stale in multi-threaded context)
+        current_queue_size = self._command_queue.qsize()
+
+        # Track peak queue size with thread-safe update
+        with self._metrics_lock:
+            if current_queue_size > self._max_queue_size_seen:
+                self._max_queue_size_seen = current_queue_size
+
+        # Log if queue is getting full (>75% capacity)
+        if self._logger and current_queue_size > (self._queue_size * 0.75):
+            self._logger.warning(
+                f"Command queue is {(current_queue_size / self._queue_size) * 100:.1f}% full "
+                f"({current_queue_size}/{self._queue_size}). "
+                f"Consider increasing MYTOWER_COMMAND_QUEUE_SIZE if this happens frequently."
+            )
+
+        try:
+            # Queue the command with appropriate blocking behavior
+            if timeout is None:
+                # Block indefinitely (default behavior)
+                self._command_queue.put((command_id, command))
+            elif timeout == 0:
+                # Non-blocking: use block=False instead of timeout=False (correct API usage)
+                self._command_queue.put((command_id, command), block=False)
+            else:
+                # Block with timeout
+                self._command_queue.put((command_id, command), timeout=timeout)
+
+            # Only increment after successful queue insertion (thread-safe)
+            with self._metrics_lock:
+                self._total_commands_queued += 1
+
+        except queue.Full:
+            # Track queue full events (thread-safe)
+            with self._metrics_lock:
+                self._queue_full_count += 1
+                full_count = self._queue_full_count
+
+            if self._logger:
+                self._logger.error(
+                    f"Command queue is FULL ({self._queue_size} commands). "
+                    f"Command rejected. Queue has been full {full_count} times. "
+                    f"Increase MYTOWER_COMMAND_QUEUE_SIZE environment variable."
+                )
+            raise
+
         return command_id
 
     def get_building_snapshot(self) -> BuildingSnapshot | None:
@@ -144,6 +250,30 @@ class GameBridge:
     def get_all_command_results_sync(self) -> dict[str, CommandResult[Any]]:
         with self._update_lock:
             return dict(self._command_results)  # Return a copy
+
+    def get_queue_metrics(self) -> dict[str, int | float]:
+        """
+        Get command queue metrics for monitoring and debugging.
+
+        Returns:
+            Dictionary with queue metrics:
+            - current_size: Current number of commands in queue
+            - max_size: Maximum queue capacity
+            - utilization: Current queue utilization as percentage (0-100)
+            - total_queued: Total commands queued since startup
+            - max_seen: Maximum queue size seen since startup
+            - full_count: Number of times queue was completely full
+        """
+        current_size = self._command_queue.qsize()
+        with self._metrics_lock:
+            return {
+                "current_size": current_size,
+                "max_size": self._queue_size,
+                "utilization": (current_size / self._queue_size * 100) if self._queue_size > 0 else 0,
+                "total_queued": self._total_commands_queued,
+                "max_seen": self._max_queue_size_seen,
+                "full_count": self._queue_full_count,
+            }
 
 
     def execute_add_floor_sync(self, floor_type: FloorType) -> int:
@@ -195,10 +325,29 @@ class GameBridge:
 # Module-level singleton
 _bridge: GameBridge | None = None
 
-def initialize_game_bridge(controller: GameController) -> GameBridge:
+
+def initialize_game_bridge(
+    controller: GameController,
+    command_queue_size: int | None = None,
+    logger_provider: LoggerProvider | None = None,
+) -> GameBridge:
+    """
+    Initialize the global GameBridge singleton.
+
+    Args:
+        controller: GameController instance to wrap
+        command_queue_size: Optional queue size override (default: 100 or MYTOWER_COMMAND_QUEUE_SIZE env var)
+        logger_provider: Optional logger provider for metrics and debugging
+
+    Returns:
+        Initialized GameBridge instance
+    """
     global _bridge
-    _bridge = GameBridge(controller)
+    _bridge = GameBridge(
+        controller=controller, command_queue_size=command_queue_size, logger_provider=logger_provider
+    )
     return _bridge
+
 
 def get_game_bridge() -> GameBridge:
     if _bridge is None:

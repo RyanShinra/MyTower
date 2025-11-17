@@ -50,7 +50,10 @@ def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBri
         fail_fast=args.fail_fast,
         print_exceptions=args.print_exceptions,
     )
-    bridge: GameBridge = initialize_game_bridge(game_controller)
+    bridge: GameBridge = initialize_game_bridge(
+        controller=game_controller,
+        logger_provider=logger_provider,
+    )
 
     if args.demo:
         demo_builder.build_model_building(game_controller, logger_provider)
