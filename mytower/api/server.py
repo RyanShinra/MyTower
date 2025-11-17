@@ -113,7 +113,7 @@ async def decrement_ws_connection(ip: str) -> None:
     Decrement the WebSocket connection count for the given IP.
     If the count reaches zero, remove the IP from the dictionary.
 
-    Thread-safe: Uses per-IP locks to prevent race conditions.
+    Async-safe: Uses per-IP locks to prevent race conditions between concurrent async tasks.
     """
     async with ws_connection_locks[ip]:
         if ip in ws_connections:
