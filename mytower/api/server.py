@@ -1,8 +1,10 @@
+import asyncio
 import json
 import logging
 import os
 from collections import defaultdict
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -102,17 +104,24 @@ app.add_middleware(
 # WebSocket connection tracking per IP
 # This prevents a single client from opening too many concurrent WebSocket connections
 ws_connections: defaultdict[str, int] = defaultdict(int)
+# Locks to synchronize access to ws_connections and prevent race conditions
+ws_connection_locks: defaultdict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
 MAX_WS_CONNECTIONS_PER_IP: int = int(os.getenv("MYTOWER_MAX_WS_CONNECTIONS", "10"))
 
-def decrement_ws_connection(ip: str) -> None:
+async def decrement_ws_connection(ip: str) -> None:
     """
     Decrement the WebSocket connection count for the given IP.
     If the count reaches zero, remove the IP from the dictionary.
+
+    Thread-safe: Uses per-IP locks to prevent race conditions.
     """
-    if ip in ws_connections:
-        ws_connections[ip] -= 1
-        if ws_connections[ip] <= 0:
-            del ws_connections[ip]
+    async with ws_connection_locks[ip]:
+        if ip in ws_connections:
+            ws_connections[ip] -= 1
+            if ws_connections[ip] <= 0:
+                del ws_connections[ip]
+                # Clean up the lock as well to prevent unbounded growth
+                del ws_connection_locks[ip]
 
 
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
@@ -204,29 +213,34 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         # ====================================================================
         upgrade_header: str = request.headers.get("upgrade", "").lower()
         if upgrade_header == "websocket":
-            # Check if client has exceeded WebSocket connection limit
-            if ws_connections[client_ip] >= MAX_WS_CONNECTIONS_PER_IP:
-                logger.warning(
-                    f"🚫 WebSocket connection limit exceeded for {client_ip}: "
-                    f"{ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP}"
-                )
-                return JSONResponse(
-                    status_code=429,
-                    content={
-                        "error": "Too many concurrent WebSocket connections",
-                        "limit": MAX_WS_CONNECTIONS_PER_IP,
-                        "message": (
-                            f"Maximum {MAX_WS_CONNECTIONS_PER_IP} "
-                            "concurrent subscriptions per IP"
-                        )
-                    }
-                )
+            # Check and increment connection count with synchronization
+            # to prevent race conditions from concurrent requests
+            async with ws_connection_locks[client_ip]:
+                # Check if client has exceeded WebSocket connection limit
+                if ws_connections[client_ip] >= MAX_WS_CONNECTIONS_PER_IP:
+                    logger.warning(
+                        f"🚫 WebSocket connection limit exceeded for {client_ip}: "
+                        f"{ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP}"
+                    )
+                    return JSONResponse(
+                        status_code=429,
+                        content={
+                            "error": "Too many concurrent WebSocket connections",
+                            "limit": MAX_WS_CONNECTIONS_PER_IP,
+                            "message": (
+                                f"Maximum {MAX_WS_CONNECTIONS_PER_IP} "
+                                "concurrent subscriptions per IP"
+                            )
+                        }
+                    )
 
-            # Track WebSocket connection (increment before, decrement after)
-            ws_connections[client_ip] += 1
+                # Track WebSocket connection (increment before, decrement after)
+                ws_connections[client_ip] += 1
+                current_count: int = ws_connections[client_ip]
+
             logger.info(
                 f"🔌 WebSocket connected: {client_ip} "
-                f"({ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP})"
+                f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
             )
 
             try:
@@ -239,27 +253,31 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             finally:
                 # ALWAYS decrement counter, even if exception occurs
                 # This ensures we don't leak connection counts
-                ws_connections[client_ip] -= 1
-                current_count: int = ws_connections[client_ip]
+                # Log before decrementing to show current state
+                current_count_before: int = ws_connections.get(client_ip, 0)
+                await decrement_ws_connection(client_ip)
                 logger.info(
                     f"🔌 WebSocket disconnected: {client_ip} "
-                    f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
+                    f"({current_count_before - 1}/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
-                # Clean up zero-count entries to prevent unbounded memory growth
-                if current_count <= 0:
-                    del ws_connections[client_ip]
 
         # ====================================================================
         # HTTP Rate Limiting (Queries and Mutations)
         # ====================================================================
         # We need to parse the GraphQL request to determine if it's a query
         # or mutation so we can apply different rate limits.
+        #
+        # REQUEST BODY CONSUMPTION NOTE:
+        # Starlette's Request.body() caches the body after first read, allowing
+        # multiple calls to body() throughout the request lifecycle. This means
+        # the parent GraphQLRouter can still access the body even after we read
+        # it here. See: https://github.com/encode/starlette/blob/master/starlette/requests.py
         is_mutation: bool = False  # Default to query (safer assumption for unknown operations)
         try:
             request_body: bytes = await request.body()
             if request_body:
                 # Parse JSON body to extract GraphQL query
-                data: dict = json.loads(request_body)
+                data: dict[str, Any] = json.loads(request_body)
                 query: str = data.get("query", "")
 
                 # Simple heuristic: mutations start with "mutation" keyword
@@ -274,20 +292,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 )
 
                 # Apply rate limit check
-                # Explanation of this seemingly "clever" code:
-                # 1. limiter.limit(rate) returns a decorator function
-                # 2. The decorator needs a callable to wrap (slowapi requirement)
-                # 3. We call it immediately to trigger the rate limit check
-                # This is the standard pattern for slowapi usage.
-                #
-                # Type breakdown (see type aliases at top of file):
-                # - RateLimitDecorator: Takes endpoint, returns wrapped endpoint
-                # - AsyncEndpoint: Async function taking Request, returning None
-                rate_limit_decorator: RateLimitDecorator = limiter.limit(rate_to_apply)
-                rate_limited_callable: AsyncEndpoint = rate_limit_decorator(
-                    self._dummy_endpoint
-                )
-                await rate_limited_callable(request)
+                await self._apply_rate_limit(request, rate_to_apply)
 
                 # Log which limit was applied
                 operation_type: str = "Mutation" if is_mutation else "Query"
@@ -298,7 +303,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         except RateLimitExceeded as main_rate_limit_error:
             # Rate limit exceeded - log and re-raise for FastAPI error handler
             # The re-raise is explicit (not naked) to make the flow clear
-            operation_type = "Mutation" if is_mutation else "Query"  # type: ignore[possibly-undefined]
+            operation_type = "Mutation" if is_mutation else "Query"
             logger.warning(
                 f"🚫 {operation_type} rate limit exceeded for {client_ip}"
             )
@@ -311,13 +316,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             )
             try:
                 # Use mutation rate (stricter) when we can't determine type
-                fallback_decorator: RateLimitDecorator = limiter.limit(
-                    self.mutation_rate
-                )
-                fallback_callable: AsyncEndpoint = fallback_decorator(
-                    self._dummy_endpoint
-                )
-                await fallback_callable(request)
+                await self._apply_rate_limit(request, self.mutation_rate)
             except RateLimitExceeded as fallback_rate_limit_error:
                 logger.warning(
                     f"🚫 Rate limit exceeded for {client_ip} (default/unparseable)"
@@ -329,6 +328,29 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         # wraps these. This works due to Starlette's design but type checkers
         # complain about missing parameters.
         return await super().__call__(request)  # type: ignore[call-arg]
+
+    async def _apply_rate_limit(self, request: Request, rate: str) -> None:
+        """
+        Apply rate limiting to a request.
+
+        Args:
+            request: The incoming request
+            rate: Rate limit string (e.g., "100/minute")
+
+        Raises:
+            RateLimitExceeded: If the rate limit is exceeded
+
+        Note:
+            This method uses slowapi's decorator pattern:
+            1. limiter.limit(rate) returns a decorator function
+            2. The decorator wraps a callable (slowapi requirement)
+            3. Calling it triggers the rate limit check
+        """
+        rate_limit_decorator: RateLimitDecorator = limiter.limit(rate)
+        rate_limited_callable: AsyncEndpoint = rate_limit_decorator(
+            self._dummy_endpoint
+        )
+        await rate_limited_callable(request)
 
     async def _dummy_endpoint(self, request: Request) -> None:
         """
