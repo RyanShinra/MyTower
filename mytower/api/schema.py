@@ -77,7 +77,7 @@ def queue_command(command: Command[Any], timeout: float = 5.0) -> str:
             "possible. Please slow down your request rate and try again in a moment."
         )
 
-        # Explicit re-raise with user-friendly message
+        # Raise a new exception with a user-friendly message, chaining the original exception as the cause
         # Strawberry catches this and formats it as a GraphQL error
         raise RuntimeError(error_message) from queue_error
 

@@ -155,7 +155,7 @@ limiter = Limiter(key_func=get_remote_address)
 This is standard practice for FastAPI middleware/dependencies.
 
 **Rate Limiting Pattern**
-The code uses slowapi's standard pattern (see `server.py` lines 219-229 for commented explanation):
+The code uses slowapi's standard pattern (see the rate limiting implementation in `server.py` for a commented explanation):
 ```python
 # 1. Get rate limit decorator
 rate_limit_decorator: Callable = limiter.limit("100/minute")
