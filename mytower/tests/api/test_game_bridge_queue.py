@@ -9,7 +9,6 @@ Tests cover:
 - Warning logs when queue is getting full
 """
 
-import os
 import queue
 from unittest.mock import Mock
 
@@ -110,6 +109,10 @@ class TestQueueSizeConfiguration:
             logger_provider=mock_logger_provider
         )
 
+        # Verify bridge was created with correct size
+        assert bridge._queue_size == custom_size
+
+        # Verify initialization was logged
         logger = mock_logger_provider.get_logger.return_value
         logger.info.assert_called_once_with(
             f"GameBridge initialized with command queue size: {custom_size}"
