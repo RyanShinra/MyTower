@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import queue
 from collections.abc import AsyncGenerator
 from typing import Any
 
@@ -26,8 +27,28 @@ from mytower.game.models.model_snapshots import BuildingSnapshot
 logger = logging.getLogger(__name__)
 
 # Convenience functions
-def queue_command(command: Command[Any]) -> str:
-    return get_game_bridge().queue_command(command)
+def queue_command(command: Command[Any], timeout: float = 5.0) -> str:
+    """
+    Queue a command with backpressure handling.
+
+    Args:
+        command: The command to queue
+        timeout: Timeout in seconds (default: 5.0)
+
+    Returns:
+        Command ID if successful
+
+    Raises:
+        RuntimeError: If command queue is full (rate limit protection)
+    """
+    try:
+        return get_game_bridge().queue_command(command, timeout=timeout)
+    except queue.Full:
+        logger.error("Command queue is FULL - rejecting request (backpressure)")
+        raise RuntimeError(
+            "Command queue is full. Server is processing commands as fast as possible. "
+            "Please slow down your request rate and try again in a moment."
+        )
 
 def get_building_state() -> BuildingSnapshot | None:
     return get_game_bridge().get_building_snapshot()
