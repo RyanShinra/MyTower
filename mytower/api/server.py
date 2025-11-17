@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from collections import defaultdict
-from typing import Callable, DefaultDict
+from typing import Awaitable, Callable, DefaultDict
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -21,6 +21,27 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# ============================================================================
+# Type Aliases for Rate Limiting
+# ============================================================================
+# These type aliases make the rate limiting decorator pattern explicit.
+# Without them, the chained calls limiter.limit(rate)(endpoint)(request)
+# would have unclear Callable types.
+#
+# The decorator pattern works like this:
+# 1. limiter.limit("100/minute") -> returns a RateLimitDecorator
+# 2. decorator(endpoint) -> returns an AsyncEndpoint (wrapped version)
+# 3. wrapped_endpoint(request) -> executes the rate limit check
+
+# An async endpoint that takes a Request and returns None
+# This matches the signature of _dummy_endpoint: async def(Request) -> None
+AsyncEndpoint = Callable[[Request], Awaitable[None]]
+
+# A decorator that transforms an endpoint into a rate-limited endpoint
+# Takes: an AsyncEndpoint
+# Returns: an AsyncEndpoint (with rate limiting applied)
+RateLimitDecorator = Callable[[AsyncEndpoint], AsyncEndpoint]
 
 # ============================================================================
 # Rate Limiting Configuration
@@ -222,8 +243,12 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # 2. The decorator needs a callable to wrap (slowapi requirement)
                 # 3. We call it immediately to trigger the rate limit check
                 # This is the standard pattern for slowapi usage.
-                rate_limit_decorator: Callable = limiter.limit(rate_to_apply)
-                rate_limited_callable: Callable = rate_limit_decorator(
+                #
+                # Type breakdown (see type aliases at top of file):
+                # - RateLimitDecorator: Takes endpoint, returns wrapped endpoint
+                # - AsyncEndpoint: Async function taking Request, returning None
+                rate_limit_decorator: RateLimitDecorator = limiter.limit(rate_to_apply)
+                rate_limited_callable: AsyncEndpoint = rate_limit_decorator(
                     self._dummy_endpoint
                 )
                 await rate_limited_callable(request)
@@ -250,8 +275,12 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             )
             try:
                 # Use mutation rate (stricter) when we can't determine type
-                rate_limit_decorator = limiter.limit(self.mutation_rate)
-                rate_limited_callable = rate_limit_decorator(self._dummy_endpoint)
+                rate_limit_decorator: RateLimitDecorator = limiter.limit(
+                    self.mutation_rate
+                )
+                rate_limited_callable: AsyncEndpoint = rate_limit_decorator(
+                    self._dummy_endpoint
+                )
                 await rate_limited_callable(request)
             except RateLimitExceeded as rate_limit_error:
                 logger.warning(
