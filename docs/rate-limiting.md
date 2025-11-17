@@ -128,13 +128,13 @@ The `RateLimitedGraphQLRouter` overrides the `__call__` method to intercept requ
 2. **FastAPI dependency:** Doesn't work well with Strawberry's router pattern
 3. **Strawberry extension:** More invasive, requires modifying schema definition
 
-The `__call__` override is industry-standard for FastAPI router customization (see `mytower/api/server.py` lines 98-112 for detailed explanation).
+The `__call__` override is industry-standard for FastAPI router customization (see `RateLimitedGraphQLRouter.__call__` in `mytower/api/server.py` for detailed explanation).
 
 **Exception Handling Philosophy**
 - **Strawberry GraphQL automatically catches exceptions** raised in resolvers
 - Converts them to GraphQL error responses (NOT server crashes)
 - HTTP status remains 200 (GraphQL convention) with errors in response body
-- See `mytower/api/schema.py` lines 29-49 for detailed documentation
+- See `queue_command` function in `mytower/api/schema.py` for detailed documentation
 
 Example error response when queue is full:
 ```json
