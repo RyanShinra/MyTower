@@ -120,8 +120,7 @@ async def decrement_ws_connection(ip: str) -> None:
             ws_connections[ip] -= 1
             if ws_connections[ip] <= 0:
                 del ws_connections[ip]
-                # Clean up the lock as well to prevent unbounded growth
-                del ws_connection_locks[ip]
+                # Do NOT delete the lock here; keep it for future synchronization
 
 
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
