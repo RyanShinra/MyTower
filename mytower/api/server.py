@@ -58,7 +58,9 @@ limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="MyTower GraphQL API")
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# Type note: slowapi's handler signature is more specific than FastAPI's generic
+# ExceptionHandler type. This works at runtime but type checkers complain.
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 # Configure CORS middleware
 # SECURITY WARNING: The default configuration allows all origins (*) which is suitable
