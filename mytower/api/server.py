@@ -143,13 +143,16 @@ async def decrement_ws_connection(ip: str) -> None:
             ws_connections[ip] -= 1
             current_count = ws_connections[ip]
             if current_count <= 0:
+                logger.info(
+                    f"🔌 WebSocket disconnected: {ip} (0/{MAX_WS_CONNECTIONS_PER_IP})"
+                )
                 del ws_connections[ip]
                 # Do NOT delete the lock here; keep it for future synchronization
                 # TODO: Optionally implement lock cleanup if memory usage is a concern
-            logger.info(
-                f"🔌 WebSocket disconnected: {ip} "
-                f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
-            )
+            else:
+                logger.info(
+                    f"🔌 WebSocket disconnected: {ip} ({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
+                )
 
 
 # WebSocket subscriptions are automatically enabled in Strawberry's FastAPI integration
@@ -333,7 +336,8 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             logger.warning(
                 f"🚫 {operation_type} rate limit exceeded for {client_ip}"
             )
-            raise main_rate_limit_error from None
+            # raise main_rate_limit_error from None
+            raise main_rate_limit_error # TODO: Review if from None is needed here
 
         except Exception as parse_error:
             # Couldn't parse request body - apply stricter limit as safety measure
@@ -433,11 +437,9 @@ if __name__ == "__main__":
     run_server()
 
 
-# Copilot7 minutes ago
+
 # The mutation detection heuristic (line 309) using query.strip().lower().startswith("mutation") will incorrectly classify queries that have GraphQL comments before the mutation keyword. For example:
 
-# # Add a new floor  
-# mutation { addFloor(...) }  
+# `# Add a new floor`
+# `mutation { addFloor(...) }`
 # This would be treated as a query instead of a mutation, applying the wrong rate limit. While .strip() removes whitespace, it doesn't remove GraphQL comments (which start with #). Consider using a regex pattern that skips comments: re.match(r'^\s*(#[^\n]*)?\s*mutation\b', query, re.IGNORECASE) or using a GraphQL parser.
-
-# Copilot is powered by AI, so mistakes are possible. Review output carefully before use.
