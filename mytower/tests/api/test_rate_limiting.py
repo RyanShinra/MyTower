@@ -51,9 +51,9 @@ def test_client_factory() -> Callable[[], TestClient]:
     def _create_client() -> TestClient:
         # Import here to ensure environment variables are read fresh
         import importlib
-        from mytower.api import server
-        importlib.reload(server)
-        return TestClient(server.app)
+        import mytower.api.server
+        importlib.reload(mytower.api.server)
+        return TestClient(mytower.api.server.app)
     return _create_client
 
 
