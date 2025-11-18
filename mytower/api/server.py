@@ -311,7 +311,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # This covers 99% of cases. More sophisticated parsing is possible
                 # but adds complexity without much benefit.
                 # TODO: Consider parsing operationName for more accuracy if needed, see end of file
-                
+
                 is_mutation = query.strip().lower().startswith("mutation")
 
                 # Select appropriate rate limit
