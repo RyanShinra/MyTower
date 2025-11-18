@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import threading
 from collections import defaultdict
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -421,7 +422,7 @@ def health_check() -> dict[str, str]:
 async def run_server_async(
     host: str = "127.0.0.1",
     port: int = 8000,
-    shutdown_event: Any | None = None
+    shutdown_event: "threading.Event | None" = None
 ) -> None:
     """
     Run the server asynchronously with graceful shutdown support.
@@ -449,21 +450,20 @@ async def run_server_async(
     if shutdown_event is not None:
         async def shutdown_monitor():
             """Monitor shutdown event and trigger server shutdown"""
-            loop = asyncio.get_event_loop()
             while not shutdown_event.is_set():
                 await asyncio.sleep(0.1)
             logger.info("Shutdown event detected, stopping server...")
             server.should_exit = True
 
-        # Start monitoring task
-        asyncio.create_task(shutdown_monitor())
+        # Start monitoring task and store reference to prevent garbage collection
+        _shutdown_task = asyncio.create_task(shutdown_monitor())
 
     # Run server (blocks until shutdown)
     await server.serve()
     logger.info("Server stopped")
 
 
-def run_server(host: str = "127.0.0.1", port: int = 8000, shutdown_event: Any | None = None) -> None:
+def run_server(host: str = "127.0.0.1", port: int = 8000, shutdown_event: "threading.Event | None" = None) -> None:
     """
     Run the server with graceful shutdown support (synchronous wrapper).
 

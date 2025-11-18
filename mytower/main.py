@@ -12,6 +12,7 @@ Supports multiple execution modes:
 import signal
 import sys
 import threading
+from types import FrameType
 from typing import TYPE_CHECKING, NoReturn
 
 # noqa: F401
@@ -53,7 +54,7 @@ def setup_signal_handlers(logger: MyTowerLogger) -> None:
     """
     shutdown_event = get_shutdown_event()
 
-    def signal_handler(signum: int, frame) -> None:
+    def signal_handler(signum: int, frame: FrameType | None) -> None:
         sig_name = signal.Signals(signum).name
         logger.info(f"Received {sig_name} signal, initiating graceful shutdown...")
         shutdown_event.set()

@@ -197,15 +197,29 @@ INFO: Headless mode shutdown complete
 
 ### Manual Testing
 
-**Test 1: Headless Mode SIGTERM**
+**Test 1a: Headless Mode SIGTERM (Direct Execution)**
 ```bash
-# Start in headless mode
+# Terminal 1: Start in headless mode
 python -m mytower.main --mode headless
 
-# In another terminal
-docker kill --signal=SIGTERM <container_id>
+# Terminal 2: Send SIGTERM to the process
+# First, find the process ID
+ps aux | grep mytower
+# Then send SIGTERM
+kill -TERM <process_id>
 
-# Expected: Clean shutdown logs, exit code 0
+# Expected: Clean shutdown logs in Terminal 1, exit code 0
+```
+
+**Test 1b: Headless Mode SIGTERM (Docker)**
+```bash
+# Start Docker container
+docker-compose up
+
+# In another terminal, send SIGTERM to container
+docker kill --signal=SIGTERM mytower
+
+# Expected: Clean shutdown logs, container exits gracefully
 ```
 
 **Test 2: Desktop Mode ESC Key**
@@ -222,7 +236,7 @@ python -m mytower.main --mode desktop
 # Start any mode
 python -m mytower.main --mode headless
 
-# Press Ctrl+C
+# Press Ctrl+C in the same terminal
 # Expected: SIGINT caught, clean shutdown
 ```
 
