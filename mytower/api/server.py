@@ -145,6 +145,7 @@ async def decrement_ws_connection(ip: str) -> None:
             if current_count <= 0:
                 del ws_connections[ip]
                 # Do NOT delete the lock here; keep it for future synchronization
+                # TODO: Optionally implement lock cleanup if memory usage is a concern
             logger.info(
                 f"🔌 WebSocket disconnected: {ip} "
                 f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
@@ -306,7 +307,9 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # Simple heuristic: mutations start with "mutation" keyword
                 # This covers 99% of cases. More sophisticated parsing is possible
                 # but adds complexity without much benefit.
-                is_mutation: bool = query.strip().lower().startswith("mutation")
+                # TODO: Consider parsing operationName for more accuracy if needed, see end of file
+                
+                is_mutation = query.strip().lower().startswith("mutation")
 
                 # Select appropriate rate limit
                 rate_to_apply: str = (
@@ -428,3 +431,13 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
 
 if __name__ == "__main__":
     run_server()
+
+
+# Copilot7 minutes ago
+# The mutation detection heuristic (line 309) using query.strip().lower().startswith("mutation") will incorrectly classify queries that have GraphQL comments before the mutation keyword. For example:
+
+# # Add a new floor  
+# mutation { addFloor(...) }  
+# This would be treated as a query instead of a mutation, applying the wrong rate limit. While .strip() removes whitespace, it doesn't remove GraphQL comments (which start with #). Consider using a regex pattern that skips comments: re.match(r'^\s*(#[^\n]*)?\s*mutation\b', query, re.IGNORECASE) or using a GraphQL parser.
+
+# Copilot is powered by AI, so mistakes are possible. Review output carefully before use.

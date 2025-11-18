@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 #   }]
 # }
 #
-# For debugging, set MYTOWER_FAIL_FAST=true to propagate exceptions.
+# TODO: Find a way to disable this so that for debugging, set MYTOWER_FAIL_FAST=true to propagate exceptions.
 # ============================================================================
 
 def queue_command(command: Command[Any], timeout: float = 5.0) -> str:
