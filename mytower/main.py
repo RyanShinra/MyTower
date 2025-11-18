@@ -131,17 +131,17 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
     logger.info("If running in Docker: Use the port from your -p flag")
     try:
         run_server(host="0.0.0.0", port=args.port, shutdown_event=shutdown_event)
-    except KeyboardInterrupt:
-        logger.info("KeyboardInterrupt received, shutting down...")
+    except Exception as e:
+        logger.error(f"Server encountered error: {e}", exc_info=True)
         shutdown_event.set()
-
-    # Wait for simulation thread to finish (with timeout)
-    logger.info("Waiting for simulation thread to complete...")
-    sim_thread.join(timeout=5.0)
-    if sim_thread.is_alive():
-        logger.warning("Simulation thread did not exit within timeout")
-    else:
-        logger.info("Simulation thread exited cleanly")
+    finally:
+        # Ensure simulation thread cleanup happens regardless of how server exits
+        logger.info("Waiting for simulation thread to complete...")
+        sim_thread.join(timeout=5.0)
+        if sim_thread.is_alive():
+            logger.warning("Simulation thread did not exit within timeout")
+        else:
+            logger.info("Simulation thread exited cleanly")
 
     logger.info("Headless mode shutdown complete")
     sys.exit(0)
@@ -260,6 +260,8 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
         clock.tick(FPS)
 
     # Trigger shutdown for simulation thread
+    # Note: shutdown_event.set() is idempotent, so calling it here is safe even if
+    # it was already set by signal handler or during the pygame loop
     logger.info("Exiting pygame loop, shutting down...")
     shutdown_event.set()
 
@@ -351,9 +353,14 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
 
     # Start GraphQL server in background thread with shutdown support
     def graphql_thread_target() -> None:
-        logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
-        logger.info("If running in Docker: Use the port from your -p flag")
-        run_server(host="0.0.0.0", port=args.port, shutdown_event=shutdown_event)
+        try:
+            logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
+            logger.info("If running in Docker: Use the port from your -p flag")
+            run_server(host="0.0.0.0", port=args.port, shutdown_event=shutdown_event)
+        except Exception as e:
+            logger.error(f"GraphQL server thread crashed with exception: {e}", exc_info=True)
+            # Trigger shutdown to prevent main thread from hanging
+            shutdown_event.set()
 
     graphql_thread = threading.Thread(target=graphql_thread_target, daemon=False, name="GraphQLServer")
     graphql_thread.start()
@@ -396,6 +403,8 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
         clock.tick(FPS)
 
     # Trigger shutdown for all threads
+    # Note: shutdown_event.set() is idempotent, so calling it here is safe even if
+    # it was already set by signal handler or during the pygame loop
     logger.info("Exiting pygame loop, shutting down...")
     shutdown_event.set()
 

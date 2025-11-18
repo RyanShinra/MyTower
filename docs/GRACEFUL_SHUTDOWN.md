@@ -70,7 +70,7 @@ def setup_signal_handlers(logger: MyTowerLogger) -> None:
 async def run_server_async(
     host: str = "127.0.0.1",
     port: int = 8000,
-    shutdown_event: Any | None = None
+    shutdown_event: "threading.Event | None" = None
 ) -> None:
     """Run server with graceful shutdown support"""
 ```
