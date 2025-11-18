@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import queue
 from collections.abc import AsyncGenerator
 from typing import Any
 
@@ -25,9 +26,60 @@ from mytower.game.models.model_snapshots import BuildingSnapshot
 # Configure logging for subscriptions
 logger = logging.getLogger(__name__)
 
-# Convenience functions
-def queue_command(command: Command[Any]) -> str:
-    return get_game_bridge().queue_command(command)
+# ============================================================================
+# Exception Handling Strategy
+# ============================================================================
+# Strawberry GraphQL automatically catches exceptions raised in resolvers and
+# converts them to GraphQL error responses. This means:
+#
+# 1. Exceptions raised here will NOT crash the server
+# 2. They will appear in the "errors" array of the GraphQL response
+# 3. The HTTP status will still be 200 (GraphQL error handling convention)
+#
+# Example response when queue is full:
+# {
+#   "data": {"addFloor": null},
+#   "errors": [{
+#     "message": "Command queue is full...",
+#     "path": ["addFloor"]
+#   }]
+# }
+#
+# TODO: Find a way to disable this so that for debugging, set MYTOWER_FAIL_FAST=true to propagate exceptions.
+# ============================================================================
+
+def queue_command(command: Command[Any], timeout: float = 5.0) -> str:
+    """
+    Queue a command with backpressure handling.
+
+    Args:
+        command: The command to queue
+        timeout: Timeout in seconds (default: 5.0)
+
+    Returns:
+        Command ID if successful
+
+    Raises:
+        RuntimeError: If command queue is full. Strawberry will catch this
+                     and convert it to a GraphQL error response (not a crash).
+    """
+    try:
+        return get_game_bridge().queue_command(command, timeout=timeout)
+    except queue.Full as queue_error:
+        # Command queue is full - this is a backpressure mechanism to prevent
+        # overloading the game loop. We raise a user-friendly error that
+        # Strawberry will convert to a GraphQL error response.
+        logger.error("Command queue is FULL - rejecting request (backpressure)")
+
+        # Create descriptive error for the client
+        error_message = (
+            "Command queue is full. Server is processing commands as fast as "
+            "possible. Please slow down your request rate and try again in a moment."
+        )
+
+        # Raise a new exception with a user-friendly message, chaining the original exception as the cause
+        # Strawberry catches this and formats it as a GraphQL error
+        raise RuntimeError(error_message) from queue_error
 
 def get_building_state() -> BuildingSnapshot | None:
     return get_game_bridge().get_building_snapshot()

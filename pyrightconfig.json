@@ -13,6 +13,8 @@
     "mytower/api/input_types.py",
     "mytower/tests/**/*.py"
   ],
+  "reportUnboundVariable": "error",
+  "reportPossiblyUnboundVariable": "warning",
   "reportAttributeAccessIssue": "error",
   "reportMissingImports": "error",
   "reportMissingTypeStubs": "none",
