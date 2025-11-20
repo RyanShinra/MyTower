@@ -65,19 +65,57 @@ export class UIRenderer {
     const seconds = Math.floor(time) % 60;
     const timeStr = `Time: ${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`;
 
-    this.context.fillStyle = '#000000';
+    // Set up font and text alignment for measurement
     this.context.font = '20px Arial';
     this.context.textAlign = 'left';
     this.context.textBaseline = 'top';
+    
+    // Measure text for background sizing
+    const textMetrics = this.context.measureText(timeStr);
+    const textWidth = textMetrics.width;
+    const textHeight = 20; // Approximate font height
+    const padding = 5;
+    
+    // Draw translucent black background
+    this.context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    this.context.fillRect(
+      10 - padding,
+      10 - padding,
+      textWidth + (padding * 2),
+      textHeight + (padding * 2)
+    );
+    
+    // Draw white text
+    this.context.fillStyle = '#FFFFFF';
     this.context.fillText(timeStr, 10, 10);
   }
 
   private drawMoney(money: number): void {
-    this.context.fillStyle = '#000000';
+    const moneyStr = `Money: $${money.toLocaleString()}`;
+    
+    // Set up font and text alignment for measurement
     this.context.font = '20px Arial';
     this.context.textAlign = 'left';
     this.context.textBaseline = 'top';
-    this.context.fillText(`Money: $${money.toLocaleString()}`, 10, 40);
+    
+    // Measure text for background sizing
+    const textMetrics = this.context.measureText(moneyStr);
+    const textWidth = textMetrics.width;
+    const textHeight = 20; // Approximate font height
+    const padding = 5;
+    
+    // Draw translucent black background
+    this.context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    this.context.fillRect(
+      10 - padding,
+      40 - padding,
+      textWidth + (padding * 2),
+      textHeight + (padding * 2)
+    );
+    
+    // Draw white text
+    this.context.fillStyle = '#FFFFFF';
+    this.context.fillText(moneyStr, 10, 40);
   }
 
   private pad(num: number): string {

@@ -105,11 +105,30 @@ class DesktopView:
         minutes: int = int(time.in_minutes // 1) % 60
         seconds: int = int(time.in_seconds // 1) % 60
         time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
-
-        text: Final[Surface] = font.render(time_str, True, (0, 0, 0))
+        
+        text: Final[Surface] = font.render(time_str, True, (255, 255, 255))  # White text
+        # Draw translucent background for time text
+        text_rect = text.get_rect()
+        text_rect.x = 10
+        text_rect.y = 60
+        padding = 5
+        bg_rect = text_rect.inflate(padding * 2, padding * 2)
+        bg_surface = Surface((bg_rect.width, bg_rect.height))
+        bg_surface.set_alpha(190)  # 75% transparency
+        bg_surface.fill((0, 0, 0))  # Black background
+        surface.blit(bg_surface, bg_rect)
         surface.blit(text, (10, 60))  # OMG magic numbers
 
         # Draw money
         money_str: str = f"Money: ${snapshot.money:,}"
-        money_text: Final[Surface] = font.render(money_str, True, (0, 0, 0))
+        money_text: Final[Surface] = font.render(money_str, True, (255, 255, 255))  # White text
+        # Draw translucent background for money text
+        money_rect = money_text.get_rect()
+        money_rect.x = 10
+        money_rect.y = 90
+        money_bg_rect = money_rect.inflate(padding * 2, padding * 2)
+        money_bg_surface = Surface((money_bg_rect.width, money_bg_rect.height))
+        money_bg_surface.set_alpha(190)  # 75% transparency
+        money_bg_surface.fill((0, 0, 0))  # Black background
+        surface.blit(money_bg_surface, money_bg_rect)
         surface.blit(money_text, (10, 90))  # OMG magic numbers

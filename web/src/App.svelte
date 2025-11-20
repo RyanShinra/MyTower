@@ -19,7 +19,7 @@
 </script>
 
 <div class="game-container">
-    <canvas bind:this={canvas} width={1024} height={768}></canvas>
+    <canvas bind:this={canvas} width={650} height={600}></canvas>
 
     <div class="info">
         <h1>MyTower Web</h1>

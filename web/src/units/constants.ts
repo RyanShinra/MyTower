@@ -3,7 +3,7 @@
  * Matches Python's primitive_constants.py
  */
 
-export const PIXELS_PER_METER = 15;
+export const PIXELS_PER_METER = 10;
 export const METERS_PER_BLOCK = 3.2;
 export const PIXELS_PER_BLOCK = PIXELS_PER_METER * METERS_PER_BLOCK; // 48
 
