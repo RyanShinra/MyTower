@@ -105,7 +105,7 @@ class DesktopView:
         minutes: int = int(time.in_minutes // 1) % 60
         seconds: int = int(time.in_seconds // 1) % 60
         time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
-        
+
         text: Final[Surface] = font.render(time_str, True, (255, 255, 255))  # White text
         # Draw translucent background for time text
         text_rect = text.get_rect()
