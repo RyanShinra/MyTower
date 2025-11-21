@@ -70,32 +70,49 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
             demo_logger.error(f"Failed to add person: {result.error}")
             return ""
 
-    # Initialize with some basic floors and an elevator
-    add_floor(FloorType.LOBBY)
-    add_floor(FloorType.RETAIL)
-    add_floor(FloorType.RETAIL)
-    add_floor(FloorType.RETAIL)
-    add_floor(FloorType.RESTAURANT)
-    add_floor(FloorType.RESTAURANT)
-    add_floor(FloorType.OFFICE)
-    add_floor(FloorType.OFFICE)
-    add_floor(FloorType.OFFICE)
-    add_floor(FloorType.OFFICE)
-    add_floor(FloorType.HOTEL)
-    add_floor(FloorType.HOTEL)
-    add_floor(FloorType.HOTEL)
-    add_floor(FloorType.HOTEL)
-    add_floor(FloorType.APARTMENT)
-    add_floor(FloorType.APARTMENT)
-    add_floor(FloorType.APARTMENT)
-    top_floor: int = add_floor(FloorType.APARTMENT)
+    def build_tall_building() -> None:
+        """Build a tall building with many floors and elevators."""
+        add_floor(FloorType.LOBBY)
+        add_floor(FloorType.RETAIL)
+        add_floor(FloorType.RETAIL)
+        add_floor(FloorType.RETAIL)
+        add_floor(FloorType.RESTAURANT)
+        add_floor(FloorType.RESTAURANT)
+        add_floor(FloorType.OFFICE)
+        add_floor(FloorType.OFFICE)
+        add_floor(FloorType.OFFICE)
+        add_floor(FloorType.OFFICE)
+        add_floor(FloorType.HOTEL)
+        add_floor(FloorType.HOTEL)
+        add_floor(FloorType.HOTEL)
+        add_floor(FloorType.HOTEL)
+        add_floor(FloorType.APARTMENT)
+        add_floor(FloorType.APARTMENT)
+        add_floor(FloorType.APARTMENT)
+        top_floor: int = add_floor(FloorType.APARTMENT)
 
-    elevator_bank_id: str = add_elevator_bank(horiz_position=Blocks(14), min_floor=1, max_floor=top_floor)
-    add_elevator(elevator_bank_id)
+        elevator_bank_id: str = add_elevator_bank(horiz_position=Blocks(14), min_floor=1, max_floor=top_floor)
+        add_elevator(elevator_bank_id)
 
-    add_person(init_floor=1, init_horiz_position=Blocks(1.0), dest_floor=12, dest_horiz_position=Blocks(7.0))
-    add_person(init_floor=1, init_horiz_position=Blocks(3.0), dest_floor=3, dest_horiz_position=Blocks(7.0))
-    add_person(init_floor=1, init_horiz_position=Blocks(6.0), dest_floor=7, dest_horiz_position=Blocks(7.0))
-    add_person(init_floor=12, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
+        add_person(init_floor=1, init_horiz_position=Blocks(1.0), dest_floor=12, dest_horiz_position=Blocks(7.0))
+        add_person(init_floor=1, init_horiz_position=Blocks(3.0), dest_floor=3, dest_horiz_position=Blocks(7.0))
+        add_person(init_floor=1, init_horiz_position=Blocks(6.0), dest_floor=7, dest_horiz_position=Blocks(7.0))
+        add_person(init_floor=12, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
+
+    def build_short_building() -> None:
+        """Build a short building with few floors and elevators."""
+        add_floor(FloorType.LOBBY)
+        add_floor(FloorType.RETAIL)
+        add_floor(FloorType.OFFICE)
+        top_floor: int = add_floor(FloorType.OFFICE)
+
+        elevator_bank_id: str = add_elevator_bank(horiz_position=Blocks(10), min_floor=1, max_floor=top_floor)
+        add_elevator(elevator_bank_id)
+
+        add_person(init_floor=1, init_horiz_position=Blocks(2.0), dest_floor=3, dest_horiz_position=Blocks(5.0))
+        add_person(init_floor=3, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
+
+    demo_logger.info("Starting demo building construction...")
+    build_short_building()
 
     demo_logger.info("Demo building complete.")
