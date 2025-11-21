@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import threading
 from collections import defaultdict
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -391,7 +392,6 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
 
         This is a quirk of slowapi's API design.
         """
-        pass
 
 graphql_app: RateLimitedGraphQLRouter = RateLimitedGraphQLRouter(
     schema=schema,
@@ -418,18 +418,68 @@ def health_check() -> dict[str, str]:
     """Health check endpoint for monitoring (no rate limit)"""
     return {"status": "healthy", "service": "MyTower GraphQL API"}
 
-def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
+async def run_server_async(
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    shutdown_event: threading.Event | None = None
+) -> None:
+    """
+    Run the server asynchronously with graceful shutdown support.
+
+    Args:
+        host: Host to bind to
+        port: Port to bind to
+        shutdown_event: Optional threading.Event for graceful shutdown
+    """
     logger.info(f"🚀 Starting server on {host}:{port}")
     logger.info(f"🔍 WebSocket URL: ws://{host}:{port}/graphql")
     logger.info(f"🔍 GraphQL endpoint: http://{host}:{port}/graphql")
 
-    uvicorn.run(
+    # Create config and server
+    config = uvicorn.Config(
         app,
         host=host,
         port=port,
         log_level="info",
         access_log=True,
     )
+    server = uvicorn.Server(config)
+
+    # If shutdown_event provided, monitor it in background
+    if shutdown_event is not None:
+        async def shutdown_monitor():
+            """Monitor shutdown event and trigger server shutdown"""
+            try:
+                while not shutdown_event.is_set():
+                    await asyncio.sleep(0.1)
+                logger.info("Shutdown event detected, stopping server...")
+                server.should_exit = True
+            except Exception as e:
+                logger.error(f"Shutdown monitor encountered error: {e}", exc_info=True)
+                server.should_exit = True
+
+        # Start monitoring task - it will be cleaned up automatically when event loop exits
+        asyncio.create_task(shutdown_monitor())
+
+    # Run server (blocks until shutdown)
+    await server.serve()
+    logger.info("Server stopped")
+
+    # The shutdown monitor will be automatically cancelled when the event loop exits.
+    # No need to explicitly wait for it since it's just monitoring the shutdown_event
+    # which becomes irrelevant once the server has already stopped.
+
+
+def run_server(host: str = "127.0.0.1", port: int = 8000, shutdown_event: threading.Event | None = None) -> None:
+    """
+    Run the server with graceful shutdown support (synchronous wrapper).
+
+    Args:
+        host: Host to bind to
+        port: Port to bind to
+        shutdown_event: Optional threading.Event for graceful shutdown
+    """
+    asyncio.run(run_server_async(host, port, shutdown_event))
 
 
 if __name__ == "__main__":

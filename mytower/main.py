@@ -9,8 +9,10 @@ Supports multiple execution modes:
 - Remote: Desktop connected to remote server (future)
 """
 
+import signal
 import sys
 import threading
+from types import FrameType
 from typing import TYPE_CHECKING, NoReturn
 
 # noqa: F401
@@ -31,6 +33,36 @@ from mytower.game.utilities import demo_builder
 from mytower.game.utilities.cli_args import GameArgs, parse_args, print_startup_banner
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 from mytower.game.utilities.simulation_loop import start_simulation_thread
+
+# Global shutdown event for coordinating graceful shutdown
+_shutdown_event: threading.Event | None = None
+
+
+def get_shutdown_event() -> threading.Event:
+    """Get or create the global shutdown event"""
+    global _shutdown_event
+    if _shutdown_event is None:
+        _shutdown_event = threading.Event()
+    return _shutdown_event
+
+
+def setup_signal_handlers(logger: MyTowerLogger) -> None:
+    """
+    Setup signal handlers for graceful shutdown.
+
+    Handles SIGTERM (AWS ECS stop) and SIGINT (Ctrl+C).
+    """
+    shutdown_event = get_shutdown_event()
+
+    def signal_handler(signum: int, frame: FrameType | None) -> None:
+        sig_name = signal.Signals(signum).name
+        logger.info(f"Received {sig_name} signal, initiating graceful shutdown...")
+        shutdown_event.set()
+
+    # Register handlers for both SIGTERM (AWS/Docker stop) and SIGINT (Ctrl+C)
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    logger.info("Signal handlers registered (SIGTERM, SIGINT)")
 
 
 def setup_game(args: GameArgs, logger_provider: LoggerProvider) -> tuple[GameBridge, GameController]:
@@ -69,22 +101,49 @@ def run_headless_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetu
     Thread architecture:
     - Main thread: HTTP server (uvicorn blocks here)
     - Background thread: Game simulation loop
+
+    Graceful shutdown:
+    - SIGTERM/SIGINT triggers shutdown event
+    - Server stops accepting new connections
+    - Simulation thread completes current frame and exits
+    - Server shuts down cleanly
     """
     logger: MyTowerLogger = logger_provider.get_logger("Main")
+
+    # Setup signal handlers for graceful shutdown
+    setup_signal_handlers(logger)
+    shutdown_event = get_shutdown_event()
 
     logger.info("Starting headless mode...")
     # GameBridge, GameController
     bridge, _ = setup_game(args, logger_provider)
 
-    # Start simulation in background thread
-    start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
+    # Start simulation in background thread with shutdown support
+    sim_thread = start_simulation_thread(
+        bridge,
+        logger_provider=logger_provider,
+        target_fps=args.target_fps,
+        shutdown_event=shutdown_event
+    )
 
-    # Start HTTP server on main thread (blocks)
+    # Start HTTP server on main thread (blocks until shutdown)
     logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
     logger.info("If running in Docker: Use the port from your -p flag")
-    run_server(host="0.0.0.0", port=args.port)
+    try:
+        run_server(host="0.0.0.0", port=args.port, shutdown_event=shutdown_event)
+    except Exception as e:
+        logger.error(f"Server encountered error: {e}", exc_info=True)
+        shutdown_event.set()
+    finally:
+        # Ensure simulation thread cleanup happens regardless of how server exits
+        logger.info("Waiting for simulation thread to complete...")
+        sim_thread.join(timeout=5.0)
+        if sim_thread.is_alive():
+            logger.warning("Simulation thread did not exit within timeout")
+        else:
+            logger.info("Simulation thread exited cleanly")
 
-    # Never reaches here (uvicorn.run blocks)
+    logger.info("Headless mode shutdown complete")
     sys.exit(0)
 
 
@@ -97,6 +156,11 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     Thread architecture:
     - Main thread: Pygame event loop + rendering (must be main on macOS)
     - Background thread: Game simulation loop
+
+    Graceful shutdown:
+    - Window close or ESC key triggers shutdown
+    - Simulation thread completes current frame and exits
+    - Pygame cleanup runs
     """
     # Import pygame only when needed for desktop mode
     import pygame  # type: ignore # noqa: F811
@@ -107,6 +171,10 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     from mytower.game.views.desktop_view import DesktopView
 
     logger: MyTowerLogger = logger_provider.get_logger("Main")
+
+    # Setup signal handlers for graceful shutdown (Ctrl+C in terminal)
+    setup_signal_handlers(logger)
+    shutdown_event = get_shutdown_event()
 
     logger.info("Starting desktop mode...")
 
@@ -141,14 +209,19 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
         enqueue_callback=bridge.queue_command,
     )
 
-    # Start simulation in background thread
-    start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
+    # Start simulation in background thread with shutdown support
+    sim_thread = start_simulation_thread(
+        bridge,
+        logger_provider=logger_provider,
+        target_fps=args.target_fps,
+        shutdown_event=shutdown_event
+    )
 
     # Main pygame loop
     logger.info("Entering pygame main loop...")
     running = True
 
-    while running:
+    while running and not shutdown_event.is_set():
         # Get latest snapshot from bridge
         snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
 
@@ -186,7 +259,22 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
         pygame.display.flip()
         clock.tick(FPS)
 
+    # Trigger shutdown for simulation thread
+    # Note: shutdown_event.set() is idempotent, so calling it here is safe even if
+    # it was already set by signal handler or during the pygame loop
+    logger.info("Exiting pygame loop, shutting down...")
+    shutdown_event.set()
+
+    # Wait for simulation thread to finish (with timeout)
+    logger.info("Waiting for simulation thread to complete...")
+    sim_thread.join(timeout=5.0)
+    if sim_thread.is_alive():
+        logger.warning("Simulation thread did not exit within timeout")
+    else:
+        logger.info("Simulation thread exited cleanly")
+
     pygame.quit()
+    logger.info("Desktop mode shutdown complete")
     sys.exit(0)
 
 
@@ -201,6 +289,13 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
 
     Both desktop and GraphQL share the same GameBridge,
     so mutations from GraphQL are immediately visible in the desktop view.
+
+    Graceful shutdown:
+    - Window close or ESC key triggers shutdown
+    - HTTP server stops accepting connections
+    - Simulation thread completes current frame and exits
+    - HTTP server shuts down
+    - Pygame cleanup runs
     """
     # Import pygame only when needed for hybrid mode
     import pygame  # type: ignore # noqa: F811
@@ -211,6 +306,10 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     from mytower.game.views.desktop_view import DesktopView
 
     logger: MyTowerLogger = logger_provider.get_logger("Main")
+
+    # Setup signal handlers for graceful shutdown (Ctrl+C in terminal)
+    setup_signal_handlers(logger)
+    shutdown_event = get_shutdown_event()
 
     logger.info("Starting hybrid mode (Desktop + GraphQL)...")
 
@@ -244,23 +343,33 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
         enqueue_callback=bridge.queue_command,
     )
 
-    # Start simulation in background thread
-    start_simulation_thread(bridge, logger_provider=logger_provider, target_fps=args.target_fps)
+    # Start simulation in background thread with shutdown support
+    sim_thread = start_simulation_thread(
+        bridge,
+        logger_provider=logger_provider,
+        target_fps=args.target_fps,
+        shutdown_event=shutdown_event
+    )
 
-    # Start GraphQL server in background thread
+    # Start GraphQL server in background thread with shutdown support
     def graphql_thread_target() -> None:
-        logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
-        logger.info("If running in Docker: Use the port from your -p flag")
-        run_server(host="0.0.0.0", port=args.port)
+        try:
+            logger.info(f"GraphQL server starting on http://localhost:{args.port}/graphql")
+            logger.info("If running in Docker: Use the port from your -p flag")
+            run_server(host="0.0.0.0", port=args.port, shutdown_event=shutdown_event)
+        except Exception as e:
+            logger.error(f"GraphQL server thread crashed with exception: {e}", exc_info=True)
+            # Trigger shutdown to prevent main thread from hanging
+            shutdown_event.set()
 
-    graphql_thread = threading.Thread(target=graphql_thread_target, daemon=True, name="GraphQLServer")
+    graphql_thread = threading.Thread(target=graphql_thread_target, daemon=False, name="GraphQLServer")
     graphql_thread.start()
 
     # Main pygame loop (same as desktop mode)
     logger.info("Entering pygame main loop...")
     running = True
 
-    while running:
+    while running and not shutdown_event.is_set():
         snapshot: BuildingSnapshot | None = bridge.get_building_snapshot()
 
         for event in pygame.event.get():
@@ -293,7 +402,30 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
         pygame.display.flip()
         clock.tick(FPS)
 
+    # Trigger shutdown for all threads
+    # Note: shutdown_event.set() is idempotent, so calling it here is safe even if
+    # it was already set by signal handler or during the pygame loop
+    logger.info("Exiting pygame loop, shutting down...")
+    shutdown_event.set()
+
+    # Wait for simulation thread to finish (with timeout)
+    logger.info("Waiting for simulation thread to complete...")
+    sim_thread.join(timeout=5.0)
+    if sim_thread.is_alive():
+        logger.warning("Simulation thread did not exit within timeout")
+    else:
+        logger.info("Simulation thread exited cleanly")
+
+    # Wait for GraphQL server thread to finish (with timeout)
+    logger.info("Waiting for GraphQL server to complete...")
+    graphql_thread.join(timeout=10.0)
+    if graphql_thread.is_alive():
+        logger.warning("GraphQL server thread did not exit within timeout")
+    else:
+        logger.info("GraphQL server thread exited cleanly")
+
     pygame.quit()
+    logger.info("Hybrid mode shutdown complete")
     sys.exit(0)
 
 

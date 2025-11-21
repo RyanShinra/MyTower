@@ -5,8 +5,17 @@ from mytower.api.game_bridge import GameBridge
 from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 
-def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60) -> None:
-    """Run the game loop without pygame display"""
+def run_simulation_loop(
+    bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60, shutdown_event: threading.Event | None = None
+) -> None:
+    """Run the game loop without pygame display
+
+    Args:
+        bridge: GameBridge for thread-safe game updates
+        logger_provider: Logger provider for logging
+        target_fps: Target frames per second
+        shutdown_event: Optional event to signal graceful shutdown
+    """
     logger: MyTowerLogger = logger_provider.get_logger("SimulationLoop")
     logger.info(f"Starting simulation loop at target {target_fps} FPS")
 
@@ -19,7 +28,7 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
     next_frame_time: float = time.perf_counter()
     sleep_log_counter: int = 0
 
-    while True:
+    while shutdown_event is None or not shutdown_event.is_set():
         frame_start_time: float = time.perf_counter()
 
         # Always advance by fixed interval (deterministic)
@@ -75,12 +84,31 @@ def run_simulation_loop(bridge: GameBridge, logger_provider: LoggerProvider, tar
             next_frame_time = time.perf_counter()
         # else: slightly behind but catchable, just don't sleep
 
+    # Graceful shutdown
+    logger.info(f"Simulation loop shutting down gracefully after {frame_count} frames")
+
 def start_simulation_thread(
-    bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60
+    bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60, shutdown_event: threading.Event | None = None
 ) -> threading.Thread:
-    """Start the simulation in a background thread"""
+    """Start the simulation in a background thread
+
+    Args:
+        bridge: GameBridge for thread-safe game updates
+        logger_provider: Logger provider for logging
+        target_fps: Target frames per second
+        shutdown_event: Optional event to signal graceful shutdown. If provided, thread will not be daemon.
+
+    Returns:
+        Started thread instance
+    """
+    # If shutdown_event provided, make thread non-daemon so we can join it
+    is_daemon = shutdown_event is None
+
     thread = threading.Thread(
-        target=run_simulation_loop, args=(bridge, logger_provider, target_fps), daemon=True, name="GameSimulation"
+        target=run_simulation_loop,
+        args=(bridge, logger_provider, target_fps, shutdown_event),
+        daemon=is_daemon,
+        name="GameSimulation"
     )
     thread.start()
 
