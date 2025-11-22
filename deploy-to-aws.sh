@@ -26,7 +26,7 @@ echo "   ✅ Image: $IMAGE_URI"
 echo ""
 
 # Check if there are uncommitted changes
-echo "�� Checking git status..."
+echo "🔍 Checking git status..."
 if [[ -n $(git status -s) ]]; then
     echo "⚠️  Warning: You have uncommitted changes!"
     git status -s
