@@ -1,6 +1,10 @@
 #!/bin/bash
 
-echo "í´„ Restarting MyTower ECS Task..."
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
+
+echo "Ã­Â´Â„ Restarting MyTower ECS Task..."
 echo ""
 
 REGION=us-east-2
@@ -14,7 +18,7 @@ TASK_ARN=$(aws ecs list-tasks \
     --output text)
 
 if [ "$TASK_ARN" != "None" ] && [ -n "$TASK_ARN" ]; then
-    echo "í»‘ Stopping current task: $TASK_ARN"
+    echo "Ã­Â»Â‘ Stopping current task: $TASK_ARN"
     aws ecs stop-task \
         --cluster mytower-cluster \
         --task $TASK_ARN \
@@ -22,12 +26,12 @@ if [ "$TASK_ARN" != "None" ] && [ -n "$TASK_ARN" ]; then
         --query 'task.taskArn' \
         --output text
     
-    echo "â³ Waiting for task to stop..."
+    echo "Ã¢ÂÂ³ Waiting for task to stop..."
     sleep 10
 fi
 
 echo ""
-echo "í¾® Starting new task..."
+echo "Ã­Â¾Â® Starting new task..."
 
 # Run the existing start script
 ./aws-run.sh

@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 # tests/person/test_person_floor_ownership.py
 from __future__ import annotations
 

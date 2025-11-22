@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 # tests/floor/test_floor_people.py
 # ruff: noqa: F401, F841
 # pyright: reportUnusedCallResult=false
