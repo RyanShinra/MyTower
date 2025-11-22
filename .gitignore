@@ -184,3 +184,6 @@ folderstructure.txt
 
 logs/*
 /docs/claudes instr 11-11
+
+# Deployment metadata files
+deployments/
