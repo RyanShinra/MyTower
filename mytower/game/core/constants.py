@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 # game/constants.py
 # MyTower - A tower building and management game
 # Copyright (C) 2025 [Your Name]

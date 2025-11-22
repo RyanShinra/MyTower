@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 # game/person.py
 # This file is part of MyTower.
 # Copyright (C) 2025 [Your Name]
