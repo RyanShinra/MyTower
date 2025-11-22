@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 """Tests for model snapshot dataclasses"""
 
 from mytower.game.core.types import ElevatorState, FloorType, PersonState, VerticalDirection

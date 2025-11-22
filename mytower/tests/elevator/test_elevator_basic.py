@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 # pylint: disable=C0103 # Overrides snake case for `TESTING_H_CELL_VALUE` at the bottom
 
 from collections.abc import Sequence
