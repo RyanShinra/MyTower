@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Ryan Osterday. All rights reserved.
+// See LICENSE file for details.
+
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { WebGameView } from "./WebGameView";

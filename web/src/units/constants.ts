@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Ryan Osterday. All rights reserved.
+// See LICENSE file for details.
+
 /**
  * Unit conversion constants
  * Matches Python's primitive_constants.py

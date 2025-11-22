@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Ryan Osterday. All rights reserved.
+// See LICENSE file for details.
+
 /**
  * ElevatorRenderer - Responsible for drawing elevators
  * Matches Python's ElevatorRenderer

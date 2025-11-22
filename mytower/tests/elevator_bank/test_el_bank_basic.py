@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 # tests/elevator_bank/test_basic.py
 from collections import deque
 from typing import Final
