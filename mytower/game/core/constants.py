@@ -1,11 +1,5 @@
-# game/constants.py
-# MyTower - A tower building and management game
-# Copyright (C) 2025 [Your Name]
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
 
 """
 Game configuration constants.

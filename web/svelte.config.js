@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Ryan Osterday. All rights reserved.
+// See LICENSE file for details.
+
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 
 /** @type {import("@sveltejs/vite-plugin-svelte").SvelteConfig} */
