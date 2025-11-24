@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Ryan Osterday. All rights reserved.
+// See LICENSE file for details.
+
 /**
  * Blocks - Building grid coordinate system
  * Matches Python's Blocks class

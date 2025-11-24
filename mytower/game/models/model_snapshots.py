@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 from dataclasses import dataclass
 
 from mytower.game.core.types import RGB, Color, ElevatorState, FloorType, PersonState, VerticalDirection

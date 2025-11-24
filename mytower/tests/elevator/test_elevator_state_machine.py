@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 from mytower.game.core.types import VerticalDirection
 from mytower.game.core.units import Blocks, Time
 from mytower.game.entities.elevator import Elevator, ElevatorState

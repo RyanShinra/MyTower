@@ -1,4 +1,9 @@
 #!/bin/bash
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
+
+
 
 echo "🚀 MyTower AWS Deployment Script"
 echo "================================"
@@ -26,7 +31,7 @@ echo "   ✅ Image: $IMAGE_URI"
 echo ""
 
 # Check if there are uncommitted changes
-echo "�� Checking git status..."
+echo "🔍 Checking git status..."
 if [[ -n $(git status -s) ]]; then
     echo "⚠️  Warning: You have uncommitted changes!"
     git status -s

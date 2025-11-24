@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 # mytower/game/utilities/cli_args.py
 """
 Command-line argument parsing for MyTower.
