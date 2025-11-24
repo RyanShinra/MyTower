@@ -61,7 +61,7 @@ class GameModel:
         self._money: int = STARTING_MONEY  # Starting money
         self._time: Time = Time(0.0)
         self._speed: float = self._config.initial_speed
-        self._paused: bool = False
+        self._paused: bool = True
 
     @property
     def is_paused(self) -> bool:

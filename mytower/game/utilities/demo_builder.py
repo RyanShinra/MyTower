@@ -103,6 +103,8 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
         """Build a short building with few floors and elevators."""
         add_floor(FloorType.LOBBY)
         add_floor(FloorType.RETAIL)
+        add_floor(FloorType.RETAIL)
+        add_floor(FloorType.RESTAURANT)
         add_floor(FloorType.OFFICE)
         top_floor: int = add_floor(FloorType.OFFICE)
 
