@@ -1,7 +1,6 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
 
-# game/ui.py
 # flake8: noqa: E701
 
 from collections.abc import Callable

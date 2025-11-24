@@ -1,6 +1,8 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
 
+# flake8: noqa: E701
+
 from __future__ import annotations  # Defer type evaluation
 
 import threading
