@@ -1,7 +1,6 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
 
-# game/game_state.py
 from typing import Final
 
 import pygame
