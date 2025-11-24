@@ -4,7 +4,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
-
 """
 Example GraphQL Subscription Client for MyTower
 
