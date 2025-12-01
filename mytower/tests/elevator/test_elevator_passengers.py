@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 from collections.abc import Sequence
 from typing import Final
 from unittest.mock import MagicMock
