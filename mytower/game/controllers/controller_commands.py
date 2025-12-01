@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

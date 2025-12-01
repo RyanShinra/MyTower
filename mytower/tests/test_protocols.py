@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
 """
 Test-specific protocol combinations for type-safe testing.
 Combines production and testing protocols for comprehensive test coverage.
