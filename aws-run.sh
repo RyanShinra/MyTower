@@ -3,8 +3,6 @@
 # See LICENSE file for details.
 
 
-
-
 echo "🚀 Starting MyTower ECS Task..."
 echo ""
 

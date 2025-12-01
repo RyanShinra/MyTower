@@ -3,8 +3,6 @@
 # See LICENSE file for details.
 
 
-
-
 echo "🐳 Running MyTower Docker Container Locally"
 echo "==========================================="
 echo ""

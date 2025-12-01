@@ -3,8 +3,6 @@
 # See LICENSE file for details.
 
 
-
-
 CONTAINER_NAME=mytower-local
 
 echo "📊 Tailing logs from $CONTAINER_NAME..."

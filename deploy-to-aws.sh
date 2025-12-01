@@ -3,8 +3,6 @@
 # See LICENSE file for details.
 
 
-
-
 echo "🚀 MyTower AWS Deployment Script"
 echo "================================"
 echo ""
