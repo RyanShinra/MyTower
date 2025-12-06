@@ -395,7 +395,6 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
 
         This is a quirk of slowapi's API design.
         """
-        # pass
 
 graphql_app: RateLimitedGraphQLRouter = RateLimitedGraphQLRouter(
     schema=schema,
