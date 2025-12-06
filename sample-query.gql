@@ -1,0 +1,89 @@
+query StatusPlz {
+  gameTime
+  isRunning
+}
+
+mutation AddFloors {
+  Office19: addFloorSync(input: {floorType: OFFICE})
+  Office20: addFloorSync(input: {floorType: OFFICE})
+  Apartment21: addFloorSync(input: {floorType: APARTMENT})
+}
+
+mutation AddElBank {
+  addElevatorBankSync(input: {horizPosition: 10, maxFloor: 24, minFloor: 5})
+}
+
+mutation AddElevator {
+  addElevatorSync(input: {elevatorBankId: "elevator_bank_1"})
+}
+
+mutation AddAsyncPerson {
+  Person_a1: addPerson(input: {initFloor: 16, initHorizPosition: 3, destFloor: 3, destHorizPosition: 10})
+}
+
+mutation AddAsyncFloor {
+  NextFloor: addFloor(input: {floorType: HOTEL})
+}
+
+subscription WatchTheBuilding {
+  buildingStateStream(intervalMs: 100) {
+    time
+    people {
+      personId
+      currentFloorNum
+      currentHorizontalPosition
+      madFraction
+    }
+  }
+}
+
+subscription BuildingStateStream {
+  buildingStateStream(intervalMs: 50) {
+    time
+    money
+    floors {
+      floorNumber
+      floorType
+      floorHeight
+      leftEdgeBlock
+      floorWidth
+      personCount
+      floorColor {
+        red
+        green
+        blue
+      }
+      floorboardColor {
+        red
+        green
+        blue
+      }
+    }
+    elevators {
+      id
+      verticalPosition
+      horizontalPosition
+      destinationFloor
+      state
+      nominalDirection
+      doorOpen
+      passengerCount
+    }
+    people {
+      personId
+      currentFloorNum
+      currentVerticalPosition
+      currentHorizontalPosition
+      destinationFloorNum
+      destinationHorizontalPosition
+      state
+      waitingTime
+      madFraction
+      drawColor {
+        red
+        green
+        blue
+      }
+    }
+  }
+}

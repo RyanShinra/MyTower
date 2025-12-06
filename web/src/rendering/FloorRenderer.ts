@@ -76,9 +76,9 @@ export class FloorRenderer {
 
   private drawFloorNumber(floorNumber: number, x: number, y: number): void {
     this.context.fillStyle = '#000000';
-    this.context.font = '18px monospace';
+    this.context.font = '18px Helvetica';
     this.context.textAlign = 'left';
     this.context.textBaseline = 'top';
-    this.context.fillText(`${floorNumber}`, x + 8, y + 12);
+    this.context.fillText(`Floor ${floorNumber}`, x + 8, y + 12);
   }
 }

@@ -411,8 +411,8 @@ app.include_router(graphql_app, prefix="/graphql")
 # Apply rate limiting to root endpoints
 @app.get("/")
 @limiter.limit(os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute"))
-# The `_request` parameter is required by the rate limiter decorator but is unused.
-def read_root(_request: Request) -> dict[str, str]:
+# The `request` parameter is required by the rate limiter decorator but is unused.
+def read_root(request: Request) -> dict[str, str]:
     logger.info("📍 Root endpoint called")
     return {"message": "MyTower GraphQL API", "graphql": "/graphql"}
 
