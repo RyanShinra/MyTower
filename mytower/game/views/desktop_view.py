@@ -116,7 +116,7 @@ class DesktopView:
         padding = 5
         bg_rect = text_rect.inflate(padding * 2, padding * 2)
         bg_surface = Surface((bg_rect.width, bg_rect.height))
-        bg_surface.set_alpha(190)  # 75% transparency
+        bg_surface.set_alpha(190)  # 25% transparency
         bg_surface.fill((0, 0, 0))  # Black background
         surface.blit(bg_surface, bg_rect)
         surface.blit(text, (10, 60))  # OMG magic numbers
@@ -130,7 +130,7 @@ class DesktopView:
         money_rect.y = 90
         money_bg_rect = money_rect.inflate(padding * 2, padding * 2)
         money_bg_surface = Surface((money_bg_rect.width, money_bg_rect.height))
-        money_bg_surface.set_alpha(190)  # 75% transparency
+        money_bg_surface.set_alpha(190)  # 25% transparency
         money_bg_surface.fill((0, 0, 0))  # Black background
         surface.blit(money_bg_surface, money_bg_rect)
         surface.blit(money_text, (10, 90))  # OMG magic numbers
