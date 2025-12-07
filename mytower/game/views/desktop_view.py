@@ -95,6 +95,20 @@ class DesktopView:
         self._draw_ui(surface, snapshot, speed)
 
 
+    def _draw_text_with_background(
+        self, surface: Surface, text_surface: Surface, x: int, y: int, padding: int = 5
+    ) -> None:
+        """Draw text with a translucent black background."""
+        text_rect = text_surface.get_rect()
+        text_rect.x = x
+        text_rect.y = y
+        bg_rect = text_rect.inflate(padding * 2, padding * 2)
+        bg_surface = Surface((bg_rect.width, bg_rect.height))
+        bg_surface.set_alpha(190)  # 25% transparency
+        bg_surface.fill((0, 0, 0))  # Black background
+        surface.blit(bg_surface, bg_rect)
+        surface.blit(text_surface, (x, y))
+
     # TODO: Right now we have to coordinate this with the toolbar in InputHandler
     def _draw_ui(self, surface: Surface, snapshot: BuildingSnapshot, speed: float) -> None:
         """Draw UI elements like time, money, etc."""
@@ -108,10 +122,10 @@ class DesktopView:
         seconds: int = int(time.in_seconds // 1) % 60
         time_str: str = f"[{speed:.2f}X] Time: {hours:02d}:{minutes:02d}:{seconds:02d}"
 
-        text: Final[Surface] = font.render(time_str, True, (0, 0, 0))
-        surface.blit(text, (10, 60))  # OMG magic numbers
+        text: Final[Surface] = font.render(time_str, True, (255, 255, 255))  # White text
+        self._draw_text_with_background(surface, text, 10, 60)
 
         # Draw money
         money_str: str = f"Money: ${snapshot.money:,}"
-        money_text: Final[Surface] = font.render(money_str, True, (0, 0, 0))
-        surface.blit(money_text, (10, 90))  # OMG magic numbers
+        money_text: Final[Surface] = font.render(money_str, True, (255, 255, 255))  # White text
+        self._draw_text_with_background(surface, money_text, 10, 90)

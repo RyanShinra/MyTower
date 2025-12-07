@@ -30,8 +30,8 @@ MIN_TIME_MULTIPLIER: Final[float] = 0.1
 MAX_TIME_MULTIPLIER: Final[float] = 10.0
 
 # Display constants
-SCREEN_WIDTH: Final[int] = 1600
-SCREEN_HEIGHT: Final[int] = 1200
+SCREEN_WIDTH: Final[int] = 700
+SCREEN_HEIGHT: Final[int] = 600
 
 FPS: Final[int] = 60
 

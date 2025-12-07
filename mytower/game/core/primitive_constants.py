@@ -9,7 +9,7 @@ These are used by the units system and should have no imports from game modules.
 from typing import Final
 
 # Unit conversion factors
-PIXELS_PER_METER: Final[int] = 15
+PIXELS_PER_METER: Final[int] = 14
 METERS_PER_BLOCK: Final[float] = 3.2
 
 # Tolerance for floating-point comparisons in block coordinates
