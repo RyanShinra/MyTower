@@ -296,7 +296,7 @@ export class WebGameView {
     `;
 
     try {
-      const result = await this.gqlClient.request<AddFloorResult>(mutation, { floorType });
+      const result: AddFloorResult = await this.gqlClient.request<AddFloorResult>(mutation, { floorType });
       console.log(`✅ Added floor: ${floorType} (${result.addFloor})`);
     } catch (error) {
       console.error('❌ Failed to add floor:', error);
@@ -315,7 +315,7 @@ export class WebGameView {
     `;
 
     try {
-      const result = await this.gqlClient.request<AddElevatorBankResult>(mutation, {
+      const result: AddElevatorBankResult = await this.gqlClient.request<AddElevatorBankResult>(mutation, {
         hCell,
         minFloor,
         maxFloor
@@ -337,7 +337,7 @@ export class WebGameView {
     `;
 
     try {
-      const result = await this.gqlClient.request<AddElevatorResult>(mutation, {
+      const result: AddElevatorResult = await this.gqlClient.request<AddElevatorResult>(mutation, {
         elevatorBankId
       });
       const elevatorId = result.addElevator;
@@ -362,7 +362,7 @@ export class WebGameView {
     `;
 
     try {
-      const result = await this.gqlClient.request<AddPersonResult>(mutation, {
+      const result: AddPersonResult = await this.gqlClient.request<AddPersonResult>(mutation, {
         floor,
         block,
         destFloor,
