@@ -4,6 +4,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { WebGameView } from "./WebGameView";
+    import type { FloorTypeGql } from "./generated/graphql";
 
     let canvas: HTMLCanvasElement;
     let gameView: WebGameView | null = null;
@@ -19,6 +20,21 @@
         gameView?.cleanup();
         console.log("🧹 WebGameView cleaned up");
     });
+
+    // Handler for adding floors
+    async function handleAddFloor(floorType: FloorTypeGql) {
+        if (!gameView) {
+            console.warn("⚠️ Game view not ready yet");
+            return;
+        }
+
+        try {
+            await gameView.addFloor(floorType);
+            console.log(`✅ Added ${floorType} floor`);
+        } catch (error) {
+            console.error(`❌ Failed to add ${floorType} floor:`, error);
+        }
+    }
 </script>
 
 <div class="game-container">
@@ -33,12 +49,16 @@
 
         <div class="button-group">
             <h3>Add Floor</h3>
-            <button>Lobby</button>
-            <button>Office</button>
-            <button>Retail</button>
-            <button>Restaurant</button>
-            <button>Apartment</button>
-            <button>Hotel</button>
+            <button onclick={() => handleAddFloor("LOBBY")}>Lobby</button>
+            <button onclick={() => handleAddFloor("OFFICE")}>Office</button>
+            <button onclick={() => handleAddFloor("RETAIL")}>Retail</button>
+            <button onclick={() => handleAddFloor("RESTAURANT")}>
+                Restaurant
+            </button>
+            <button onclick={() => handleAddFloor("APARTMENT")}>
+                Apartment
+            </button>
+            <button onclick={() => handleAddFloor("HOTEL")}>Hotel</button>
         </div>
 
         <div class="button-group">
