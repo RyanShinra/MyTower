@@ -302,6 +302,26 @@ export class WebGameView {
     }
   }
 
+  public async addElevator(elevatorBankId: string): Promise<string> {
+    const mutation = `
+      mutation AddElevator($elevatorBankId: String!) {
+        addElevator(elevatorBankId: $elevatorBankId)
+      }
+    `;
+
+    try {
+      const result: any = await this.gqlClient.request(mutation, {
+        elevatorBankId
+      });
+      const elevatorId = result.addElevator;
+      console.log(`✅ Added elevator: ${elevatorId} to bank ${elevatorBankId}`);
+      return elevatorId;
+    } catch (error) {
+      console.error('❌ Failed to add elevator:', error);
+      throw error;
+    }
+  }
+
   public cleanup(): void {
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);

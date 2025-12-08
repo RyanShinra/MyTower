@@ -8,6 +8,7 @@
 
     let canvas: HTMLCanvasElement;
     let gameView: WebGameView | null = null;
+    let lastElevatorBankId: string | null = null;
 
     onMount(() => {
         // Create the game view once canvas is mounted
@@ -46,9 +47,32 @@
         try {
             // Default parameters: hCell=3, serves all floors (0 to 20)
             const bankId = await gameView.addElevatorBank(3, 0, 20);
+            lastElevatorBankId = bankId; // Store for adding elevators
             console.log(`✅ Added elevator bank: ${bankId}`);
         } catch (error) {
             console.error("❌ Failed to add elevator bank:", error);
+        }
+    }
+
+    // Handler for adding elevator to bank
+    async function handleAddElevator() {
+        if (!gameView) {
+            console.warn("⚠️ Game view not ready yet");
+            return;
+        }
+
+        if (!lastElevatorBankId) {
+            console.warn(
+                "⚠️ No elevator bank exists. Create a bank first!",
+            );
+            return;
+        }
+
+        try {
+            const elevatorId = await gameView.addElevator(lastElevatorBankId);
+            console.log(`✅ Added elevator: ${elevatorId}`);
+        } catch (error) {
+            console.error("❌ Failed to add elevator:", error);
         }
     }
 </script>
@@ -80,7 +104,7 @@
         <div class="button-group">
             <h3>Elevators</h3>
             <button onclick={handleAddElevatorBank}>Add Elevator Bank</button>
-            <button>Add Elevator</button>
+            <button onclick={handleAddElevator}>Add Elevator</button>
         </div>
 
         <div class="button-group">
