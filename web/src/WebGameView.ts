@@ -11,6 +11,7 @@ import { GraphQLClient } from 'graphql-request';
 import { BACKGROUND_COLOR } from './rendering/constants';
 import { FloorRenderer } from './rendering/FloorRenderer';
 import { ElevatorRenderer } from './rendering/ElevatorRenderer';
+import { ElevatorShaftRenderer } from './rendering/ElevatorShaftRenderer';
 import { PersonRenderer } from './rendering/PersonRenderer';
 import { UIRenderer } from './rendering/UIRenderer';
 
@@ -33,6 +34,7 @@ export class WebGameView {
   // Renderers (Single Responsibility Principle!)
   private floorRenderer: FloorRenderer;
   private elevatorRenderer: ElevatorRenderer;
+  private elevatorShaftRenderer: ElevatorShaftRenderer;
   private personRenderer: PersonRenderer;
   private uiRenderer: UIRenderer;
   
@@ -51,6 +53,7 @@ export class WebGameView {
     const canvasHeight = canvas.height;
     this.floorRenderer = new FloorRenderer(this.context, canvasHeight);
     this.elevatorRenderer = new ElevatorRenderer(this.context, canvasHeight);
+    this.elevatorShaftRenderer = new ElevatorShaftRenderer(this.context, canvasHeight);
     this.personRenderer = new PersonRenderer(this.context, canvasHeight);
     this.uiRenderer = new UIRenderer(this.context, canvasHeight);
 
@@ -227,10 +230,17 @@ export class WebGameView {
     }
 
     // Delegate to specialized renderers
+    // Draw shafts first so they appear behind everything
+    this.drawShafts();
     this.drawFloors();
     this.drawElevators();
     this.drawPeople();
     this.drawUI();
+  }
+
+  private drawShafts(): void {
+    if (!this.currentSnapshot) return;
+    this.elevatorShaftRenderer.drawShafts(this.currentSnapshot.elevators);
   }
 
   private drawFloors(): void {
