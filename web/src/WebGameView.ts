@@ -322,6 +322,34 @@ export class WebGameView {
     }
   }
 
+  public async addPerson(
+    floor: number,
+    block: number,
+    destFloor: number,
+    destBlock: number
+  ): Promise<string> {
+    const mutation = `
+      mutation AddPerson($floor: Int!, $block: Float!, $destFloor: Int!, $destBlock: Int!) {
+        addPerson(floor: $floor, block: $block, destFloor: $destFloor, destBlock: $destBlock)
+      }
+    `;
+
+    try {
+      const result: any = await this.gqlClient.request(mutation, {
+        floor,
+        block,
+        destFloor,
+        destBlock
+      });
+      const personId = result.addPerson;
+      console.log(`✅ Added person: ${personId} at floor ${floor}, going to floor ${destFloor}`);
+      return personId;
+    } catch (error) {
+      console.error('❌ Failed to add person:', error);
+      throw error;
+    }
+  }
+
   public cleanup(): void {
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);

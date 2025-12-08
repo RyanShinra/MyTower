@@ -75,6 +75,22 @@
             console.error("❌ Failed to add elevator:", error);
         }
     }
+
+    // Handler for adding person
+    async function handleAddPerson() {
+        if (!gameView) {
+            console.warn("⚠️ Game view not ready yet");
+            return;
+        }
+
+        try {
+            // Spawn person on floor 0, position 2.0, going to floor 2, position 2
+            const personId = await gameView.addPerson(0, 2.0, 2, 2);
+            console.log(`✅ Added person: ${personId}`);
+        } catch (error) {
+            console.error("❌ Failed to add person:", error);
+        }
+    }
 </script>
 
 <div class="game-container">
@@ -109,7 +125,7 @@
 
         <div class="button-group">
             <h3>People</h3>
-            <button>Add Person</button>
+            <button onclick={handleAddPerson}>Add Person</button>
         </div>
     </div>
 </div>
