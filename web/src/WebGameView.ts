@@ -267,12 +267,38 @@ export class WebGameView {
         addFloor(floorType: $floorType)
       }
     `;
-    
+
     try {
       await this.gqlClient.request(mutation, { floorType });
       console.log(`✅ Added floor: ${floorType}`);
     } catch (error) {
       console.error('❌ Failed to add floor:', error);
+    }
+  }
+
+  public async addElevatorBank(
+    hCell: number,
+    minFloor: number,
+    maxFloor: number
+  ): Promise<string> {
+    const mutation = `
+      mutation AddElevatorBank($hCell: Int!, $minFloor: Int!, $maxFloor: Int!) {
+        addElevatorBank(hCell: $hCell, minFloor: $minFloor, maxFloor: $maxFloor)
+      }
+    `;
+
+    try {
+      const result: any = await this.gqlClient.request(mutation, {
+        hCell,
+        minFloor,
+        maxFloor
+      });
+      const bankId = result.addElevatorBank;
+      console.log(`✅ Added elevator bank: ${bankId} at hCell ${hCell}, floors ${minFloor}-${maxFloor}`);
+      return bankId;
+    } catch (error) {
+      console.error('❌ Failed to add elevator bank:', error);
+      throw error;
     }
   }
 

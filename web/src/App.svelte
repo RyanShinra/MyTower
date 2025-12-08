@@ -35,6 +35,22 @@
             console.error(`❌ Failed to add ${floorType} floor:`, error);
         }
     }
+
+    // Handler for adding elevator bank
+    async function handleAddElevatorBank() {
+        if (!gameView) {
+            console.warn("⚠️ Game view not ready yet");
+            return;
+        }
+
+        try {
+            // Default parameters: hCell=3, serves all floors (0 to 20)
+            const bankId = await gameView.addElevatorBank(3, 0, 20);
+            console.log(`✅ Added elevator bank: ${bankId}`);
+        } catch (error) {
+            console.error("❌ Failed to add elevator bank:", error);
+        }
+    }
 </script>
 
 <div class="game-container">
@@ -63,7 +79,7 @@
 
         <div class="button-group">
             <h3>Elevators</h3>
-            <button>Add Elevator Bank</button>
+            <button onclick={handleAddElevatorBank}>Add Elevator Bank</button>
             <button>Add Elevator</button>
         </div>
 
