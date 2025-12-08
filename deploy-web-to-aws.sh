@@ -1,0 +1,328 @@
+#!/bin/bash
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
+echo "🌐 MyTower Web Frontend Deployment to AWS"
+echo "=========================================="
+echo ""
+
+# Configuration
+REGION=us-east-2
+BUCKET_NAME=mytower-web
+DISTRIBUTION_NAME="MyTower Web Frontend"
+
+# Get account ID
+echo "📋 Getting AWS account info..."
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null)
+
+if [ -z "$ACCOUNT_ID" ]; then
+    echo "❌ Error: Unable to get AWS account ID. Are you logged in?"
+    echo ""
+    echo "Run: aws configure"
+    echo "Or check your credentials with: aws sts get-caller-identity"
+    exit 1
+fi
+
+echo "   ✅ Account: $ACCOUNT_ID"
+echo "   ✅ Region: $REGION"
+echo ""
+
+# Check if dist/ exists
+if [ ! -d "web/dist" ]; then
+    echo "❌ Error: web/dist/ directory not found"
+    echo ""
+    echo "Run ./build-web.sh first to build the frontend"
+    exit 1
+fi
+
+# Step 1: Create S3 bucket (if it doesn't exist)
+echo "🪣 Setting up S3 bucket..."
+if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+    echo "   ✅ Bucket already exists: $BUCKET_NAME"
+else
+    echo "   Creating bucket: $BUCKET_NAME"
+
+    # Create bucket (us-east-1 doesn't need LocationConstraint, others do)
+    if [ "$REGION" = "us-east-1" ]; then
+        aws s3api create-bucket \
+            --bucket "$BUCKET_NAME" \
+            --region "$REGION"
+    else
+        aws s3api create-bucket \
+            --bucket "$BUCKET_NAME" \
+            --region "$REGION" \
+            --create-bucket-configuration LocationConstraint="$REGION"
+    fi
+
+    if [ $? -ne 0 ]; then
+        echo "❌ Error: Failed to create S3 bucket"
+        echo ""
+        echo "Common issues:"
+        echo "  - Bucket name already taken globally"
+        echo "  - Insufficient permissions"
+        echo ""
+        echo "Try adding your AWS account ID to the bucket name:"
+        echo "  BUCKET_NAME=mytower-web-$ACCOUNT_ID"
+        exit 1
+    fi
+
+    echo "   ✅ Bucket created"
+fi
+echo ""
+
+# Step 2: Enable static website hosting
+echo "🌍 Configuring static website hosting..."
+aws s3 website "s3://$BUCKET_NAME" \
+    --index-document index.html \
+    --error-document index.html
+
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to configure static website hosting"
+    exit 1
+fi
+echo "   ✅ Static website hosting enabled"
+echo ""
+
+# Step 3: Set bucket policy for public read access
+echo "🔓 Setting bucket policy for public access..."
+
+# First, disable block public access settings
+aws s3api put-public-access-block \
+    --bucket "$BUCKET_NAME" \
+    --public-access-block-configuration \
+    "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+
+# Create bucket policy JSON
+POLICY=$(cat <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::${BUCKET_NAME}/*"
+        }
+    ]
+}
+EOF
+)
+
+aws s3api put-bucket-policy \
+    --bucket "$BUCKET_NAME" \
+    --policy "$POLICY"
+
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to set bucket policy"
+    exit 1
+fi
+echo "   ✅ Bucket policy configured for public read access"
+echo ""
+
+# Step 4: Upload files to S3
+echo "📤 Uploading files to S3..."
+aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
+    --delete \
+    --cache-control "max-age=31536000,public" \
+    --exclude "*.html" \
+    --exclude "*.json"
+
+# Upload HTML and JSON with shorter cache (for updates)
+aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
+    --delete \
+    --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
+    --exclude "*" \
+    --include "*.html" \
+    --include "*.json"
+
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to upload files to S3"
+    exit 1
+fi
+echo "   ✅ Files uploaded successfully"
+echo ""
+
+# Step 5: Get or create CloudFront distribution
+echo "☁️  Setting up CloudFront distribution..."
+
+# Check if distribution already exists
+DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+    --query "DistributionList.Items[?Comment=='$DISTRIBUTION_NAME'].Id | [0]" \
+    --output text)
+
+if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
+    echo "   Creating new CloudFront distribution..."
+    echo "   ⚠️  This takes 10-15 minutes to fully deploy"
+    echo ""
+
+    # Get S3 website endpoint
+    WEBSITE_ENDPOINT="${BUCKET_NAME}.s3-website.${REGION}.amazonaws.com"
+
+    # Create distribution config
+    DIST_CONFIG=$(cat <<EOF
+{
+    "CallerReference": "mytower-web-$(date +%s)",
+    "Comment": "$DISTRIBUTION_NAME",
+    "Enabled": true,
+    "DefaultRootObject": "index.html",
+    "Origins": {
+        "Quantity": 1,
+        "Items": [
+            {
+                "Id": "S3-$BUCKET_NAME",
+                "DomainName": "$WEBSITE_ENDPOINT",
+                "CustomOriginConfig": {
+                    "HTTPPort": 80,
+                    "HTTPSPort": 443,
+                    "OriginProtocolPolicy": "http-only"
+                }
+            }
+        ]
+    },
+    "DefaultCacheBehavior": {
+        "TargetOriginId": "S3-$BUCKET_NAME",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "AllowedMethods": {
+            "Quantity": 2,
+            "Items": ["GET", "HEAD"],
+            "CachedMethods": {
+                "Quantity": 2,
+                "Items": ["GET", "HEAD"]
+            }
+        },
+        "Compress": true,
+        "ForwardedValues": {
+            "QueryString": false,
+            "Cookies": {
+                "Forward": "none"
+            }
+        },
+        "MinTTL": 0,
+        "DefaultTTL": 86400,
+        "MaxTTL": 31536000
+    },
+    "CustomErrorResponses": {
+        "Quantity": 1,
+        "Items": [
+            {
+                "ErrorCode": 404,
+                "ResponsePagePath": "/index.html",
+                "ResponseCode": "200",
+                "ErrorCachingMinTTL": 300
+            }
+        ]
+    }
+}
+EOF
+    )
+
+    # Create distribution
+    DISTRIBUTION_ID=$(aws cloudfront create-distribution \
+        --distribution-config "$DIST_CONFIG" \
+        --query 'Distribution.Id' \
+        --output text)
+
+    if [ $? -ne 0 ]; then
+        echo "❌ Error: Failed to create CloudFront distribution"
+        exit 1
+    fi
+
+    echo "   ✅ CloudFront distribution created: $DISTRIBUTION_ID"
+else
+    echo "   ✅ CloudFront distribution already exists: $DISTRIBUTION_ID"
+
+    # Invalidate cache to refresh content
+    echo "   🔄 Invalidating CloudFront cache..."
+    INVALIDATION_ID=$(aws cloudfront create-invalidation \
+        --distribution-id "$DISTRIBUTION_ID" \
+        --paths "/*" \
+        --query 'Invalidation.Id' \
+        --output text)
+
+    if [ $? -ne 0 ]; then
+        echo "   ⚠️  Warning: Failed to invalidate cache"
+    else
+        echo "   ✅ Cache invalidation created: $INVALIDATION_ID"
+    fi
+fi
+echo ""
+
+# Step 6: Get distribution details
+echo "📡 Getting distribution details..."
+DISTRIBUTION_DOMAIN=$(aws cloudfront get-distribution \
+    --id "$DISTRIBUTION_ID" \
+    --query 'Distribution.DomainName' \
+    --output text)
+
+DISTRIBUTION_STATUS=$(aws cloudfront get-distribution \
+    --id "$DISTRIBUTION_ID" \
+    --query 'Distribution.Status' \
+    --output text)
+
+# Step 7: Create deployment metadata
+echo "💾 Saving deployment metadata..."
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
+mkdir -p deployments
+
+METADATA_FILE="deployments/web-deploy-$(date +%Y%m%d-%H%M%S).json"
+cat > "$METADATA_FILE" <<EOF
+{
+    "timestamp": "$TIMESTAMP",
+    "branch": "$BRANCH",
+    "commit": "$COMMIT",
+    "bucketName": "$BUCKET_NAME",
+    "distributionId": "$DISTRIBUTION_ID",
+    "distributionDomain": "$DISTRIBUTION_DOMAIN",
+    "region": "$REGION",
+    "websiteUrl": "https://$DISTRIBUTION_DOMAIN"
+}
+EOF
+
+echo "   ✅ Deployment metadata saved: $METADATA_FILE"
+echo ""
+
+# Step 8: Create git tag (if in a git repo)
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    TAG_NAME="deploy-web-$(date +%Y%m%d-%H%M%S)"
+    echo "🏷️  Creating git tag: $TAG_NAME"
+    git tag -a "$TAG_NAME" -m "Web deployment to CloudFront on $TIMESTAMP"
+
+    echo "   ✅ Git tag created"
+    echo ""
+    echo "   To push tag to remote:"
+    echo "   git push origin $TAG_NAME"
+    echo ""
+fi
+
+# Summary
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🎉 Deployment Complete!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "📦 S3 Bucket:           $BUCKET_NAME"
+echo "☁️  CloudFront ID:       $DISTRIBUTION_ID"
+echo "🌍 Website URL:         https://$DISTRIBUTION_DOMAIN"
+echo "📊 Distribution Status: $DISTRIBUTION_STATUS"
+echo ""
+
+if [ "$DISTRIBUTION_STATUS" = "InProgress" ]; then
+    echo "⏳ Note: CloudFront distribution is still deploying (10-15 min)"
+    echo "   You can check status with: ./web-status.sh"
+    echo ""
+fi
+
+echo "🔗 Direct S3 URL (for testing):"
+echo "   http://${BUCKET_NAME}.s3-website.${REGION}.amazonaws.com"
+echo ""
+echo "💡 Next steps:"
+echo "   1. Wait for CloudFront to deploy (if status is InProgress)"
+echo "   2. Visit your website at: https://$DISTRIBUTION_DOMAIN"
+echo "   3. Update backend CORS to allow: https://$DISTRIBUTION_DOMAIN"
+echo "   4. (Optional) Set up custom domain in Route53"
+echo ""
+echo "📚 For more info, see: WEB_DEPLOYMENT.md"
+echo ""
