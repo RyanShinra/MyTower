@@ -16,10 +16,27 @@ import { PersonRenderer } from './rendering/PersonRenderer';
 import { UIRenderer } from './rendering/UIRenderer';
 
 // Import generated types
-import type { 
+import type {
   BuildingSnapshotGql,
-  FloorTypeGql 
+  FloorTypeGql
 } from './generated/graphql';
+
+// Mutation result types
+interface AddFloorResult {
+  addFloor: string;
+}
+
+interface AddElevatorBankResult {
+  addElevatorBank: string;
+}
+
+interface AddElevatorResult {
+  addElevator: string;
+}
+
+interface AddPersonResult {
+  addPerson: string;
+}
 
 export class WebGameView {
   private canvas: HTMLCanvasElement;
@@ -279,8 +296,8 @@ export class WebGameView {
     `;
 
     try {
-      await this.gqlClient.request(mutation, { floorType });
-      console.log(`✅ Added floor: ${floorType}`);
+      const result = await this.gqlClient.request<AddFloorResult>(mutation, { floorType });
+      console.log(`✅ Added floor: ${floorType} (${result.addFloor})`);
     } catch (error) {
       console.error('❌ Failed to add floor:', error);
     }
@@ -298,7 +315,7 @@ export class WebGameView {
     `;
 
     try {
-      const result: any = await this.gqlClient.request(mutation, {
+      const result = await this.gqlClient.request<AddElevatorBankResult>(mutation, {
         hCell,
         minFloor,
         maxFloor
@@ -320,7 +337,7 @@ export class WebGameView {
     `;
 
     try {
-      const result: any = await this.gqlClient.request(mutation, {
+      const result = await this.gqlClient.request<AddElevatorResult>(mutation, {
         elevatorBankId
       });
       const elevatorId = result.addElevator;
@@ -345,7 +362,7 @@ export class WebGameView {
     `;
 
     try {
-      const result: any = await this.gqlClient.request(mutation, {
+      const result = await this.gqlClient.request<AddPersonResult>(mutation, {
         floor,
         block,
         destFloor,
