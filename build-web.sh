@@ -48,7 +48,14 @@ echo ""
 # Show build output
 if [ -d "dist" ]; then
     echo "📊 Build Output:"
-    du -sh dist
+    if du -sh dist 2>/dev/null; then
+        : # already printed human-readable size
+    elif du -s dist 2>/dev/null; then
+        SIZE=$(du -s dist | awk '{print $1}')
+        echo "$SIZE KB (not human readable)"
+    else
+        echo "Size calculation unavailable (du not supported)"
+    fi
     echo ""
     echo "📁 Files in dist/:"
     ls -lh dist/
