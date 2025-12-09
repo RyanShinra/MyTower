@@ -164,6 +164,7 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
     WEBSITE_ENDPOINT="${BUCKET_NAME}.s3-website.${REGION}.amazonaws.com"
 
     # Create distribution config
+    # TODO: Extract CloudFront distribution config to a separate JSON template file for easier maintenance and validation.
     DIST_CONFIG=$(cat <<EOF
 {
     "CallerReference": "mytower-web-$(date +%s)",
