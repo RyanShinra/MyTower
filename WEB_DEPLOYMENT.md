@@ -79,7 +79,11 @@ That's it! Your website will be live at the CloudFront URL shown.
 -rw-r--r-- 1 user user 1.5K index.html
 -rw-r--r-- 1 user user 125K main.js
 -rw-r--r-- 1 user user  45K style.css
+
+✅ Build successful! Ready to deploy.
 ```
+
+**Note:** The build script has improved cross-platform compatibility for the `du` command (works on Windows Git Bash, Linux, and Mac).
 
 **Troubleshooting:**
 - If type errors occur, fix them in `web/src/` before deploying
@@ -98,11 +102,13 @@ That's it! Your website will be live at the CloudFront URL shown.
 1. ✅ Creates S3 bucket `mytower-web` (or uses existing)
 2. ✅ Enables static website hosting
 3. ✅ Sets public read permissions (required for websites)
-4. ✅ Uploads files from `web/dist/` to S3
+4. ✅ Uploads files from `web/dist/` to S3 with optimized caching:
+   - Static assets (JS, CSS, images): 1-year cache (fingerprinted URLs)
+   - HTML/JSON files: No cache (always fresh)
 5. ✅ Creates CloudFront distribution (or updates existing)
 6. ✅ Invalidates CloudFront cache (forces refresh)
 7. ✅ Creates deployment metadata in `deployments/`
-8. ✅ Creates git tag `deploy-web-YYYYMMDD-HHMMSS`
+8. ✅ Prompts for optional git tag `deploy-web-YYYYMMDD-HHMMSS`
 
 **Expected output:**
 ```
@@ -146,6 +152,7 @@ That's it! Your website will be live at the CloudFront URL shown.
 - ⏳ First deployment takes 10-15 minutes (CloudFront global distribution)
 - 🔄 Subsequent deployments are faster (~2-3 minutes for cache invalidation)
 - 💰 **100% free tier eligible** (first year, then ~$0.50/month)
+- 🏷️ **Git tag is optional** - You'll be prompted whether to create a deployment tag
 
 **Common Errors:**
 
@@ -154,7 +161,7 @@ That's it! Your website will be live at the CloudFront URL shown.
 ❌ Error: Failed to create S3 bucket
 Try adding your AWS account ID to the bucket name
 ```
-**Solution:** Edit `deploy-web-to-aws.sh` line 12:
+**Solution:** Edit `deploy-web-to-aws.sh` line 11:
 ```bash
 BUCKET_NAME=mytower-web-123456789012  # Add your account ID
 ```
@@ -247,11 +254,40 @@ The script automatically:
 
 | Script | Purpose | When to Use |
 |--------|---------|-------------|
-| `build-web.sh` | Build frontend | Before every deployment |
-| `deploy-web-to-aws.sh` | Deploy to AWS | After building |
-| `web-status.sh` | Check deployment status | Anytime |
-| `web-invalidate.sh` | Force cache refresh | If seeing old content |
-| `web-cleanup.sh` | Delete all infrastructure | When tearing down |
+| `build-web.sh` | Build frontend (cross-platform compatible) | Before every deployment |
+| `deploy-web-to-aws.sh` | Deploy to AWS (with optional git tag) | After building |
+| `web-status.sh` | Check deployment status (improved file counting) | Anytime |
+| `web-invalidate.sh` | Force cache refresh (better error handling) | If seeing old content |
+| `web-cleanup.sh` | Delete all infrastructure (safer confirmation) | When tearing down |
+
+### Recent Script Improvements
+
+**Cache Optimization (`deploy-web-to-aws.sh`):**
+- Static assets (JS, CSS, images) cached for 1 year (safe due to fingerprinted filenames)
+- HTML/JSON files set to no-cache (ensures users always get latest content)
+- Follows industry best practices for static site caching
+
+**Cross-Platform Compatibility (`build-web.sh`):**
+- Improved `du` command with fallbacks for different platforms
+- Works on Windows Git Bash, Linux, and macOS
+
+**Better Error Handling (`web-invalidate.sh`):**
+- More robust error checking with proper exit codes
+- Clearer error messages
+
+**Improved File Counting (`web-status.sh`):**
+- Uses `list-objects-v2` API for accurate file counts
+- Handles edge cases (empty buckets, missing files)
+- More portable across different environments
+
+**Optional Git Tagging (`deploy-web-to-aws.sh`):**
+- Prompts before creating git tags (y/N)
+- Prevents accidental tag creation
+- More flexible workflow
+
+**Safer Cleanup (`web-cleanup.sh`):**
+- Fixed string comparison (`!=` instead of `!==`)
+- Clearer confirmation prompts
 
 ---
 
@@ -616,10 +652,19 @@ A: CloudFront adds:
 A: Yes, you can use just S3 website hosting, but you lose HTTPS, global distribution, and custom domains. Not recommended for production.
 
 **Q: What if the bucket name is taken?**
-A: Bucket names are globally unique. Edit `deploy-web-to-aws.sh` line 12 and add your account ID: `mytower-web-123456789012`
+A: Bucket names are globally unique. Edit `deploy-web-to-aws.sh` line 11 and add your account ID: `mytower-web-123456789012`
 
 **Q: How do I know if it's working?**
 A: Run `./web-status.sh` → if Status is "Deployed", visit the URL shown.
+
+**Q: Do I have to create a git tag on every deployment?**
+A: No! The deployment script will prompt you (y/N). You can skip it by pressing Enter or typing 'n'.
+
+**Q: Why are my CSS/JS files cached for a year?**
+A: Vite fingerprints asset filenames (e.g., `main-abc123.js`). When content changes, the filename changes, so aggressive caching is safe and improves performance.
+
+**Q: Does this work on Windows?**
+A: Yes! The scripts have been tested and work on Windows Git Bash, WSL, Linux, and macOS.
 
 ---
 
@@ -659,4 +704,4 @@ A: Run `./web-status.sh` → if Status is "Deployed", visit the URL shown.
 
 ---
 
-*Last Updated: 2025-12-07*
+*Last Updated: 2025-12-09 (with script improvements)*
