@@ -17,7 +17,7 @@ DISTRIBUTION_NAME="MyTower Web Frontend"
 read -p "Are you sure you want to delete ALL web frontend infrastructure? (type 'yes' to confirm): " -r
 echo ""
 
-if [[ ! $REPLY == "yes" ]]; then
+if [ "$REPLY" != "yes" ]; then
     echo "❌ Cleanup cancelled"
     exit 0
 fi
@@ -39,6 +39,7 @@ if [ "$DISTRIBUTION_ID" != "None" ] && [ -n "$DISTRIBUTION_ID" ]; then
     # Disable distribution first
     echo "   Disabling distribution..."
     CONFIG=$(aws cloudfront get-distribution-config --id "$DISTRIBUTION_ID" --query 'DistributionConfig' --output json)
+    # TODO: Use jq for robust JSON editing if available. Sed is fragile and depends on exact formatting.
     DISABLED_CONFIG=$(echo "$CONFIG" | sed 's/"Enabled": true/"Enabled": false/')
 
     aws cloudfront update-distribution \
