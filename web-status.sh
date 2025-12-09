@@ -57,12 +57,12 @@ if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
     echo "Region:   $REGION"
 
     # Get file count and size
-    FILE_COUNT=$(aws s3 ls "s3://$BUCKET_NAME" --recursive | wc -l)
+    FILE_COUNT=$(aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --query 'Contents | length(@)' --output text 2>/dev/null | sed 's/None/0/')
     BUCKET_SIZE=$(aws s3 ls "s3://$BUCKET_NAME" --recursive --summarize | grep "Total Size" | awk '{print $3}')
 
     # Convert bytes to human readable
     if [ -n "$BUCKET_SIZE" ]; then
-        BUCKET_SIZE_MB=$(echo "scale=2; $BUCKET_SIZE / 1048576" | bc)
+        BUCKET_SIZE_MB=$(awk "BEGIN {printf \"%.2f\", $BUCKET_SIZE/1048576}")
         echo "Files:    $FILE_COUNT"
         echo "Size:     ${BUCKET_SIZE_MB} MB"
     fi
