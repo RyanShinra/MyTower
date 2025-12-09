@@ -52,7 +52,7 @@ if [ -d "dist" ]; then
         : # already printed human-readable size
     elif du -s dist 2>/dev/null; then
         SIZE=$(du -s dist | awk '{print $1}')
-        echo "$SIZE KB (not human readable)"
+        echo "Size: $SIZE KB"
     else
         echo "Size calculation unavailable (du not supported)"
     fi
