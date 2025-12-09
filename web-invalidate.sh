@@ -25,13 +25,11 @@ echo ""
 echo "Creating invalidation for all files (/*)"
 echo ""
 
-INVALIDATION_ID=$(aws cloudfront create-invalidation \
+if ! INVALIDATION_ID=$(aws cloudfront create-invalidation \
     --distribution-id "$DISTRIBUTION_ID" \
     --paths "/*" \
     --query 'Invalidation.Id' \
-    --output text)
-
-if [ $? -ne 0 ]; then
+    --output text); then
     echo "❌ Error: Failed to create invalidation"
     exit 1
 fi
