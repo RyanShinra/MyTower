@@ -122,6 +122,10 @@ echo ""
 
 # Step 4: Upload files to S3
 echo "📤 Uploading files to S3..."
+# Static assets (e.g., JS, CSS, images) are uploaded with a 1-year cache duration (31536000 seconds).
+# This is safe because these files are fingerprinted or versioned during the build process,
+# so their URLs change when the content changes. This allows browsers and CDNs to cache them aggressively.
+# HTML and JSON files are uploaded separately with a much shorter cache duration to ensure users always get the latest content.
 aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
     --delete \
     --cache-control "max-age=31536000,public" \
@@ -288,14 +292,19 @@ echo ""
 # Step 8: Create git tag (if in a git repo)
 if git rev-parse --git-dir > /dev/null 2>&1; then
     TAG_NAME="deploy-web-$(date +%Y%m%d-%H%M%S)"
-    echo "🏷️  Creating git tag: $TAG_NAME"
-    git tag -a "$TAG_NAME" -m "Web deployment to CloudFront on $TIMESTAMP"
-
-    echo "   ✅ Git tag created"
-    echo ""
-    echo "   To push tag to remote:"
-    echo "   git push origin $TAG_NAME"
-    echo ""
+    echo "Proposed git tag: $TAG_NAME"
+    read -p "Create this git tag for the deployment? (y/N): " -r
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+        echo "🏷️  Creating git tag: $TAG_NAME"
+        git tag -a "$TAG_NAME" -m "Web deployment to CloudFront on $TIMESTAMP"
+        echo "   ✅ Git tag created"
+        echo ""
+        echo "   To push tag to remote:"
+        echo "   git push origin $TAG_NAME"
+        echo ""
+    else
+        echo "Skipping git tag creation."
+    fi
 fi
 
 # Summary
