@@ -163,7 +163,7 @@ Try adding your AWS account ID to the bucket name
 ```
 **Solution:** Edit `deploy-web-to-aws.sh` line 11:
 ```bash
-BUCKET_NAME=mytower-web-123456789012  # Add your account ID
+BUCKET_NAME=mytower-web-dev-123456789012  # Add your account ID
 ```
 
 **Error: Insufficient permissions**
