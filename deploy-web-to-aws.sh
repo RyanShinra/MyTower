@@ -101,6 +101,14 @@ echo "⚠️  SECURITY NOTE: This will make all files in the bucket publicly rea
 echo "   This is required for static website hosting."
 echo "   Only deploy public website content to this bucket."
 echo ""
+read -p "Continue with public bucket configuration? (y/N): " -r
+echo ""
+
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "❌ Deployment cancelled - bucket policy not configured"
+    echo "   Note: The bucket was created but is not publicly accessible"
+    exit 1
+fi
 
 # First, disable block public access settings
 aws s3api put-public-access-block \
