@@ -2,6 +2,9 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
 
+# Exit on error, undefined variables, and pipe failures
+set -euo pipefail
+
 echo "🗑️  MyTower Web Frontend Cleanup"
 echo "==============================="
 echo ""

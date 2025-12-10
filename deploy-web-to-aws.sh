@@ -2,6 +2,9 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
 
+# Exit on error, undefined variables, and pipe failures
+set -euo pipefail
+
 echo "🌐 MyTower Web Frontend Deployment to AWS"
 echo "=========================================="
 echo ""
@@ -43,27 +46,37 @@ else
     echo "   Creating bucket: $BUCKET_NAME"
 
     # Create bucket (us-east-1 doesn't need LocationConstraint, others do)
+    # With set -e, the script exits automatically on failure, but we wrap in if !
+    # to provide a helpful error message
     if [ "$REGION" = "us-east-1" ]; then
-        aws s3api create-bucket \
+        if ! aws s3api create-bucket \
             --bucket "$BUCKET_NAME" \
-            --region "$REGION"
+            --region "$REGION"; then
+            echo "❌ Error: Failed to create S3 bucket"
+            echo ""
+            echo "Common issues:"
+            echo "  - Bucket name already taken globally"
+            echo "  - Insufficient permissions"
+            echo ""
+            echo "Try adding your AWS account ID to the bucket name:"
+            echo "  BUCKET_NAME=mytower-web-dev-$ACCOUNT_ID"
+            exit 1
+        fi
     else
-        aws s3api create-bucket \
+        if ! aws s3api create-bucket \
             --bucket "$BUCKET_NAME" \
             --region "$REGION" \
-            --create-bucket-configuration LocationConstraint="$REGION"
-    fi
-
-    if [ $? -ne 0 ]; then
-        echo "❌ Error: Failed to create S3 bucket"
-        echo ""
-        echo "Common issues:"
-        echo "  - Bucket name already taken globally"
-        echo "  - Insufficient permissions"
-        echo ""
-        echo "Try adding your AWS account ID to the bucket name:"
-        echo "  BUCKET_NAME=mytower-web-dev-$ACCOUNT_ID"
-        exit 1
+            --create-bucket-configuration LocationConstraint="$REGION"; then
+            echo "❌ Error: Failed to create S3 bucket"
+            echo ""
+            echo "Common issues:"
+            echo "  - Bucket name already taken globally"
+            echo "  - Insufficient permissions"
+            echo ""
+            echo "Try adding your AWS account ID to the bucket name:"
+            echo "  BUCKET_NAME=mytower-web-dev-$ACCOUNT_ID"
+            exit 1
+        fi
     fi
 
     echo "   ✅ Bucket created"
@@ -72,11 +85,9 @@ echo ""
 
 # Step 2: Enable static website hosting
 echo "🌍 Configuring static website hosting..."
-aws s3 website "s3://$BUCKET_NAME" \
+if ! aws s3 website "s3://$BUCKET_NAME" \
     --index-document index.html \
-    --error-document index.html
-
-if [ $? -ne 0 ]; then
+    --error-document index.html; then
     echo "❌ Error: Failed to configure static website hosting"
     exit 1
 fi
@@ -117,11 +128,9 @@ POLICY=$(cat <<EOF
 EOF
 )
 
-aws s3api put-bucket-policy \
+if ! aws s3api put-bucket-policy \
     --bucket "$BUCKET_NAME" \
-    --policy "$POLICY"
-
-if [ $? -ne 0 ]; then
+    --policy "$POLICY"; then
     echo "❌ Error: Failed to set bucket policy"
     exit 1
 fi
