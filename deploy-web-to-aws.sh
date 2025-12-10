@@ -8,7 +8,7 @@ echo ""
 
 # Configuration
 REGION=us-east-2
-BUCKET_NAME=mytower-web
+BUCKET_NAME=mytower-web-dev
 DISTRIBUTION_NAME="MyTower Web Frontend"
 
 # Get account ID
@@ -85,6 +85,11 @@ echo ""
 
 # Step 3: Set bucket policy for public read access
 echo "🔓 Setting bucket policy for public access..."
+echo ""
+echo "⚠️  SECURITY NOTE: This will make all files in the bucket publicly readable."
+echo "   This is required for static website hosting."
+echo "   Only deploy public website content to this bucket."
+echo ""
 
 # First, disable block public access settings
 aws s3api put-public-access-block \
@@ -93,6 +98,9 @@ aws s3api put-public-access-block \
     "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
 
 # Create bucket policy JSON
+# SECURITY: This policy allows public read access to all objects (Principal: "*")
+# This is intentional for static website hosting, but means ALL files in this
+# bucket will be publicly accessible. Never store sensitive data in this bucket.
 POLICY=$(cat <<EOF
 {
     "Version": "2012-10-17",
@@ -122,29 +130,34 @@ echo ""
 
 # Step 4: Upload files to S3
 echo "📤 Uploading files to S3..."
-# Static assets (e.g., JS, CSS, images) are uploaded with a 1-year cache duration (31536000 seconds).
-# This is safe because these files are fingerprinted or versioned during the build process,
-# so their URLs change when the content changes. This allows browsers and CDNs to cache them aggressively.
-# HTML and JSON files are uploaded separately with a much shorter cache duration to ensure users always get the latest content.
-aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
-    --delete \
-    --cache-control "max-age=31536000,public" \
-    --exclude "*.html" \
-    --exclude "*.json"
+# Upload strategy: HTML/JSON first (no-cache), then static assets (1-year cache)
+# This prevents broken references if deployment is interrupted between uploads.
+# If assets are uploaded first and HTML upload fails, users would get new HTML
+# trying to load old assets with potentially mismatched fingerprints.
 
-# Upload HTML and JSON with shorter cache (for updates)
-aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
-    --delete \
+# Upload HTML and JSON with no cache (always fresh)
+echo "   Uploading HTML and JSON files (no-cache)..."
+if ! aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
     --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
     --exclude "*" \
     --include "*.html" \
-    --include "*.json"
-
-if [ $? -ne 0 ]; then
-    echo "❌ Error: Failed to upload files to S3"
+    --include "*.json"; then
+    echo "❌ Error: Failed to upload HTML/JSON files to S3"
     exit 1
 fi
-echo "   ✅ Files uploaded successfully"
+
+# Upload static assets with 1-year cache (safe due to fingerprinted filenames)
+echo "   Uploading static assets (1-year cache)..."
+if ! aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
+    --delete \
+    --cache-control "max-age=31536000,public" \
+    --exclude "*.html" \
+    --exclude "*.json"; then
+    echo "❌ Error: Failed to upload static assets to S3"
+    exit 1
+fi
+
+echo "   ✅ All files uploaded successfully"
 echo ""
 
 # Step 5: Get or create CloudFront distribution
@@ -223,12 +236,10 @@ EOF
     )
 
     # Create distribution
-    DISTRIBUTION_ID=$(aws cloudfront create-distribution \
+    if ! DISTRIBUTION_ID=$(aws cloudfront create-distribution \
         --distribution-config "$DIST_CONFIG" \
         --query 'Distribution.Id' \
-        --output text)
-
-    if [ $? -ne 0 ]; then
+        --output text); then
         echo "❌ Error: Failed to create CloudFront distribution"
         exit 1
     fi
