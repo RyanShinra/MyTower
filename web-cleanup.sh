@@ -10,7 +10,7 @@ echo ""
 
 # Configuration
 REGION=us-east-2
-BUCKET_NAME=mytower-web
+BUCKET_NAME=mytower-web-dev
 DISTRIBUTION_NAME="MyTower Web Frontend"
 
 # Confirm deletion

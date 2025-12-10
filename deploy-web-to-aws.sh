@@ -62,7 +62,7 @@ else
         echo "  - Insufficient permissions"
         echo ""
         echo "Try adding your AWS account ID to the bucket name:"
-        echo "  BUCKET_NAME=mytower-web-$ACCOUNT_ID"
+        echo "  BUCKET_NAME=mytower-web-dev-$ACCOUNT_ID"
         exit 1
     fi
 
@@ -180,7 +180,7 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
     # TODO: Extract CloudFront distribution config to a separate JSON template file for easier maintenance and validation.
     DIST_CONFIG=$(cat <<EOF
 {
-    "CallerReference": "mytower-web-$(date +%s)",
+    "CallerReference": "mytower-web-dev-$(date +%s)",
     "Comment": "$DISTRIBUTION_NAME",
     "Enabled": true,
     "DefaultRootObject": "index.html",

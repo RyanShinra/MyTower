@@ -15,7 +15,7 @@ This guide explains how to deploy the Svelte web frontend to AWS using S3 + Clou
                          │
               ┌──────────▼──────────┐
               │    S3 Bucket        │  ← Static Website Hosting
-              │  mytower-web        │
+              │  mytower-web-dev    │
               └─────────────────────┘
 ```
 
@@ -99,7 +99,7 @@ That's it! Your website will be live at the CloudFront URL shown.
 ```
 
 **What this does:**
-1. ✅ Creates S3 bucket `mytower-web` (or uses existing)
+1. ✅ Creates S3 bucket `mytower-web-dev` (or uses existing)
 2. ✅ Enables static website hosting
 3. ✅ Sets public read permissions (required for websites)
 4. ✅ Uploads files from `web/dist/` to S3 with optimized caching:
@@ -120,7 +120,7 @@ That's it! Your website will be live at the CloudFront URL shown.
    ✅ Region: us-east-2
 
 🪣 Setting up S3 bucket...
-   ✅ Bucket created: mytower-web
+   ✅ Bucket created: mytower-web-dev
 
 🌍 Configuring static website hosting...
    ✅ Static website hosting enabled
@@ -139,7 +139,7 @@ That's it! Your website will be live at the CloudFront URL shown.
 🎉 Deployment Complete!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📦 S3 Bucket:           mytower-web
+📦 S3 Bucket:           mytower-web-dev
 ☁️  CloudFront ID:       E1234567890ABC
 🌍 Website URL:         https://d111111abcdef8.cloudfront.net
 📊 Distribution Status: InProgress
@@ -163,7 +163,7 @@ Try adding your AWS account ID to the bucket name
 ```
 **Solution:** Edit `deploy-web-to-aws.sh` line 11:
 ```bash
-BUCKET_NAME=mytower-web-123456789012  # Add your account ID
+BUCKET_NAME=mytower-web-dev-123456789012  # Add your account ID
 ```
 
 **Error: Insufficient permissions**
@@ -212,7 +212,7 @@ Enabled:  true
 
 🪣 S3 Bucket Status
 ━━━━━━━━━━━━━━━━━━━
-Name:     mytower-web
+Name:     mytower-web-dev
 Region:   us-east-2
 Files:    12
 Size:     2.45 MB
@@ -357,17 +357,17 @@ Run `./web-status.sh` and click the "S3 Bucket:" link.
 1. Log in to AWS Console
 2. Search for "S3"
 3. Click "S3" service
-4. Look for bucket: `mytower-web`
+4. Look for bucket: `mytower-web-dev`
 
 **What You'll See:**
 ```
-┌─────────────────────────────────────────────────────────┐
-│ Buckets                                                 │
-├───────────────┬──────────┬─────────────────────────────┤
-│ Name          │ Region   │ Access                      │
-├───────────────┼──────────┼─────────────────────────────┤
-│ mytower-web   │ us-ea... │ Objects can be public       │
-└───────────────┴──────────┴─────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ Buckets                                                  │
+├─────────────────┬──────────┬─────────────────────────────┤
+│ Name            │ Region   │ Access                      │
+├─────────────────┼──────────┼─────────────────────────────┤
+│ mytower-web-dev │ us-ea... │ Objects can be public       │
+└─────────────────┴──────────┴─────────────────────────────┘
 ```
 
 **Key Tabs (when you click the bucket):**
@@ -461,7 +461,7 @@ Sometimes you need to force CloudFront to refresh:
 **Problem: Website shows 403 Forbidden**
 
 **Solution:** Check S3 bucket permissions
-1. S3 → mytower-web → Permissions
+1. S3 → mytower-web-dev → Permissions
 2. **Block public access:** Should be OFF (all 4 toggles)
 3. **Bucket policy:** Should exist with `"Effect": "Allow"`, `"Action": "s3:GetObject"`
 
@@ -652,7 +652,7 @@ A: CloudFront adds:
 A: Yes, you can use just S3 website hosting, but you lose HTTPS, global distribution, and custom domains. Not recommended for production.
 
 **Q: What if the bucket name is taken?**
-A: Bucket names are globally unique. Edit `deploy-web-to-aws.sh` line 11 and add your account ID: `mytower-web-123456789012`
+A: Bucket names are globally unique. Edit `deploy-web-to-aws.sh` line 11 and add your account ID: `mytower-web-dev-123456789012`
 
 **Q: How do I know if it's working?**
 A: Run `./web-status.sh` → if Status is "Deployed", visit the URL shown.
