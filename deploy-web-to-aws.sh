@@ -191,7 +191,10 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
     echo ""
 
     # Get S3 website endpoint
-    WEBSITE_ENDPOINT="${BUCKET_NAME}.s3-website.${REGION}.amazonaws.com"
+    # Note: Format is different for us-east-1 vs other regions
+    # us-east-1: bucket-name.s3-website-us-east-1.amazonaws.com
+    # Other regions: bucket-name.s3-website-REGION.amazonaws.com (hyphen, not dot)
+    WEBSITE_ENDPOINT="${BUCKET_NAME}.s3-website-${REGION}.amazonaws.com"
 
     # Create distribution config
     # TODO: Extract CloudFront distribution config to a separate JSON template file for easier maintenance and validation.
@@ -354,7 +357,7 @@ if [ "$DISTRIBUTION_STATUS" = "InProgress" ]; then
 fi
 
 echo "🔗 Direct S3 URL (for testing):"
-echo "   http://${BUCKET_NAME}.s3-website.${REGION}.amazonaws.com"
+echo "   http://${BUCKET_NAME}.s3-website-${REGION}.amazonaws.com"
 echo ""
 echo "💡 Next steps:"
 echo "   1. Wait for CloudFront to deploy (if status is InProgress)"

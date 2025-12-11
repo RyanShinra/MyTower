@@ -78,7 +78,7 @@ if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
 
     echo ""
     echo "S3 Website URL (direct):"
-    echo "   http://${BUCKET_NAME}.s3-website.${REGION}.amazonaws.com"
+    echo "   http://${BUCKET_NAME}.s3-website-${REGION}.amazonaws.com"
 else
     echo "❌ Bucket not found: $BUCKET_NAME"
 fi
