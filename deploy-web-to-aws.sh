@@ -147,21 +147,13 @@ echo ""
 
 # Step 4: Upload files to S3
 echo "📤 Uploading files to S3..."
-# Upload strategy: HTML/JSON first (no-cache), then static assets (1-year cache)
-# This prevents broken references if deployment is interrupted between uploads.
-# If assets are uploaded first and HTML upload fails, users would get new HTML
-# trying to load old assets with potentially mismatched fingerprints.
-
-# Upload HTML and JSON with no cache (always fresh)
-echo "   Uploading HTML and JSON files (no-cache)..."
-if ! aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
-    --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
-    --exclude "*" \
-    --include "*.html" \
-    --include "*.json"; then
-    echo "❌ Error: Failed to upload HTML/JSON files to S3"
-    exit 1
-fi
+# Upload strategy: Assets FIRST, then HTML/JSON
+# Why? With fingerprinted assets (e.g., main-abc123.js), the correct order is:
+#   1. Upload new assets → Safe, old HTML doesn't reference them yet
+#   2. Upload new HTML → Now references assets that already exist
+# If we upload HTML first and assets fail, users get HTML referencing
+# non-existent assets (broken site). If we upload assets first and HTML fails,
+# users continue seeing old HTML with old (still existing) assets (site still works).
 
 # Upload static assets with 1-year cache (safe due to fingerprinted filenames)
 echo "   Uploading static assets (1-year cache)..."
@@ -171,6 +163,18 @@ if ! aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
     --exclude "*.html" \
     --exclude "*.json"; then
     echo "❌ Error: Failed to upload static assets to S3"
+    exit 1
+fi
+
+# Upload HTML and JSON with no cache (always fresh)
+# Upload these LAST so they only go live once assets are confirmed uploaded
+echo "   Uploading HTML and JSON files (no-cache)..."
+if ! aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
+    --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
+    --exclude "*" \
+    --include "*.html" \
+    --include "*.json"; then
+    echo "❌ Error: Failed to upload HTML/JSON files to S3"
     exit 1
 fi
 
