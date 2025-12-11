@@ -18,8 +18,8 @@ cd web || {
 # Check if node_modules exists
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing dependencies..."
-    npm install
-    if [ $? -ne 0 ]; then
+    
+    if ! npm install; then
         echo "❌ Error: npm install failed"
         exit 1
     fi
@@ -29,8 +29,7 @@ fi
 
 # Run type checking
 echo "🔍 Running type checks..."
-npm run check
-if [ $? -ne 0 ]; then
+if ! npm run check; then
     echo "❌ Error: Type check failed"
     echo "   Fix TypeScript errors before deploying"
     exit 1
@@ -40,8 +39,7 @@ echo ""
 
 # Build production bundle
 echo "🏗️  Building production bundle..."
-npm run build
-if [ $? -ne 0 ]; then
+if ! npm run build; then
     echo "❌ Error: Build failed"
     exit 1
 fi
