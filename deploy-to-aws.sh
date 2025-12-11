@@ -57,9 +57,7 @@ echo ""
 
 # Build Docker image
 echo "🔨 Building Docker image for AMD64..."
-docker build --platform linux/amd64 -t "${REPOSITORY_NAME}:latest" .
-
-if [ $? -ne 0 ]; then
+if ! docker build --platform linux/amd64 -t "${REPOSITORY_NAME}:latest" .; then
     echo "❌ Docker build failed!"
     exit 1
 fi
@@ -75,10 +73,10 @@ echo ""
 
 # Login to ECR
 echo "🔐 Authenticating with ECR..."
-aws ecr get-login-password --region $REGION | \
-    docker login --username AWS --password-stdin $ECR_URI
 
-if [ $? -ne 0 ]; then
+
+if ! aws ecr get-login-password --region $REGION | \
+      docker login --username AWS --password-stdin $ECR_URI; then
     echo "❌ ECR authentication failed!"
     exit 1
 fi
@@ -88,9 +86,7 @@ echo ""
 
 # Push to ECR
 echo "📤 Pushing image to ECR (this may take a few minutes)..."
-docker push "$IMAGE_URI"
-
-if [ $? -ne 0 ]; then
+if ! docker push "$IMAGE_URI"; then
     echo "❌ Error: Failed to push image to ECR!"
     echo "   This could be due to:"
     echo "   - Network connectivity issues"
@@ -104,9 +100,7 @@ echo ""
 
 # Verify push by pulling image back from ECR
 echo "🔍 Verifying image push (pulling from ECR)..."
-docker pull "$IMAGE_URI"
-
-if [ $? -ne 0 ]; then
+if ! docker pull "$IMAGE_URI"; then
     echo "❌ Error: Failed to pull image from ECR!"
     echo "   The image was pushed but cannot be pulled back."
     echo "   This indicates the push may have been incomplete or corrupted."
@@ -124,7 +118,7 @@ METADATA_FILE="deployments/${DEPLOY_TAG}.json"
 
 # Capture full commit hash before heredoc to handle errors
 COMMIT_FULL=$(git rev-parse HEAD)
-if [ $? -ne 0 ]; then
+if ! COMMIT_FULL=$(git rev-parse HEAD); then
     echo "   ⚠️  Warning: Failed to get full commit hash"
     COMMIT_FULL="unknown"
 fi
@@ -206,9 +200,7 @@ else
 
     # Automatically push the tag
     echo "📤 Pushing tag to remote..."
-    git push origin "$DEPLOY_TAG"
-
-    if [ $? -ne 0 ]; then
+    if ! git push origin "$DEPLOY_TAG"; then
         echo "   ⚠️  Warning: Failed to push tag (tag created locally)"
         echo "   💡 Push manually with: git push origin $DEPLOY_TAG"
     else
