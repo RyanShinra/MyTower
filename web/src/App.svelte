@@ -8,7 +8,10 @@
 
     let canvas: HTMLCanvasElement;
     let gameView: WebGameView | null = null;
-    let lastElevatorBankId: string | null = null;
+    // Track the most recently created elevator bank for adding elevators
+    // Note: Currently only supports adding elevators to the most recent bank
+    // TODO: Support multiple banks with dropdown selection
+    let currentElevatorBankId: string | null = null;
 
     onMount(() => {
         // Create the game view once canvas is mounted
@@ -45,9 +48,13 @@
         }
 
         try {
-            // Default parameters: hCell=3, serves all floors (0 to 20)
+            // Create elevator bank with default parameters:
+            // - hCell=3: Horizontal position (center-ish of typical building)
+            // - minFloor=0: Ground floor (lobby level)
+            // - maxFloor=20: Serves up to 20 floors (typical mid-rise building)
+            // TODO: Make these configurable via UI inputs
             const bankId = await gameView.addElevatorBank(3, 0, 20);
-            lastElevatorBankId = bankId; // Store for adding elevators
+            currentElevatorBankId = bankId; // Store for adding elevators
             console.log(`✅ Added elevator bank: ${bankId}`);
         } catch (error) {
             console.error("❌ Failed to add elevator bank:", error);
@@ -61,7 +68,7 @@
             return;
         }
 
-        if (!lastElevatorBankId) {
+        if (!currentElevatorBankId) {
             console.warn(
                 "⚠️ No elevator bank exists. Create a bank first!",
             );
@@ -69,7 +76,9 @@
         }
 
         try {
-            const elevatorId = await gameView.addElevator(lastElevatorBankId);
+            const elevatorId = await gameView.addElevator(
+                currentElevatorBankId,
+            );
             console.log(`✅ Added elevator: ${elevatorId}`);
         } catch (error) {
             console.error("❌ Failed to add elevator:", error);
@@ -84,7 +93,12 @@
         }
 
         try {
-            // Spawn person on floor 0, position 2.0, going to floor 2, position 2
+            // Spawn test person with fixed parameters:
+            // - floor=0: Ground floor (lobby level)
+            // - block=2.0: Horizontal position 2 blocks from left edge
+            // - destFloor=2: Destination is floor 2
+            // - destBlock=2: Destination horizontal position
+            // TODO: Add UI inputs for customizable spawn parameters or randomize
             const personId = await gameView.addPerson(0, 2.0, 2, 2);
             console.log(`✅ Added person: ${personId}`);
         } catch (error) {
