@@ -245,10 +245,16 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
         "MaxTTL": 31536000
     },
     "CustomErrorResponses": {
-        "Quantity": 1,
+        "Quantity": 2,
         "Items": [
             {
                 "ErrorCode": 404,
+                "ResponsePagePath": "/index.html",
+                "ResponseCode": "200",
+                "ErrorCachingMinTTL": 300
+            },
+            {
+                "ErrorCode": 403,
                 "ResponsePagePath": "/index.html",
                 "ResponseCode": "200",
                 "ErrorCachingMinTTL": 300
