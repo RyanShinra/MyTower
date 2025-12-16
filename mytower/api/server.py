@@ -172,7 +172,7 @@ async def log_requests(request: Request, call_next):
     logger.info(f"Client: {request.client.host if request.client else 'unknown'}")
     logger.info(f"Headers: {dict(request.headers)}")
     response = await call_next(request)
-    logger.info(f"📤 Response status: {response.status_code}")
+    logger.info(f"Response status: {response.status_code}")
     return response
 
 # ============================================================================
