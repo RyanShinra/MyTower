@@ -27,3 +27,6 @@ generates:
       
       # Add helpful comments
       addDocBlocks: true
+
+      namingConvention:
+        typeNames: identity
