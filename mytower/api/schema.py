@@ -219,10 +219,10 @@ class Subscription:
         Yields:
             BuildingSnapshotGQL: Current building state snapshot, or None if game not running
         """
-        logger.info(f"📡 New building state subscription started (interval: {interval_ms}ms)")
+        logger.info(f">> New building state subscription started (interval: {interval_ms}ms)")
 
         if not (5 <= interval_ms <= 10000):
-            logger.error(f"❌ Invalid interval_ms: {interval_ms}")
+            logger.error(f"[X] Invalid interval_ms: {interval_ms}")
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
@@ -237,9 +237,9 @@ class Subscription:
                 message_count += 1
 
                 if message_count == 1:
-                    logger.info("✅ First snapshot sent to client")
+                    logger.info("[^_^] First snapshot sent to client")
                 elif message_count % 100 == 0:
-                    logger.debug(f"📊 Sent {message_count} snapshots to client")
+                    logger.debug(f"[#] Sent {message_count} snapshots to client")
 
                 yield convert_building_snapshot(snapshot) if snapshot else None
                 await asyncio.sleep(interval_seconds)
@@ -247,17 +247,17 @@ class Subscription:
         except asyncio.CancelledError:
             # Client disconnected or subscription was cancelled
             # This is NORMAL - not an error condition
-            logger.info(f"🔌 Subscription cancelled (client disconnected) - sent {message_count} messages")
+            logger.info(f"[END] Subscription cancelled (client disconnected) - sent {message_count} messages")
             raise  # Re-raise so Strawberry knows we handled it
 
         except Exception as e:
             # Unexpected error - log it
-            logger.error(f"❌ Subscription error: {e}", exc_info=True)
+            logger.error(f"[X] Subscription error: {e}", exc_info=True)
             raise
 
         finally:
             # Cleanup code runs whether cancelled, errored, or completed
-            logger.info(f"🧹 Building State Subscription cleaned up - total messages: {message_count}")
+            logger.info(f"[o] Building State Subscription cleaned up - total messages: {message_count}")
             # Could release resources, decrement counter, etc.
 
 
@@ -278,10 +278,10 @@ class Subscription:
         Yields:
             Time: Current game time in seconds
         """
-        logger.info(f"📡 New game time subscription started (interval: {interval_ms}ms)")
+        logger.info(f">> New game time subscription started (interval: {interval_ms}ms)")
 
         if not (5 <= interval_ms <= 10000):
-            logger.error(f"❌ Invalid interval_ms: {interval_ms}")
+            logger.error(f"[X] Invalid interval_ms: {interval_ms}")
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
@@ -295,13 +295,13 @@ class Subscription:
                 await asyncio.sleep(interval_seconds)
         except asyncio.CancelledError:
             # Client disconnected or subscription was cancelled
-            logger.info("🔌 Game time subscription cancelled (client disconnected)")
+            logger.info("[END] Game time subscription cancelled (client disconnected)")
             raise
         except Exception as e:
-            logger.error(f"❌ Game time subscription error: {e}", exc_info=True)
+            logger.error(f"[X] Game time subscription error: {e}", exc_info=True)
             raise
         finally:
-            logger.info("🧹 Game time subscription cleaned up")
+            logger.info("[o] Game time subscription cleaned up")
 
 
 schema = strawberry.Schema(

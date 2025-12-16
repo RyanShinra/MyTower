@@ -168,9 +168,9 @@ async def decrement_ws_connection(ip: str) -> None:
 # Add middleware to log all requests and apply rate limiting
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f"📨 Incoming request: {request.method} {request.url}")
-    logger.info(f"🔍 Client: {request.client.host if request.client else 'unknown'}")
-    logger.info(f"🔍 Headers: {dict(request.headers)}")
+    logger.info(f"Incoming request: {request.method} {request.url}")
+    logger.info(f"Client: {request.client.host if request.client else 'unknown'}")
+    logger.info(f"Headers: {dict(request.headers)}")
     response = await call_next(request)
     logger.info(f"📤 Response status: {response.status_code}")
     return response
@@ -403,8 +403,8 @@ graphql_app: RateLimitedGraphQLRouter = RateLimitedGraphQLRouter(
 )
 
 # Log WebSocket endpoint registration
-logger.info("🔌 GraphQL WebSocket endpoint registered at /graphql")
-logger.info("📡 Supported protocols: graphql-transport-ws, graphql-ws")
+logger.info("GraphQL WebSocket endpoint registered at /graphql")
+logger.info("Supported protocols: graphql-transport-ws, graphql-ws")
 
 app.include_router(graphql_app, prefix="/graphql")
 
@@ -413,7 +413,7 @@ app.include_router(graphql_app, prefix="/graphql")
 @limiter.limit(os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute"))
 # The `request` parameter is required by the rate limiter decorator but is unused.
 def read_root(request: Request) -> dict[str, str]:
-    logger.info("📍 Root endpoint called")
+    logger.info("Root endpoint called")
     return {"message": "MyTower GraphQL API", "graphql": "/graphql"}
 
 @app.get("/health")
@@ -434,9 +434,9 @@ async def run_server_async(
         port: Port to bind to
         shutdown_event: Optional threading.Event for graceful shutdown
     """
-    logger.info(f"🚀 Starting server on {host}:{port}")
-    logger.info(f"🔍 WebSocket URL: ws://{host}:{port}/graphql")
-    logger.info(f"🔍 GraphQL endpoint: http://{host}:{port}/graphql")
+    logger.info(f"Starting server on {host}:{port}")
+    logger.info(f"WebSocket URL: ws://{host}:{port}/graphql")
+    logger.info(f"GraphQL endpoint: http://{host}:{port}/graphql")
 
     # Create config and server
     config = uvicorn.Config(
