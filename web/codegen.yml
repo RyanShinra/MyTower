@@ -29,4 +29,4 @@ generates:
       addDocBlocks: true
 
       namingConvention:
-        typeNames: identity
+        typeNames: keep
