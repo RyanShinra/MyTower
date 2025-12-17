@@ -234,15 +234,16 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
             }
         },
         "Compress": true,
-        "ForwardedValues": {
-            "QueryString": false,
-            "Cookies": {
-                "Forward": "none"
-            }
+        "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+        "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0
         },
-        "MinTTL": 0,
-        "DefaultTTL": 86400,
-        "MaxTTL": 31536000
+        "TrustedKeyGroups": {
+            "Enabled": false,
+            "Quantity": 0
+        },
+        "MinTTL": 0
     },
     "CustomErrorResponses": {
         "Quantity": 2,
@@ -280,16 +281,14 @@ else
 
     # Invalidate cache to refresh content
     echo "   🔄 Invalidating CloudFront cache..."
-    INVALIDATION_ID=$(aws cloudfront create-invalidation \
+    if INVALIDATION_ID=$(aws cloudfront create-invalidation \
         --distribution-id "$DISTRIBUTION_ID" \
         --paths "/*" \
         --query 'Invalidation.Id' \
-        --output text)
-
-    if [ $? -ne 0 ]; then
-        echo "   ⚠️  Warning: Failed to invalidate cache"
-    else
+        --output text); then
         echo "   ✅ Cache invalidation created: $INVALIDATION_ID"
+    else
+        echo "   ⚠️  Warning: Failed to invalidate cache"
     fi
 fi
 echo ""
