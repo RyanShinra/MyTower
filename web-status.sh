@@ -92,7 +92,7 @@ if [ -d "deployments" ]; then
     RECENT_DEPLOYS=$(ls -t deployments/web-deploy-*.json 2>/dev/null | head -3)
 
     if [ -n "$RECENT_DEPLOYS" ]; then
-        for deploy_file in $RECENT_DEPLOYS; do
+        echo "$RECENT_DEPLOYS" | while read -r deploy_file; do
             TIMESTAMP=$(grep -oP '"timestamp":\s*"\K[^"]+' "$deploy_file")
             COMMIT=$(grep -oP '"commit":\s*"\K[^"]+' "$deploy_file")
             echo "• $TIMESTAMP (commit: $COMMIT)"
