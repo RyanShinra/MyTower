@@ -7,7 +7,7 @@
  */
 
 import { PIXELS_PER_BLOCK } from './constants';
-import type { ElevatorSnapshotGql } from '../generated/graphql';
+import type { ElevatorSnapshotGQL } from '../generated/graphql';
 
 export class ElevatorShaftRenderer {
   // Shaft dimensions
@@ -20,7 +20,7 @@ export class ElevatorShaftRenderer {
     private canvasHeight: number
   ) {}
 
-  public drawShafts(elevators: ReadonlyArray<ElevatorSnapshotGql>): void {
+  public drawShafts(elevators: ReadonlyArray<ElevatorSnapshotGQL>): void {
     // Group elevators by horizontal position to identify shafts
     const shaftPositions = new Set<number>();
 

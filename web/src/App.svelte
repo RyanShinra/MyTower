@@ -4,7 +4,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { WebGameView } from "./WebGameView";
-    import type { FloorTypeGql } from "./generated/graphql";
+    import type { FloorTypeGQL } from "./generated/graphql";
 
     let canvas: HTMLCanvasElement;
     let gameView: WebGameView | null = null;
@@ -26,7 +26,7 @@
     });
 
     // Handler for adding floors
-    async function handleAddFloor(floorType: FloorTypeGql) {
+    async function handleAddFloor(floorType: FloorTypeGQL) {
         if (!gameView) {
             console.warn("⚠️ Game view not ready yet");
             return;

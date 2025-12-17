@@ -17,8 +17,8 @@ import { UIRenderer } from './rendering/UIRenderer';
 
 // Import generated types
 import type {
-  BuildingSnapshotGql,
-  FloorTypeGql
+  BuildingSnapshotGQL,
+  FloorTypeGQL
 } from './generated/graphql';
 
 // Mutation result types
@@ -56,7 +56,7 @@ export class WebGameView {
   private uiRenderer: UIRenderer;
   
   // Game state
-  private currentSnapshot: BuildingSnapshotGql | null = null;
+  private currentSnapshot: BuildingSnapshotGQL | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -288,7 +288,7 @@ export class WebGameView {
     this.uiRenderer.drawFrameCounter(this.frameCount);
   }
 
-  public async addFloor(floorType: FloorTypeGql): Promise<void> {
+  public async addFloor(floorType: FloorTypeGQL): Promise<void> {
     const mutation = `
       mutation AddFloor($floorType: FloorTypeGQL!) {
         addFloor(floorType: $floorType)
