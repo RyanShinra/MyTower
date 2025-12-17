@@ -39,9 +39,7 @@ fi
 # Build the image
 echo ""
 echo "🔨 Building Docker image..."
-docker build -t $IMAGE_NAME .
-
-if [ $? -ne 0 ]; then
+if ! docker build -t $IMAGE_NAME .; then
     echo "❌ Docker build failed!"
     exit 1
 fi
@@ -51,15 +49,13 @@ echo ""
 
 # Run the container
 echo "🚀 Starting container..."
-docker run -d \
+if ! docker run -d \
     --name $CONTAINER_NAME \
     -p $PORT:$PORT \
     -e MYTOWER_MODE=headless \
     -e MYTOWER_PORT=$PORT \
     -e MYTOWER_LOG_LEVEL=INFO \
-    $IMAGE_NAME
-
-if [ $? -ne 0 ]; then
+    $IMAGE_NAME; then
     echo "❌ Failed to start container!"
     exit 1
 fi
