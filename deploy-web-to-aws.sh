@@ -202,6 +202,8 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
 
     # Create distribution config
     # TODO: Extract CloudFront distribution config to a separate JSON template file for easier maintenance and validation.
+    # NOTE: If cross-origin requests to S3 are needed in the future, add OriginRequestPolicyId to DefaultCacheBehavior:
+    #       "OriginRequestPolicyId": "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf"  (CORS-S3Origin managed policy)
     DIST_CONFIG=$(cat <<EOF
 {
     "CallerReference": "mytower-web-dev-$(date +%s)",
