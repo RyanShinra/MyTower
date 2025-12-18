@@ -5,7 +5,7 @@
 # Exit on error, undefined variables, and pipe failures
 set -euo pipefail
 
-echo "🌐 MyTower Web Frontend Status"
+echo "[WEB] MyTower Web Frontend Status"
 echo "=============================="
 echo ""
 
@@ -21,15 +21,15 @@ DISTRIBUTION_ID=$(aws cloudfront list-distributions \
     --output text 2>/dev/null)
 
 if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
-    echo "❌ No CloudFront distribution found"
+    echo "[ERROR] No CloudFront distribution found"
     echo ""
     echo "Run ./deploy-web-to-aws.sh to deploy the frontend"
     exit 1
 fi
 
 # Get distribution details
-echo "☁️  CloudFront Distribution"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "[CLOUDFRONT]  CloudFront Distribution"
+echo "=========================="
 
 # Use AWS CLI's built-in --query for cross-platform JSON parsing (works on Mac/Linux/Windows)
 # Alternative: jq could be used, but requires additional installation on some systems
@@ -44,17 +44,17 @@ echo "Enabled:  $ENABLED"
 echo ""
 
 if [ "$STATUS" = "InProgress" ]; then
-    echo "⏳ Distribution is still deploying (this can take 10-15 minutes)"
+    echo "[WAIT] Distribution is still deploying (this can take 10-15 minutes)"
     echo ""
 fi
 
-echo "🌍 Website URL:"
+echo "[URL] Website URL:"
 echo "   https://$DOMAIN"
 echo ""
 
 # Check S3 bucket
-echo "🪣 S3 Bucket Status"
-echo "━━━━━━━━━━━━━━━━━━━"
+echo "[S3] S3 Bucket Status"
+echo "==================="
 
 if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
     echo "Name:     $BUCKET_NAME"
@@ -81,13 +81,13 @@ if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
     echo "S3 Website URL (direct):"
     echo "   http://${BUCKET_NAME}.s3-website-${REGION}.amazonaws.com"
 else
-    echo "❌ Bucket not found: $BUCKET_NAME"
+    echo "[ERROR] Bucket not found: $BUCKET_NAME"
 fi
 echo ""
 
 # Check for recent deployments
-echo "📜 Recent Deployments"
-echo "━━━━━━━━━━━━━━━━━━━━━"
+echo "[DEPLOY] Recent Deployments"
+echo "====================="
 
 if [ -d "deployments" ]; then
     RECENT_DEPLOYS=$(ls -t deployments/web-deploy-*.json 2>/dev/null | head -3)
@@ -97,7 +97,7 @@ if [ -d "deployments" ]; then
             # Use basic grep/sed for cross-platform compatibility (Mac's grep doesn't support -P flag)
             TIMESTAMP=$(grep '"timestamp"' "$deploy_file" | sed 's/.*"timestamp"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
             COMMIT=$(grep '"commit"' "$deploy_file" | sed 's/.*"commit"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-            echo "• $TIMESTAMP (commit: $COMMIT)"
+            echo "* $TIMESTAMP (commit: $COMMIT)"
         done
     else
         echo "No deployment records found"
@@ -108,8 +108,8 @@ fi
 echo ""
 
 # Check invalidations
-echo "🔄 Recent Cache Invalidations"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "[REFRESH] Recent Cache Invalidations"
+echo "============================="
 
 INVALIDATIONS=$(aws cloudfront list-invalidations \
     --distribution-id "$DISTRIBUTION_ID" \
@@ -118,7 +118,7 @@ INVALIDATIONS=$(aws cloudfront list-invalidations \
 
 if [ -n "$INVALIDATIONS" ]; then
     echo "$INVALIDATIONS" | while read -r inv_id inv_status inv_time; do
-        echo "• $inv_id - $inv_status ($inv_time)"
+        echo "* $inv_id - $inv_status ($inv_time)"
     done
 else
     echo "No recent invalidations"
@@ -126,15 +126,15 @@ fi
 echo ""
 
 # AWS Console links
-echo "🔗 AWS Console Links"
-echo "━━━━━━━━━━━━━━━━━━━━"
+echo "[LINK] AWS Console Links"
+echo "===================="
 echo "CloudFront: https://console.aws.amazon.com/cloudfront/v3/home?region=$REGION#/distributions/$DISTRIBUTION_ID"
 echo "S3 Bucket:  https://s3.console.aws.amazon.com/s3/buckets/$BUCKET_NAME?region=$REGION"
 echo ""
 
 # Quick commands
-echo "💡 Quick Commands"
-echo "━━━━━━━━━━━━━━━━━"
+echo "[TIP] Quick Commands"
+echo "================="
 echo "Invalidate cache:  ./web-invalidate.sh"
 echo "View bucket files: aws s3 ls s3://$BUCKET_NAME --recursive"
 echo "Redeploy:          ./deploy-web-to-aws.sh"

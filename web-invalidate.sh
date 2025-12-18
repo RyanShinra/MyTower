@@ -5,7 +5,7 @@
 # Exit on error, undefined variables, and pipe failures
 set -euo pipefail
 
-echo "🔄 MyTower CloudFront Cache Invalidation"
+echo "[REFRESH] MyTower CloudFront Cache Invalidation"
 echo "========================================"
 echo ""
 
@@ -17,7 +17,7 @@ DISTRIBUTION_ID=$(aws cloudfront list-distributions \
     --output text 2>/dev/null)
 
 if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
-    echo "❌ No CloudFront distribution found"
+    echo "[ERROR] No CloudFront distribution found"
     echo ""
     echo "Run ./deploy-web-to-aws.sh to deploy the frontend first"
     exit 1
@@ -33,11 +33,11 @@ if ! INVALIDATION_ID=$(aws cloudfront create-invalidation \
     --paths "/*" \
     --query 'Invalidation.Id' \
     --output text); then
-    echo "❌ Error: Failed to create invalidation"
+    echo "[ERROR] Error: Failed to create invalidation"
     exit 1
 fi
 
-echo "✅ Invalidation created: $INVALIDATION_ID"
+echo "[OK] Invalidation created: $INVALIDATION_ID"
 echo ""
 echo "This typically takes 1-2 minutes to complete."
 echo ""

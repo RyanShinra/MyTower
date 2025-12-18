@@ -3,7 +3,7 @@
 # See LICENSE file for details.
 
 
-echo "🛑 Stopping MyTower ECS Task..."
+echo "[STOP] Stopping MyTower ECS Task..."
 echo ""
 
 REGION=us-east-2
@@ -17,11 +17,11 @@ TASK_ARN=$(aws ecs list-tasks \
     --output text)
 
 if [ "$TASK_ARN" == "None" ] || [ -z "$TASK_ARN" ]; then
-    echo "ℹ️  No running tasks found"
+    echo "[i]  No running tasks found"
     exit 0
 fi
 
-echo "🎯 Found task: $TASK_ARN"
+echo "* Found task: $TASK_ARN"
 echo "   Stopping..."
 
 aws ecs stop-task \
@@ -30,4 +30,4 @@ aws ecs stop-task \
     --region $REGION
 
 echo ""
-echo "✅ Task stopped!"
+echo "[OK] Task stopped!"

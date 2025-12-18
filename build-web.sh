@@ -5,50 +5,50 @@
 # Exit on error, undefined variables, and pipe failures
 set -euo pipefail
 
-echo "🎨 MyTower Web Frontend Build Script"
-echo "===================================="
+echo "[BUILD] MyTower Web Frontend Build Script"
+echo "=========================================="
 echo ""
 
 # Navigate to web directory
 cd web || {
-    echo "❌ Error: web/ directory not found"
+    echo "[ERROR] web/ directory not found"
     exit 1
 }
 
 # Check if node_modules exists
 if [ ! -d "node_modules" ]; then
-    echo "📦 Installing dependencies..."
-    
+    echo "[INSTALL] Installing dependencies..."
+
     if ! npm install; then
-        echo "❌ Error: npm install failed"
+        echo "[ERROR] npm install failed"
         exit 1
     fi
-    echo "   ✅ Dependencies installed"
+    echo "   [OK] Dependencies installed"
     echo ""
 fi
 
 # Run type checking
-echo "🔍 Running type checks..."
+echo "[CHECK] Running type checks..."
 if ! npm run check; then
-    echo "❌ Error: Type check failed"
+    echo "[ERROR] Type check failed"
     echo "   Fix TypeScript errors before deploying"
     exit 1
 fi
-echo "   ✅ Type checks passed"
+echo "   [OK] Type checks passed"
 echo ""
 
 # Build production bundle
-echo "🏗️  Building production bundle..."
+echo "[BUILD] Building production bundle..."
 if ! npm run build; then
-    echo "❌ Error: Build failed"
+    echo "[ERROR] Build failed"
     exit 1
 fi
-echo "   ✅ Build completed"
+echo "   [OK] Build completed"
 echo ""
 
 # Show build output
 if [ -d "dist" ]; then
-    echo "📊 Build Output:"
+    echo "[INFO] Build Output:"
     if du -sh dist 2>/dev/null; then
         true # it's already printed human-readable size
     elif du -s dist 2>/dev/null; then
@@ -58,11 +58,11 @@ if [ -d "dist" ]; then
         echo "Size calculation unavailable (du not supported)"
     fi
     echo ""
-    echo "📁 Files in dist/:"
+    echo "[INFO] Files in dist/:"
     ls -lh dist/
     echo ""
-    echo "✅ Build successful! Ready to deploy."
+    echo "[SUCCESS] Build successful! Ready to deploy."
 else
-    echo "❌ Error: dist/ directory not found after build"
+    echo "[ERROR] dist/ directory not found after build"
     exit 1
 fi

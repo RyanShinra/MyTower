@@ -5,10 +5,10 @@
 # Exit on error, undefined variables, and pipe failures
 set -euo pipefail
 
-echo "🗑️  MyTower Web Frontend Cleanup"
+echo "[CLEANUP]  MyTower Web Frontend Cleanup"
 echo "==============================="
 echo ""
-echo "⚠️  WARNING: This will DELETE your CloudFront distribution and S3 bucket!"
+echo "[WARNING]  WARNING: This will DELETE your CloudFront distribution and S3 bucket!"
 echo ""
 
 # Configuration
@@ -21,7 +21,7 @@ read -p "Are you sure you want to delete ALL web frontend infrastructure? (type 
 echo ""
 
 if [ "$REPLY" != "yes" ]; then
-    echo "❌ Cleanup cancelled"
+    echo "[ERROR] Cleanup cancelled"
     exit 0
 fi
 
@@ -31,7 +31,7 @@ DISTRIBUTION_ID=$(aws cloudfront list-distributions \
     --output text 2>/dev/null)
 
 if [ "$DISTRIBUTION_ID" != "None" ] && [ -n "$DISTRIBUTION_ID" ]; then
-    echo "☁️  Deleting CloudFront distribution..."
+    echo "[CLOUDFRONT]  Deleting CloudFront distribution..."
 
     # Get distribution config
     ETAG=$(aws cloudfront get-distribution-config \
@@ -50,7 +50,7 @@ if [ "$DISTRIBUTION_ID" != "None" ] && [ -n "$DISTRIBUTION_ID" ]; then
         --distribution-config "$DISABLED_CONFIG" \
         --if-match "$ETAG" > /dev/null 2>&1
 
-    echo "   ⏳ Waiting for distribution to be disabled (this takes ~5 minutes)..."
+    echo "   [WAIT] Waiting for distribution to be disabled (this takes ~5 minutes)..."
     echo "   You can check status with: ./web-status.sh"
     echo ""
     echo "   Once disabled, run this command to complete deletion:"
@@ -60,12 +60,12 @@ if [ "$DISTRIBUTION_ID" != "None" ] && [ -n "$DISTRIBUTION_ID" ]; then
     echo "   aws cloudfront get-distribution-config --id $DISTRIBUTION_ID --query 'ETag' --output text"
     echo ""
 else
-    echo "✅ No CloudFront distribution found to delete"
+    echo "[OK] No CloudFront distribution found to delete"
 fi
 
 # Delete S3 bucket
 if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-    echo "🪣 Deleting S3 bucket..."
+    echo "[S3] Deleting S3 bucket..."
 
     # Empty bucket first
     echo "   Emptying bucket..."
@@ -74,16 +74,16 @@ if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
     # Delete bucket
     echo "   Deleting bucket..."
     if ! aws s3api delete-bucket --bucket "$BUCKET_NAME" --region "$REGION"; then
-        echo "   ❌ Error deleting bucket"
+        echo "   [ERROR] Error deleting bucket"
     else
-        echo "   ✅ Bucket deleted: $BUCKET_NAME"
+        echo "   [OK] Bucket deleted: $BUCKET_NAME"
     fi
 else
-    echo "✅ No S3 bucket found to delete"
+    echo "[OK] No S3 bucket found to delete"
 fi
 
 echo ""
-echo "🧹 Cleanup complete!"
+echo "[CLEAN] Cleanup complete!"
 echo ""
 echo "Note: CloudFront distribution deletion is a two-step process:"
 echo "  1. Disable the distribution (done above)"
