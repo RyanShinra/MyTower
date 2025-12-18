@@ -345,12 +345,16 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
     read -p "Create this git tag for the deployment? (y/N): " -r
     if [[ "$REPLY" =~ ^[Yy]$ ]]; then
         echo "🏷️  Creating git tag: $TAG_NAME"
-        git tag -a "$TAG_NAME" -m "Web deployment to CloudFront on $TIMESTAMP"
-        echo "   ✅ Git tag created"
-        echo ""
-        echo "   To push tag to remote:"
-        echo "   git push origin $TAG_NAME"
-        echo ""
+        if git tag -a "$TAG_NAME" -m "Web deployment to CloudFront on $TIMESTAMP"; then
+            echo "   ✅ Git tag created"
+            echo ""
+            echo "   To push tag to remote:"
+            echo "   git push origin $TAG_NAME"
+            echo ""
+        else
+            echo "   ⚠️  Warning: Failed to create git tag (tag may already exist or git error occurred)"
+            echo ""
+        fi
     else
         echo "Skipping git tag creation."
     fi
