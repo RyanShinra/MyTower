@@ -382,10 +382,10 @@ export class WebGameView {
         mutation,
         {
           input: {
-            initFloor: initFloor,
-            initHorizPosition: initHorizPosition,
-            destFloor: destFloor,
-            destHorizPosition: destHorizPosition
+            initFloor,
+            initHorizPosition,
+            destFloor,
+            destHorizPosition
           }
         }
       );
