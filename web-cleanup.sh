@@ -73,12 +73,10 @@ if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
 
     # Delete bucket
     echo "   Deleting bucket..."
-    aws s3api delete-bucket --bucket "$BUCKET_NAME" --region "$REGION"
-
-    if [ $? -eq 0 ]; then
-        echo "   ✅ Bucket deleted: $BUCKET_NAME"
-    else
+    if ! aws s3api delete-bucket --bucket "$BUCKET_NAME" --region "$REGION"; then
         echo "   ❌ Error deleting bucket"
+    else
+        echo "   ✅ Bucket deleted: $BUCKET_NAME"
     fi
 else
     echo "✅ No S3 bucket found to delete"
