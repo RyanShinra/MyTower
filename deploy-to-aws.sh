@@ -283,7 +283,8 @@ elif [ ! -x "./run-task.sh" ]; then
     echo "   Run: chmod +x run-task.sh"
 else
     if ! ./run-task.sh; then
-        echo "   [WARNING]  Warning: run-task.sh failed"
+        TASK_EXIT_CODE=$?
+        echo "   [WARNING]  Warning: run-task.sh failed (exit code: $TASK_EXIT_CODE)"
         echo "   Check the script output above for details"
     else
         echo "   [OK] Task started successfully"
