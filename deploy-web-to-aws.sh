@@ -157,6 +157,10 @@ echo "📤 Uploading files to S3..."
 
 # Upload static assets with 1-year cache (safe due to fingerprinted filenames)
 echo "   Uploading static assets (1-year cache)..."
+# NOTE: --delete flag removes files from S3 that don't exist locally.
+# This is intentional for keeping S3 in sync with the build, but means if web/dist/
+# is incomplete or corrupt, those files will be deleted from S3. The build script
+# ensures web/dist/ is always complete before this step runs.
 if ! aws s3 sync web/dist/ "s3://$BUCKET_NAME" \
     --delete \
     --cache-control "max-age=31536000,public" \
