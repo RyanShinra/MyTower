@@ -186,10 +186,8 @@ echo ""
 
 # Create git tag for successful deployment
 echo "🏷️  Creating git tag..."
-git tag -a "$DEPLOY_TAG" -m "Deployed to AWS: $COMMIT on $TIMESTAMP"
-TAG_EXIT_CODE=$?
 
-if [ $TAG_EXIT_CODE -ne 0 ]; then
+if ! git tag -a "$DEPLOY_TAG" -m "Deployed to AWS: $COMMIT on $TIMESTAMP"; then
     echo "   ⚠️  Warning: Failed to create git tag (deployment was successful)"
     TAG_CREATED=false
     DEPLOY_TAG="(not created - git tag failed)"
@@ -212,15 +210,13 @@ echo "🔍 Checking for running tasks..."
 ECS_ERROR=$(mktemp)
 trap 'rm -f "$ECS_ERROR"' EXIT  # Ensure cleanup on any exit
 
-RUNNING_TASKS=$(aws ecs list-tasks \
+
+if ! RUNNING_TASKS=$(aws ecs list-tasks \
     --cluster mytower-cluster \
     --desired-status RUNNING \
     --region "$REGION" \
     --query 'taskArns' \
-    --output text 2>"$ECS_ERROR")
-ECS_EXIT_CODE=$?
-
-if [ $ECS_EXIT_CODE -ne 0 ]; then
+    --output text 2>"$ECS_ERROR"); then
     echo "   ⚠️  Warning: Failed to check ECS tasks"
     if [ -s "$ECS_ERROR" ]; then
         echo "   Error details: $(cat "$ECS_ERROR")"
@@ -286,9 +282,9 @@ elif [ ! -x "./run-task.sh" ]; then
     echo "   ⚠️  Warning: run-task.sh is not executable"
     echo "   Run: chmod +x run-task.sh"
 else
-    ./run-task.sh
+    
     TASK_EXIT_CODE=$?
-    if [ $TASK_EXIT_CODE -ne 0 ]; then
+    if ! ./run-task.sh; then
         echo "   ⚠️  Warning: run-task.sh failed (exit code: $TASK_EXIT_CODE)"
         echo "   Check the script output above for details"
     else
