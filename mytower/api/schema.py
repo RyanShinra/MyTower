@@ -219,7 +219,7 @@ class Subscription:
         Yields:
             BuildingSnapshotGQL: Current building state snapshot, or None if game not running
         """
-        logger.info(f" New building state subscription started (interval: {interval_ms}ms)")
+        logger.info(f"[SUB] New building state subscription started (interval: {interval_ms}ms)")
 
         if not (5 <= interval_ms <= 10000):
             logger.error(f"[ERROR] Invalid interval_ms: {interval_ms}")
@@ -278,7 +278,7 @@ class Subscription:
         Yields:
             Time: Current game time in seconds
         """
-        logger.info(f" New game time subscription started (interval: {interval_ms}ms)")
+        logger.info(f"[SUB] New game time subscription started (interval: {interval_ms}ms)")
 
         if not (5 <= interval_ms <= 10000):
             logger.error(f"[ERROR] Invalid interval_ms: {interval_ms}")
