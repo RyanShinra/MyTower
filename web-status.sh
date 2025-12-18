@@ -10,6 +10,7 @@ echo "=============================="
 echo ""
 
 # Configuration
+# TODO: Extract to common config file ; other scripts use this
 REGION=us-east-2
 BUCKET_NAME=mytower-web-dev
 DISTRIBUTION_NAME="MyTower Web Frontend"
@@ -30,11 +31,11 @@ fi
 echo "☁️  CloudFront Distribution"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-DISTRIBUTION_INFO=$(aws cloudfront get-distribution --id "$DISTRIBUTION_ID" 2>/dev/null)
-
-DOMAIN=$(echo "$DISTRIBUTION_INFO" | grep -oP '"DomainName":\s*"\K[^"]+' | head -1)
-STATUS=$(echo "$DISTRIBUTION_INFO" | grep -oP '"Status":\s*"\K[^"]+' | head -1)
-ENABLED=$(echo "$DISTRIBUTION_INFO" | grep -oP '"Enabled":\s*\K[^,]+' | head -1)
+# Use AWS CLI's built-in --query for cross-platform JSON parsing (works on Mac/Linux/Windows)
+# Alternative: jq could be used, but requires additional installation on some systems
+DOMAIN=$(aws cloudfront get-distribution --id "$DISTRIBUTION_ID" --query 'Distribution.DomainName' --output text 2>/dev/null)
+STATUS=$(aws cloudfront get-distribution --id "$DISTRIBUTION_ID" --query 'Distribution.Status' --output text 2>/dev/null)
+ENABLED=$(aws cloudfront get-distribution --id "$DISTRIBUTION_ID" --query 'Distribution.DistributionConfig.Enabled' --output text 2>/dev/null)
 
 echo "ID:       $DISTRIBUTION_ID"
 echo "Domain:   $DOMAIN"
@@ -93,8 +94,9 @@ if [ -d "deployments" ]; then
 
     if [ -n "$RECENT_DEPLOYS" ]; then
         echo "$RECENT_DEPLOYS" | while read -r deploy_file; do
-            TIMESTAMP=$(grep -oP '"timestamp":\s*"\K[^"]+' "$deploy_file")
-            COMMIT=$(grep -oP '"commit":\s*"\K[^"]+' "$deploy_file")
+            # Use basic grep/sed for cross-platform compatibility (Mac's grep doesn't support -P flag)
+            TIMESTAMP=$(grep '"timestamp"' "$deploy_file" | sed 's/.*"timestamp"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+            COMMIT=$(grep '"commit"' "$deploy_file" | sed 's/.*"commit"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
             echo "• $TIMESTAMP (commit: $COMMIT)"
         done
     else
