@@ -257,7 +257,7 @@ class Subscription:
 
         finally:
             # Cleanup code runs whether cancelled, errored, or completed
-            logger.info(f"[o] Building State Subscription cleaned up - total messages: {message_count}")
+            logger.info(f"[cleanup] Building State Subscription cleaned up - total messages: {message_count}")
             # Could release resources, decrement counter, etc.
 
 
