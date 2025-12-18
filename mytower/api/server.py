@@ -148,14 +148,14 @@ async def decrement_ws_connection(ip: str) -> None:
             current_count = ws_connections[ip]
             if current_count <= 0:
                 logger.info(
-                    f" WebSocket disconnected: {ip} (0/{MAX_WS_CONNECTIONS_PER_IP})"
+                    f"[WS] WebSocket disconnected: {ip} (0/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
                 del ws_connections[ip]
                 # Do NOT delete the lock here; keep it for future synchronization
                 # TODO: Optionally implement lock cleanup if memory usage is a concern
             else:
                 logger.info(
-                    f" WebSocket disconnected: {ip} ({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
+                    f"[WS] WebSocket disconnected: {ip} ({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
 
 
@@ -168,11 +168,11 @@ async def decrement_ws_connection(ip: str) -> None:
 # Add middleware to log all requests and apply rate limiting
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f" Incoming request: {request.method} {request.url}")
+    logger.info(f"[HTTP] Incoming request: {request.method} {request.url}")
     logger.info(f"[CHECK] Client: {request.client.host if request.client else 'unknown'}")
     logger.info(f"[CHECK] Headers: {dict(request.headers)}")
     response = await call_next(request)
-    logger.info(f"[UPLOAD] Response status: {response.status_code}")
+    logger.info(f"[RESPONSE] Response status: {response.status_code}")
     return response
 
 # ============================================================================
@@ -413,7 +413,7 @@ app.include_router(graphql_app, prefix="/graphql")
 @limiter.limit(os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute"))
 # The `request` parameter is required by the rate limiter decorator but is unused.
 def read_root(request: Request) -> dict[str, str]:
-    logger.info(" Root endpoint called")
+    logger.info("[HTTP] Root endpoint called")
     return {"message": "MyTower GraphQL API", "graphql": "/graphql"}
 
 @app.get("/health")

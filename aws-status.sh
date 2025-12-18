@@ -16,7 +16,7 @@ aws ecs list-tasks \
     --region $REGION
 
 echo ""
-echo "[ERROR] Stopped tasks (recent):"
+echo "[STOPPED] Stopped tasks (recent):"
 aws ecs list-tasks \
     --cluster mytower-cluster \
     --desired-status STOPPED \

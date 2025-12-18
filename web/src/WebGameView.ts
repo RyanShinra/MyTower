@@ -77,7 +77,7 @@ export class WebGameView {
       // Handle WebSocket connection errors and closures BEFORE subscribing
       on: {
         connecting: () => {
-          console.log(' WebSocket connecting...');
+          console.log('[CONNECT] WebSocket connecting...');
         },
         opened: (socket: any) => {
           console.log('[OK] WebSocket opened successfully');
@@ -90,10 +90,10 @@ export class WebGameView {
           console.log(`[CHECK] Connection payload:`, payload);
         },
         ping: (received: boolean, payload: any) => {
-          console.log(` Ping ${received ? 'received' : 'sent'}`, payload);
+          console.log(`[PING] Ping ${received ? 'received' : 'sent'}`, payload);
         },
         pong: (received: boolean, payload: any) => {
-          console.log(` Pong ${received ? 'received' : 'sent'}`, payload);
+          console.log(`[PONG] Pong ${received ? 'received' : 'sent'}`, payload);
         },
         message: (message: any) => {
           console.log(' WebSocket message:', message);
@@ -115,7 +115,7 @@ export class WebGameView {
           this.currentSnapshot = null;
         },
         closed: (event: any) => {
-          console.warn(' WebSocket connection closed');
+          console.warn('[WS] WebSocket connection closed');
           if (event) {
             console.warn('[CHECK] Close event code:', event.code);
             console.warn('[CHECK] Close event reason:', event.reason);

@@ -314,7 +314,7 @@ DISTRIBUTION_STATUS=$(aws cloudfront get-distribution \
     --output text)
 
 # Step 7: Create deployment metadata
-echo " Saving deployment metadata..."
+echo "[SAVE] Saving deployment metadata..."
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
