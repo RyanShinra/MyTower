@@ -33,14 +33,14 @@ from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 
 class PersonFactory(Protocol):
 
-    def __call__(self, cur_floor_num: int, dest_floor_num: int) -> Mock: ...  # ✅ Honest return type
+    def __call__(self, cur_floor_num: int, dest_floor_num: int) -> Mock: ...  # [OK] Honest return type
 
 
 @pytest.fixture
 def mock_person_factory() -> PersonFactory:
 
 
-    def _person_gen(cur_floor_num: int, dest_floor_num: int) -> Mock:  # ✅ Returns Mock
+    def _person_gen(cur_floor_num: int, dest_floor_num: int) -> Mock:  # [OK] Returns Mock
         person: Final[MagicMock] = MagicMock(spec=PersonProtocol)
         type(person).current_floor_num = PropertyMock(return_value=cur_floor_num)
         type(person).destination_floor_num = PropertyMock(return_value=dest_floor_num)
@@ -84,14 +84,14 @@ def state_assertions() -> StateAssertions:
 
 
 @pytest.fixture
-def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:  # ✅
+def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock]:  # [OK]
     """Factory for creating building mocks with configurable floor behavior"""
 
     def _create_building(
         has_floors: bool = True,
         num_floors: int = BUILDING_DEFAULT_NUM_FLOORS,
         floor_width: float = BUILDING_DEFAULT_FLOOR_WIDTH,
-    ) -> Mock:  # ✅ Returns Mock
+    ) -> Mock:  # [OK] Returns Mock
         return typed_mock_factory.create_building_mock(
             num_floors=num_floors, floor_width=floor_width, has_floors=has_floors
         )
@@ -100,7 +100,7 @@ def building_factory(typed_mock_factory: TypedMockFactory) -> Callable[..., Mock
 
 
 @pytest.fixture
-def mock_building_no_floor() -> Mock:  # ✅
+def mock_building_no_floor() -> Mock:  # [OK]
     """Standard building mock - For tests where a person does not need to belong to a floor"""
     building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
@@ -111,7 +111,7 @@ def mock_building_no_floor() -> Mock:  # ✅
 
 
 @pytest.fixture
-def mock_building_with_floor() -> Mock:  # ✅
+def mock_building_with_floor() -> Mock:  # [OK]
     """Building mock that returns a floor (for tests where person should be on a floor)"""
     building = MagicMock(spec=BuildingProtocol)
     building.num_floors = BUILDING_DEFAULT_NUM_FLOORS
@@ -171,9 +171,9 @@ PERSON_DEFAULT_BLOCK: Final[Blocks] = Blocks(11.0)
 @pytest.fixture
 def person_with_floor(
     mock_logger_provider: MagicMock,
-    mock_building_with_floor: Mock,  # ✅ Changed - was BuildingProtocol
+    mock_building_with_floor: Mock,  # [OK] Changed - was BuildingProtocol
     mock_game_config: MagicMock,
-) -> TestablePersonProtocol:  # ✅ This is correct - returns real Person
+) -> TestablePersonProtocol:  # [OK] This is correct - returns real Person
     """Person fixture that starts on a floor"""
     return Person(
         logger_provider=mock_logger_provider,
@@ -185,7 +185,7 @@ def person_with_floor(
 
 # Elevator-specific fixtures
 @pytest.fixture
-def mock_elevator_bank() -> Mock:  # ✅
+def mock_elevator_bank() -> Mock:  # [OK]
     mock_bank = MagicMock(spec=ElevatorBankProtocol)
     mock_bank.horizontal_position = Blocks(5)
     return mock_bank
@@ -204,7 +204,7 @@ def mock_elevator_config() -> MagicMock:
 
 
 @pytest.fixture
-def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
+def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # [OK]
     elevator = MagicMock(spec=ElevatorProtocol)
     elevator.elevator_state = ElevatorState.IDLE
     elevator.current_floor_int = 5
@@ -217,10 +217,10 @@ def mock_elevator(mock_logger_provider: MagicMock) -> Mock:  # ✅
 
 @pytest.fixture
 def elevator_bank(
-    mock_building_no_floor: Mock,  # ✅ Changed - was BuildingProtocol
+    mock_building_no_floor: Mock,  # [OK] Changed - was BuildingProtocol
     mock_logger_provider: MagicMock,
     mock_cosmetics_config: MagicMock,
-) -> TestableElevatorBankProtocol:  # ✅ This is correct - returns real ElevatorBank
+) -> TestableElevatorBankProtocol:  # [OK] This is correct - returns real ElevatorBank
     return ElevatorBank(
         building=mock_building_no_floor,
         logger_provider=mock_logger_provider,
@@ -234,10 +234,10 @@ def elevator_bank(
 @pytest.fixture
 def elevator(
     mock_logger_provider: MagicMock,
-    mock_elevator_bank: Mock,  # ✅ Changed - was ElevatorBankProtocol
+    mock_elevator_bank: Mock,  # [OK] Changed - was ElevatorBankProtocol
     mock_elevator_config: MagicMock,
     mock_cosmetics_config: MagicMock,
-) -> TestableElevatorProtocol:  # ✅ This is correct - returns real Elevator
+) -> TestableElevatorProtocol:  # [OK] This is correct - returns real Elevator
     """Fixture returns type that supports both production and testing interfaces"""
     return Elevator(
         mock_logger_provider,

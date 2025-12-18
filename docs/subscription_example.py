@@ -99,23 +99,23 @@ async def subscribe_to_building_state(
             building_state = result.get("buildingStateStream")
 
             if building_state is None:
-                print("⏸️  Game not running yet...")
+                print("  Game not running yet...")
                 continue
 
             # Display building state summary
-            print(f"\n⏰ Time: {building_state['time']:.1f}s | 💰 Money: ${building_state['money']}")
-            print(f"🏢 Floors: {len(building_state['floors'])} | 🛗 Elevators: {len(building_state['elevators'])} | 👥 People: {len(building_state['people'])}")
+            print(f"\n Time: {building_state['time']:.1f}s |  Money: ${building_state['money']}")
+            print(f" Floors: {len(building_state['floors'])} |  Elevators: {len(building_state['elevators'])} |  People: {len(building_state['people'])}")
 
             # Show elevator status
             for elevator in building_state["elevators"][:3]:  # Show first 3
                 print(
-                    f"  🛗 {elevator['id'][:8]}... @ {elevator['verticalPosition']:.1f} [{elevator['elevatorState']}] ({elevator['passengerCount']} passengers)" # pyright: ignore[reportImplicitStringConcatenation]
+                    f"   {elevator['id'][:8]}... @ {elevator['verticalPosition']:.1f} [{elevator['elevatorState']}] ({elevator['passengerCount']} passengers)" # pyright: ignore[reportImplicitStringConcatenation]
                 )
 
             # Show people status
             mad_count = sum(1 for p in building_state["people"] if p["madFraction"] > 0.5)
             if mad_count > 0:
-                print(f"  😡 {mad_count} people are getting mad!")
+                print(f"   {mad_count} people are getting mad!")
 
 
 async def subscribe_to_game_time(
@@ -144,7 +144,7 @@ async def subscribe_to_game_time(
             variable_values={"intervalMs": interval_ms},
         ):
             game_time = result.get("gameTimeStream")
-            print(f"⏰ Game Time: {game_time:.2f}s", end="\r")
+            print(f" Game Time: {game_time:.2f}s", end="\r")
 
 
 async def main() -> None:
@@ -163,8 +163,8 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n\n👋 Subscription stopped by user")
+        print("\n\n Subscription stopped by user")
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n[ERROR] Error: {e}")
         print("\nMake sure the MyTower server is running:")
         print("  python -m mytower --mode hybrid")

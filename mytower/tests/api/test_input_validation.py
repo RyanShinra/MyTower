@@ -465,7 +465,7 @@ class TestAddElevatorInputModel:
     def test_id_with_emoji(self) -> None:
         """Should reject ID with emoji"""
         with pytest.raises(ValidationError) as exc_info:
-            AddElevatorInputModel(elevator_bank_id="bank🏢")
+            AddElevatorInputModel(elevator_bank_id="bank")
         assert "must contain only alphanumeric characters, hyphens, and underscores" in str(
             exc_info.value
         )

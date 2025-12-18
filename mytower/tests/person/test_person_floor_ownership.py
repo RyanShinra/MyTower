@@ -57,7 +57,7 @@ class TestPersonFloorOwnership:
     def test_floor_ownership_transfer_during_elevator_journey(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock
     ) -> None:
-        """Test complete floor ownership transfer: floor A → elevator → floor B"""
+        """Test complete floor ownership transfer: floor A -> elevator -> floor B"""
         mock_elevator = MagicMock()
         mock_elevator.current_floor_int = 7
         mock_elevator.parent_elevator_bank.get_waiting_position.return_value = 5
