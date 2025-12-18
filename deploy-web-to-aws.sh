@@ -10,6 +10,7 @@ echo "=========================================="
 echo ""
 
 # Configuration
+# TODO: Extract to common config file ; other scripts use this
 REGION=us-east-2
 BUCKET_NAME=mytower-web-dev
 DISTRIBUTION_NAME="MyTower Web Frontend"
@@ -104,10 +105,11 @@ echo ""
 read -p "Continue with public bucket configuration? (y/N): " -r
 echo ""
 
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+if [[ ! $REPLY =~ ^[Yy][Ee][Ss]?$ ]]; then
     echo "❌ Deployment cancelled - bucket policy not configured"
     echo "   Note: The bucket was created but is not publicly accessible"
     exit 1
+fi
 fi
 
 # First, disable block public access settings
