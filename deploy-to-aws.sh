@@ -282,8 +282,9 @@ elif [ ! -x "./run-task.sh" ]; then
     echo "   [WARNING]  Warning: run-task.sh is not executable"
     echo "   Run: chmod +x run-task.sh"
 else
-    if ! ./run-task.sh; then
-        TASK_EXIT_CODE=$?
+    ./run-task.sh
+    TASK_EXIT_CODE=$?
+    if [ $TASK_EXIT_CODE -ne 0 ]; then
         echo "   [WARNING]  Warning: run-task.sh failed (exit code: $TASK_EXIT_CODE)"
         echo "   Check the script output above for details"
     else
