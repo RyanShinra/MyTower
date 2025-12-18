@@ -424,26 +424,35 @@ export class WebGameView {
 
     // Add new method for elevator bank
     public async addElevatorBank(
-        hCell: number,
+        horizontalPosition: number,
         minFloor: number,
         maxFloor: number
     ): Promise<string> {
         const mutation = `
-            mutation AddElevatorBank($hCell: Int!, $minFloor: Int!, $maxFloor: Int!) {
-                addElevatorBank(hCell: $hCell, minFloor: $minFloor, maxFloor: $maxFloor)
+            mutation AddElevatorBank($input: AddElevatorBankInput!) {
+                addElevatorBank(input: $input)
             }
         `;
 
         try {
-            const result = await this.gqlClient.request(mutation, {
-                hCell,
-                minFloor,
-                maxFloor
-            });
-            console.log('✅ Elevator bank created:', result);
-            return result.addElevatorBank;
+            const result: AddElevatorBankResult = await this.gqlClient.request<
+                AddElevatorBankResult,
+                { input: AddElevatorBankInput }
+            >(
+                mutation,
+                {
+                    input: {
+                        horizPosition: horizontalPosition,
+                        minFloor,
+                        maxFloor
+                    }
+                }
+            );
+            const bankId = result.addElevatorBank;
+            console.log(`✅ Added elevator bank: ${bankId} at hCell ${horizontalPosition}, floors ${minFloor}-${maxFloor}`);
+            return bankId;
         } catch (error) {
-            console.error('❌ Failed to create elevator bank:', error);
+            console.error('❌ Failed to add elevator bank:', error);
             throw error;
         }
     }
