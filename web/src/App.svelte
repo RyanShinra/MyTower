@@ -49,7 +49,7 @@
 
         try {
             // Create elevator bank with default parameters:
-            // - hCell=3: Horizontal position (center-ish of typical building)
+            // - horizPosition=3: Horizontal position (center-ish of typical building)
             // - minFloor=0: Ground floor (lobby level)
             // - maxFloor=20: Serves up to 20 floors (typical mid-rise building)
             // TODO: Make these configurable via UI inputs
