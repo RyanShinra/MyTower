@@ -50,7 +50,7 @@ echo ""
 if [ -d "dist" ]; then
     echo "📊 Build Output:"
     if du -sh dist 2>/dev/null; then
-        : # already printed human-readable size
+        true # it's already printed human-readable size
     elif du -s dist 2>/dev/null; then
         SIZE=$(du -s dist | awk '{print $1}')
         echo "Size: $SIZE KB"
