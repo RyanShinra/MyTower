@@ -117,7 +117,6 @@ DEPLOY_TAG="deploy-$(date -u +%Y%m%d-%H%M%S)"
 METADATA_FILE="deployments/${DEPLOY_TAG}.json"
 
 # Capture full commit hash before heredoc to handle errors
-COMMIT_FULL=$(git rev-parse HEAD)
 if ! COMMIT_FULL=$(git rev-parse HEAD); then
     echo "   ⚠️  Warning: Failed to get full commit hash"
     COMMIT_FULL="unknown"
