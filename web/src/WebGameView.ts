@@ -96,7 +96,7 @@ export class WebGameView {
           console.log(`[PONG] Pong ${received ? 'received' : 'sent'}`, payload);
         },
         message: (message: any) => {
-          console.log(' WebSocket message:', message);
+          console.log('[WS] WebSocket message:', message);
         },
         error: (error: any) => {
           console.error('[ERROR] WebSocket connection error:', error);
@@ -137,7 +137,7 @@ export class WebGameView {
   }
 
   private subscribeToBuilding(): void {
-    console.log(' Starting subscription to building state stream...');
+    console.log('[SUB] Starting subscription to building state stream...');
     
     const subscription = `
       subscription BuildingStateStream {
