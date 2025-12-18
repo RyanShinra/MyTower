@@ -110,7 +110,6 @@ if [[ ! $REPLY =~ ^[Yy][Ee][Ss]?$ ]]; then
     echo "   Note: The bucket was created but is not publicly accessible"
     exit 1
 fi
-fi
 
 # First, disable block public access settings
 aws s3api put-public-access-block \
