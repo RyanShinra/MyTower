@@ -210,6 +210,7 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
     # TODO: Extract CloudFront distribution config to a separate JSON template file for easier maintenance and validation.
     # NOTE: If cross-origin requests to S3 are needed in the future, add OriginRequestPolicyId to DefaultCacheBehavior:
     #       "OriginRequestPolicyId": "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf"  (CORS-S3Origin managed policy)
+    # The CachePolicyId "658327ea-f89d-4fab-a63d-7e88639e58f6" is the AWS managed "CachingOptimized" policy, which is a standard AWS-managed cache policy
     DIST_CONFIG=$(cat <<EOF
 {
     "CallerReference": "mytower-web-dev-$(date +%s)",
