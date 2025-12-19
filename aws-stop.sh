@@ -17,11 +17,11 @@ TASK_ARN=$(aws ecs list-tasks \
     --output text)
 
 if [ "$TASK_ARN" == "None" ] || [ -z "$TASK_ARN" ]; then
-    echo "[i]  No running tasks found"
+    echo "[INFO] No running tasks found"
     exit 0
 fi
 
-echo "* Found task: $TASK_ARN"
+echo "[TASK] Found task: $TASK_ARN"
 echo "   Stopping..."
 
 aws ecs stop-task \
