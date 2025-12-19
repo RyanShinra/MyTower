@@ -9,7 +9,7 @@ echo "🛑 Stopping MyTower Docker Container"
 echo ""
 
 if [ ! "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
-    echo "ℹ️  Container '$CONTAINER_NAME' is not running"
+    echo "[INFO] Container '$CONTAINER_NAME' is not running"
     exit 0
 fi
 

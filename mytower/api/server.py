@@ -212,11 +212,11 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         self.query_rate: str = os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute")
         self.mutation_rate: str = os.getenv("MYTOWER_RATE_LIMIT_MUTATIONS", "100/minute")
         logger.info(
-            f"🛡️  Rate limiting enabled: "
+            f"[INIT] Rate limiting enabled: "
             f"Queries={self.query_rate}, Mutations={self.mutation_rate}"
         )
         logger.info(
-            f"🛡️  WebSocket limit: "
+            f"[INIT] WebSocket limit: "
             f"{MAX_WS_CONNECTIONS_PER_IP} concurrent connections per IP"
         )
 
@@ -255,7 +255,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # Check if client has exceeded WebSocket connection limit
                 if ws_connections[client_ip] >= MAX_WS_CONNECTIONS_PER_IP:
                     logger.warning(
-                        f"🚫 WebSocket connection limit exceeded for {client_ip}: "
+                        f"[WS] WebSocket connection limit exceeded for {client_ip}: "
                         f"{ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP}"
                     )
                     return JSONResponse(
@@ -275,7 +275,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 current_count: int = ws_connections[client_ip]
                 # Log inside lock to ensure consistency
                 logger.info(
-                    f"🔌 WebSocket connected: {client_ip} "
+                    f"[WS] WebSocket connected: {client_ip} "
                     f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
 
@@ -329,7 +329,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # Log which limit was applied
                 operation_type: str = "Mutation" if is_mutation else "Query"
                 logger.debug(
-                    f"✓ {operation_type} rate limit check passed for {client_ip}"
+                    f"[RATE] {operation_type} rate limit check passed for {client_ip}"
                 )
 
         except RateLimitExceeded as main_rate_limit_error:
@@ -337,7 +337,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             # The re-raise is explicit (not naked) to make the flow clear
             operation_type = "Mutation" if is_mutation else "Query"
             logger.warning(
-                f"🚫 {operation_type} rate limit exceeded for {client_ip}"
+                f"[RATE] {operation_type} rate limit exceeded for {client_ip}"
             )
             # raise main_rate_limit_error from None
             raise main_rate_limit_error # TODO: Review if from None is needed here
@@ -352,7 +352,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 await self._apply_rate_limit(request, self.mutation_rate)
             except RateLimitExceeded as fallback_rate_limit_error:
                 logger.warning(
-                    f"🚫 Rate limit exceeded for {client_ip} (default/unparseable)"
+                    f"[RATE] Rate limit exceeded for {client_ip} (default/unparseable)"
                 )
                 raise fallback_rate_limit_error from None
 
@@ -403,8 +403,8 @@ graphql_app: RateLimitedGraphQLRouter = RateLimitedGraphQLRouter(
 )
 
 # Log WebSocket endpoint registration
-logger.info("🔌 GraphQL WebSocket endpoint registered at /graphql")
-logger.info("📡 Supported protocols: graphql-transport-ws, graphql-ws")
+logger.info("[WS] GraphQL WebSocket endpoint registered at /graphql")
+logger.info("[WS] Supported protocols: graphql-transport-ws, graphql-ws")
 
 app.include_router(graphql_app, prefix="/graphql")
 
@@ -413,7 +413,7 @@ app.include_router(graphql_app, prefix="/graphql")
 @limiter.limit(os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute"))
 # The `request` parameter is required by the rate limiter decorator but is unused.
 def read_root(request: Request) -> dict[str, str]:
-    logger.info("📍 Root endpoint called")
+    logger.info("[HTTP] Root endpoint called")
     return {"message": "MyTower GraphQL API", "graphql": "/graphql"}
 
 @app.get("/health")
@@ -455,7 +455,7 @@ async def run_server_async(
             try:
                 while not shutdown_event.is_set():
                     await asyncio.sleep(0.1)
-                logger.info("Shutdown event detected, stopping server...")
+                logger.info("[SHUTDOWN] Shutdown event detected, stopping server...")
                 server.should_exit = True
             except Exception as e:
                 logger.error(f"Shutdown monitor encountered error: {e}", exc_info=True)
@@ -466,7 +466,7 @@ async def run_server_async(
 
     # Run server (blocks until shutdown)
     await server.serve()
-    logger.info("Server stopped")
+    logger.info("[SHUTDOWN] Server stopped")
 
     # The shutdown monitor will be automatically cancelled when the event loop exits.
     # No need to explicitly wait for it since it's just monitoring the shutdown_event

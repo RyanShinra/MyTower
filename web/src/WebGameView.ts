@@ -201,8 +201,8 @@ export class WebGameView {
           this.currentSnapshot = null;
         },
         complete: () => {
-          console.log('ℹ️ Subscription completed');
-          console.log(`📊 Total messages received: ${messageCount}`);
+          console.log('[INFO] Subscription completed');
+          console.log(`[INFO] Total messages received: ${messageCount}`);
         }
       }
     );

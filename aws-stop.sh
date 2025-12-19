@@ -17,7 +17,7 @@ TASK_ARN=$(aws ecs list-tasks \
     --output text)
 
 if [ "$TASK_ARN" == "None" ] || [ -z "$TASK_ARN" ]; then
-    echo "ℹ️  No running tasks found"
+    echo "[INFO] No running tasks found"
     exit 0
 fi
 
