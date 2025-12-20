@@ -72,7 +72,7 @@ echo "   [OK] Tagged: $IMAGE_URI"
 echo ""
 
 # Login to ECR
-echo " Authenticating with ECR..."
+echo "[AUTH] Authenticating with ECR..."
 
 
 if ! aws ecr get-login-password --region $REGION | \
@@ -259,7 +259,7 @@ if [ -n "$RUNNING_TASKS" ] && [ "$RUNNING_TASKS" != "None" ]; then
         sleep 5
         echo ""
     else
-        echo "[i]  Existing tasks will continue running with old image"
+        echo "[INFO] Existing tasks will continue running with old image"
         echo "   Run ./run-task.sh manually to start a task with new image"
         echo ""
         echo "[OK] Deployment complete!"

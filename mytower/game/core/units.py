@@ -351,8 +351,8 @@ class Velocity:
 
     def __mul__(self, time: Time | float) -> Meters | Velocity:
         """
-        Velocity X Time = Distance (dimensional analysis)
-        Velocity X scalar = Velocity (scaling)
+        Velocity × Time = Distance (dimensional analysis)
+        Velocity × scalar = Velocity (scaling)
         """
         if isinstance(time, Time):
             return Meters(self.value * time.value)

@@ -77,16 +77,16 @@ export class WebGameView {
       // Handle WebSocket connection errors and closures BEFORE subscribing
       on: {
         connecting: () => {
-          console.log('[CONNECT] WebSocket connecting...');
+          console.log(`[CONNECT] WebSocket connecting...`);
         },
         opened: (socket: any) => {
-          console.log('[OK] WebSocket opened successfully');
+          console.log(`[OK] WebSocket opened successfully`);
           console.log(`[CHECK] Socket readyState: ${socket?.readyState}`);
           console.log(`[CHECK] Socket protocol: ${socket?.protocol}`);
           console.log(`[CHECK] Socket url: ${socket?.url}`);
         },
         connected: (socket: any, payload: any) => {
-          console.log('[OK] WebSocket connected and acknowledged');
+          console.log(`[OK] WebSocket connected and acknowledged`);
           console.log(`[CHECK] Connection payload:`, payload);
         },
         ping: (received: boolean, payload: any) => {
@@ -96,30 +96,30 @@ export class WebGameView {
           console.log(`[PONG] Pong ${received ? 'received' : 'sent'}`, payload);
         },
         message: (message: any) => {
-          console.log('[WS] WebSocket message:', message);
+          console.log(`[WS] WebSocket message:`, message);
         },
         error: (error: any) => {
-          console.error('[ERROR] WebSocket connection error:', error);
-          console.error('[CHECK] Error type:', typeof error);
-          console.error('[CHECK] Error constructor:', error?.constructor?.name);
+          console.error(`[ERROR] WebSocket connection error:`, error);
+          console.error(`[CHECK] Error type:`, typeof error);
+          console.error(`[CHECK] Error constructor:`, error?.constructor?.name);
           if (error instanceof Event) {
-            console.error('[CHECK] Event type:', error.type);
-            console.error('[CHECK] Event target:', error.target);
+            console.error(`[CHECK] Event type:`, error.type);
+            console.error(`[CHECK] Event target:`, error.target);
           }
           if (error instanceof CloseEvent) {
-            console.error('[CHECK] Close code:', error.code);
-            console.error('[CHECK] Close reason:', error.reason);
-            console.error('[CHECK] Was clean:', error.wasClean);
+            console.error(`[CHECK] Close code:`, error.code);
+            console.error(`[CHECK] Close reason:`, error.reason);
+            console.error(`[CHECK] Was clean:`, error.wasClean);
           }
           this.uiRenderer.showConnectionError('Connection to game server failed.');
           this.currentSnapshot = null;
         },
         closed: (event: any) => {
-          console.warn('[WS] WebSocket connection closed');
+          console.warn(`[WS] WebSocket connection closed`);
           if (event) {
-            console.warn('[CHECK] Close event code:', event.code);
-            console.warn('[CHECK] Close event reason:', event.reason);
-            console.warn('[CHECK] Was clean:', event.wasClean);
+            console.warn(`[CHECK] Close event code:`, event.code);
+            console.warn(`[CHECK] Close event reason:`, event.reason);
+            console.warn(`[CHECK] Was clean:`, event.wasClean);
           }
           this.uiRenderer.showConnectionError('Connection to game server lost.');
           this.currentSnapshot = null;
@@ -132,12 +132,12 @@ export class WebGameView {
     // Start subscription and rendering
     this.subscribeToBuilding();
     this.startRenderLoop();
-    
-    console.log('[GAME] WebGameView initialized with typed units system');
+
+    console.log(`[GAME] WebGameView initialized with typed units system`);
   }
 
   private subscribeToBuilding(): void {
-    console.log('[SUB] Starting subscription to building state stream...');
+    console.log(`[SUB] Starting subscription to building state stream...`);
     
     const subscription = `
       subscription BuildingStateStream {
@@ -187,7 +187,7 @@ export class WebGameView {
         next: (result: any) => {
           messageCount++;
           if (messageCount === 1) {
-            console.log('[OK] First subscription message received!');
+            console.log(`[OK] First subscription message received!`);
           }
           if (messageCount % 100 === 0) {
             console.log(`[INFO] Received ${messageCount} subscription messages`);
@@ -195,13 +195,13 @@ export class WebGameView {
           this.currentSnapshot = result.data?.buildingStateStream;
         },
         error: (error: any) => {
-          console.error('[ERROR] Subscription error:', error);
-          console.error('[CHECK] Error details:', JSON.stringify(error, null, 2));
+          console.error(`[ERROR] Subscription error:`, error);
+          console.error(`[CHECK] Error details:`, JSON.stringify(error, null, 2));
           this.uiRenderer.showConnectionError('Subscription to game server failed.');
           this.currentSnapshot = null;
         },
         complete: () => {
-          console.log('[i] Subscription completed');
+          console.log(`[INFO] Subscription completed`);
           console.log(`[INFO] Total messages received: ${messageCount}`);
         }
       }
@@ -272,7 +272,7 @@ export class WebGameView {
       await this.gqlClient.request(mutation, { floorType });
       console.log(`[OK] Added floor: ${floorType}`);
     } catch (error) {
-      console.error('[ERROR] Failed to add floor:', error);
+      console.error(`[ERROR] Failed to add floor:`, error);
     }
   }
 
@@ -281,6 +281,6 @@ export class WebGameView {
       cancelAnimationFrame(this.animationFrameId);
     }
     this.wsClient.dispose();
-    console.log('[CLEAN] WebGameView cleaned up');
+    console.log(`[CLEAN] WebGameView cleaned up`);
   }
 }
