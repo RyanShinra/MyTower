@@ -295,7 +295,7 @@ class Subscription:
                 await asyncio.sleep(interval_seconds)
         except asyncio.CancelledError:
             # Client disconnected or subscription was cancelled
-            logger.info(" Game time subscription cancelled (client disconnected)")
+            logger.info("[SUB] Game time subscription cancelled (client disconnected)")
             raise
         except Exception as e:
             logger.error(f"[ERROR] Game time subscription error: {e}", exc_info=True)
