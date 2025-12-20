@@ -212,11 +212,11 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         self.query_rate: str = os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute")
         self.mutation_rate: str = os.getenv("MYTOWER_RATE_LIMIT_MUTATIONS", "100/minute")
         logger.info(
-            f"  Rate limiting enabled: "
+            f"[RATE_LIMIT] Rate limiting enabled: "
             f"Queries={self.query_rate}, Mutations={self.mutation_rate}"
         )
         logger.info(
-            f"  WebSocket limit: "
+            f"[RATE_LIMIT] WebSocket limit: "
             f"{MAX_WS_CONNECTIONS_PER_IP} concurrent connections per IP"
         )
 
@@ -352,7 +352,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 await self._apply_rate_limit(request, self.mutation_rate)
             except RateLimitExceeded as fallback_rate_limit_error:
                 logger.warning(
-                    f" Rate limit exceeded for {client_ip} (default/unparseable)"
+                    f"[RATE_LIMIT] Rate limit exceeded for {client_ip} (default/unparseable)"
                 )
                 raise fallback_rate_limit_error from None
 

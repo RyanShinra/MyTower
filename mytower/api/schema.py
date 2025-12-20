@@ -247,7 +247,7 @@ class Subscription:
         except asyncio.CancelledError:
             # Client disconnected or subscription was cancelled
             # This is NORMAL - not an error condition
-            logger.info(f" Subscription cancelled (client disconnected) - sent {message_count} messages")
+            logger.info(f"[SUB] Subscription cancelled (client disconnected) - sent {message_count} messages")
             raise  # Re-raise so Strawberry knows we handled it
 
         except Exception as e:

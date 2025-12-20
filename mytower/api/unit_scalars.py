@@ -23,7 +23,7 @@ Blocks = strawberry.scalar(
     BlocksCore,
     serialize=lambda v: float(v.value),
     parse_value=lambda v: BlocksCore(float(v)),
-    description="Vertical position in building grid coordinates (1 block == 3.2 meters / 10.5 feet). "
+    description="Vertical position in building grid coordinates (1 block ≈ 3.2 meters / 10.5 feet). "
     "Examples: Floor 1 = 1.0, elevator between floors = 2.5",
 )
 
