@@ -77,8 +77,8 @@ const GAME_TIME_SUBSCRIPTION = `
  * Subscribe to building state updates
  */
 function subscribeToBuildingState(intervalMs = 50) {
-  console.log(` Connecting to ws://localhost:8000/graphql`);
-  console.log(` Streaming building state at ${1000 / intervalMs} FPS`);
+  console.log(`[WEB] Connecting to ws://localhost:8000/graphql`);
+  console.log(`[SUB] Streaming building state at ${1000 / intervalMs} FPS`);
   console.log('-'.repeat(60));
 
   const unsubscribe = client.subscribe(
@@ -91,13 +91,13 @@ function subscribeToBuildingState(intervalMs = 50) {
         const buildingState = result.data?.buildingStateStream;
 
         if (!buildingState) {
-          console.log('  Game not running yet...');
+          console.log(`[INFO] Game not running yet...`);
           return;
         }
 
         // Display building state summary
-        console.log(`\n Time: ${buildingState.time.toFixed(1)}s |  Money: $${buildingState.money}`);
-        console.log(` Floors: ${buildingState.floors.length} |  Elevators: ${buildingState.elevators.length} |  People: ${buildingState.people.length}`);
+        console.log(`\n[TIME] Time: ${buildingState.time.toFixed(1)}s | [MONEY] Money: $${buildingState.money}`);
+        console.log(`[STATS] Floors: ${buildingState.floors.length} | Elevators: ${buildingState.elevators.length} | People: ${buildingState.people.length}`);
 
         // Show elevator status
         buildingState.elevators.slice(0, 3).forEach((elevator) => {
@@ -110,7 +110,7 @@ function subscribeToBuildingState(intervalMs = 50) {
         // Show people status
         const madCount = buildingState.people.filter((p) => p.madFraction > 0.5).length;
         if (madCount > 0) {
-          console.log(` X_X  ${madCount} people are getting mad!`);
+          console.log(`[WARN] ${madCount} people are getting mad!`);
         }
       },
       error: (error) => {
@@ -131,8 +131,8 @@ function subscribeToBuildingState(intervalMs = 50) {
  * Subscribe to game time updates only (lighter weight)
  */
 function subscribeToGameTime(intervalMs = 100) {
-  console.log(` Connecting to ws://localhost:8000/graphql`);
-  console.log(` Streaming game time at ${1000 / intervalMs} FPS`);
+  console.log(`[WEB] Connecting to ws://localhost:8000/graphql`);
+  console.log(`[SUB] Streaming game time at ${1000 / intervalMs} FPS`);
   console.log('-'.repeat(60));
 
   const unsubscribe = client.subscribe(
@@ -220,7 +220,7 @@ if (typeof require !== 'undefined' && require.main === module) {
 
   // Graceful shutdown on Ctrl+C
   process.on('SIGINT', () => {
-    console.log('\n\n Stopping subscription...');
+    console.log(`\n\n[STOP] Stopping subscription...`);
     unsubscribe();
     client.dispose();
     process.exit(0);

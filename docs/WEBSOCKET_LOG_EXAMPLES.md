@@ -8,14 +8,14 @@
 [CHECK] Client info: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
 [CHECK] Page protocol: http:
 [CHECK] WebSocket URL: ws://localhost:8000/graphql
- WebSocket connecting...
+[CONNECT] WebSocket connecting...
 [OK] WebSocket opened successfully
 [CHECK] Socket readyState: 1
 [CHECK] Socket protocol: graphql-transport-ws
 [CHECK] Socket url: ws://localhost:8000/graphql
 [OK] WebSocket connected and acknowledged
 [CHECK] Connection payload: undefined
- Starting subscription to building state stream...
+[SUB] Starting subscription to building state stream...
 [OK] First subscription message received!
 [INFO] Received 100 subscription messages
 [INFO] Received 200 subscription messages
@@ -27,13 +27,13 @@
 [CHECK] Client info: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
 [CHECK] Page protocol: http:
 [CHECK] WebSocket URL: ws://localhost:8000/graphql
- WebSocket connecting...
+[CONNECT] WebSocket connecting...
 [ERROR] WebSocket connection error: Event
 [CHECK] Error type: object
 [CHECK] Error constructor: Event
 [CHECK] Event type: error
 [CHECK] Event target: WebSocket
- WebSocket connection closed
+[WS] WebSocket connection closed
 [CHECK] Close event code: 1006
 [CHECK] Close event reason: 
 [CHECK] Was clean: false
@@ -42,7 +42,7 @@
 ### Protocol Error (Rare)
 ```
 [WEB] Connecting to game server at localhost:8000
- WebSocket connecting...
+[CONNECT] WebSocket connecting...
 [ERROR] WebSocket connection error: CloseEvent
 [CHECK] Close code: 4406
 [CHECK] Close reason: Subprotocol not acceptable
@@ -53,8 +53,8 @@
 
 ### Startup Logs
 ```
-2025-11-12 01:40:12,032 - mytower.api.server - INFO -  GraphQL WebSocket endpoint registered at /graphql
-2025-11-12 01:40:12,033 - mytower.api.server - INFO -  Supported protocols: graphql-transport-ws, graphql-ws
+2025-11-12 01:40:12,032 - mytower.api.server - INFO - [WS] GraphQL WebSocket endpoint registered at /graphql
+2025-11-12 01:40:12,033 - mytower.api.server - INFO - [WS] Supported protocols: graphql-transport-ws, graphql-ws
 01:40:12.040 | INFO     | Console Log level set to INFO
 01:40:12.040 | INFO     | Starting headless mode...
 01:40:12.041 | INFO     | Demo building complete.
@@ -70,19 +70,19 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 
 ### Client Connection
 ```
-2025-11-12 01:40:15,123 - mytower.api.server - INFO -  Incoming request: GET /graphql
+2025-11-12 01:40:15,123 - mytower.api.server - INFO - [HTTP] Incoming request: GET /graphql
 2025-11-12 01:40:15,123 - mytower.api.server - INFO - [CHECK] Client: 127.0.0.1
 2025-11-12 01:40:15,123 - mytower.api.server - INFO - [CHECK] Headers: {'host': 'localhost:8000', 'connection': 'Upgrade', 'upgrade': 'websocket', 'sec-websocket-version': '13', 'sec-websocket-key': 'dGhlIHNhbXBsZSBub25jZQ==', 'sec-websocket-protocol': 'graphql-transport-ws'}
 INFO:     ('127.0.0.1', 58756) - "WebSocket /graphql" [accepted]
 INFO:     connection open
-2025-11-12 01:40:15,124 - mytower.api.schema - INFO -  New building state subscription started (interval: 50ms)
+2025-11-12 01:40:15,124 - mytower.api.schema - INFO - [SUB] New building state subscription started (interval: 50ms)
 2025-11-12 01:40:15,125 - mytower.api.schema - INFO - [OK] First snapshot sent to client
 ```
 
 ### Client Disconnection
 ```
 INFO:     connection closed
-2025-11-12 01:40:30,456 - mytower.api.schema - INFO -  Subscription cancelled (client disconnected) - sent 300 messages
+2025-11-12 01:40:30,456 - mytower.api.schema - INFO - [SUB] Subscription cancelled (client disconnected) - sent 300 messages
 2025-11-12 01:40:30,456 - mytower.api.schema - INFO - [CLEAN] Building State Subscription cleaned up - total messages: 300
 ```
 
@@ -100,7 +100,7 @@ Look for: `[CHECK] Socket protocol: graphql-transport-ws`
 - If shows empty or different  Protocol mismatch
 
 ### 3. Check Subscription Start
-Look for: ` Starting subscription to building state stream...`
+Look for: `[SUB] Starting subscription to building state stream...`
 - Should appear after connection is established
 - Followed by: `[OK] First subscription message received!`
 
@@ -115,7 +115,7 @@ Server should log:
 ```
 INFO:     ('127.0.0.1', XXXXX) - "WebSocket /graphql" [accepted]
 INFO:     connection open
- New building state subscription started
+[SUB] New building state subscription started
 [OK] First snapshot sent to client
 ```
 
@@ -125,7 +125,7 @@ INFO:     connection open
 **Client logs show:**
 ```
 [OK] WebSocket connected and acknowledged
- Starting subscription...
+[SUB] Starting subscription...
 (no "First subscription message received!")
 ```
 
@@ -137,9 +137,9 @@ INFO:     connection open
 ### Scenario 2: "Connection immediately closes"
 **Client logs show:**
 ```
- WebSocket connecting...
+[CONNECT] WebSocket connecting...
 [ERROR] WebSocket connection error
- WebSocket connection closed
+[WS] WebSocket connection closed
 [CHECK] Close event code: 1006
 ```
 
