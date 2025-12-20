@@ -163,7 +163,7 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n\n Subscription stopped by user")
+        print("\n\n[STOP] Subscription stopped by user")
     except Exception as e:
         print(f"\n[ERROR] Error: {e}")
         print("\nMake sure the MyTower server is running:")
