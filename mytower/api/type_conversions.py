@@ -4,6 +4,7 @@
 from mytower.api.graphql_types import (
     BuildingSnapshotGQL,
     ColorGQL,
+    ElevatorBankSnapshotGQL,
     ElevatorSnapshotGQL,
     ElevatorStateGQL,
     FloorSnapshotGQL,
@@ -12,7 +13,13 @@ from mytower.api.graphql_types import (
     PersonStateGQL,
     VerticalDirectionGQL,
 )
-from mytower.game.models.model_snapshots import BuildingSnapshot, ElevatorSnapshot, FloorSnapshot, PersonSnapshot
+from mytower.game.models.model_snapshots import (
+    BuildingSnapshot,
+    ElevatorBankSnapshot,
+    ElevatorSnapshot,
+    FloorSnapshot,
+    PersonSnapshot,
+)
 
 
 def convert_building_snapshot(snapshot: BuildingSnapshot) -> BuildingSnapshotGQL:
@@ -21,6 +28,7 @@ def convert_building_snapshot(snapshot: BuildingSnapshot) -> BuildingSnapshotGQL
         money=snapshot.money,
         floors=[convert_floor_snapshot(f) for f in snapshot.floors],
         elevators=[convert_elevator_snapshot(e) for e in snapshot.elevators],
+        elevator_banks=[convert_elevator_bank_snapshot(b) for b in snapshot.elevator_banks],
         people=[convert_person_snapshot(p) for p in snapshot.people],
     )
 
@@ -52,6 +60,15 @@ def convert_elevator_snapshot(elevator: ElevatorSnapshot) -> ElevatorSnapshotGQL
         available_capacity=elevator.available_capacity,
         max_capacity=elevator.max_capacity,
         nominal_direction=VerticalDirectionGQL(elevator.nominal_direction.value),
+    )
+
+
+def convert_elevator_bank_snapshot(bank: ElevatorBankSnapshot) -> ElevatorBankSnapshotGQL:
+    return ElevatorBankSnapshotGQL(
+        id=bank.id,
+        horizontal_position=bank.horizontal_position,  # Blocks type passes through
+        min_floor=bank.min_floor,
+        max_floor=bank.max_floor,
     )
 
 

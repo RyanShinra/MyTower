@@ -167,4 +167,5 @@ class BuildingSnapshotGQL:
     money: int
     floors: list[FloorSnapshotGQL]
     elevators: list[ElevatorSnapshotGQL]
+    elevator_banks: list[ElevatorBankSnapshotGQL]
     people: list[PersonSnapshotGQL]
