@@ -20,11 +20,11 @@ This guide explains how to deploy the Svelte web frontend to AWS using S3 + Clou
 ```
 
 **Why S3 + CloudFront?**
-- ✅ **Industry Standard** - Used by Netflix, Airbnb, etc.
-- ✅ **Global CDN** - 450+ edge locations worldwide
-- ✅ **Free HTTPS** - Automatic SSL/TLS certificates
-- ✅ **Ultra Cheap** - ~$0.50/month for typical usage (free tier: $0)
-- ✅ **Professional Architecture** - Shows proper separation of concerns
+- **Industry Standard** - Used by Netflix, Airbnb, etc.
+- **Global CDN** - 450+ edge locations worldwide
+- **Free HTTPS** - Automatic SSL/TLS certificates
+- **Ultra Cheap** - ~$0.50/month for typical usage (free tier: $0)
+- **Professional Architecture** - Shows proper separation of concerns
 
 ## Prerequisites
 
