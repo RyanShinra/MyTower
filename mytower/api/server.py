@@ -255,7 +255,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # Check if client has exceeded WebSocket connection limit
                 if ws_connections[client_ip] >= MAX_WS_CONNECTIONS_PER_IP:
                     logger.warning(
-                        f" WebSocket connection limit exceeded for {client_ip}: "
+                        f"[RATE_LIMIT] WebSocket connection limit exceeded for {client_ip}: "
                         f"{ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP}"
                     )
                     return JSONResponse(
