@@ -4,7 +4,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { WebGameView } from "./WebGameView";
-    import type { FloorTypeGql } from "./generated/graphql";
+    import type { FloorTypeGQL } from "./generated/graphql";
 
     let canvas: HTMLCanvasElement;
     let gameView: WebGameView | null = null;
@@ -26,7 +26,7 @@
     });
 
     // Handler for adding floors
-    async function handleAddFloor(floorType: FloorTypeGql) {
+    async function handleAddFloor(floorType: FloorTypeGQL) {
         if (!gameView) {
             console.warn("⚠️ Game view not ready yet");
             return;
@@ -49,7 +49,7 @@
 
         try {
             // Create elevator bank with default parameters:
-            // - hCell=3: Horizontal position (center-ish of typical building)
+            // - horizPosition=3: Horizontal position (center-ish of typical building)
             // - minFloor=0: Ground floor (lobby level)
             // - maxFloor=20: Serves up to 20 floors (typical mid-rise building)
             // TODO: Make these configurable via UI inputs

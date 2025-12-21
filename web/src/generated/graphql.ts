@@ -1,6 +1,3 @@
-// Copyright (c) 2025 Ryan Osterday. All rights reserved.
-// See LICENSE file for details.
-
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -21,17 +18,38 @@ export type Scalars = {
   Time: { input: number; output: number; }
 };
 
-export type BuildingSnapshotGql = {
+export type AddElevatorBankInput = {
+  readonly horizPosition: Scalars['Blocks']['input'];
+  readonly maxFloor: Scalars['Int']['input'];
+  readonly minFloor: Scalars['Int']['input'];
+};
+
+export type AddElevatorInput = {
+  readonly elevatorBankId: Scalars['String']['input'];
+};
+
+export type AddFloorInput = {
+  readonly floorType: FloorTypeGQL;
+};
+
+export type AddPersonInput = {
+  readonly destFloor: Scalars['Int']['input'];
+  readonly destHorizPosition: Scalars['Blocks']['input'];
+  readonly initFloor: Scalars['Int']['input'];
+  readonly initHorizPosition: Scalars['Blocks']['input'];
+};
+
+export type BuildingSnapshotGQL = {
   readonly __typename?: 'BuildingSnapshotGQL';
-  readonly elevators: ReadonlyArray<ElevatorSnapshotGql>;
-  readonly elevatorBanks: ReadonlyArray<ElevatorBankSnapshotGql>;
-  readonly floors: ReadonlyArray<FloorSnapshotGql>;
+  readonly elevators: ReadonlyArray<ElevatorSnapshotGQL>;
+  readonly elevatorBanks: ReadonlyArray<ElevatorBankSnapshotGQL>;
+  readonly floors: ReadonlyArray<FloorSnapshotGQL>;
   readonly money: Scalars['Int']['output'];
-  readonly people: ReadonlyArray<PersonSnapshotGql>;
+  readonly people: ReadonlyArray<PersonSnapshotGQL>;
   readonly time: Scalars['Time']['output'];
 };
 
-export type ColorGql = {
+export type ColorGQL = {
   readonly __typename?: 'ColorGQL';
   readonly alpha: Scalars['Int']['output'];
   readonly blue: Scalars['Int']['output'];
@@ -39,7 +57,7 @@ export type ColorGql = {
   readonly red: Scalars['Int']['output'];
 };
 
-export type ElevatorBankSnapshotGql = {
+export type ElevatorBankSnapshotGQL = {
   readonly __typename?: 'ElevatorBankSnapshotGQL';
   readonly id: Scalars['String']['output'];
   readonly horizontalPosition: Scalars['Blocks']['output'];
@@ -47,7 +65,7 @@ export type ElevatorBankSnapshotGql = {
   readonly maxFloor: Scalars['Int']['output'];
 };
 
-export type ElevatorSnapshotGql = {
+export type ElevatorSnapshotGQL = {
   readonly __typename?: 'ElevatorSnapshotGQL';
   readonly availableCapacity: Scalars['Int']['output'];
   readonly destinationFloor: Scalars['Int']['output'];
@@ -55,15 +73,15 @@ export type ElevatorSnapshotGql = {
   readonly horizontalPosition: Scalars['Blocks']['output'];
   readonly id: Scalars['String']['output'];
   readonly maxCapacity: Scalars['Int']['output'];
-  readonly nominalDirection: VerticalDirectionGql;
+  readonly nominalDirection: VerticalDirectionGQL;
   readonly passengerCount: Scalars['Int']['output'];
-  readonly state: ElevatorStateGql;
+  readonly state: ElevatorStateGQL;
   readonly verticalPosition: Scalars['Blocks']['output'];
   readonly verticalPositionMeters: Scalars['Meters']['output'];
   readonly verticalPositionPixels: Scalars['Pixels']['output'];
 };
 
-export type ElevatorStateGql =
+export type ElevatorStateGQL =
   | 'ARRIVED'
   | 'IDLE'
   | 'LOADING'
@@ -71,20 +89,20 @@ export type ElevatorStateGql =
   | 'READY_TO_MOVE'
   | 'UNLOADING';
 
-export type FloorSnapshotGql = {
+export type FloorSnapshotGQL = {
   readonly __typename?: 'FloorSnapshotGQL';
-  readonly floorColor: ColorGql;
+  readonly floorColor: ColorGQL;
   readonly floorHeight: Scalars['Blocks']['output'];
   readonly floorHeightMeters: Scalars['Meters']['output'];
   readonly floorNumber: Scalars['Int']['output'];
-  readonly floorType: FloorTypeGql;
+  readonly floorType: FloorTypeGQL;
   readonly floorWidth: Scalars['Blocks']['output'];
-  readonly floorboardColor: ColorGql;
+  readonly floorboardColor: ColorGQL;
   readonly leftEdgeBlock: Scalars['Blocks']['output'];
   readonly personCount: Scalars['Int']['output'];
 };
 
-export type FloorTypeGql =
+export type FloorTypeGQL =
   | 'APARTMENT'
   | 'HOTEL'
   | 'LOBBY'
@@ -105,56 +123,46 @@ export type Mutation = {
 };
 
 
-export type MutationAddElevatorArgs = {
-  elevatorBankId: Scalars['String']['input'];
+export type MutationaddElevatorArgs = {
+  input: AddElevatorInput;
 };
 
 
-export type MutationAddElevatorBankArgs = {
-  hCell: Scalars['Int']['input'];
-  maxFloor: Scalars['Int']['input'];
-  minFloor: Scalars['Int']['input'];
+export type MutationaddElevatorBankArgs = {
+  input: AddElevatorBankInput;
 };
 
 
-export type MutationAddElevatorBankSyncArgs = {
-  hCell: Scalars['Int']['input'];
-  maxFloor: Scalars['Int']['input'];
-  minFloor: Scalars['Int']['input'];
+export type MutationaddElevatorBankSyncArgs = {
+  input: AddElevatorBankInput;
 };
 
 
-export type MutationAddElevatorSyncArgs = {
-  elevatorBankId: Scalars['String']['input'];
+export type MutationaddElevatorSyncArgs = {
+  input: AddElevatorInput;
 };
 
 
-export type MutationAddFloorArgs = {
-  floorType: FloorTypeGql;
+export type MutationaddFloorArgs = {
+  input: AddFloorInput;
 };
 
 
-export type MutationAddFloorSyncArgs = {
-  floorType: FloorTypeGql;
+export type MutationaddFloorSyncArgs = {
+  input: AddFloorInput;
 };
 
 
-export type MutationAddPersonArgs = {
-  block: Scalars['Float']['input'];
-  destBlock: Scalars['Int']['input'];
-  destFloor: Scalars['Int']['input'];
-  floor: Scalars['Int']['input'];
+export type MutationaddPersonArgs = {
+  input: AddPersonInput;
 };
 
 
-export type MutationAddPersonSyncArgs = {
-  block: Scalars['Float']['input'];
-  destBlock: Scalars['Int']['input'];
-  destFloor: Scalars['Int']['input'];
-  floor: Scalars['Int']['input'];
+export type MutationaddPersonSyncArgs = {
+  input: AddPersonInput;
 };
 
-export type PersonSnapshotGql = {
+export type PersonSnapshotGQL = {
   readonly __typename?: 'PersonSnapshotGQL';
   readonly DrawColor: ReadonlyArray<Scalars['Int']['output']>;
   readonly currentFloorNum: Scalars['Int']['output'];
@@ -162,14 +170,14 @@ export type PersonSnapshotGql = {
   readonly currentVerticalPosition: Scalars['Blocks']['output'];
   readonly destinationFloorNum: Scalars['Int']['output'];
   readonly destinationHorizontalPosition: Scalars['Blocks']['output'];
-  readonly drawColor: ColorGql;
+  readonly drawColor: ColorGQL;
   readonly madFraction: Scalars['Float']['output'];
   readonly personId: Scalars['String']['output'];
-  readonly state: PersonStateGql;
+  readonly state: PersonStateGQL;
   readonly waitingTime: Scalars['Time']['output'];
 };
 
-export type PersonStateGql =
+export type PersonStateGQL =
   | 'IDLE'
   | 'IN_ELEVATOR'
   | 'WAITING_FOR_ELEVATOR'
@@ -177,8 +185,8 @@ export type PersonStateGql =
 
 export type Query = {
   readonly __typename?: 'Query';
-  readonly allPeople?: Maybe<ReadonlyArray<PersonSnapshotGql>>;
-  readonly buildingState?: Maybe<BuildingSnapshotGql>;
+  readonly allPeople?: Maybe<ReadonlyArray<PersonSnapshotGQL>>;
+  readonly buildingState?: Maybe<BuildingSnapshotGQL>;
   readonly gameTime: Scalars['Time']['output'];
   readonly hello: Scalars['String']['output'];
   readonly isRunning: Scalars['Boolean']['output'];
@@ -186,21 +194,21 @@ export type Query = {
 
 export type Subscription = {
   readonly __typename?: 'Subscription';
-  readonly buildingStateStream?: Maybe<BuildingSnapshotGql>;
+  readonly buildingStateStream?: Maybe<BuildingSnapshotGQL>;
   readonly gameTimeStream: Scalars['Time']['output'];
 };
 
 
-export type SubscriptionBuildingStateStreamArgs = {
+export type SubscriptionbuildingStateStreamArgs = {
   intervalMs?: Scalars['Int']['input'];
 };
 
 
-export type SubscriptionGameTimeStreamArgs = {
+export type SubscriptiongameTimeStreamArgs = {
   intervalMs?: Scalars['Int']['input'];
 };
 
-export type VerticalDirectionGql =
+export type VerticalDirectionGQL =
   | 'DOWN'
   | 'STATIONARY'
   | 'UP';

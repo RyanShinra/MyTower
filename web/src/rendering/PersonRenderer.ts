@@ -9,7 +9,7 @@
 import { Blocks } from '../units/Blocks';
 import { PERSON_RADIUS, PIXELS_PER_BLOCK } from './constants';
 import { CoordinateTransform } from './CoordinateTransform';
-import type { ColorGql, PersonSnapshotGql } from '../generated/graphql';
+import type { ColorGQL, PersonSnapshotGQL } from '../generated/graphql';
 
 export class PersonRenderer {
   private transform: CoordinateTransform;
@@ -46,7 +46,7 @@ export class PersonRenderer {
     return xLeft + blockHalfWidth;
   }
 
-  public drawPerson(person: PersonSnapshotGql): void {
+  public drawPerson(person: PersonSnapshotGQL): void {
     // Calculate screen positions
     const x = this.calculateXPosition(person.currentHorizontalPosition);
     const y = this.calculateYPosition(person.currentVerticalPosition);
@@ -80,7 +80,7 @@ export class PersonRenderer {
   private drawPersonCircle(
     x: number,
     y: number,
-    color: ColorGql
+    color: ColorGQL
   ): void {
     this.context.fillStyle = `rgb(${color.red}, ${color.green}, ${color.blue})`;
     this.context.beginPath();

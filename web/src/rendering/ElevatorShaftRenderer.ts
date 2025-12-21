@@ -10,7 +10,7 @@
 import { PIXELS_PER_BLOCK } from './constants';
 import { CoordinateTransform } from './CoordinateTransform';
 import { Blocks } from '../units/Blocks';
-import type { ElevatorBankSnapshotGql } from '../generated/graphql';
+import type { ElevatorBankSnapshotGQL } from '../generated/graphql';
 
 export class ElevatorShaftRenderer {
   private transform: CoordinateTransform;
@@ -27,13 +27,13 @@ export class ElevatorShaftRenderer {
     this.transform = new CoordinateTransform(canvasHeight);
   }
 
-  public drawShafts(elevatorBanks: ReadonlyArray<ElevatorBankSnapshotGql>): void {
+  public drawShafts(elevatorBanks: ReadonlyArray<ElevatorBankSnapshotGQL>): void {
     for (const bank of elevatorBanks) {
       this.drawShaft(bank);
     }
   }
 
-  private drawShaft(bank: ElevatorBankSnapshotGql): void {
+  private drawShaft(bank: ElevatorBankSnapshotGQL): void {
     // Calculate shaft dimensions based on min/max floors
     // Following Python's logic: shaft_height = (max_floor - min_floor + 1) blocks
     const shaftHeightBlocks = bank.maxFloor - bank.minFloor + 1;
