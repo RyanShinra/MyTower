@@ -102,7 +102,7 @@ function subscribeToBuildingState(intervalMs = 50) {
         // Show elevator status
         buildingState.elevators.slice(0, 3).forEach((elevator) => {
           console.log(
-            `   ${elevator.id.substring(0, 8)}... @ ${elevator.verticalPosition.toFixed(1)} ` +
+            `[ELEVATOR] ${elevator.id.substring(0, 8)}... @ ${elevator.verticalPosition.toFixed(1)} ` +
             `[${elevator.elevatorState}] (${elevator.passengerCount}/${elevator.passengerCount + elevator.availableCapacity} passengers)`
           );
         });
@@ -143,7 +143,7 @@ function subscribeToGameTime(intervalMs = 100) {
     {
       next: (result) => {
         const gameTime = result.data?.gameTimeStream;
-        process.stdout.write(`\r Game Time: ${gameTime?.toFixed(2)}s`);
+        process.stdout.write(`\r[TIME] Game Time: ${gameTime?.toFixed(2)}s`);
       },
       error: (error) => {
         console.error('[ERROR] Subscription error:', error);

@@ -20,11 +20,11 @@ This guide explains how to deploy the Svelte web frontend to AWS using S3 + Clou
 ```
 
 **Why S3 + CloudFront?**
-- ✅ **Industry Standard** - Used by Netflix, Airbnb, etc.
-- ✅ **Global CDN** - 450+ edge locations worldwide
-- ✅ **Free HTTPS** - Automatic SSL/TLS certificates
-- ✅ **Ultra Cheap** - ~$0.50/month for typical usage (free tier: $0)
-- ✅ **Professional Architecture** - Shows proper separation of concerns
+- **Industry Standard** - Used by Netflix, Airbnb, etc.
+- **Global CDN** - 450+ edge locations worldwide
+- **Free HTTPS** - Automatic SSL/TLS certificates
+- **Ultra Cheap** - ~$0.50/month for typical usage (free tier: $0)
+- **Professional Architecture** - Shows proper separation of concerns
 
 ## Prerequisites
 
@@ -66,21 +66,21 @@ That's it! Your website will be live at the CloudFront URL shown.
 
 **Expected output:**
 ```
-🎨 MyTower Web Frontend Build Script
-====================================
+[BUILD] MyTower Web Frontend Build Script
+=========================================
 
-✅ Type checks passed
-✅ Build completed
+[OK]   Type checks passed
+[OK]   Build completed
 
-📊 Build Output:
+[INFO] Build Output:
 2.5M    dist
 
-📁 Files in dist/:
+[INFO] Files in dist/:
 -rw-r--r-- 1 user user 1.5K index.html
 -rw-r--r-- 1 user user 125K main.js
 -rw-r--r-- 1 user user  45K style.css
 
-✅ Build successful! Ready to deploy.
+[OK]   Build successful! Ready to deploy.
 ```
 
 **Note:** The build script has improved cross-platform compatibility for the `du` command (works on Windows Git Bash, Linux, and Mac).
@@ -119,33 +119,33 @@ That's it! Your website will be live at the CloudFront URL shown.
    ✅ Account: 123456789012
    ✅ Region: us-east-2
 
-🪣 Setting up S3 bucket...
-   ✅ Bucket created: mytower-web-dev
+[INFO] Setting up S3 bucket...
+[OK]   Bucket created: mytower-web-dev
 
-🌍 Configuring static website hosting...
-   ✅ Static website hosting enabled
+[INFO] Configuring static website hosting...
+[OK]   Static website hosting enabled
 
-🔓 Setting bucket policy for public access...
-   ✅ Bucket policy configured
+[INFO] Setting bucket policy for public access...
+[OK]   Bucket policy configured
 
-📤 Uploading files to S3...
-   ✅ Files uploaded successfully
+[INFO] Uploading files to S3...
+[OK]   Files uploaded successfully
 
-☁️  Setting up CloudFront distribution...
-   ✅ CloudFront distribution created: E1234567890ABC
-   ⏳ This takes 10-15 minutes to fully deploy
+[INFO] Setting up CloudFront distribution...
+[CLOUDFRONT] Distribution created: E1234567890ABC
+[INFO] This takes 10-15 minutes to fully deploy
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎉 Deployment Complete!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-------------------------------------------------
+[WEB] Deployment Complete!
+-------------------------------------------------
 
-📦 S3 Bucket:           mytower-web-dev
-☁️  CloudFront ID:       E1234567890ABC
-🌍 Website URL:         https://d111111abcdef8.cloudfront.net
-📊 Distribution Status: InProgress
+[S3]  Bucket:             mytower-web-dev
+[CLOUDFRONT] ID:          E1234567890ABC
+[URL] Website:            https://d111111abcdef8.cloudfront.net
+[INFO] Distribution Status: InProgress
 
-⏳ Note: CloudFront distribution is still deploying (10-15 min)
-   You can check status with: ./web-status.sh
+[INFO] Note: CloudFront distribution is still deploying (10-15 min)
+[INFO] You can check status with: ./web-status.sh
 ```
 
 **Important Notes:**
@@ -158,7 +158,7 @@ That's it! Your website will be live at the CloudFront URL shown.
 
 **Error: Bucket name already taken**
 ```
-❌ Error: Failed to create S3 bucket
+[ERROR] Failed to create S3 bucket
 Try adding your AWS account ID to the bucket name
 ```
 **Solution:** Edit `deploy-web-to-aws.sh` line 11:
@@ -200,22 +200,22 @@ See "AWS Dashboard Navigation" section below for adding permissions.
 🌐 MyTower Web Frontend Status
 ==============================
 
-☁️  CloudFront Distribution
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-ID:       E1234567890ABC
-Domain:   d111111abcdef8.cloudfront.net
-Status:   Deployed
-Enabled:  true
+[CLOUDFRONT] Distribution
+[CLOUDFRONT] ━━━━━━━━━━━━━━━━━━━━━━━━━━
+[CLOUDFRONT] ID:       E1234567890ABC
+[CLOUDFRONT] Domain:   d111111abcdef8.cloudfront.net
+[CLOUDFRONT] Status:   Deployed
+[CLOUDFRONT] Enabled:  true
 
-🌍 Website URL:
-   https://d111111abcdef8.cloudfront.net
+[URL] Website URL
+[URL] https://d111111abcdef8.cloudfront.net
 
-🪣 S3 Bucket Status
-━━━━━━━━━━━━━━━━━━━
-Name:     mytower-web-dev
-Region:   us-east-2
-Files:    12
-Size:     2.45 MB
+[S3] Bucket Status
+[S3] ━━━━━━━━━━━━━━━━━━━
+[S3] Name:     mytower-web-dev
+[S3] Region:   us-east-2
+[S3] Files:    12
+[S3] Size:     2.45 MB
 ```
 
 **Status Meanings:**
