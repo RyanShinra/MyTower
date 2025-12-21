@@ -119,33 +119,33 @@ That's it! Your website will be live at the CloudFront URL shown.
    ✅ Account: 123456789012
    ✅ Region: us-east-2
 
-🪣 Setting up S3 bucket...
-   ✅ Bucket created: mytower-web-dev
+[INFO] Setting up S3 bucket...
+[OK]   Bucket created: mytower-web-dev
 
-🌍 Configuring static website hosting...
-   ✅ Static website hosting enabled
+[INFO] Configuring static website hosting...
+[OK]   Static website hosting enabled
 
-🔓 Setting bucket policy for public access...
-   ✅ Bucket policy configured
+[INFO] Setting bucket policy for public access...
+[OK]   Bucket policy configured
 
-📤 Uploading files to S3...
-   ✅ Files uploaded successfully
+[INFO] Uploading files to S3...
+[OK]   Files uploaded successfully
 
-☁️  Setting up CloudFront distribution...
-   ✅ CloudFront distribution created: E1234567890ABC
-   ⏳ This takes 10-15 minutes to fully deploy
+[INFO] Setting up CloudFront distribution...
+[CLOUDFRONT] Distribution created: E1234567890ABC
+[INFO] This takes 10-15 minutes to fully deploy
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎉 Deployment Complete!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-------------------------------------------------
+[WEB] Deployment Complete!
+-------------------------------------------------
 
-📦 S3 Bucket:           mytower-web-dev
-☁️  CloudFront ID:       E1234567890ABC
-🌍 Website URL:         https://d111111abcdef8.cloudfront.net
-📊 Distribution Status: InProgress
+[S3]  Bucket:             mytower-web-dev
+[CLOUDFRONT] ID:          E1234567890ABC
+[URL] Website:            https://d111111abcdef8.cloudfront.net
+[INFO] Distribution Status: InProgress
 
-⏳ Note: CloudFront distribution is still deploying (10-15 min)
-   You can check status with: ./web-status.sh
+[INFO] Note: CloudFront distribution is still deploying (10-15 min)
+[INFO] You can check status with: ./web-status.sh
 ```
 
 **Important Notes:**
