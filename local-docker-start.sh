@@ -24,7 +24,7 @@ if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
         docker rm $CONTAINER_NAME
         echo "   [OK] Stopped"
     else
-        echo "[i]  Keeping existing container running"
+        echo "[INFO] Keeping existing container running"
         echo "   Access at: http://localhost:$PORT/graphql"
         exit 0
     fi
