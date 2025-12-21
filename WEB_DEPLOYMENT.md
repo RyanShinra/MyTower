@@ -200,22 +200,22 @@ See "AWS Dashboard Navigation" section below for adding permissions.
 🌐 MyTower Web Frontend Status
 ==============================
 
-☁️  CloudFront Distribution
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-ID:       E1234567890ABC
-Domain:   d111111abcdef8.cloudfront.net
-Status:   Deployed
-Enabled:  true
+[CLOUDFRONT] Distribution
+[CLOUDFRONT] ━━━━━━━━━━━━━━━━━━━━━━━━━━
+[CLOUDFRONT] ID:       E1234567890ABC
+[CLOUDFRONT] Domain:   d111111abcdef8.cloudfront.net
+[CLOUDFRONT] Status:   Deployed
+[CLOUDFRONT] Enabled:  true
 
-🌍 Website URL:
-   https://d111111abcdef8.cloudfront.net
+[URL] Website URL
+[URL] https://d111111abcdef8.cloudfront.net
 
-🪣 S3 Bucket Status
-━━━━━━━━━━━━━━━━━━━
-Name:     mytower-web-dev
-Region:   us-east-2
-Files:    12
-Size:     2.45 MB
+[S3] Bucket Status
+[S3] ━━━━━━━━━━━━━━━━━━━
+[S3] Name:     mytower-web-dev
+[S3] Region:   us-east-2
+[S3] Files:    12
+[S3] Size:     2.45 MB
 ```
 
 **Status Meanings:**
