@@ -158,7 +158,7 @@ That's it! Your website will be live at the CloudFront URL shown.
 
 **Error: Bucket name already taken**
 ```
-❌ Error: Failed to create S3 bucket
+[ERROR] Failed to create S3 bucket
 Try adding your AWS account ID to the bucket name
 ```
 **Solution:** Edit `deploy-web-to-aws.sh` line 11:
