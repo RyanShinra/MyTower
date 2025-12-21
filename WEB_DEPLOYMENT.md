@@ -66,21 +66,21 @@ That's it! Your website will be live at the CloudFront URL shown.
 
 **Expected output:**
 ```
-🎨 MyTower Web Frontend Build Script
-====================================
+[BUILD] MyTower Web Frontend Build Script
+=========================================
 
-✅ Type checks passed
-✅ Build completed
+[OK]   Type checks passed
+[OK]   Build completed
 
-📊 Build Output:
+[INFO] Build Output:
 2.5M    dist
 
-📁 Files in dist/:
+[INFO] Files in dist/:
 -rw-r--r-- 1 user user 1.5K index.html
 -rw-r--r-- 1 user user 125K main.js
 -rw-r--r-- 1 user user  45K style.css
 
-✅ Build successful! Ready to deploy.
+[OK]   Build successful! Ready to deploy.
 ```
 
 **Note:** The build script has improved cross-platform compatibility for the `du` command (works on Windows Git Bash, Linux, and Mac).
