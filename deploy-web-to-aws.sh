@@ -2,9 +2,6 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
 
-# Exit on error, undefined variables, and pipe failures
-set -euo pipefail
-
 echo "[WEB] MyTower Web Frontend Deployment to AWS"
 echo "=========================================="
 echo ""
@@ -102,20 +99,23 @@ echo "[WARNING]  SECURITY NOTE: This will make all files in the bucket publicly 
 echo "   This is required for static website hosting."
 echo "   Only deploy public website content to this bucket."
 echo ""
-read -p "Continue with public bucket configuration? (y/N): " -r
+read -p "Continue with public bucket configuration? (y/N): " -r REPLY
 echo ""
 
-if [[ ! $REPLY =~ ^[Yy][Ee][Ss]?$ ]]; then
+if [[ ! "${REPLY:-}" =~ ^[Yy][Ee][Ss]?$ ]]; then
     echo "[ERROR] Deployment cancelled - bucket policy not configured"
     echo "   Note: The bucket was created but is not publicly accessible"
     exit 1
 fi
 
 # First, disable block public access settings
-aws s3api put-public-access-block \
+if ! aws s3api put-public-access-block \
     --bucket "$BUCKET_NAME" \
     --public-access-block-configuration \
-    "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+    "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"; then
+    echo "[ERROR] Error: Failed to configure bucket public access settings"
+    exit 1
+fi
 
 # Create bucket policy JSON
 # SECURITY: This policy allows public read access to all objects (Principal: "*")
@@ -302,16 +302,22 @@ fi
 echo ""
 
 # Step 6: Get distribution details
-echo " Getting distribution details..."
-DISTRIBUTION_DOMAIN=$(aws cloudfront get-distribution \
+echo "[INFO] Getting distribution details..."
+if ! DISTRIBUTION_DOMAIN=$(aws cloudfront get-distribution \
     --id "$DISTRIBUTION_ID" \
     --query 'Distribution.DomainName' \
-    --output text)
+    --output text); then
+    echo "[ERROR] Error: Failed to get distribution domain"
+    exit 1
+fi
 
-DISTRIBUTION_STATUS=$(aws cloudfront get-distribution \
+if ! DISTRIBUTION_STATUS=$(aws cloudfront get-distribution \
     --id "$DISTRIBUTION_ID" \
     --query 'Distribution.Status' \
-    --output text)
+    --output text); then
+    echo "[ERROR] Error: Failed to get distribution status"
+    exit 1
+fi
 
 # Step 7: Create deployment metadata
 echo "[SAVE] Saving deployment metadata..."
@@ -319,10 +325,12 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
-mkdir -p deployments
-
-METADATA_FILE="deployments/web-deploy-$(date +%Y%m%d-%H%M%S).json"
-cat > "$METADATA_FILE" <<EOF
+if ! mkdir -p deployments; then
+    echo "   [WARNING]  Warning: Failed to create deployments directory"
+    METADATA_FILE="(not created - directory error)"
+else
+    METADATA_FILE="deployments/web-deploy-$(date +%Y%m%d-%H%M%S).json"
+    if ! cat > "$METADATA_FILE" <<EOF
 {
     "timestamp": "$TIMESTAMP",
     "branch": "$BRANCH",
@@ -334,16 +342,21 @@ cat > "$METADATA_FILE" <<EOF
     "websiteUrl": "https://$DISTRIBUTION_DOMAIN"
 }
 EOF
-
-echo "   [OK] Deployment metadata saved: $METADATA_FILE"
+    then
+        echo "   [WARNING]  Warning: Failed to write metadata file"
+        METADATA_FILE="(not created - write error)"
+    else
+        echo "   [OK] Deployment metadata saved: $METADATA_FILE"
+    fi
+fi
 echo ""
 
 # Step 8: Create git tag (if in a git repo)
 if git rev-parse --git-dir > /dev/null 2>&1; then
     TAG_NAME="deploy-web-$(date +%Y%m%d-%H%M%S)"
     echo "Proposed git tag: $TAG_NAME"
-    read -p "Create this git tag for the deployment? (y/N): " -r
-    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+    read -p "Create this git tag for the deployment? (y/N): " -r REPLY
+    if [[ "${REPLY:-}" =~ ^[Yy]$ ]]; then
         echo "[TAG]  Creating git tag: $TAG_NAME"
         if git tag -a "$TAG_NAME" -m "Web deployment to CloudFront on $TIMESTAMP"; then
             echo "   [OK] Git tag created"
@@ -386,5 +399,5 @@ echo "   2. Visit your website at: https://$DISTRIBUTION_DOMAIN"
 echo "   3. Update backend CORS to allow: https://$DISTRIBUTION_DOMAIN"
 echo "   4. (Optional) Set up custom domain in Route53"
 echo ""
-echo " For more info, see: WEB_DEPLOYMENT.md"
+echo "[DOCS] For more info, see: WEB_DEPLOYMENT.md"
 echo ""
