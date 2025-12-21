@@ -184,6 +184,12 @@ export class WebGameView {
             doorOpen
             passengerCount
           }
+          elevatorBanks {
+            id
+            horizontalPosition
+            minFloor
+            maxFloor
+          }
           people {
             personId
             currentFloorNum
@@ -257,7 +263,7 @@ export class WebGameView {
 
   private drawShafts(): void {
     if (!this.currentSnapshot) return;
-    this.elevatorShaftRenderer.drawShafts(this.currentSnapshot.elevators);
+    this.elevatorShaftRenderer.drawShafts(this.currentSnapshot.elevatorBanks);
   }
 
   private drawFloors(): void {

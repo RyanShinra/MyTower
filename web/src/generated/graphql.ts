@@ -24,6 +24,7 @@ export type Scalars = {
 export type BuildingSnapshotGql = {
   readonly __typename?: 'BuildingSnapshotGQL';
   readonly elevators: ReadonlyArray<ElevatorSnapshotGql>;
+  readonly elevatorBanks: ReadonlyArray<ElevatorBankSnapshotGql>;
   readonly floors: ReadonlyArray<FloorSnapshotGql>;
   readonly money: Scalars['Int']['output'];
   readonly people: ReadonlyArray<PersonSnapshotGql>;
@@ -36,6 +37,14 @@ export type ColorGql = {
   readonly blue: Scalars['Int']['output'];
   readonly green: Scalars['Int']['output'];
   readonly red: Scalars['Int']['output'];
+};
+
+export type ElevatorBankSnapshotGql = {
+  readonly __typename?: 'ElevatorBankSnapshotGQL';
+  readonly id: Scalars['String']['output'];
+  readonly horizontalPosition: Scalars['Blocks']['output'];
+  readonly minFloor: Scalars['Int']['output'];
+  readonly maxFloor: Scalars['Int']['output'];
 };
 
 export type ElevatorSnapshotGql = {
