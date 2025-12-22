@@ -275,7 +275,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 current_count: int = ws_connections[client_ip]
                 # Log inside lock to ensure consistency
                 logger.info(
-                    f" WebSocket connected: {client_ip} "
+                    f"[WS] WebSocket connected: {client_ip} "
                     f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
 
