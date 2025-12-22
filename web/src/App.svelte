@@ -11,13 +11,13 @@
     onMount(() => {
         // Create the game view once canvas is mounted
         gameView = new WebGameView(canvas);
-        console.log("🎮 WebGameView initialized");
+        console.log("[GAME] WebGameView initialized");
     });
 
     onDestroy(() => {
         // Cleanup when component unmounts
         gameView?.cleanup();
-        console.log("🧹 WebGameView cleaned up");
+        console.log("[CLEAN] WebGameView cleaned up");
     });
 </script>
 

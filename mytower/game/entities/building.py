@@ -68,7 +68,7 @@ class Building(BuildingProtocol):
 
 
     @override
-    def get_elevator_banks_on_floor(self, floor_num: int) -> ElevatorBankList:  # ✅ Cleaner
+    def get_elevator_banks_on_floor(self, floor_num: int) -> ElevatorBankList:  # [OK] Cleaner
         """Returns a list of all elevators that are currently on the specified floor"""
         return [
             bank
@@ -81,7 +81,7 @@ class Building(BuildingProtocol):
         ]
 
     @override
-    def get_floors(self) -> FloorList:  # ✅ Cleaner
+    def get_floors(self) -> FloorList:  # [OK] Cleaner
         return [self._floors[floor_num] for floor_num in range(1, self.num_floors + 1)]
 
     @override
@@ -93,7 +93,7 @@ class Building(BuildingProtocol):
         return self._elevator_banks
 
     @override
-    def get_elevators(self) -> ElevatorList:  # ✅ Cleaner
+    def get_elevators(self) -> ElevatorList:  # [OK] Cleaner
         """Get all elevators from all banks"""
         elevators: Final[list[ElevatorProtocol]] = []
         for bank in self._elevator_banks:

@@ -133,7 +133,7 @@ class GameBridge:
 
         if self._game_thread_id is None:
             self._game_thread_id = current_thread
-            self._game_thread_ready.set()  # 🚦 Signal that game thread is ready
+            self._game_thread_ready.set()  # Signal that the game thread is ready
         elif self._game_thread_id != current_thread:
             raise RuntimeError("update_game() called from wrong thread!")
 

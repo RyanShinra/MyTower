@@ -148,14 +148,14 @@ async def decrement_ws_connection(ip: str) -> None:
             current_count = ws_connections[ip]
             if current_count <= 0:
                 logger.info(
-                    f"🔌 WebSocket disconnected: {ip} (0/{MAX_WS_CONNECTIONS_PER_IP})"
+                    f"[WS] WebSocket disconnected: {ip} (0/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
                 del ws_connections[ip]
                 # Do NOT delete the lock here; keep it for future synchronization
                 # TODO: Optionally implement lock cleanup if memory usage is a concern
             else:
                 logger.info(
-                    f"🔌 WebSocket disconnected: {ip} ({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
+                    f"[WS] WebSocket disconnected: {ip} ({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
 
 
@@ -168,11 +168,11 @@ async def decrement_ws_connection(ip: str) -> None:
 # Add middleware to log all requests and apply rate limiting
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f"📨 Incoming request: {request.method} {request.url}")
-    logger.info(f"🔍 Client: {request.client.host if request.client else 'unknown'}")
-    logger.info(f"🔍 Headers: {dict(request.headers)}")
+    logger.info(f"[HTTP] Incoming request: {request.method} {request.url}")
+    logger.info(f"[CHECK] Client: {request.client.host if request.client else 'unknown'}")
+    logger.info(f"[CHECK] Headers: {dict(request.headers)}")
     response = await call_next(request)
-    logger.info(f"📤 Response status: {response.status_code}")
+    logger.info(f"[RESPONSE] Response status: {response.status_code}")
     return response
 
 # ============================================================================
@@ -212,11 +212,11 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
         self.query_rate: str = os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute")
         self.mutation_rate: str = os.getenv("MYTOWER_RATE_LIMIT_MUTATIONS", "100/minute")
         logger.info(
-            f"🛡️  Rate limiting enabled: "
+            f"[RATE_LIMIT] Rate limiting enabled: "
             f"Queries={self.query_rate}, Mutations={self.mutation_rate}"
         )
         logger.info(
-            f"🛡️  WebSocket limit: "
+            f"[RATE_LIMIT] WebSocket limit: "
             f"{MAX_WS_CONNECTIONS_PER_IP} concurrent connections per IP"
         )
 
@@ -255,7 +255,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # Check if client has exceeded WebSocket connection limit
                 if ws_connections[client_ip] >= MAX_WS_CONNECTIONS_PER_IP:
                     logger.warning(
-                        f"🚫 WebSocket connection limit exceeded for {client_ip}: "
+                        f"[RATE_LIMIT] WebSocket connection limit exceeded for {client_ip}: "
                         f"{ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP}"
                     )
                     return JSONResponse(
@@ -275,7 +275,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 current_count: int = ws_connections[client_ip]
                 # Log inside lock to ensure consistency
                 logger.info(
-                    f"🔌 WebSocket connected: {client_ip} "
+                    f"[WS] WebSocket connected: {client_ip} "
                     f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
                 )
 
@@ -329,7 +329,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 # Log which limit was applied
                 operation_type: str = "Mutation" if is_mutation else "Query"
                 logger.debug(
-                    f"✓ {operation_type} rate limit check passed for {client_ip}"
+                    f" {operation_type} rate limit check passed for {client_ip}"
                 )
 
         except RateLimitExceeded as main_rate_limit_error:
@@ -337,7 +337,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             # The re-raise is explicit (not naked) to make the flow clear
             operation_type = "Mutation" if is_mutation else "Query"
             logger.warning(
-                f"🚫 {operation_type} rate limit exceeded for {client_ip}"
+                f" {operation_type} rate limit exceeded for {client_ip}"
             )
             # raise main_rate_limit_error from None
             raise main_rate_limit_error # TODO: Review if from None is needed here
@@ -352,7 +352,7 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
                 await self._apply_rate_limit(request, self.mutation_rate)
             except RateLimitExceeded as fallback_rate_limit_error:
                 logger.warning(
-                    f"🚫 Rate limit exceeded for {client_ip} (default/unparseable)"
+                    f"[RATE_LIMIT] Rate limit exceeded for {client_ip} (default/unparseable)"
                 )
                 raise fallback_rate_limit_error from None
 
@@ -403,8 +403,8 @@ graphql_app: RateLimitedGraphQLRouter = RateLimitedGraphQLRouter(
 )
 
 # Log WebSocket endpoint registration
-logger.info("🔌 GraphQL WebSocket endpoint registered at /graphql")
-logger.info("📡 Supported protocols: graphql-transport-ws, graphql-ws")
+logger.info(" GraphQL WebSocket endpoint registered at /graphql")
+logger.info(" Supported protocols: graphql-transport-ws, graphql-ws")
 
 app.include_router(graphql_app, prefix="/graphql")
 
@@ -413,7 +413,7 @@ app.include_router(graphql_app, prefix="/graphql")
 @limiter.limit(os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute"))
 # The `request` parameter is required by the rate limiter decorator but is unused.
 def read_root(request: Request) -> dict[str, str]:
-    logger.info("📍 Root endpoint called")
+    logger.info("[HTTP] Root endpoint called")
     return {"message": "MyTower GraphQL API", "graphql": "/graphql"}
 
 @app.get("/health")
@@ -434,9 +434,9 @@ async def run_server_async(
         port: Port to bind to
         shutdown_event: Optional threading.Event for graceful shutdown
     """
-    logger.info(f"🚀 Starting server on {host}:{port}")
-    logger.info(f"🔍 WebSocket URL: ws://{host}:{port}/graphql")
-    logger.info(f"🔍 GraphQL endpoint: http://{host}:{port}/graphql")
+    logger.info(f"[START] Starting server on {host}:{port}")
+    logger.info(f"[CHECK] WebSocket URL: ws://{host}:{port}/graphql")
+    logger.info(f"[CHECK] GraphQL endpoint: http://{host}:{port}/graphql")
 
     # Create config and server
     config = uvicorn.Config(

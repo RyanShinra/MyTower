@@ -5,7 +5,7 @@
 
 CONTAINER_NAME=mytower-local
 
-echo "📊 Tailing logs from $CONTAINER_NAME..."
+echo "[INFO] Tailing logs from $CONTAINER_NAME..."
 echo "Press Ctrl+C to exit"
 echo ""
 

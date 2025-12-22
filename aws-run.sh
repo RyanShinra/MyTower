@@ -3,24 +3,24 @@
 # See LICENSE file for details.
 
 
-echo "🚀 Starting MyTower ECS Task..."
+echo "[START] Starting MyTower ECS Task..."
 echo ""
 
 # Load environment variables
-echo "📋 Loading AWS environment..."
+echo "[INFO] Loading AWS environment..."
 export REGION=us-east-2
 export VPC_ID=$(aws ec2 describe-vpcs --region $REGION --filters "Name=isDefault,Values=true" --query "Vpcs[0].VpcId" --output text)
 export SUBNET_ID=$(aws ec2 describe-subnets --region $REGION --filters "Name=vpc-id,Values=${VPC_ID}" --query "Subnets[0].SubnetId" --output text)
 export SG_ID=$(aws ec2 describe-security-groups --region $REGION --filters "Name=group-name,Values=mytower-sg" --query "SecurityGroups[0].GroupId" --output text)
 export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
-echo "   ✅ VPC: $VPC_ID"
-echo "   ✅ Subnet: $SUBNET_ID"
-echo "   ✅ Security Group: $SG_ID"
+echo "   [OK] VPC: $VPC_ID"
+echo "   [OK] Subnet: $SUBNET_ID"
+echo "   [OK] Security Group: $SG_ID"
 echo ""
 
 # Run the task
-echo "🎮 Starting ECS task..."
+echo "[GAME] Starting ECS task..."
 TASK_ARN=$(aws ecs run-task \
     --cluster mytower-cluster \
     --task-definition mytower-task \
@@ -30,9 +30,9 @@ TASK_ARN=$(aws ecs run-task \
     --query 'tasks[0].taskArn' \
     --output text)
 
-echo "   ✅ Task ARN: $TASK_ARN"
+echo "   [OK] Task ARN: $TASK_ARN"
 echo ""
-echo "⏳ Waiting for task to start (this takes ~30-60 seconds)..."
+echo "[WAIT] Waiting for task to start (this takes ~30-60 seconds)..."
 
 # Wait for task to be running
 aws ecs wait tasks-running \
@@ -56,13 +56,13 @@ PUBLIC_IP=$(aws ec2 describe-network-interfaces \
     --output text)
 
 echo ""
-echo "✅ Task is running!"
+echo "[OK] Task is running!"
 echo ""
-echo "🌐 Public IP: $PUBLIC_IP"
-echo "🔗 GraphQL Playground: http://$PUBLIC_IP:8000/graphql"
+echo "[WEB] Public IP: $PUBLIC_IP"
+echo "[LINK] GraphQL Playground: http://$PUBLIC_IP:8000/graphql"
 echo ""
-echo "📊 View logs with:"
+echo "[INFO] View logs with:"
 echo "   aws logs tail /ecs/mytower-server --follow --region $REGION"
 echo ""
-echo "🛑 Stop task with:"
+echo "[STOP] Stop task with:"
 echo "   ./stop-task.sh"
