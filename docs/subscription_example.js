@@ -110,7 +110,7 @@ function subscribeToBuildingState(intervalMs = 50) {
         // Show people status
         const madCount = buildingState.people.filter((p) => p.madFraction > 0.5).length;
         if (madCount > 0) {
-          console.log(`[WARN] ${madCount} people are getting mad!`);
+          console.log(`[MAD] ${madCount} people are getting mad!`);
         }
       },
       error: (error) => {
