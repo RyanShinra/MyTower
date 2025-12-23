@@ -250,8 +250,7 @@ if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
         "TrustedKeyGroups": {
             "Enabled": false,
             "Quantity": 0
-        },
-        "MinTTL": 0
+        }
     },
     "CustomErrorResponses": {
         "Quantity": 2,
