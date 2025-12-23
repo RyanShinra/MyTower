@@ -102,7 +102,7 @@ echo ""
 read -p "Continue with public bucket configuration? (y/N): " -r REPLY
 echo ""
 
-if [[ ! "${REPLY:-}" =~ ^[Yy][Ee][Ss]?$ ]]; then
+if [[ ! "${REPLY:-}" =~ ^[Yy]$ ]]; then
     echo "[ERROR] Deployment cancelled - bucket policy not configured"
     echo "   Note: The bucket was created but is not publicly accessible"
     exit 1
