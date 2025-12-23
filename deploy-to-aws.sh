@@ -100,7 +100,7 @@ echo ""
 
 # Verify push by pulling image back from ECR
 echo "[CHECK] Verifying image push (pulling from ECR)..."
-if ! docker pull "$IMAGE_URI"; then
+if ! docker pull --platform linux/amd64 "$IMAGE_URI"; then
     echo "[ERROR] Error: Failed to pull image from ECR!"
     echo "   The image was pushed but cannot be pulled back."
     echo "   This indicates the push may have been incomplete or corrupted."
