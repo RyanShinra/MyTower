@@ -282,10 +282,8 @@ elif [ ! -x "./aws-run.sh" ]; then
     echo "   [WARNING]  Warning: aws-run.sh is not executable"
     echo "   Run: chmod +x aws-run.sh"
 else
-    ./aws-run.sh
-    TASK_EXIT_CODE=$?
-    if [ $TASK_EXIT_CODE -ne 0 ]; then
-        echo "   [WARNING]  Warning: aws-run.sh failed (exit code: $TASK_EXIT_CODE)"
+    if ! ./aws-run.sh; then
+        echo "   [WARNING]  Warning: aws-run.sh failed"
         echo "   Check the script output above for details"
     else
         echo "   [OK] Task started successfully"
