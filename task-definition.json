@@ -26,6 +26,10 @@
         {
           "name": "MYTOWER_LOG_LEVEL",
           "value": "INFO"
+        },
+        {
+          "name": "MYTOWER_CORS_ORIGINS",
+          "value": "https://d1fcg62unpr9jv.cloudfront.net"
         }
       ],
       "logConfiguration": {
