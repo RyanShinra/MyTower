@@ -28,8 +28,8 @@
           "value": "INFO"
         },
         {
-          "name": "MYTOWER_CORS_ORIGINS",
-          "value": "https://d1fcg62unpr9jv.cloudfront.net"
+          "name": "MYTOWER_DEMO",
+          "value": "true"
         }
       ],
       "logConfiguration": {
