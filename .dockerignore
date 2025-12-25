@@ -57,7 +57,7 @@ notes/
 
 # AWS and deployment
 .aws/
-deploy-to-aws.sh
+deploy-backend-to-aws.sh
 
 # Test and scratch files
 scratch*.py

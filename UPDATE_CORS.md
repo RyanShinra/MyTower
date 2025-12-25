@@ -33,7 +33,7 @@ CORS is configured in `mytower/api/server.py` lines 84-106.
 
 3. Redeploy the backend:
    ```bash
-   ./deploy-to-aws.sh
+   ./deploy-backend-to-aws.sh
    ```
 
 ### Option 2: Set Environment Variable via AWS Console
