@@ -16,34 +16,34 @@
     onMount(() => {
         // Create the game view once canvas is mounted
         gameView = new WebGameView(canvas);
-        console.log("🎮 WebGameView initialized");
+        console.log("[GAME] WebGameView initialized");
     });
 
     onDestroy(() => {
         // Cleanup when component unmounts
         gameView?.cleanup();
-        console.log("🧹 WebGameView cleaned up");
+        console.log("[CLEAN] WebGameView cleaned up");
     });
 
     // Handler for adding floors
     async function handleAddFloor(floorType: FloorTypeGQL) {
         if (!gameView) {
-            console.warn("⚠️ Game view not ready yet");
+            console.warn("[WARN] Game view not ready yet");
             return;
         }
 
         try {
             await gameView.addFloor(floorType);
-            console.log(`✅ Added ${floorType} floor`);
+            console.log(`[OK] Added ${floorType} floor`);
         } catch (error) {
-            console.error(`❌ Failed to add ${floorType} floor:`, error);
+            console.error(`[ERROR] Failed to add ${floorType} floor:`, error);
         }
     }
 
     // Handler for adding elevator bank
     async function handleAddElevatorBank() {
         if (!gameView) {
-            console.warn("⚠️ Game view not ready yet");
+            console.warn("[WARN] Game view not ready yet");
             return;
         }
 
@@ -55,23 +55,21 @@
             // TODO: Make these configurable via UI inputs
             const bankId = await gameView.addElevatorBank(3, 0, 20);
             currentElevatorBankId = bankId; // Store for adding elevators
-            console.log(`✅ Added elevator bank: ${bankId}`);
+            console.log(`[OK] Added elevator bank: ${bankId}`);
         } catch (error) {
-            console.error("❌ Failed to add elevator bank:", error);
+            console.error("[ERROR] Failed to add elevator bank:", error);
         }
     }
 
     // Handler for adding elevator to bank
     async function handleAddElevator() {
         if (!gameView) {
-            console.warn("⚠️ Game view not ready yet");
+            console.warn("[WARN] Game view not ready yet");
             return;
         }
 
         if (!currentElevatorBankId) {
-            console.warn(
-                "⚠️ No elevator bank exists. Create a bank first!",
-            );
+            console.warn("[WARN] No elevator bank exists. Create a bank first!");
             return;
         }
 
@@ -79,16 +77,16 @@
             const elevatorId = await gameView.addElevator(
                 currentElevatorBankId,
             );
-            console.log(`✅ Added elevator: ${elevatorId}`);
+            console.log(`[OK] Added elevator: ${elevatorId}`);
         } catch (error) {
-            console.error("❌ Failed to add elevator:", error);
+            console.error("[ERROR] Failed to add elevator:", error);
         }
     }
 
     // Handler for adding person
     async function handleAddPerson() {
         if (!gameView) {
-            console.warn("⚠️ Game view not ready yet");
+            console.warn("[WARN] Game view not ready yet");
             return;
         }
 
@@ -100,9 +98,9 @@
             // - destBlock=2: Destination horizontal position
             // TODO: Add UI inputs for customizable spawn parameters or randomize
             const personId = await gameView.addPerson(0, 2.0, 2, 2);
-            console.log(`✅ Added person: ${personId}`);
+            console.log(`[OK] Added person: ${personId}`);
         } catch (error) {
-            console.error("❌ Failed to add person:", error);
+            console.error("[ERROR] Failed to add person:", error);
         }
     }
 </script>

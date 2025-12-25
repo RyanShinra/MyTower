@@ -84,15 +84,15 @@ export class WebGameView {
     const SERVER_HOST = import.meta.env.VITE_SERVER_HOST || window.location.hostname;
     const SERVER_PORT = import.meta.env.VITE_SERVER_PORT || '8000';
 
-    console.log(`🌐 Connecting to game server at ${SERVER_HOST}:${SERVER_PORT}`);
-    console.log(`🔍 Client info: ${navigator.userAgent}`);
-    console.log(`🔍 Page protocol: ${window.location.protocol}`);
+    console.log(`[WEB] Connecting to game server at ${SERVER_HOST}:${SERVER_PORT}`);
+    console.log(`[CHECK] Client info: ${navigator.userAgent}`);
+    console.log(`[CHECK] Page protocol: ${window.location.protocol}`);
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const httpProtocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
     const wsUrl = `${wsProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`;
     
-    console.log(`🔍 WebSocket URL: ${wsUrl}`);
+    console.log(`[CHECK] WebSocket URL: ${wsUrl}`);
     
     // Create WebSocket client with explicit configuration
     // Note: graphql-ws v6.x uses the modern 'graphql-transport-ws' protocol by default
@@ -101,49 +101,49 @@ export class WebGameView {
       // Handle WebSocket connection errors and closures BEFORE subscribing
       on: {
         connecting: () => {
-          console.log('🔌 WebSocket connecting...');
+          console.log(`[CONNECT] WebSocket connecting...`);
         },
         opened: (socket: any) => {
-          console.log('✅ WebSocket opened successfully');
-          console.log(`🔍 Socket readyState: ${socket?.readyState}`);
-          console.log(`🔍 Socket protocol: ${socket?.protocol}`);
-          console.log(`🔍 Socket url: ${socket?.url}`);
+          console.log(`[OK] WebSocket opened successfully`);
+          console.log(`[CHECK] Socket readyState: ${socket?.readyState}`);
+          console.log(`[CHECK] Socket protocol: ${socket?.protocol}`);
+          console.log(`[CHECK] Socket url: ${socket?.url}`);
         },
         connected: (socket: any, payload: any) => {
-          console.log('✅ WebSocket connected and acknowledged');
-          console.log(`🔍 Connection payload:`, payload);
+          console.log(`[OK] WebSocket connected and acknowledged`);
+          console.log(`[CHECK] Connection payload:`, payload);
         },
         ping: (received: boolean, payload: any) => {
-          console.log(`🏓 Ping ${received ? 'received' : 'sent'}`, payload);
+          console.log(`[PING] Ping ${received ? 'received' : 'sent'}`, payload);
         },
         pong: (received: boolean, payload: any) => {
-          console.log(`🏓 Pong ${received ? 'received' : 'sent'}`, payload);
+          console.log(`[PONG] Pong ${received ? 'received' : 'sent'}`, payload);
         },
         message: (message: any) => {
-          console.log('📨 WebSocket message:', message);
+          console.log(`[WS] WebSocket message:`, message);
         },
         error: (error: any) => {
-          console.error('❌ WebSocket connection error:', error);
-          console.error('🔍 Error type:', typeof error);
-          console.error('🔍 Error constructor:', error?.constructor?.name);
+          console.error(`[ERROR] WebSocket connection error:`, error);
+          console.error(`[CHECK] Error type:`, typeof error);
+          console.error(`[CHECK] Error constructor:`, error?.constructor?.name);
           if (error instanceof Event) {
-            console.error('🔍 Event type:', error.type);
-            console.error('🔍 Event target:', error.target);
+            console.error(`[CHECK] Event type:`, error.type);
+            console.error(`[CHECK] Event target:`, error.target);
           }
           if (error instanceof CloseEvent) {
-            console.error('🔍 Close code:', error.code);
-            console.error('🔍 Close reason:', error.reason);
-            console.error('🔍 Was clean:', error.wasClean);
+            console.error(`[CHECK] Close code:`, error.code);
+            console.error(`[CHECK] Close reason:`, error.reason);
+            console.error(`[CHECK] Was clean:`, error.wasClean);
           }
           this.uiRenderer.showConnectionError('Connection to game server failed.');
           this.currentSnapshot = null;
         },
         closed: (event: any) => {
-          console.warn('🔌 WebSocket connection closed');
+          console.warn(`[WS] WebSocket connection closed`);
           if (event) {
-            console.warn('🔍 Close event code:', event.code);
-            console.warn('🔍 Close event reason:', event.reason);
-            console.warn('🔍 Was clean:', event.wasClean);
+            console.warn(`[CHECK] Close event code:`, event.code);
+            console.warn(`[CHECK] Close event reason:`, event.reason);
+            console.warn(`[CHECK] Was clean:`, event.wasClean);
           }
           this.uiRenderer.showConnectionError('Connection to game server lost.');
           this.currentSnapshot = null;
@@ -156,12 +156,12 @@ export class WebGameView {
     // Start subscription and rendering
     this.subscribeToBuilding();
     this.startRenderLoop();
-    
-    console.log('🎮 WebGameView initialized with typed units system');
+
+    console.log(`[GAME] WebGameView initialized with typed units system`);
   }
 
   private subscribeToBuilding(): void {
-    console.log('📡 Starting subscription to building state stream...');
+    console.log(`[SUB] Starting subscription to building state stream...`);
     
     const subscription = `
       subscription BuildingStateStream {
@@ -217,22 +217,22 @@ export class WebGameView {
         next: (result: any) => {
           messageCount++;
           if (messageCount === 1) {
-            console.log('✅ First subscription message received!');
+            console.log(`[OK] First subscription message received!`);
           }
           if (messageCount % 100 === 0) {
-            console.log(`📊 Received ${messageCount} subscription messages`);
+            console.log(`[INFO] Received ${messageCount} subscription messages`);
           }
           this.currentSnapshot = result.data?.buildingStateStream;
         },
         error: (error: any) => {
-          console.error('❌ Subscription error:', error);
-          console.error('🔍 Error details:', JSON.stringify(error, null, 2));
+          console.error(`[ERROR] Subscription error:`, error);
+          console.error(`[CHECK] Error details:`, JSON.stringify(error, null, 2));
           this.uiRenderer.showConnectionError('Subscription to game server failed.');
           this.currentSnapshot = null;
         },
         complete: () => {
-          console.log('ℹ️ Subscription completed');
-          console.log(`📊 Total messages received: ${messageCount}`);
+          console.log(`[INFO] Subscription completed`);
+          console.log(`[INFO] Total messages received: ${messageCount}`);
         }
       }
     );
@@ -310,9 +310,9 @@ export class WebGameView {
         mutation,
         { input: { floorType } }
       );
-      console.log(`✅ Added floor: ${floorType} (${result.addFloor})`);
+      console.log(`[OK] Added floor: ${floorType} (${result.addFloor})`);
     } catch (error) {
-      console.error('❌ Failed to add floor:', error);
+      console.error('[ERROR] Failed to add floor:', error);
     }
   }
 
@@ -342,10 +342,10 @@ export class WebGameView {
         }
       );
       const bankId = result.addElevatorBank;
-      console.log(`✅ Added elevator bank: ${bankId} at hCell ${horizontalPosition}, floors ${minFloor}-${maxFloor}`);
+      console.log(`[OK] Added elevator bank: ${bankId} at position ${horizontalPosition}, floors ${minFloor}-${maxFloor}`);
       return bankId;
     } catch (error) {
-      console.error('❌ Failed to add elevator bank:', error);
+      console.error('[ERROR] Failed to add elevator bank:', error);
       throw error;
     }
   }
@@ -363,10 +363,10 @@ export class WebGameView {
         { input: { elevatorBankId } }
       );
       const elevatorId = result.addElevator;
-      console.log(`✅ Added elevator: ${elevatorId} to bank ${elevatorBankId}`);
+      console.log(`[OK] Added elevator: ${elevatorId} to bank ${elevatorBankId}`);
       return elevatorId;
     } catch (error) {
-      console.error('❌ Failed to add elevator:', error);
+      console.error('[ERROR] Failed to add elevator:', error);
       throw error;
     }
   }
@@ -396,10 +396,10 @@ export class WebGameView {
         }
       );
       const personId = result.addPerson;
-      console.log(`✅ Added person: ${personId} at floor ${initFloor}, going to floor ${destFloor}`);
+      console.log(`[OK] Added person: ${personId} at floor ${initFloor}, going to floor ${destFloor}`);
       return personId;
     } catch (error) {
-      console.error('❌ Failed to add person:', error);
+      console.error('[ERROR] Failed to add person:', error);
       throw error;
     }
   }
@@ -409,6 +409,6 @@ export class WebGameView {
       cancelAnimationFrame(this.animationFrameId);
     }
     this.wsClient.dispose();
-    console.log('🧹 WebGameView cleaned up');
+    console.log(`[CLEAN] WebGameView cleaned up`);
   }
 }

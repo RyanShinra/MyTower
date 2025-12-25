@@ -1,0 +1,141 @@
+#!/bin/bash
+# Copyright (c) 2025 Ryan Osterday. All rights reserved.
+# See LICENSE file for details.
+
+# Exit on error, undefined variables, and pipe failures
+set -euo pipefail
+
+echo "[WEB] MyTower Web Frontend Status"
+echo "=============================="
+echo ""
+
+# Configuration
+# TODO: Extract to common config file ; other scripts use this
+REGION=us-east-2
+BUCKET_NAME=mytower-web-dev
+DISTRIBUTION_NAME="MyTower Web Frontend"
+
+# Get CloudFront distribution ID
+DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+    --query "DistributionList.Items[?Comment=='$DISTRIBUTION_NAME'].Id | [0]" \
+    --output text 2>/dev/null)
+
+if [ "$DISTRIBUTION_ID" = "None" ] || [ -z "$DISTRIBUTION_ID" ]; then
+    echo "[ERROR] No CloudFront distribution found"
+    echo ""
+    echo "Run ./deploy-web-to-aws.sh to deploy the frontend"
+    exit 1
+fi
+
+# Get distribution details
+echo "[CLOUDFRONT]  CloudFront Distribution"
+echo "=========================="
+
+# Use AWS CLI's built-in --query for cross-platform JSON parsing (works on Mac/Linux/Windows)
+# Alternative: jq could be used, but requires additional installation on some systems
+DOMAIN=$(aws cloudfront get-distribution --id "$DISTRIBUTION_ID" --query 'Distribution.DomainName' --output text 2>/dev/null)
+STATUS=$(aws cloudfront get-distribution --id "$DISTRIBUTION_ID" --query 'Distribution.Status' --output text 2>/dev/null)
+ENABLED=$(aws cloudfront get-distribution --id "$DISTRIBUTION_ID" --query 'Distribution.DistributionConfig.Enabled' --output text 2>/dev/null)
+
+echo "ID:       $DISTRIBUTION_ID"
+echo "Domain:   $DOMAIN"
+echo "Status:   $STATUS"
+echo "Enabled:  $ENABLED"
+echo ""
+
+if [ "$STATUS" = "InProgress" ]; then
+    echo "[WAIT] Distribution is still deploying (this can take 10-15 minutes)"
+    echo ""
+fi
+
+echo "[URL] Website URL:"
+echo "   https://$DOMAIN"
+echo ""
+
+# Check S3 bucket
+echo "[S3] S3 Bucket Status"
+echo "==================="
+
+if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+    echo "Name:     $BUCKET_NAME"
+    echo "Region:   $REGION"
+
+    # Get file count and size with robust error handling
+    FILE_COUNT=$(aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --query 'Contents | length(@)' --output text 2>/dev/null)
+
+    # Handle empty bucket or API errors (returns "None" or empty string)
+    if [ -z "$FILE_COUNT" ] || [ "$FILE_COUNT" = "None" ]; then
+        FILE_COUNT=0
+    fi
+
+    BUCKET_SIZE=$(aws s3 ls "s3://$BUCKET_NAME" --recursive --summarize 2>/dev/null | grep "Total Size" | awk '{print $3}')
+
+    # Convert bytes to human readable
+    if [ -n "$BUCKET_SIZE" ]; then
+        BUCKET_SIZE_MB=$(awk "BEGIN {printf \"%.2f\", $BUCKET_SIZE/1048576}")
+        echo "Files:    $FILE_COUNT"
+        echo "Size:     ${BUCKET_SIZE_MB} MB"
+    fi
+
+    echo ""
+    echo "S3 Website URL (direct):"
+    echo "   http://${BUCKET_NAME}.s3-website-${REGION}.amazonaws.com"
+else
+    echo "[ERROR] Bucket not found: $BUCKET_NAME"
+fi
+echo ""
+
+# Check for recent deployments
+echo "[DEPLOY] Recent Deployments"
+echo "====================="
+
+if [ -d "deployments" ]; then
+    RECENT_DEPLOYS=$(ls -t deployments/web-deploy-*.json 2>/dev/null | head -3)
+
+    if [ -n "$RECENT_DEPLOYS" ]; then
+        echo "$RECENT_DEPLOYS" | while read -r deploy_file; do
+            # Use basic grep/sed for cross-platform compatibility (Mac's grep doesn't support -P flag)
+            TIMESTAMP=$(grep '"timestamp"' "$deploy_file" | sed 's/.*"timestamp"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+            COMMIT=$(grep '"commit"' "$deploy_file" | sed 's/.*"commit"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+            echo "* $TIMESTAMP (commit: $COMMIT)"
+        done
+    else
+        echo "No deployment records found"
+    fi
+else
+    echo "No deployments/ directory found"
+fi
+echo ""
+
+# Check invalidations
+echo "[REFRESH] Recent Cache Invalidations"
+echo "============================="
+
+INVALIDATIONS=$(aws cloudfront list-invalidations \
+    --distribution-id "$DISTRIBUTION_ID" \
+    --query 'InvalidationList.Items[:3].[Id,Status,CreateTime]' \
+    --output text 2>/dev/null)
+
+if [ -n "$INVALIDATIONS" ]; then
+    echo "$INVALIDATIONS" | while read -r inv_id inv_status inv_time; do
+        echo "* $inv_id - $inv_status ($inv_time)"
+    done
+else
+    echo "No recent invalidations"
+fi
+echo ""
+
+# AWS Console links
+echo "[LINK] AWS Console Links"
+echo "===================="
+echo "CloudFront: https://console.aws.amazon.com/cloudfront/v3/home?region=$REGION#/distributions/$DISTRIBUTION_ID"
+echo "S3 Bucket:  https://s3.console.aws.amazon.com/s3/buckets/$BUCKET_NAME?region=$REGION"
+echo ""
+
+# Quick commands
+echo "[TIP] Quick Commands"
+echo "================="
+echo "Invalidate cache:  ./web-invalidate.sh"
+echo "View bucket files: aws s3 ls s3://$BUCKET_NAME --recursive"
+echo "Redeploy:          ./deploy-web-to-aws.sh"
+echo ""
