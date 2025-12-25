@@ -23,7 +23,7 @@ if [ "$TASK_ARN" != "None" ] && [ -n "$TASK_ARN" ]; then
         --region $REGION \
         --query 'task.taskArn' \
         --output text
-    
+
     echo "[WAIT] Waiting for task to stop..."
     sleep 10
 fi

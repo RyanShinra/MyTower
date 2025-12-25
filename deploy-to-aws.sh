@@ -100,7 +100,7 @@ echo ""
 
 # Verify push by pulling image back from ECR
 echo "[CHECK] Verifying image push (pulling from ECR)..."
-if ! docker pull "$IMAGE_URI"; then
+if ! docker pull --platform linux/amd64 "$IMAGE_URI"; then
     echo "[ERROR] Error: Failed to pull image from ECR!"
     echo "   The image was pushed but cannot be pulled back."
     echo "   This indicates the push may have been incomplete or corrupted."
@@ -260,7 +260,7 @@ if [ -n "$RUNNING_TASKS" ] && [ "$RUNNING_TASKS" != "None" ]; then
         echo ""
     else
         echo "[INFO] Existing tasks will continue running with old image"
-        echo "   Run ./run-task.sh manually to start a task with new image"
+        echo "   Run ./aws-run.sh manually to start a task with new image"
         echo ""
         echo "[OK] Deployment complete!"
         exit 0
@@ -273,19 +273,17 @@ echo "[GAME] Starting new task with updated image..."
 # Track task start success
 TASK_STARTED=false
 
-# Check if run-task.sh exists and is executable
-if [ ! -f "./run-task.sh" ]; then
-    echo "   [WARNING]  Warning: run-task.sh not found"
+# Check if aws-run.sh exists and is executable
+if [ ! -f "./aws-run.sh" ]; then
+    echo "   [WARNING]  Warning: aws-run.sh not found"
     echo "   Deployment successful, but cannot start new task automatically"
-    echo "   Create and run run-task.sh manually to start the task"
-elif [ ! -x "./run-task.sh" ]; then
-    echo "   [WARNING]  Warning: run-task.sh is not executable"
-    echo "   Run: chmod +x run-task.sh"
+    echo "   Create and run aws-run.sh manually to start the task"
+elif [ ! -x "./aws-run.sh" ]; then
+    echo "   [WARNING]  Warning: aws-run.sh is not executable"
+    echo "   Run: chmod +x aws-run.sh"
 else
-    ./run-task.sh
-    TASK_EXIT_CODE=$?
-    if [ $TASK_EXIT_CODE -ne 0 ]; then
-        echo "   [WARNING]  Warning: run-task.sh failed (exit code: $TASK_EXIT_CODE)"
+    if ! ./aws-run.sh; then
+        echo "   [WARNING]  Warning: aws-run.sh failed"
         echo "   Check the script output above for details"
     else
         echo "   [OK] Task started successfully"

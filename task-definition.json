@@ -26,6 +26,10 @@
         {
           "name": "MYTOWER_LOG_LEVEL",
           "value": "INFO"
+        },
+        {
+          "name": "MYTOWER_DEMO",
+          "value": "true"
         }
       ],
       "logConfiguration": {
