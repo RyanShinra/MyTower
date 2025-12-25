@@ -7,7 +7,7 @@
  * Matches Python's ElevatorBankRenderer logic
  */
 
-import { PIXELS_PER_BLOCK } from './constants';
+import { FLOORBOARD_HEIGHT, PIXELS_PER_BLOCK } from './constants';
 import { CoordinateTransform } from './CoordinateTransform';
 import { Blocks } from '../units/Blocks';
 import type { ElevatorBankSnapshotGQL } from '../generated/graphql';
@@ -18,7 +18,7 @@ export class ElevatorShaftRenderer {
   // Shaft dimensions
   private readonly SHAFT_WIDTH = 1.0; // blocks (matches elevator width)
   private readonly SHAFT_COLOR = '#d0d0d0'; // Light gray
-  private readonly SHAFT_OUTLINE_COLOR = '#a0a0a0'; // Darker gray outline
+  private readonly SHAFT_OUTLINE_COLOR = '#909090'; // Darker gray outline
 
   constructor(
     private context: CanvasRenderingContext2D,
@@ -55,5 +55,11 @@ export class ElevatorShaftRenderer {
     this.context.strokeStyle = this.SHAFT_OUTLINE_COLOR;
     this.context.lineWidth = 1;
     this.context.strokeRect(x, shaftTopY.value, width, shaftHeight);
+
+    for (let i = 0; i <= shaftHeightBlocks; i++) {
+      this.context.fillStyle = this.SHAFT_OUTLINE_COLOR;
+      const lineY = shaftTopY.value + i * PIXELS_PER_BLOCK;
+      this.context.fillRect(x, lineY + 0.5, width, FLOORBOARD_HEIGHT);
+    }
   }
 }
