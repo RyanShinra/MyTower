@@ -313,6 +313,7 @@ export class WebGameView {
       console.log(`[OK] Added floor: ${floorType} (${result.addFloor})`);
     } catch (error) {
       console.error('[ERROR] Failed to add floor:', error);
+      throw error;
     }
   }
 

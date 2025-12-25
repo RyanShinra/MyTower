@@ -449,7 +449,7 @@ export class WebGameView {
                 }
             );
             const bankId = result.addElevatorBank;
-            console.log(`✅ Added elevator bank: ${bankId} at hCell ${horizontalPosition}, floors ${minFloor}-${maxFloor}`);
+            console.log(`✅ Added elevator bank: ${bankId} at horizontal position ${horizontalPosition}, floors ${minFloor}-${maxFloor}`);
             return bankId;
         } catch (error) {
             console.error('❌ Failed to add elevator bank:', error);
