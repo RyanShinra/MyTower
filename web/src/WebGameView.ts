@@ -11,14 +11,36 @@ import { GraphQLClient } from 'graphql-request';
 import { BACKGROUND_COLOR } from './rendering/constants';
 import { FloorRenderer } from './rendering/FloorRenderer';
 import { ElevatorRenderer } from './rendering/ElevatorRenderer';
+import { ElevatorShaftRenderer } from './rendering/ElevatorShaftRenderer';
 import { PersonRenderer } from './rendering/PersonRenderer';
 import { UIRenderer } from './rendering/UIRenderer';
 
 // Import generated types
-import type { 
-  BuildingSnapshotGql,
-  FloorTypeGql 
+import type {
+  BuildingSnapshotGQL,
+  FloorTypeGQL,
+  AddElevatorBankInput,
+  AddFloorInput,
+  AddElevatorInput,
+  AddPersonInput
 } from './generated/graphql';
+
+// Mutation result types
+interface AddFloorResult {
+  addFloor: string;
+}
+
+interface AddElevatorBankResult {
+  addElevatorBank: string;
+}
+
+interface AddElevatorResult {
+  addElevator: string;
+}
+
+interface AddPersonResult {
+  addPerson: string;
+}
 
 export class WebGameView {
   private canvas: HTMLCanvasElement;
@@ -29,15 +51,16 @@ export class WebGameView {
   // GraphQL clients
   private wsClient: Client;
   private gqlClient: GraphQLClient;
-  
+
   // Renderers (Single Responsibility Principle!)
   private floorRenderer: FloorRenderer;
   private elevatorRenderer: ElevatorRenderer;
+  private elevatorShaftRenderer: ElevatorShaftRenderer;
   private personRenderer: PersonRenderer;
   private uiRenderer: UIRenderer;
-  
+
   // Game state
-  private currentSnapshot: BuildingSnapshotGql | null = null;
+  private currentSnapshot: BuildingSnapshotGQL | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -51,6 +74,7 @@ export class WebGameView {
     const canvasHeight = canvas.height;
     this.floorRenderer = new FloorRenderer(this.context, canvasHeight);
     this.elevatorRenderer = new ElevatorRenderer(this.context, canvasHeight);
+    this.elevatorShaftRenderer = new ElevatorShaftRenderer(this.context, canvasHeight);
     this.personRenderer = new PersonRenderer(this.context, canvasHeight);
     this.uiRenderer = new UIRenderer(this.context, canvasHeight);
 
@@ -67,12 +91,12 @@ export class WebGameView {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const httpProtocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
     const wsUrl = `${wsProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`;
-    
+
     console.log(`[CHECK] WebSocket URL: ${wsUrl}`);
-    
+
     // Create WebSocket client with explicit configuration
     // Note: graphql-ws v6.x uses the modern 'graphql-transport-ws' protocol by default
-    this.wsClient = createClient({ 
+    this.wsClient = createClient({
       url: wsUrl,
       // Handle WebSocket connection errors and closures BEFORE subscribing
       on: {
@@ -126,7 +150,7 @@ export class WebGameView {
         },
       },
     });
-    
+
     this.gqlClient = new GraphQLClient(`${httpProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`);
 
     // Start subscription and rendering
@@ -138,7 +162,7 @@ export class WebGameView {
 
   private subscribeToBuilding(): void {
     console.log(`[SUB] Starting subscription to building state stream...`);
-    
+
     const subscription = `
       subscription BuildingStateStream {
         buildingStateStream(intervalMs: 50) {
@@ -163,6 +187,12 @@ export class WebGameView {
             nominalDirection
             doorOpen
             passengerCount
+          }
+          elevatorBanks {
+            id
+            horizontalPosition
+            minFloor
+            maxFloor
           }
           people {
             personId
@@ -227,10 +257,17 @@ export class WebGameView {
     }
 
     // Delegate to specialized renderers
+    // Draw shafts first so they appear behind everything
     this.drawFloors();
+    this.drawShafts();
     this.drawElevators();
     this.drawPeople();
     this.drawUI();
+  }
+
+  private drawShafts(): void {
+    if (!this.currentSnapshot) return;
+    this.elevatorShaftRenderer.drawShafts(this.currentSnapshot.elevatorBanks);
   }
 
   private drawFloors(): void {
@@ -261,18 +298,110 @@ export class WebGameView {
     this.uiRenderer.drawFrameCounter(this.frameCount);
   }
 
-  public async addFloor(floorType: FloorTypeGql): Promise<void> {
+  public async addFloor(floorType: FloorTypeGQL): Promise<void> {
     const mutation = `
-      mutation AddFloor($floorType: FloorTypeGQL!) {
-        addFloor(floorType: $floorType)
+      mutation AddFloor($input: AddFloorInput!) {
+        addFloor(input: $input)
       }
     `;
-    
+
     try {
-      await this.gqlClient.request(mutation, { floorType });
-      console.log(`[OK] Added floor: ${floorType}`);
+      const result: AddFloorResult = await this.gqlClient.request<AddFloorResult, { input: AddFloorInput }>(
+        mutation,
+        { input: { floorType } }
+      );
+      console.log(`[OK] Added floor: ${floorType} (${result.addFloor})`);
     } catch (error) {
-      console.error(`[ERROR] Failed to add floor:`, error);
+      console.error('[ERROR] Failed to add floor:', error);
+      throw error;
+    }
+  }
+
+  public async addElevatorBank(
+    horizontalPosition: number,
+    minFloor: number,
+    maxFloor: number
+  ): Promise<string> {
+    const mutation = `
+      mutation AddElevatorBank($input: AddElevatorBankInput!) {
+        addElevatorBank(input: $input)
+      }
+    `;
+
+    try {
+      const result: AddElevatorBankResult = await this.gqlClient.request<
+        AddElevatorBankResult,
+        { input: AddElevatorBankInput }
+      >(
+        mutation,
+        {
+          input: {
+            horizPosition: horizontalPosition,
+            minFloor,
+            maxFloor
+          }
+        }
+      );
+      const bankId = result.addElevatorBank;
+      console.log(`[OK] Added elevator bank: ${bankId} at position ${horizontalPosition}, floors ${minFloor}-${maxFloor}`);
+      return bankId;
+    } catch (error) {
+      console.error('[ERROR] Failed to add elevator bank:', error);
+      throw error;
+    }
+  }
+
+  public async addElevator(elevatorBankId: string): Promise<string> {
+    const mutation = `
+      mutation AddElevator($input: AddElevatorInput!) {
+        addElevator(input: $input)
+      }
+    `;
+
+    try {
+      const result: AddElevatorResult = await this.gqlClient.request<AddElevatorResult, { input: AddElevatorInput }>(
+        mutation,
+        { input: { elevatorBankId } }
+      );
+      const elevatorId = result.addElevator;
+      console.log(`[OK] Added elevator: ${elevatorId} to bank ${elevatorBankId}`);
+      return elevatorId;
+    } catch (error) {
+      console.error('[ERROR] Failed to add elevator:', error);
+      throw error;
+    }
+  }
+
+  public async addPerson(
+    initFloor: number,
+    initHorizPosition: number,
+    destFloor: number,
+    destHorizPosition: number
+  ): Promise<string> {
+    const mutation = `
+      mutation AddPerson($input: AddPersonInput!) {
+        addPerson(input: $input)
+      }
+    `;
+
+    try {
+      const result: AddPersonResult = await this.gqlClient.request<AddPersonResult, { input: AddPersonInput }>(
+        mutation,
+        {
+          input: {
+            initFloor,
+            initHorizPosition,
+            destFloor,
+            destHorizPosition
+          }
+        }
+      );
+      const personId = result.addPerson;
+      console.log(`[OK] Added person: ${personId} at floor ${initFloor}, going to floor ${destFloor}`);
+      return personId;
+    } catch (error) {
+      console.error('[ERROR] Failed to add person:', error);
+      throw error;
     }
   }
 

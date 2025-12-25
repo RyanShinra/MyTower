@@ -512,7 +512,7 @@ Quick version:
 }
 
 # Redeploy backend
-./deploy-to-aws.sh
+./deploy-backend-to-aws.sh
 ```
 
 ### Step 3: Configure Frontend API Endpoint

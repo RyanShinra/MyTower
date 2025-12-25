@@ -9,7 +9,7 @@
 import { Blocks } from '../units/Blocks';
 import { PIXELS_PER_BLOCK } from './constants';
 import { CoordinateTransform } from './CoordinateTransform';
-import type { ElevatorSnapshotGql } from '../generated/graphql';
+import type { ElevatorSnapshotGQL } from '../generated/graphql';
 
 export class ElevatorRenderer {
   private transform: CoordinateTransform;
@@ -25,7 +25,7 @@ export class ElevatorRenderer {
     this.transform = new CoordinateTransform(canvasHeight);
   }
 
-  public drawElevator(elevator: ElevatorSnapshotGql): void {
+  public drawElevator(elevator: ElevatorSnapshotGQL): void {
     // World space (z): elevator position in blocks
     const elevatorTopZ = Blocks.from(elevator.verticalPosition);
     

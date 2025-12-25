@@ -409,7 +409,7 @@ async def add_security_headers(request, call_next):
 ## 🟢 Low Priority Issues
 
 ### 16. Deployment Script Doesn't Verify Push Success (Deployment Safety)
-**Location:** `deploy-to-aws.sh:81-148`
+**Location:** `deploy-backend-to-aws.sh:81-148`
 **Issue:** Script creates git tag even if push might have failed, doesn't verify image is pullable.
 
 **Impact:**
@@ -422,7 +422,7 @@ async def add_security_headers(request, call_next):
 - Only tag on successful verification
 - Add deployment record (JSON file with metadata)
 
-**Files to modify:** `deploy-to-aws.sh`
+**Files to modify:** `deploy-backend-to-aws.sh`
 
 ---
 
@@ -640,7 +640,7 @@ Here's a proposed series of commits to address these issues. Each commit is focu
     - Verify image push success
     - Only tag on successful deploy
     - Add deployment metadata
-    - Files: `deploy-to-aws.sh`
+    - Files: `deploy-backend-to-aws.sh`
 
 18. **Clean up .gitignore patterns**
     - Replace specific files with patterns
