@@ -51,14 +51,14 @@ export class WebGameView {
   // GraphQL clients
   private wsClient: Client;
   private gqlClient: GraphQLClient;
-  
+
   // Renderers (Single Responsibility Principle!)
   private floorRenderer: FloorRenderer;
   private elevatorRenderer: ElevatorRenderer;
   private elevatorShaftRenderer: ElevatorShaftRenderer;
   private personRenderer: PersonRenderer;
   private uiRenderer: UIRenderer;
-  
+
   // Game state
   private currentSnapshot: BuildingSnapshotGQL | null = null;
 
@@ -91,12 +91,12 @@ export class WebGameView {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const httpProtocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
     const wsUrl = `${wsProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`;
-    
+
     console.log(`[CHECK] WebSocket URL: ${wsUrl}`);
-    
+
     // Create WebSocket client with explicit configuration
     // Note: graphql-ws v6.x uses the modern 'graphql-transport-ws' protocol by default
-    this.wsClient = createClient({ 
+    this.wsClient = createClient({
       url: wsUrl,
       // Handle WebSocket connection errors and closures BEFORE subscribing
       on: {
@@ -150,7 +150,7 @@ export class WebGameView {
         },
       },
     });
-    
+
     this.gqlClient = new GraphQLClient(`${httpProtocol}//${SERVER_HOST}:${SERVER_PORT}/graphql`);
 
     // Start subscription and rendering
@@ -162,7 +162,7 @@ export class WebGameView {
 
   private subscribeToBuilding(): void {
     console.log(`[SUB] Starting subscription to building state stream...`);
-    
+
     const subscription = `
       subscription BuildingStateStream {
         buildingStateStream(intervalMs: 50) {
@@ -258,8 +258,8 @@ export class WebGameView {
 
     // Delegate to specialized renderers
     // Draw shafts first so they appear behind everything
-    this.drawShafts();
     this.drawFloors();
+    this.drawShafts();
     this.drawElevators();
     this.drawPeople();
     this.drawUI();
