@@ -97,6 +97,10 @@ class TestGraphQLRateLimiting:
         assert response.status_code == 200
 
     def test_query_rate_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+        # KNOWN FAILURE: RateLimitedGraphQLRouter._apply_rate_limit() creates a new slowapi
+        # decorator dynamically on every request rather than using a static @limiter.limit()
+        # decorator. slowapi was not designed for this pattern and does not accumulate hit
+        # counts across calls, so the 429 is never triggered. Needs a rate-limiting rework.
         """Should respect MYTOWER_RATE_LIMIT_QUERIES environment variable."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "5/minute"
         client = test_client_factory()
@@ -113,6 +117,7 @@ class TestGraphQLRateLimiting:
                 assert response.status_code == 429, "Query 6 should be rate limited"
 
     def test_mutation_rate_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Should respect MYTOWER_RATE_LIMIT_MUTATIONS environment variable."""
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "3/minute"
         client = test_client_factory()
@@ -129,6 +134,7 @@ class TestGraphQLRateLimiting:
                 assert response.status_code == 429, "Mutation 4 should be rate limited"
 
     def test_mutations_stricter_than_queries(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Mutations should have stricter rate limits than queries by default."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "10/minute"
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "5/minute"
@@ -154,6 +160,7 @@ class TestGraphQLRateLimiting:
                 assert response.status_code == 429, "Mutation 6 should be rate limited"
 
     def test_rate_limit_per_ip_isolation(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Rate limits should be tracked per IP address."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "2/minute"
         client = test_client_factory()
@@ -184,6 +191,7 @@ class TestGraphQLRateLimiting:
         assert response.status_code == 200
 
     def test_rate_limit_response_format(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Rate limit exceeded response should have proper format."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "1/minute"
         client = test_client_factory()
@@ -354,6 +362,7 @@ class TestRateLimitingIntegration:
         test_client_factory: Callable[[], TestClient],
         mock_game_bridge: Mock
     ) -> None:
+        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Queries and mutations should have independent rate limits."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "5/minute"
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "3/minute"
@@ -388,6 +397,7 @@ class TestRateLimitingIntegration:
         test_client_factory: Callable[[], TestClient],
         mock_game_bridge: Mock
     ) -> None:
+        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Rate limits should reset after the time window."""
         # Use a short time window for testing
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "2/second"
