@@ -194,22 +194,6 @@ class GameBridge:
         """
         command_id: str = f"cmd_{time()}"
 
-        # Sample queue size for monitoring (best-effort, may be stale in multi-threaded context)
-        current_queue_size = self._command_queue.qsize()
-
-        # Track peak queue size with thread-safe update
-        with self._metrics_lock:
-            if current_queue_size > self._max_queue_size_seen:
-                self._max_queue_size_seen = current_queue_size
-
-        # Log if queue is getting full (>75% capacity)
-        if self._logger and current_queue_size > (self._queue_size * 0.75):
-            self._logger.warning(
-                f"Command queue is {(current_queue_size / self._queue_size) * 100:.1f}% full "
-                f"({current_queue_size}/{self._queue_size}). "
-                f"Consider increasing MYTOWER_COMMAND_QUEUE_SIZE if this happens frequently."
-            )
-
         try:
             # Queue the command with appropriate blocking behavior
             if timeout is None:
@@ -222,9 +206,21 @@ class GameBridge:
                 # Block with timeout
                 self._command_queue.put((command_id, command), timeout=timeout)
 
-            # Only increment after successful queue insertion (thread-safe)
+            # Sample size after put so max_seen reflects the item just added
+            current_queue_size = self._command_queue.qsize()
+
             with self._metrics_lock:
                 self._total_commands_queued += 1
+                if current_queue_size > self._max_queue_size_seen:
+                    self._max_queue_size_seen = current_queue_size
+
+            # Log if queue is getting full (>75% capacity)
+            if self._logger and current_queue_size > (self._queue_size * 0.75):
+                self._logger.warning(
+                    f"Command queue is {(current_queue_size / self._queue_size) * 100:.1f}% full "
+                    f"({current_queue_size}/{self._queue_size}). "
+                    f"Consider increasing MYTOWER_COMMAND_QUEUE_SIZE if this happens frequently."
+                )
 
         except queue.Full:
             # Track queue full events (thread-safe)
