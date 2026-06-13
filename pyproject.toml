@@ -16,6 +16,7 @@ dependencies = [
     # strawberry-graphql pinned <1.0.0 - see requirements-base.txt for rationale
     "strawberry-graphql[fastapi]>=0.245.0,<1.0.0",
     "pydantic>=2.0.0",
+    "slowapi>=0.1.9",
 ]
 
 [project.optional-dependencies]
