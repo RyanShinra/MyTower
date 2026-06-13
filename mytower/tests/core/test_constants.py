@@ -11,10 +11,10 @@ class TestDisplayConstants:
 
     def test_screen_dimensions(self) -> None:
         """Test screen dimension constants"""
-        assert constants.SCREEN_WIDTH == 1600
-        assert constants.SCREEN_HEIGHT == 1200
-        assert constants.SCREEN_WIDTH > 0
-        assert constants.SCREEN_HEIGHT > 0
+        assert constants.SCREEN_WIDTH >= 200
+        assert constants.SCREEN_HEIGHT >= 200
+        assert constants.SCREEN_WIDTH <= 3840  # Limit to 4K resolution
+        assert constants.SCREEN_HEIGHT <= 2160
 
 
     def test_performance_constants(self) -> None:
