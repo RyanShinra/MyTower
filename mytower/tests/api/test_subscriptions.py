@@ -1,5 +1,8 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
+# mypy: disable-error-code="call-arg,call-overload"
+# pyright: reportCallIssue=false
+# pyright: reportArgumentType=false
 
 """
 Unit tests for GraphQL WebSocket subscriptions.
