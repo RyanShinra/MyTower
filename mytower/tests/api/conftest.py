@@ -153,6 +153,7 @@ def mock_building_snapshot_gql() -> BuildingSnapshotGQL:
                 _draw_color=(255, 200, 100),
             )
         ],
+        elevator_banks=[],
     )
 
 
