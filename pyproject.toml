@@ -50,6 +50,7 @@ branch = true
 source = ["mytower"]
 # Allow parallel-mode (useful when tests run in parallel)
 parallel = true
+concurrency = ["multiprocessing"]
 
 [tool.coverage.report]
 # Show missing lines in the terminal (matches --cov-report=term-missing)
