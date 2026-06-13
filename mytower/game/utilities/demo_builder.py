@@ -118,6 +118,6 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
         add_person(init_floor=3, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
 
     demo_logger.info("Starting demo building construction...")
-    build_short_building()
+    build_tall_building()
 
     demo_logger.info("Demo building complete.")
