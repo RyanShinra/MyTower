@@ -224,9 +224,12 @@ class GameBridge:
 
         except queue.Full:
             # Track queue full events (thread-safe)
+            # Queue is at _queue_size by definition — update max_seen without sampling
             with self._metrics_lock:
                 self._queue_full_count += 1
                 full_count = self._queue_full_count
+                if self._queue_size > self._max_queue_size_seen:
+                    self._max_queue_size_seen = self._queue_size
 
             if self._logger:
                 self._logger.error(
