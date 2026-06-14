@@ -6,12 +6,12 @@
     "**/node_modules",
     "**/__pycache__",
     ".venv",
-    "venv"
+    "venv",
+    "mytower/tests"
   ],
   "ignore": [
     "mytower/api/schema.py",
-    "mytower/api/input_types.py",
-    "mytower/tests/**/*.py"
+    "mytower/api/input_types.py"
   ],
   "reportUnboundVariable": "error",
   "reportPossiblyUnboundVariable": "warning",

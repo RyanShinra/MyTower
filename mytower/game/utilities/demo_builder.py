@@ -102,8 +102,11 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
         add_person(init_floor=1, init_horiz_position=Blocks(6.0), dest_floor=7, dest_horiz_position=Blocks(7.0))
         add_person(init_floor=12, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
 
-    def build_short_building() -> None:
-        """Build a short building with few floors and elevators."""
+    def build_short_building() -> None:  # noqa: F841
+        """
+        Build a short building with few floors and elevators
+        Reserved for future use if we want to create a simpler demo building.
+        """
         add_floor(FloorType.LOBBY)
         add_floor(FloorType.RETAIL)
         add_floor(FloorType.RETAIL)
@@ -118,6 +121,6 @@ def build_model_building(controller: GameController, logger_provider: LoggerProv
         add_person(init_floor=3, init_horiz_position=Blocks(1.0), dest_floor=1, dest_horiz_position=Blocks(1.0))
 
     demo_logger.info("Starting demo building construction...")
-    build_short_building()
+    build_tall_building()
 
     demo_logger.info("Demo building complete.")
