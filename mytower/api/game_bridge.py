@@ -94,10 +94,10 @@ class GameBridge:
             else:
                 self._queue_size = self.DEFAULT_COMMAND_QUEUE_SIZE
 
-        self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=self._queue_size)
+        self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=self._queue_size)  # type: ignore[explicit-any]
 
         # Command result cache with fixed-size eviction (prevents unbounded memory growth)
-        self._command_results: dict[str, CommandResult[Any]] = {}
+        self._command_results: dict[str, CommandResult[Any]] = {}  # type: ignore[explicit-any]
         self._command_ids: deque[str] = deque(maxlen=self.MAX_COMMAND_RESULTS)  # Tracks insertion order
 
         self._latest_snapshot: BuildingSnapshot | None = None
@@ -137,7 +137,7 @@ class GameBridge:
         elif self._game_thread_id != current_thread:
             raise RuntimeError("update_game() called from wrong thread!")
 
-        commands_this_frame: list[tuple[str, Command[Any]]] = []
+        commands_this_frame: list[tuple[str, Command[Any]]] = []  # type: ignore[explicit-any]
         with self._command_lock:
             while not self._command_queue.empty():
                 try:
@@ -177,7 +177,7 @@ class GameBridge:
             return self._controller.execute_command(command)
 
     # TODO: Change the command_id to a sequential integer for easier tracking
-    def queue_command(self, command: Command[Any], timeout: float | None = None) -> str:
+    def queue_command(self, command: Command[T], timeout: float | None = None) -> str:
         """
         Queue a command for execution on the game thread.
 
@@ -245,11 +245,11 @@ class GameBridge:
         with self._snapshot_lock:
             return self._latest_snapshot  # Returns cached snapshot
 
-    def get_command_result_sync(self, command_id: str) -> CommandResult[Any] | None:
+    def get_command_result_sync(self, command_id: str) -> CommandResult[Any] | None:  # type: ignore[explicit-any]
         with self._update_lock:
             return self._command_results.get(command_id, None)
 
-    def get_all_command_results_sync(self) -> dict[str, CommandResult[Any]]:
+    def get_all_command_results_sync(self) -> dict[str, CommandResult[Any]]:  # type: ignore[explicit-any]
         with self._update_lock:
             return dict(self._command_results)  # Return a copy
 
