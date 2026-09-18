@@ -149,7 +149,18 @@ These are not tasks. They change what the tasks are.
 | #74 | Improve WebSocket stability | M5 |
 | #76 | GraphQL endpoint as environment variable | M4 |
 
-Suggested new issues: one per unchecked box above, each labeled with its milestone, plus a `0.1.0-alpha` GitHub milestone so progress is visible without reading this file.
+Every unchecked box above now has a GitHub issue, attached as a sub-issue of its milestone epic and labeled `alpha` plus `roadmap:M0` through `roadmap:M5`:
+
+| Milestone | Epic |
+|---|---|
+| M0 Trustworthy repo | #119 |
+| M1 Sim correctness | #120 |
+| M2 Lifecycle & config | #121 |
+| M3 Gameplay loop | #122 |
+| M4 Web UI | #123 |
+| M5 Ship | #124 |
+
+Progress per milestone is the epic's sub-issue completion bar. A `0.1.0-alpha` GitHub milestone still needs to be created by hand (the API used here cannot create milestones); once it exists, filter by the `alpha` label and bulk-assign.
 
 ---
 
