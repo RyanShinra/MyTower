@@ -59,7 +59,24 @@ pip install -r requirements-dev.txt
 ### 4. Keep old requirements.txt (optional)
 You can keep `requirements.txt` as-is for backward compatibility, but:
 - Use `requirements-dev.txt` for local development
-- Use `requirements-headless.txt` for Docker/AWS
+- Use `requirements-server.txt` for Docker/AWS
+
+---
+
+## Lock Files
+
+Each `.txt` file has a matching `.lock` (`requirements-base.lock`,
+`requirements-server.lock`, `requirements-dev.lock`) that pins every
+package to an exact version. The `.txt` files state intent (minimum
+versions); the `.lock` files are what gets installed:
+
+- `Dockerfile` installs from `requirements-server.lock`
+- `make install` installs from `requirements-dev.lock`
+
+When you change a `.txt` file, regenerate its lock. The steps are in the
+header of each lock file (fresh venv, install the `.txt`, `pip freeze`).
+Because `requirements-server.txt` and `requirements-dev.txt` both include
+`requirements-base.txt`, a change to base means regenerating all three.
 
 ---
 
