@@ -42,3 +42,7 @@ A SimTower-inspired elevator simulation game built as a learning project for Pyt
 ## Deployment Goal
 
 Headless GraphQL service on AWS for portfolio demonstration, with potential C++/Unreal Engine migration.
+
+## Roadmap
+
+See [docs/ALPHA_ROADMAP.md](docs/ALPHA_ROADMAP.md) for the plan to a playable 0.x alpha.
