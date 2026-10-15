@@ -14,3 +14,4 @@ Non-negotiables:
 - Tests use `Mock(spec=Protocol)` and the entities' `testing_*` accessors.
 - Install from `.lock` files. When a `.txt` changes, regenerate its lock per the header in the lock file.
 - Keep the suite green (498 passed at last handoff). Run `pytest --no-cov -q` before committing.
+- Show the code in the reply, with file and location, before applying it. The owner may prefer to type it in. See "How code gets written" in `CLAUDE.md`.

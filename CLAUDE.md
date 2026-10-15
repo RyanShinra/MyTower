@@ -8,7 +8,7 @@ MyTower is a SimTower-inspired elevator and building simulation in Python 3.13. 
 
 ## Setup
 
-Python 3.13 is required (`typing.override` and friends are used directly).
+Python 3.13 is the target and 3.12 is the floor (`requires-python = ">=3.12"` in `pyproject.toml`). `typing.override` needs 3.12.
 
 ```bash
 python3.13 -m venv .venv
@@ -45,7 +45,7 @@ pytest --no-cov -q           # faster, no coverage output
 make check                   # flake8 + mypy
 ```
 
-- The suite must stay green. As of this branch: 498 passed, 0 failed.
+- The suite is green at every commit and at handoff (498 passed on Linux; on Windows one subscription-cancellation test fails on timer resolution, a known pre-existing issue). Red *mid-change* is fine when it is explained; see "How code gets written" below.
 - mypy is strict (`mypy.ini`): no untyped defs, no explicit `Any`, `warn_unused_ignores`. Some legacy code violates this; do not add new violations, and do not add `type: ignore` without a code in brackets.
 - Tests use `Mock(spec=SomeProtocol)`; never bare `MagicMock()`. Entities expose `testing_*` accessors for internal state; use those rather than reaching into private attributes.
 - Tests that reload `mytower.api.server` (rate limiting, CORS) do so on purpose so env vars are re-read; keep that pattern if you add config-driven tests.
@@ -90,3 +90,47 @@ Root-level `*.md` files other than README, CLAUDE, and TODO are working notes fr
 - Every roadmap checkbox has a GitHub issue under an epic (#119 through #124). Reference the issue number in commits. Comment on the issue with the real root cause when it differs from the issue body, and leave closing to the human.
 - Verify claims by running things. Two "known failure" comments and one issue body in this repo were confidently wrong; the fix was found by instrumenting the code.
 - Update `docs/HANDOFF.md` at the end of a session that leaves work in flight.
+
+### How code gets written (read this before writing any)
+
+These rules were worked out on the owner's other project, AffinityLog, and learned the hard way there.
+They are not preferences to optimise away.
+
+The owner is a senior engineer (C++ and TypeScript primary, Python developing). MyTower is partly a
+vehicle for learning professional Python: strict typing, protocols, `match`, the async server. So *how*
+the work happens matters as much as what ships.
+
+- **Discuss the approach before building it.** For anything past a trivial edit, propose the plan, name
+  the decision points, and wait. Building first pre-empts the owner's input and wastes the time spent
+  reading a diff that was never agreed to.
+- **Show the code before it lands. The default is to write nothing to the tree.** Put a *locale list*
+  in the reply: for each edit, the file, where in it (a line number, or the `def`/`class` it follows),
+  and the exact code in a fenced block. New files go in whole. The owner then either types it in or says
+  "apply it", and Claude lands it verbatim. Either way the code has been read and understood before it
+  is in the tree, which is the point, and a locale list is reviewable in a way a finished diff is not.
+  This applies to boilerplate too: typing it is how the Python sticks.
+- **Explain the Python where it differs from TypeScript or C++.** A `Protocol` is not an interface,
+  `match` is not `switch`, `@override` and `Final` exist for reasons. One sentence on *why* the idiom
+  is shaped that way, next to the code, is worth more than the code.
+- **The judgment-carrying pieces are the owner's to write.** State-machine transitions, elevator
+  scheduling, command validation, what a snapshot exposes. Mark the spot with a `TODO`, name the
+  trade-offs, and wait.
+- **Claude's by default:** tests (the owner has said so, including writing them first so there is
+  something to code against), and mechanical fallout a change already made has decided: a rename's
+  call sites, an import that went dead, a protocol method the implementation now needs. When in doubt,
+  show rather than land. Landing it and reporting clearly is the fallback, not the default.
+- **Consult the linter before saying "run it."** `make check` is the pre-run gate. Reason about the
+  installed library's real signatures, not remembered ones: Strawberry moved from 0.285 to 0.327 on
+  this branch and its API surface moved with it.
+- **A red suite mid-change is fine when the red is explicable.** From the owner's software-testing
+  lecturer: *"Some of you seem to think that debugging is like finding the bottom of the hill. Fix one
+  thing and the number of errors increases, so you did the wrong thing. Sometimes the number of errors
+  goes up, on the way to the correct solution."* Do not split a coherent change into commits chosen to
+  keep `pytest` green at every step, and do not narrow a refactor to dodge tests you are about to
+  update anyway. Let the count rise, say why it rose, and bring it back down before the commit. What is
+  not acceptable is unexplained red, or red nobody noticed.
+- **Never start, stop, or restart Docker, and never run the `aws-*` or `deploy-*` scripts.** Docker
+  Desktop is a VM and a real battery and memory commitment on a laptop. The AWS scripts spend money and
+  touch a live deployment. If a task needs either, say so and hand over the command.
+- **A probing question is a real question.** "What's the bonehead case here?" asks for the failure
+  mode, not for reassurance.

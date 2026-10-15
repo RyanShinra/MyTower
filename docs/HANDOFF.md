@@ -1,10 +1,10 @@
 # Handoff: branch `claude/assess-mytower-modules-Be6cK`
 
-Last updated: 2026-09-18. Update this file at the end of any session that leaves work in flight.
+Last updated: 2026-10-14. Update this file at the end of any session that leaves work in flight.
 
 ## State of the branch
 
-Five commits ahead of `main`, nothing on `main` that is not here. Working tree clean. Full suite: **498 passed, 0 failed** (was 488 passed, 7 failed on `main`).
+Five commits ahead of `main`, nothing on `main` that is not here. Working tree clean. Full suite: **498 passed, 0 failed** on Linux (was 488 passed, 7 failed on `main`). On Windows, 497 passed: `test_subscription_cleanup_on_cancellation` fails on timer resolution. That failure is pre-existing on `main` and untouched by this branch.
 
 | Commit | What |
 |---|---|
@@ -12,7 +12,8 @@ Five commits ahead of `main`, nothing on `main` that is not here. Working tree c
 | `f08baa1` | Roadmap links each milestone to its GitHub epic |
 | `3537674` | **#126** Rate limiting fixed. It had never run: the router overrode `__call__`, which `include_router` never calls. Moved to `run()`, limits bound once, keyed on rightmost `X-Forwarded-For`, GET counted, comment-prefixed mutations classified, WebSocket cap actually enforced |
 | `9a435d0` | Lock files regenerated (they predated slowapi). `requirements-dev.lock` added. Dockerfile and `make install` now install from locks |
-| (this) | `CLAUDE.md`, this file, Continue rule |
+| `13e6ac3` | `CLAUDE.md`, this file, Continue rule |
+| (this) | `CLAUDE.md` gains "How code gets written", the collaboration rules adapted from AffinityLog; Docker build verified |
 
 No pull request has been opened. Open one from this branch to `main` when ready; the commits are independent enough to merge as one.
 
@@ -30,7 +31,8 @@ No pull request has been opened. Open one from this branch to `main` when ready;
 - Rate-limit tests pass on both Strawberry 0.285.0 (old server lock) and 0.327.7 (current locks).
 - Fresh venvs from `requirements-base.lock` and `requirements-server.lock` import `mytower.api.server`; the server one has no pygame.
 - `pip install -r requirements-server.lock` succeeds with the exact Dockerfile command.
-- **Not verified:** `docker build .` itself. The sandbox had no docker daemon. Run it locally once; it is expected to pass.
+- `docker build .` passes (2026-10-14, Docker Desktop on the PC). The image imports `mytower.api.server`, and pygame is absent from it, as the server lock intends.
+- mypy and flake8 add nothing new against `main`: mypy has 10 fewer errors, flake8 has 4 fewer findings.
 
 ## Things learned that are not written anywhere else
 
