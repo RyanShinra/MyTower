@@ -5,19 +5,24 @@ import asyncio
 import json
 import logging
 import os
+import re
 import threading
 from collections import defaultdict
-from collections.abc import Awaitable, Callable
-from typing import Any
+from collections.abc import Awaitable, Callable, Sequence
+from typing import Final, overload, override
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+from starlette.requests import HTTPConnection
+from strawberry import UNSET
 from strawberry.fastapi import GraphQLRouter
+from strawberry.http.typevars import Context, RootValue
+from strawberry.schema import BaseSchema
 
 from mytower.api.schema import schema
 
@@ -32,16 +37,16 @@ logger = logging.getLogger(__name__)
 # Type Aliases for Rate Limiting
 # ============================================================================
 # These type aliases make the rate limiting decorator pattern explicit.
-# Without them, the chained calls limiter.limit(rate)(endpoint)(request)
-# would have unclear Callable types.
+# Without them, the chained calls limiter.limit(rate)(probe) would have
+# unclear Callable types.
 #
 # The decorator pattern works like this:
 # 1. limiter.limit("100/minute") -> returns a RateLimitDecorator
-# 2. decorator(endpoint) -> returns an AsyncEndpoint (wrapped version)
-# 3. wrapped_endpoint(request) -> executes the rate limit check
+# 2. decorator(probe) -> returns an AsyncEndpoint (wrapped version)
+# 3. wrapped_probe(request) -> executes the rate limit check
 
 # An async endpoint that takes a Request and returns None
-# This matches the signature of _dummy_endpoint: async def(Request) -> None
+# This matches the signature of the rate-limit probes below.
 AsyncEndpoint = Callable[[Request], Awaitable[None]]
 
 # A decorator that transforms an endpoint into a rate-limited endpoint
@@ -57,10 +62,36 @@ RateLimitDecorator = Callable[[AsyncEndpoint], AsyncEndpoint]
 # Why: Simple human-readable limits ("100/minute"), widely used
 # Alternative: Could use `limits` directly or `fastapi-limiter` (Redis-based)
 #
-# Rate limiting is applied per-IP address using slowapi's Limiter.
+# Rate limiting is applied per client using slowapi's Limiter.
 # The limiter is a module-level singleton (dependency injection pattern).
 # This is standard practice for FastAPI middleware/dependencies.
-limiter = Limiter(key_func=get_remote_address)
+
+
+def get_client_key(request: HTTPConnection) -> str:
+    """
+    Rate-limit bucket key for a request or WebSocket handshake.
+
+    Behind a load balancer (the AWS deployment) every request arrives from the
+    balancer's address, so keying on the socket peer would put all players in
+    one bucket. The rightmost X-Forwarded-For entry is the one appended by the
+    last proxy and is the only one a client cannot forge through that proxy.
+
+    Without a proxy in front, a client can set the header freely and choose its
+    own bucket. That is acceptable for the alpha; the stricter fix is uvicorn's
+    proxy-headers support with FORWARDED_ALLOW_IPS set to the balancer.
+
+    The parameter must be named ``request``: slowapi inspects the signature to
+    decide whether to pass the request in.
+    """
+    forwarded_for: str = request.headers.get("x-forwarded-for", "")
+    if forwarded_for:
+        last_hop: str = forwarded_for.split(",")[-1].strip()
+        if last_hop:
+            return last_hop
+    return get_remote_address(request)  # type: ignore[arg-type]  # only reads .client, works for WebSocket too
+
+
+limiter = Limiter(key_func=get_client_key)
 
 app = FastAPI(title="MyTower GraphQL API")
 app.state.limiter = limiter
@@ -178,20 +209,67 @@ async def log_requests(request: Request, call_next):
 # ============================================================================
 # Custom GraphQL Router with Rate Limiting
 # ============================================================================
-# Why override __call__?
-# The GraphQLRouter.__call__ method is the ASGI interface for handling requests.
-# Overriding it allows us to intercept requests before they reach Strawberry
-# to apply rate limiting and WebSocket connection tracking.
+# Why override run()?
+# app.include_router() copies the router's routes into the app; the router
+# object itself is never called, so overriding __call__ on it does nothing.
+# Strawberry's GraphQLRouter registers three closures (GET, POST, WebSocket)
+# and every one of them calls self.run(request=..., context=..., root_value=...).
+# Overriding run() is therefore the one place that sees every request, HTTP
+# and WebSocket alike, before Strawberry executes anything.
 #
 # Alternative approaches considered:
 # 1. Middleware: Can't differentiate query vs mutation without parsing
-# 2. FastAPI dependency: Doesn't work with Strawberry's router pattern
+# 2. FastAPI dependency on include_router: one dependency list is applied to
+#    both HTTP and WebSocket routes, and the two need different handling
 # 3. Strawberry extension: More invasive, requires schema modification
-#
-# This approach is industry-standard for FastAPI router customization.
+# 4. Overriding __call__: dead code, see above (this was the original bug)
 # ============================================================================
 
-class RateLimitedGraphQLRouter(GraphQLRouter):
+# Mutation detection. A GraphQL document may start with whitespace and
+# line comments before the operation keyword; skip those, then require the
+# word "mutation". Documents that select an operation by operationName from
+# several definitions are not handled and fall back to the query limit.
+_MUTATION_PATTERN: Final[re.Pattern[str]] = re.compile(r"^(?:\s|#[^\n]*)*mutation\b", re.IGNORECASE)
+
+
+def looks_like_mutation(body: bytes) -> bool:
+    """
+    Classify a raw GraphQL-over-HTTP body for rate limiting.
+
+    Returns True when the mutation (stricter) limit should apply. Anything we
+    cannot read as a single {"query": "..."} document is treated as a mutation
+    on purpose: the safe failure is to over-limit, not under-limit. An empty
+    body (a GET, or GraphiQL) is a query.
+    """
+    if not body:
+        return False
+    try:
+        payload = json.loads(body)
+    except ValueError:
+        return True
+    if not isinstance(payload, dict):
+        return True
+    query = payload.get("query", "")
+    if not isinstance(query, str):
+        return True
+    return _MUTATION_PATTERN.match(query) is not None
+
+
+# slowapi counts hits per decorated function name (module.qualname) and stores
+# them under that name, so queries and mutations need two distinct probes to
+# get independent counters. Each probe is decorated exactly once, in the
+# router's __init__. Decorating per request (the previous design) appended a
+# duplicate limit to slowapi's registry on every call, which both leaked memory
+# and made each request cost N hits.
+async def _query_probe(request: Request) -> None:
+    """Rate-limit probe for GraphQL queries. Does nothing; the decorator does the work."""
+
+
+async def _mutation_probe(request: Request) -> None:
+    """Rate-limit probe for GraphQL mutations. Does nothing; the decorator does the work."""
+
+
+class RateLimitedGraphQLRouter(GraphQLRouter[Context, RootValue]):
     """
     GraphQL router with rate limiting and WebSocket connection tracking.
 
@@ -206,11 +284,22 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
     - Limits resource consumption from concurrent subscriptions
     """
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        schema: BaseSchema,
+        subscription_protocols: Sequence[str] = ("graphql-transport-ws", "graphql-ws"),
+    ) -> None:
+        super().__init__(schema=schema, subscription_protocols=subscription_protocols)
         # Load rate limits from environment (human-readable format)
         self.query_rate: str = os.getenv("MYTOWER_RATE_LIMIT_QUERIES", "200/minute")
         self.mutation_rate: str = os.getenv("MYTOWER_RATE_LIMIT_MUTATIONS", "100/minute")
+
+        # Bind each limit to its probe once. See the note above the probes.
+        query_decorator: RateLimitDecorator = limiter.limit(self.query_rate)
+        mutation_decorator: RateLimitDecorator = limiter.limit(self.mutation_rate)
+        self._check_query_limit: AsyncEndpoint = query_decorator(_query_probe)
+        self._check_mutation_limit: AsyncEndpoint = mutation_decorator(_mutation_probe)
+
         logger.info(
             f"[RATE_LIMIT] Rate limiting enabled: "
             f"Queries={self.query_rate}, Mutations={self.mutation_rate}"
@@ -220,183 +309,96 @@ class RateLimitedGraphQLRouter(GraphQLRouter):
             f"{MAX_WS_CONNECTIONS_PER_IP} concurrent connections per IP"
         )
 
-    async def __call__(self, request: Request):  # type: ignore[override]
+    @overload
+    async def run(
+        self, request: Request, context: Context = UNSET, root_value: RootValue | None = UNSET
+    ) -> Response:
+        ...
+
+    @overload
+    async def run(
+        self, request: WebSocket, context: Context = UNSET, root_value: RootValue | None = UNSET
+    ) -> WebSocket:
+        ...
+
+    @override
+    async def run(
+        self,
+        request: Request | WebSocket,
+        context: Context = UNSET,
+        root_value: RootValue | None = UNSET,
+    ) -> Response | WebSocket:
         """
-        ASGI application interface with rate limiting.
+        Entry point for every GraphQL request (see the module note on why run()).
 
-        LISKOV SUBSTITUTION PRINCIPLE (LSP) NOTE:
-        This override technically violates LSP because the parent class expects
-        __call__(scope, receive, send) while we accept __call__(request).
-
-        Why this is safe:
-        1. FastAPI's routing system always calls routers with a Request object
-        2. The Request object wraps (scope, receive, send) internally
-        3. This pattern is standard in FastAPI ecosystem (see FastAPI's APIRouter)
-        4. Runtime behavior is correct; only static type checking complains
-
-        Alternative considered:
-        Accept (scope, receive, send) and construct Request manually, but this
-        duplicates FastAPI's internal logic and is more error-prone.
-
-        Type checker suppression: type: ignore[override] acknowledges the
-        signature mismatch while confirming runtime safety.
+        HTTP requests are checked against the query or mutation limit and then
+        handed to Strawberry. WebSocket handshakes are counted per client and
+        refused when the client already holds the maximum number of connections.
         """
-        client_ip: str = get_remote_address(request)
+        if isinstance(request, WebSocket):
+            return await self._run_websocket(request, context, root_value)
 
-        # ====================================================================
-        # WebSocket Connection Limiting
-        # ====================================================================
-        upgrade_header: str = request.headers.get("upgrade", "").lower()
-        if upgrade_header == "websocket":
-            # Check and increment connection count with synchronization
-            # to prevent race conditions from concurrent requests
-            lock = await get_or_create_lock(client_ip)
-            async with lock:
-                # Check if client has exceeded WebSocket connection limit
-                if ws_connections[client_ip] >= MAX_WS_CONNECTIONS_PER_IP:
-                    logger.warning(
-                        f"[RATE_LIMIT] WebSocket connection limit exceeded for {client_ip}: "
-                        f"{ws_connections[client_ip]}/{MAX_WS_CONNECTIONS_PER_IP}"
-                    )
-                    return JSONResponse(
-                        status_code=429,
-                        content={
-                            "error": "Too many concurrent WebSocket connections",
-                            "limit": MAX_WS_CONNECTIONS_PER_IP,
-                            "message": (
-                                f"Maximum {MAX_WS_CONNECTIONS_PER_IP} "
-                                "concurrent subscriptions per IP"
-                            )
-                        }
-                    )
+        await self._enforce_http_rate_limit(request)
+        return await super().run(request=request, context=context, root_value=root_value)
 
-                # Track WebSocket connection (increment before, decrement after)
-                ws_connections[client_ip] += 1
-                current_count: int = ws_connections[client_ip]
-                # Log inside lock to ensure consistency
-                logger.info(
-                    f"[WS] WebSocket connected: {client_ip} "
-                    f"({current_count}/{MAX_WS_CONNECTIONS_PER_IP})"
-                )
-
-            try:
-                # Pass request to parent GraphQLRouter
-                # Note: Parent expects ASGI (scope, receive, send) but FastAPI's
-                # Request wraps these. This works due to Starlette's design but
-                # type checkers complain about missing parameters.
-                response = await super().__call__(request)  # type: ignore[call-arg]
-                return response
-            finally:
-                # ALWAYS decrement counter, even if exception occurs
-                # This ensures we don't leak connection counts
-                # Logging happens inside decrement_ws_connection under the lock
-                await decrement_ws_connection(client_ip)
-
-        # ====================================================================
-        # HTTP Rate Limiting (Queries and Mutations)
-        # ====================================================================
-        # We need to parse the GraphQL request to determine if it's a query
-        # or mutation so we can apply different rate limits.
-        #
-        # REQUEST BODY CONSUMPTION NOTE:
-        # Starlette's Request.body() caches the body after first read, allowing
-        # multiple calls to body() throughout the request lifecycle. This means
-        # the parent GraphQLRouter can still access the body even after we read
-        # it here. See: https://github.com/encode/starlette/blob/master/starlette/requests.py
-        is_mutation: bool = False  # Default to query (safer assumption for unknown operations)
-        try:
-            request_body: bytes = await request.body()
-            if request_body:
-                # Parse JSON body to extract GraphQL query
-                data: dict[str, Any] = json.loads(request_body)
-                query: str = data.get("query", "")
-
-                # Simple heuristic: mutations start with "mutation" keyword
-                # This covers 99% of cases. More sophisticated parsing is possible
-                # but adds complexity without much benefit.
-                # TODO(#123): Consider parsing operationName for more accuracy, see end of file for more details
-                is_mutation = query.strip().lower().startswith("mutation")
-
-                # Select appropriate rate limit
-                rate_to_apply: str = (
-                    self.mutation_rate if is_mutation
-                    else self.query_rate
-                )
-
-                # Apply rate limit check
-                await self._apply_rate_limit(request, rate_to_apply)
-
-                # Log which limit was applied
-                operation_type: str = "Mutation" if is_mutation else "Query"
-                logger.debug(
-                    f" {operation_type} rate limit check passed for {client_ip}"
-                )
-
-        except RateLimitExceeded as main_rate_limit_error:
-            # Rate limit exceeded - log and re-raise for FastAPI error handler
-            # The re-raise is explicit (not naked) to make the flow clear
-            operation_type = "Mutation" if is_mutation else "Query"
-            logger.warning(
-                f" {operation_type} rate limit exceeded for {client_ip}"
-            )
-            # raise main_rate_limit_error from None
-            raise main_rate_limit_error # TODO: Review if from None is needed here
-
-        except Exception as parse_error:
-            # Couldn't parse request body - apply stricter limit as safety measure
-            logger.debug(
-                f"Could not parse GraphQL request for rate limiting: {parse_error}"
-            )
-            try:
-                # Use mutation rate (stricter) when we can't determine type
-                await self._apply_rate_limit(request, self.mutation_rate)
-            except RateLimitExceeded as fallback_rate_limit_error:
-                logger.warning(
-                    f"[RATE_LIMIT] Rate limit exceeded for {client_ip} (default/unparseable)"
-                )
-                raise fallback_rate_limit_error from None
-
-        # Pass request to parent GraphQLRouter for actual GraphQL processing
-        # Note: Parent expects ASGI (scope, receive, send) but FastAPI's Request
-        # wraps these. This works due to Starlette's design but type checkers
-        # complain about missing parameters.
-        return await super().__call__(request)  # type: ignore[call-arg]
-
-    async def _apply_rate_limit(self, request: Request, rate: str) -> None:
+    async def _enforce_http_rate_limit(self, request: Request) -> None:
         """
-        Apply rate limiting to a request.
+        Apply the query or mutation limit to one HTTP request.
 
-        Args:
-            request: The incoming request
-            rate: Rate limit string (e.g., "100/minute")
+        Starlette caches the body on the Request after the first read, so
+        Strawberry can still read it afterwards.
 
         Raises:
-            RateLimitExceeded: If the rate limit is exceeded
-
-        Note:
-            This method uses slowapi's decorator pattern:
-            1. limiter.limit(rate) returns a decorator function
-            2. The decorator wraps a callable (slowapi requirement)
-            3. Calling it triggers the rate limit check
+            RateLimitExceeded: handled by the app-level handler, which returns 429.
         """
-        rate_limit_decorator: RateLimitDecorator = limiter.limit(rate)
-        rate_limited_callable: AsyncEndpoint = rate_limit_decorator(
-            self._dummy_endpoint
-        )
-        await rate_limited_callable(request)
+        client_key: str = get_client_key(request)
+        body: bytes = await request.body()
+        is_mutation: bool = looks_like_mutation(body)
+        operation_type: str = "Mutation" if is_mutation else "Query"
+        check: AsyncEndpoint = self._check_mutation_limit if is_mutation else self._check_query_limit
+        try:
+            await check(request)
+        except RateLimitExceeded:
+            logger.warning(f"[RATE_LIMIT] {operation_type} rate limit exceeded for {client_key}")
+            raise
+        logger.debug(f"[RATE_LIMIT] {operation_type} rate limit check passed for {client_key}")
 
-    async def _dummy_endpoint(self, request: Request) -> None:
+    async def _run_websocket(
+        self, websocket: WebSocket, context: Context, root_value: RootValue | None
+    ) -> WebSocket:
         """
-        Dummy endpoint required by slowapi.
+        Count a WebSocket connection against its client's limit for its whole lifetime.
 
-        slowapi's rate limiter wraps a callable (function/endpoint) and checks
-        rate limits before calling it. We don't need the actual callable to do
-        anything - we just need the rate limit check to run.
-
-        This is a quirk of slowapi's API design.
+        A refused handshake is closed before accept, which the client sees as a
+        failed upgrade. The count is decremented in a finally block so a crash
+        inside the subscription handler cannot leak a slot.
         """
+        client_key: str = get_client_key(websocket)
+        lock = await get_or_create_lock(client_key)
+        async with lock:
+            if ws_connections[client_key] >= MAX_WS_CONNECTIONS_PER_IP:
+                logger.warning(
+                    f"[RATE_LIMIT] WebSocket connection limit exceeded for {client_key}: "
+                    f"{ws_connections[client_key]}/{MAX_WS_CONNECTIONS_PER_IP}"
+                )
+                await websocket.close(
+                    code=1013,  # "Try Again Later"
+                    reason=f"Maximum {MAX_WS_CONNECTIONS_PER_IP} concurrent subscriptions per client",
+                )
+                return websocket
 
-graphql_app: RateLimitedGraphQLRouter = RateLimitedGraphQLRouter(
+            ws_connections[client_key] += 1
+            current_count: int = ws_connections[client_key]
+            # Log inside the lock so the count in the message is the one we set
+            logger.info(f"[WS] WebSocket connected: {client_key} ({current_count}/{MAX_WS_CONNECTIONS_PER_IP})")
+
+        try:
+            return await super().run(request=websocket, context=context, root_value=root_value)
+        finally:
+            await decrement_ws_connection(client_key)
+
+
+graphql_app: RateLimitedGraphQLRouter[None, None] = RateLimitedGraphQLRouter(
     schema=schema,
     # Enable detailed logging for subscriptions
     subscription_protocols=["graphql-transport-ws", "graphql-ws"],
@@ -487,11 +489,3 @@ def run_server(host: str = "127.0.0.1", port: int = 8000, shutdown_event: thread
 
 if __name__ == "__main__":
     run_server()
-
-
-
-# The mutation detection heuristic (line 309) using query.strip().lower().startswith("mutation") will incorrectly classify queries that have GraphQL comments before the mutation keyword. For example:
-
-# `# Add a new floor`
-# `mutation { addFloor(...) }`
-# This would be treated as a query instead of a mutation, applying the wrong rate limit. While .strip() removes whitespace, it doesn't remove GraphQL comments (which start with #). Consider using a regex pattern that skips comments: re.match(r'^\s*(#[^\n]*)?\s*mutation\b', query, re.IGNORECASE) or using a GraphQL parser.
