@@ -85,9 +85,19 @@ Root-level `*.md` files other than README, CLAUDE, and TODO are working notes fr
 
 ## Working conventions for AI sessions
 
-- Branch work stays on the branch you were given; never push elsewhere.
-- Do not open a pull request unless asked.
-- Every roadmap checkbox has a GitHub issue under an epic (#119 through #124). Reference the issue number in commits. Comment on the issue with the real root cause when it differs from the issue body, and leave closing to the human.
+- **One issue, one branch, one PR.** Each GitHub issue gets its own branch off the latest `main`,
+  named `<issue>-<short-slug>`, for example `125-github-actions-ci`. In a cloud session the harness
+  names the first branch; use it for the first issue and create the next one yourself. Never start
+  a second issue on a branch whose PR is still open, and never push to `main`.
+- **Each branch ends in a PR, a review, and a merge before the next issue starts.** Opening the PR
+  when the work is done is part of the task and needs no separate ask. Run `/code-review` on it,
+  record each finding's outcome in the PR as fixed, skipped with a reason, or not a problem, then
+  hand it to the owner. The owner merges, by squash or rebase only, since `main` requires linear
+  history. Delete the branch after merge.
+- **"Blocked" on a PR is expected.** Branch protection requires an approving review and GitHub never
+  lets an author approve their own PR, so the owner merges with the admin override. Do not try to
+  satisfy or loosen the protection.
+- Every roadmap checkbox has a GitHub issue under an epic (#119 through #124). Reference the issue number in commits. Comment on the issue with the real root cause when it differs from the issue body. Put `Fixes #N` in the PR body, so the issue closes when the owner merges.
 - Verify claims by running things. Two "known failure" comments and one issue body in this repo were confidently wrong; the fix was found by instrumenting the code.
 - Update `docs/HANDOFF.md` at the end of a session that leaves work in flight.
 

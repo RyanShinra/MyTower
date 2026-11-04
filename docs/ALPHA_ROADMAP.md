@@ -2,7 +2,7 @@
 
 **Goal:** a public URL where a stranger can play a simplified SimTower for ten minutes, make a few decisions that matter, and tell us what was fun and what was broken.
 
-**Status:** draft, September 2026. Nothing below has started. Baseline numbers come from a fresh read of the repo at commit `cba8dde`.
+**Status:** draft, written September 2026. Work has started: the M0 rate-limiting item is done (#126). Section 2 is the baseline at commit `cba8dde` and is not updated as work lands; the GitHub epics track progress.
 
 ---
 
@@ -28,7 +28,7 @@ A full assessment lives in the session that produced this document; the short ve
 | Area | State |
 |---|---|
 | Version | `0.1.0` in `pyproject.toml`, never tagged or released |
-| Tests | 495 collected. **488 pass, 7 fail** under Python 3.13. All 7 failures are in `mytower/tests/api/test_rate_limiting.py` (limiter never returns 429). Likely dependency drift, not a logic regression. |
+| Tests | 495 collected. **488 pass, 7 fail** under Python 3.13. All 7 failures are in `mytower/tests/api/test_rate_limiting.py` (limiter never returns 429). The cause turned out to be dead code, not dependency drift: see #126. |
 | Coverage | 83% of statements in `mytower/game` per the built-in coverage config. Building 100%, Person 95%, Floor 91%, Elevator 87%, ElevatorBank 85%. |
 | CI | **None.** No `.github/` directory. Pre-commit only runs whitespace hooks; black, ruff, mypy hooks are commented out. |
 | Open GitHub issues | 11, all from Sept to Nov 2025. Mapped to milestones in section 5. |
@@ -52,7 +52,7 @@ Each milestone ends with something you can show someone. Sizes are in **focused 
 Nothing here is gameplay. It exists so that every later milestone can be merged with confidence.
 
 - [ ] Add GitHub Actions: Python 3.13, `pytest`, `mypy`, `flake8`. Fail the build on red.
-- [ ] Fix or pin the 7 rate-limiting failures. Start by installing from `requirements-server.lock` and rerunning; if green, the fix is pinning `requirements-dev.txt`. If still red, the limiter is not wired into the test client and that is a real bug.
+- [x] Fix the 7 rate-limiting failures (#126). The router's `__call__` override was never invoked, so rate limiting had never run; the logic moved to `run()`.
 - [ ] Re-enable black and ruff (or flake8) in `.pre-commit-config.yaml`.
 - [ ] Finish the dependency-injection cleanup in `docs/DI_REFACTORING_REMAINING_WORK.md` (two test files, documented at ~35 minutes).
 - [ ] Move root-level scratch files (`COMMAND_QUEUE_FIX.md`, `UPDATE_CORS.md`, `WEBSOCKET_DEBUGGING.md`, `FORMATTING_NOTES.md`, `REQUIREMENTS_MIGRATION.md`, `DEPLOY_SCRIPT_EDGE_CASES.md`, `Hi, let's continue my project from.txt`, `requirements.txt.backup`, `create`) into `docs/archive/` or delete them.
@@ -114,6 +114,8 @@ This is the milestone that turns the simulation into a game. Keep every mechanic
 - [ ] Bound `GameBridge._command_results` (TTL or max size) and switch command IDs to a sequential counter. Both are flagged in the code.
 - [ ] Verify graceful shutdown against a real `docker stop` (docs exist, behavior unverified).
 - [ ] **#73** bind address from config; **#74** WebSocket reconnect in the client.
+- [ ] **#160** Put a load balancer in front of the ECS service. The rate limiter keys on the rightmost `X-Forwarded-For` entry, which any client can forge while the task has a public IP.
+- [ ] **#159** Rate-limit queries and mutations sent over WebSocket; today they bypass every limit.
 - [ ] Protect the reset and any admin mutation with a shared token. No user accounts for alpha.
 - [ ] Rewrite `README.md` for players: what it is, how to play, known limits, where to report bugs. Move the Python 3.13 rationale into `docs/`.
 - [ ] Tag `v0.1.0-alpha`, cut a GitHub release, add a bug-report issue template.
@@ -148,6 +150,8 @@ These are not tasks. They change what the tasks are.
 | #73 | Binding to 0.0.0.0 exposes the server | M5 |
 | #74 | Improve WebSocket stability | M5 |
 | #76 | GraphQL endpoint as environment variable | M4 |
+| #159 | Rate-limit WebSocket operations, harden the limiter (from the #158 review) | M5 |
+| #160 | Load balancer in front of the ECS service | M5 |
 
 Every unchecked box above now has a GitHub issue, attached as a sub-issue of its milestone epic and labeled `alpha` plus `roadmap:M0` through `roadmap:M5`:
 
