@@ -94,7 +94,9 @@ class GameBridge:
             else:
                 self._queue_size = self.DEFAULT_COMMAND_QUEUE_SIZE
 
-        self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(maxsize=self._queue_size)  # type: ignore[explicit-any]
+        self._command_queue: Queue[tuple[str, Command[Any]]] = Queue(  # type: ignore[explicit-any]
+            maxsize=self._queue_size
+        )
 
         # Command result cache with fixed-size eviction (prevents unbounded memory growth)
         self._command_results: dict[str, CommandResult[Any]] = {}  # type: ignore[explicit-any]

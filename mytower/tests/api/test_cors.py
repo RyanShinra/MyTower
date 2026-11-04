@@ -59,7 +59,9 @@ class TestCORSDefaultConfiguration:
         )
         assert response.headers["access-control-allow-origin"] == "*"
 
-    def test_credentials_disabled_with_wildcard(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_credentials_disabled_with_wildcard(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should disable credentials when using wildcard origins (CORS security requirement)."""
         client = test_client_factory()
         response = client.options(
@@ -153,7 +155,9 @@ class TestCORSEnvironmentVariableHandling:
         )
         assert response.headers["access-control-allow-origin"] == "https://example.com"
 
-    def test_credentials_enabled_with_specific_origins(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_credentials_enabled_with_specific_origins(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should enable credentials when using specific origins (not wildcard)."""
         os.environ["MYTOWER_CORS_ORIGINS"] = "https://example.com,https://app.example.com"
         client = test_client_factory()
@@ -166,7 +170,9 @@ class TestCORSEnvironmentVariableHandling:
         )
         assert response.headers.get("access-control-allow-credentials") == "true"
 
-    def test_wildcard_in_list_disables_credentials(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_wildcard_in_list_disables_credentials(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should disable credentials if wildcard appears anywhere in the origins list."""
         os.environ["MYTOWER_CORS_ORIGINS"] = "https://example.com,*,https://app.example.com"
         client = test_client_factory()
@@ -184,7 +190,9 @@ class TestCORSEnvironmentVariableHandling:
 class TestCORSSecurityCompliance:
     """Tests for CORS security policy compliance."""
 
-    def test_wildcard_with_credentials_not_allowed(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_wildcard_with_credentials_not_allowed(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """
         Should NOT allow credentials with wildcard origins.
 
@@ -265,7 +273,9 @@ class TestCORSEndpointCoverage:
 class TestCORSEdgeCases:
     """Tests for edge case handling in CORS configuration."""
 
-    def test_empty_string_fallback_to_wildcard(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_empty_string_fallback_to_wildcard(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should fallback to wildcard when MYTOWER_CORS_ORIGINS is empty string."""
         os.environ["MYTOWER_CORS_ORIGINS"] = ""
         client = test_client_factory()
@@ -277,7 +287,9 @@ class TestCORSEdgeCases:
         # Credentials should be disabled with wildcard
         assert response.headers.get("access-control-allow-credentials") != "true"
 
-    def test_whitespace_only_fallback_to_wildcard(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_whitespace_only_fallback_to_wildcard(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should fallback to wildcard when MYTOWER_CORS_ORIGINS is whitespace only."""
         os.environ["MYTOWER_CORS_ORIGINS"] = "   "
         client = test_client_factory()
@@ -288,7 +300,9 @@ class TestCORSEdgeCases:
         assert response.headers["access-control-allow-origin"] == "*"
         assert response.headers.get("access-control-allow-credentials") != "true"
 
-    def test_empty_list_items_fallback_to_wildcard(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_empty_list_items_fallback_to_wildcard(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should fallback to wildcard when MYTOWER_CORS_ORIGINS has only empty items."""
         os.environ["MYTOWER_CORS_ORIGINS"] = " , , "
         client = test_client_factory()
@@ -299,7 +313,9 @@ class TestCORSEdgeCases:
         assert response.headers["access-control-allow-origin"] == "*"
         assert response.headers.get("access-control-allow-credentials") != "true"
 
-    def test_mixed_valid_and_empty_origins(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_mixed_valid_and_empty_origins(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should filter out empty origins and keep valid ones."""
         os.environ["MYTOWER_CORS_ORIGINS"] = "https://example.com, ,https://app.example.com, "
         client = test_client_factory()
@@ -314,7 +330,9 @@ class TestCORSEdgeCases:
         # Credentials should be enabled (no wildcard in the filtered list)
         assert response.headers.get("access-control-allow-credentials") == "true"
 
-    def test_commas_only_fallback_to_wildcard(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_commas_only_fallback_to_wildcard(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should fallback to wildcard when MYTOWER_CORS_ORIGINS is only commas."""
         os.environ["MYTOWER_CORS_ORIGINS"] = ",,,"
         client = test_client_factory()
