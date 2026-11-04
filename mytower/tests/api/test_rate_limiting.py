@@ -22,6 +22,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from fastapi.testclient import TestClient
+from starlette.websockets import WebSocketDisconnect
 
 
 @pytest.fixture
@@ -97,10 +98,6 @@ class TestGraphQLRateLimiting:
         assert response.status_code == 200
 
     def test_query_rate_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
-        # KNOWN FAILURE: RateLimitedGraphQLRouter._apply_rate_limit() creates a new slowapi
-        # decorator dynamically on every request rather than using a static @limiter.limit()
-        # decorator. slowapi was not designed for this pattern and does not accumulate hit
-        # counts across calls, so the 429 is never triggered. Needs a rate-limiting rework.
         """Should respect MYTOWER_RATE_LIMIT_QUERIES environment variable."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "5/minute"
         client = test_client_factory()
@@ -117,7 +114,6 @@ class TestGraphQLRateLimiting:
                 assert response.status_code == 429, "Query 6 should be rate limited"
 
     def test_mutation_rate_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
-        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Should respect MYTOWER_RATE_LIMIT_MUTATIONS environment variable."""
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "3/minute"
         client = test_client_factory()
@@ -134,7 +130,6 @@ class TestGraphQLRateLimiting:
                 assert response.status_code == 429, "Mutation 4 should be rate limited"
 
     def test_mutations_stricter_than_queries(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
-        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Mutations should have stricter rate limits than queries by default."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "10/minute"
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "5/minute"
@@ -160,7 +155,6 @@ class TestGraphQLRateLimiting:
                 assert response.status_code == 429, "Mutation 6 should be rate limited"
 
     def test_rate_limit_per_ip_isolation(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
-        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Rate limits should be tracked per IP address."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "2/minute"
         client = test_client_factory()
@@ -191,7 +185,6 @@ class TestGraphQLRateLimiting:
         assert response.status_code == 200
 
     def test_rate_limit_response_format(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
-        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Rate limit exceeded response should have proper format."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "1/minute"
         client = test_client_factory()
@@ -203,6 +196,30 @@ class TestGraphQLRateLimiting:
         response = client.post("/graphql", json={"query": "{ hello }"})
         assert response.status_code == 429
         assert "error" in response.text.lower()
+
+    def test_get_requests_count_against_query_limit(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
+        """A GET to /graphql (GraphiQL or a query via URL) must not bypass the query limit."""
+        os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "1/minute"
+        client = test_client_factory()
+
+        assert client.get("/graphql").status_code == 200
+        assert client.get("/graphql").status_code == 429
+
+    def test_mutation_preceded_by_comment_uses_mutation_limit(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
+        """A leading GraphQL line comment must not hide the mutation keyword from the classifier."""
+        os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "10/minute"
+        os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "1/minute"
+        client = test_client_factory()
+        commented_mutation = "# add a floor\n  mutation { addFloor(input: {floorType: LOBBY}) }"
+
+        assert client.post("/graphql", json={"query": commented_mutation}).status_code == 200
+        assert client.post("/graphql", json={"query": commented_mutation}).status_code == 429
+        # The query bucket is untouched
+        assert client.post("/graphql", json={"query": "{ hello }"}).status_code == 200
 
 
 class TestWebSocketConnectionLimits:
@@ -238,20 +255,37 @@ class TestWebSocketConnectionLimits:
         from mytower.api import server
         assert isinstance(server.ws_connections, dict)
 
-    def test_websocket_limit_exceeded_response(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
-        """Should return 429 when WebSocket connection limit is exceeded."""
+    def test_websocket_limit_exceeded_is_refused(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
+        """A client already holding the maximum number of connections cannot open another."""
         os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "1"
-        # Create client to trigger module reload with updated environment
-        test_client_factory()
+        client = test_client_factory()
 
-        # Simulate exceeding the limit by manually setting the counter
         from mytower.api import server
-        test_ip = "192.168.1.100"
-        server.ws_connections[test_ip] = 2  # Already at limit
+        # The TestClient's peer address is "testclient"; pretend it already holds its one slot
+        server.ws_connections["testclient"] = 1
 
-        # Try to make a WebSocket upgrade request
-        # This should be rejected before upgrade happens
-        # Note: Full WebSocket testing would require a WebSocket client
+        with pytest.raises(WebSocketDisconnect), client.websocket_connect(
+            "/graphql", subprotocols=["graphql-transport-ws"]
+        ):
+            pass
+
+        # The refused handshake must not have touched the count
+        assert server.ws_connections["testclient"] == 1
+
+    def test_websocket_connection_is_counted_for_its_lifetime(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
+        """The count goes up while a connection is open and back down when it closes."""
+        os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "2"
+        client = test_client_factory()
+
+        from mytower.api import server
+        with client.websocket_connect("/graphql", subprotocols=["graphql-transport-ws"]):
+            assert server.ws_connections["testclient"] == 1
+
+        assert "testclient" not in server.ws_connections
 
 
 class TestCommandQueueBackpressure:
@@ -362,7 +396,6 @@ class TestRateLimitingIntegration:
         test_client_factory: Callable[[], TestClient],
         mock_game_bridge: Mock
     ) -> None:
-        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Queries and mutations should have independent rate limits."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "5/minute"
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "3/minute"
@@ -397,7 +430,6 @@ class TestRateLimitingIntegration:
         test_client_factory: Callable[[], TestClient],
         mock_game_bridge: Mock
     ) -> None:
-        # KNOWN FAILURE: same root cause as test_query_rate_limit_configurable.
         """Rate limits should reset after the time window."""
         # Use a short time window for testing
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "2/second"

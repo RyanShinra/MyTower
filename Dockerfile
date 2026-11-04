@@ -16,12 +16,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy only requirements first (for layer caching)
-COPY requirements-base.txt requirements-server.txt ./
+# Copy only the lock file first (for layer caching)
+# The lock file is self-contained (it already includes everything from
+# requirements-base.txt) and pins exact versions, so every build resolves
+# the same dependency set. Regenerate it per the header in the file.
+COPY requirements-server.lock ./
 
 # Install Python dependencies (server only, no pygame!)
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements-server.txt
+    pip install --no-cache-dir -r requirements-server.lock
 
 # ============================================================================
 # Stage 2: Runtime (lean production image)
