@@ -9,7 +9,10 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 
 
 def run_simulation_loop(
-    bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60, shutdown_event: threading.Event | None = None
+    bridge: GameBridge,
+    logger_provider: LoggerProvider,
+    target_fps: int = 60,
+    shutdown_event: threading.Event | None = None,
 ) -> None:
     """Run the game loop without pygame display
 
@@ -91,7 +94,10 @@ def run_simulation_loop(
     logger.info(f"Simulation loop shutting down gracefully after {frame_count} frames")
 
 def start_simulation_thread(
-    bridge: GameBridge, logger_provider: LoggerProvider, target_fps: int = 60, shutdown_event: threading.Event | None = None
+    bridge: GameBridge,
+    logger_provider: LoggerProvider,
+    target_fps: int = 60,
+    shutdown_event: threading.Event | None = None,
 ) -> threading.Thread:
     """Start the simulation in a background thread
 

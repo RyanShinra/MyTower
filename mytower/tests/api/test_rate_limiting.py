@@ -75,7 +75,9 @@ def mock_game_bridge():
 class TestGraphQLRateLimiting:
     """Tests for GraphQL query and mutation rate limiting."""
 
-    def test_query_rate_limit_default(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_query_rate_limit_default(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """Should use default query rate limit (200/minute)."""
         client = test_client_factory()
 
@@ -86,7 +88,9 @@ class TestGraphQLRateLimiting:
         )
         assert response.status_code == 200
 
-    def test_mutation_rate_limit_default(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_mutation_rate_limit_default(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """Should use default mutation rate limit (100/minute)."""
         client = test_client_factory()
 
@@ -97,7 +101,9 @@ class TestGraphQLRateLimiting:
         )
         assert response.status_code == 200
 
-    def test_query_rate_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_query_rate_limit_configurable(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """Should respect MYTOWER_RATE_LIMIT_QUERIES environment variable."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "5/minute"
         client = test_client_factory()
@@ -109,11 +115,13 @@ class TestGraphQLRateLimiting:
                 json={"query": "{ hello }"},
             )
             if i < 5:
-                assert response.status_code == 200, f"Query {i+1} should succeed"
+                assert response.status_code == 200, f"Query {i + 1} should succeed"
             else:
                 assert response.status_code == 429, "Query 6 should be rate limited"
 
-    def test_mutation_rate_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_mutation_rate_limit_configurable(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """Should respect MYTOWER_RATE_LIMIT_MUTATIONS environment variable."""
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "3/minute"
         client = test_client_factory()
@@ -125,11 +133,13 @@ class TestGraphQLRateLimiting:
                 json={"query": 'mutation { addFloor(input: {floorType: LOBBY}) }'},
             )
             if i < 3:
-                assert response.status_code == 200, f"Mutation {i+1} should succeed"
+                assert response.status_code == 200, f"Mutation {i + 1} should succeed"
             else:
                 assert response.status_code == 429, "Mutation 4 should be rate limited"
 
-    def test_mutations_stricter_than_queries(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_mutations_stricter_than_queries(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """Mutations should have stricter rate limits than queries by default."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "10/minute"
         os.environ["MYTOWER_RATE_LIMIT_MUTATIONS"] = "5/minute"
@@ -141,7 +151,7 @@ class TestGraphQLRateLimiting:
                 "/graphql",
                 json={"query": "{ hello }"},
             )
-            assert response.status_code == 200, f"Query {i+1} should succeed"
+            assert response.status_code == 200, f"Query {i + 1} should succeed"
 
         # Now send 6 mutations (should fail on 6th)
         for i in range(6):
@@ -150,11 +160,13 @@ class TestGraphQLRateLimiting:
                 json={"query": 'mutation { addFloor(input: {floorType: LOBBY}) }'},
             )
             if i < 5:
-                assert response.status_code == 200, f"Mutation {i+1} should succeed"
+                assert response.status_code == 200, f"Mutation {i + 1} should succeed"
             else:
                 assert response.status_code == 429, "Mutation 6 should be rate limited"
 
-    def test_rate_limit_per_ip_isolation(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_rate_limit_per_ip_isolation(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """Rate limits should be tracked per IP address."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "2/minute"
         client = test_client_factory()
@@ -184,7 +196,9 @@ class TestGraphQLRateLimiting:
         )
         assert response.status_code == 200
 
-    def test_rate_limit_response_format(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_rate_limit_response_format(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """Rate limit exceeded response should have proper format."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "1/minute"
         client = test_client_factory()
@@ -225,7 +239,9 @@ class TestGraphQLRateLimiting:
 class TestWebSocketConnectionLimits:
     """Tests for WebSocket connection limits per IP."""
 
-    def test_websocket_connection_limit_default(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_websocket_connection_limit_default(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should use default WebSocket connection limit (10 per IP)."""
         # Create client to trigger module reload with clean environment
         test_client_factory()
@@ -234,7 +250,9 @@ class TestWebSocketConnectionLimits:
         from mytower.api import server
         assert server.MAX_WS_CONNECTIONS_PER_IP == 10
 
-    def test_websocket_connection_limit_configurable(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_websocket_connection_limit_configurable(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Should respect MYTOWER_MAX_WS_CONNECTIONS environment variable."""
         os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "5"
         # Create client to trigger module reload with updated environment
@@ -243,7 +261,9 @@ class TestWebSocketConnectionLimits:
         from mytower.api import server
         assert server.MAX_WS_CONNECTIONS_PER_IP == 5
 
-    def test_websocket_connection_tracking(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_websocket_connection_tracking(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """WebSocket connections should be tracked per IP."""
         os.environ["MYTOWER_MAX_WS_CONNECTIONS"] = "2"
         # Create client to trigger module reload with updated environment
@@ -341,7 +361,9 @@ class TestCommandQueueBackpressure:
         call_args = mock_game_bridge.queue_command.call_args
         assert call_args[1]["timeout"] == 10.0
 
-    def test_mutation_with_queue_full(self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock) -> None:
+    def test_mutation_with_queue_full(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient], mock_game_bridge: Mock
+    ) -> None:
         """GraphQL mutation should return error when queue is full."""
         mock_game_bridge.queue_command.side_effect = queue.Full()
         client = test_client_factory()
@@ -375,7 +397,9 @@ class TestRootEndpointRateLimiting:
         response = client.get("/")
         assert response.status_code == 429
 
-    def test_health_endpoint_no_rate_limit(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_health_endpoint_no_rate_limit(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Health endpoint should not have rate limiting."""
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "1/minute"
         client = test_client_factory()
@@ -471,7 +495,9 @@ class TestRateLimitingConfiguration:
             from mytower.api import server
             importlib.reload(server)
 
-    def test_environment_variable_precedence(self, clean_env: None, test_client_factory: Callable[[], TestClient]) -> None:
+    def test_environment_variable_precedence(
+        self, clean_env: None, test_client_factory: Callable[[], TestClient]
+    ) -> None:
         """Environment variables should override defaults."""
         # Set all rate limit environment variables
         os.environ["MYTOWER_RATE_LIMIT_QUERIES"] = "150/minute"

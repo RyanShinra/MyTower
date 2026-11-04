@@ -1,5 +1,7 @@
 # MyTower
 
+[![CI](https://github.com/RyanShinra/MyTower/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanShinra/MyTower/actions/workflows/ci.yml)
+
 ## Requirements
 
 - **Python 3.13** (recommended) or Python 3.12 minimum

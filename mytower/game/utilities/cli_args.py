@@ -60,7 +60,6 @@ class GameArgs:
             raise ValueError("Remote mode requires --remote URL")
 
 
-
 def parse_args() -> GameArgs:
     """
     Parse command-line arguments and return validated GameArgs.
