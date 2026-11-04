@@ -88,7 +88,8 @@ Root-level `*.md` files other than README, CLAUDE, and TODO are working notes fr
 - **One issue, one branch, one PR.** Each GitHub issue gets its own branch off the latest `main`,
   named `<issue>-<short-slug>`, for example `125-github-actions-ci`. In a cloud session the harness
   names the first branch; use it for the first issue and create the next one yourself. Never start
-  a second issue on a branch whose PR is still open, and never push to `main`.
+  a second issue on a branch whose PR is still open, and never push to `main`. A change with no
+  issue, such as a rules edit, gets a short descriptive branch name, for example `rules-discuss-fixes-first`.
 - **Each branch ends in a PR, a review, and a merge before the next issue starts.** Opening the PR
   when the work is done is part of the task and needs no separate ask. Run `/code-review` on it,
   record each finding's outcome in the PR as fixed, skipped with a reason, or not a problem, then
@@ -113,6 +114,10 @@ the work happens matters as much as what ships.
 - **Discuss the approach before building it.** For anything past a trivial edit, propose the plan, name
   the decision points, and wait. Building first pre-empts the owner's input and wastes the time spent
   reading a diff that was never agreed to.
+- **Discuss a fix before implementing it.** A finding from a linter, mypy, a failing test, a code
+  review, or an issue body is not permission to change code. Say what is wrong, where, and the exact
+  change you propose, then wait. This holds for fixes that look mechanical, such as wrapping long
+  lines, and for fixes a larger task seems to need, such as clearing lint so a new CI gate passes.
 - **Show the code before it lands. The default is to write nothing to the tree.** Put a *locale list*
   in the reply: for each edit, the file, where in it (a line number, or the `def`/`class` it follows),
   and the exact code in a fenced block. New files go in whole. The owner then either types it in or says
@@ -129,6 +134,7 @@ the work happens matters as much as what ships.
   something to code against), and mechanical fallout a change already made has decided: a rename's
   call sites, an import that went dead, a protocol method the implementation now needs. When in doubt,
   show rather than land. Landing it and reporting clearly is the fallback, not the default.
+  Fixing findings that already exist in the code is not fallout; see "Discuss a fix before implementing it".
 - **Consult the linter before saying "run it."** `make check` is the pre-run gate. Reason about the
   installed library's real signatures, not remembered ones: Strawberry moved from 0.285 to 0.327 on
   this branch and its API surface moved with it.
