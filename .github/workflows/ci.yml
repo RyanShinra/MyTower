@@ -56,7 +56,9 @@ jobs:
         run: |
           set +e
           mypy mytower/ > mypy.txt
+          status=$?
           set -e
           tail -n 1 mypy.txt | tee -a "$GITHUB_STEP_SUMMARY"
+          test "$status" -le 1        # 0 = clean, 1 = type errors; 2 = mypy itself failed
           count=$(grep -oP '^Found \K[0-9]+' mypy.txt || echo 0)
           test "$count" -le 243
