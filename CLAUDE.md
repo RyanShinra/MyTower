@@ -49,6 +49,7 @@ make check                   # flake8 + mypy
 - mypy is strict (`mypy.ini`): no untyped defs, no explicit `Any`, `warn_unused_ignores`. Some legacy code violates this; do not add new violations, and do not add `type: ignore` without a code in brackets.
 - Tests use `Mock(spec=SomeProtocol)`; never bare `MagicMock()`. Entities expose `testing_*` accessors for internal state; use those rather than reaching into private attributes.
 - Tests that reload `mytower.api.server` (rate limiting, CORS) do so on purpose so env vars are re-read; keep that pattern if you add config-driven tests.
+- Run `flake8` as the console script, never `python -m flake8`. From the repo root, `-m` imports the `flake8_max_blank_lines/` project folder as an empty namespace package instead of the installed plugin, and flake8 fails to load it.
 
 ## Style
 
