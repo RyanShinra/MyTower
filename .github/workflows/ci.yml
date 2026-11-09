@@ -12,7 +12,7 @@ permissions:
 # A new push to the same PR cancels the run still going for the old one.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
@@ -49,7 +49,14 @@ jobs:
       # flake8_max_blank_lines/ project folder ahead of the installed plugin on sys.path.
       - name: flake8
         run: flake8 mytower/
-      # Report only: main has 243 mypy errors. Make blocking when the mypy-to-zero issue lands.
-      - name: mypy
-        continue-on-error: true
-        run: mypy mytower/
+      # Ratchet: fails if mypy finds more errors than the baseline. Lower the
+      # baseline as #162 burns the count down; at 0, drop the ratchet.
+      - name: mypy (at most 243 errors, see #162)
+        shell: bash
+        run: |
+          set +e
+          mypy mytower/ > mypy.txt
+          set -e
+          tail -n 1 mypy.txt | tee -a "$GITHUB_STEP_SUMMARY"
+          count=$(grep -oP '^Found \K[0-9]+' mypy.txt || echo 0)
+          test "$count" -le 243
