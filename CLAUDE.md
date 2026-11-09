@@ -90,11 +90,13 @@ Root-level `*.md` files other than README, CLAUDE, and TODO are working notes fr
   names the first branch; use it for the first issue and create the next one yourself. Never start
   a second issue on a branch whose PR is still open, and never push to `main`. A change with no
   issue, such as a rules edit, gets a short descriptive branch name, for example `rules-discuss-fixes-first`.
+  A no-issue PR does not block issue work; keep it small and merge it first.
 - **Each branch ends in a PR, a review, and a merge before the next issue starts.** Opening the PR
-  when the work is done is part of the task and needs no separate ask. Run `/code-review` on it,
-  record each finding's outcome in the PR as fixed, skipped with a reason, or not a problem, then
-  hand it to the owner. The owner merges, by squash or rebase only, since `main` requires linear
-  history. Delete the branch after merge.
+  when the work is done is part of the task and needs no separate ask. Run `/code-review` on it and
+  post the findings in the PR, each with a proposed fix. Fix only the ones the owner approves, then
+  record each outcome as fixed, skipped with a reason, or not a problem, and hand it to the owner. The
+  owner merges, by squash or rebase only, since `main` requires linear history. Delete the branch
+  after merge.
 - **"Blocked" on a PR is expected.** Branch protection requires an approving review and GitHub never
   lets an author approve their own PR, so the owner merges with the admin override. Do not try to
   satisfy or loosen the protection.
@@ -114,10 +116,12 @@ the work happens matters as much as what ships.
 - **Discuss the approach before building it.** For anything past a trivial edit, propose the plan, name
   the decision points, and wait. Building first pre-empts the owner's input and wastes the time spent
   reading a diff that was never agreed to.
-- **Discuss a fix before implementing it.** A finding from a linter, mypy, a failing test, a code
-  review, or an issue body is not permission to change code. Say what is wrong, where, and the exact
-  change you propose, then wait. This holds for fixes that look mechanical, such as wrapping long
-  lines, and for fixes a larger task seems to need, such as clearing lint so a new CI gate passes.
+- **Discuss a fix before implementing it.** A finding that exists before your change, from a linter,
+  mypy, a failing test, a code review, or an issue body, is not permission to change code. Failures
+  your own approved change causes are part of that change; see the red-suite bullet below. Say what is
+  wrong, where, and the exact change you propose, then wait. This holds for fixes that look
+  mechanical, such as wrapping long lines, and for fixes a larger task seems to need, such as clearing
+  lint so a new CI gate passes.
 - **Show the code before it lands. The default is to write nothing to the tree.** Put a *locale list*
   in the reply: for each edit, the file, where in it (a line number, or the `def`/`class` it follows),
   and the exact code in a fenced block. New files go in whole. The owner then either types it in or says

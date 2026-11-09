@@ -16,4 +16,4 @@ Non-negotiables:
 - Keep the suite green (498 passed at last handoff). Run `pytest --no-cov -q` before committing.
 - Show the code in the reply, with file and location, before applying it. The owner may prefer to type it in. See "How code gets written" in `CLAUDE.md`.
 - One issue per branch and per PR, reviewed and merged before the next starts. See "Working conventions" in `CLAUDE.md`.
-- Discuss a fix before implementing it, including lint, type, and review findings. See "How code gets written" in `CLAUDE.md`.
+- Discuss a fix before implementing it, including lint, type, test, review, and issue-body findings. See "How code gets written" in `CLAUDE.md`.
