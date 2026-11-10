@@ -48,7 +48,7 @@ python3.13 -m venv .venv
 source .venv/bin/activate
 
 # Install dev dependencies (includes everything)
-pip install -r requirements-dev.txt
+pip install -r requirements-dev.lock
 ```
 
 ### 3. Keep old requirements.txt (optional)
@@ -114,7 +114,7 @@ python -c "import pygame; import pytest; print('Dev environment OK')"
 ```bash
 python -c "import fastapi; import strawberry; print('Server environment OK')"
 # This should work:
-python -m mytower.main --mode headless --port 8000
+python -m mytower.main --headless --port 8000
 ```
 
 ---

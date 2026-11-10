@@ -79,10 +79,10 @@ mytower/game/utilities/    demo_builder (the only initialization path today), si
 mytower/api/               FastAPI app, GraphQL schema/types, GameBridge, rate limiting
 mytower/tests/             mirrors the above; api/ has the most tests
 web/                       Svelte + TypeScript client
-docs/                      roadmap, handoff, design notes (some are historical)
+docs/                      roadmap, handoff, guides, design notes; docs/archive/ is historical
 ```
 
-Guides and design notes live in `docs/` (design notes in `docs/design/`). `docs/archive/` holds notes from past sessions, kept for history; don't treat them as current.
+Guides and design notes live in `docs/`. `docs/archive/` holds notes from past sessions, kept for history; don't treat them as current.
 
 ## Working conventions for AI sessions
 

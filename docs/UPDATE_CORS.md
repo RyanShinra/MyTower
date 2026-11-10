@@ -6,7 +6,7 @@ After deploying the frontend to CloudFront, you **MUST** update the backend CORS
 
 The backend currently allows **all origins** (`*`) which is fine for development but should be restricted in production.
 
-CORS is configured in `mytower/api/server.py` lines 84-106.
+CORS is configured in `mytower/api/server.py`, under `# Configure CORS middleware`.
 
 ## How to Update CORS
 

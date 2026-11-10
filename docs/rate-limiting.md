@@ -121,14 +121,14 @@ When command queue is full:
 
 ### Architecture Decisions
 
-**Why Override `__call__`?**
-The `RateLimitedGraphQLRouter` overrides the `__call__` method to intercept requests before they reach Strawberry GraphQL. This is necessary because:
+**Why Override `run()`?**
+The `RateLimitedGraphQLRouter` overrides Strawberry's `run()`, which every GraphQL HTTP request and WebSocket handshake passes through, to apply limits before Strawberry executes anything. A router-level hook is used instead of the alternatives because:
 
 1. **Middleware approach:** Can't differentiate between queries and mutations without parsing
 2. **FastAPI dependency:** Doesn't work well with Strawberry's router pattern
 3. **Strawberry extension:** More invasive, requires modifying schema definition
 
-The `__call__` override is industry-standard for FastAPI router customization (see `RateLimitedGraphQLRouter.__call__` in `mytower/api/server.py` for detailed explanation).
+An earlier version overrode `__call__` instead. That never ran: `app.include_router()` copies a router's routes into the app and never calls the router object (#126).
 
 **Exception Handling Philosophy**
 - **Strawberry GraphQL automatically catches exceptions** raised in resolvers
