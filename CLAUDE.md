@@ -82,7 +82,7 @@ web/                       Svelte + TypeScript client
 docs/                      roadmap, handoff, design notes (some are historical)
 ```
 
-Root-level `*.md` files other than README, CLAUDE, and TODO are working notes from past sessions; M0 of the roadmap archives them.
+Guides and design notes live in `docs/` (design notes in `docs/design/`). `docs/archive/` holds notes from past sessions, kept for history; don't treat them as current.
 
 ## Working conventions for AI sessions
 
