@@ -16,7 +16,7 @@ When analyzing code, focus on:
 - Feature completeness and what might be missing
 
 Keep in mind while discussing:
-- The project is originally intended as a learning experience for the CPAP Python exam
+- The project is originally intended as a learning experience for the PCAP Python exam
 - I'm coming from C++ and TypeScript, so I've implemented an aggressive typing system to write better, professional code (and to make me happy)
 - This will soon be deployed as a headless service to AWS to serve up GraphQL as a game interface
 
