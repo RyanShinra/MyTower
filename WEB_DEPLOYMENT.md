@@ -501,7 +501,7 @@ After deploying, your frontend needs to talk to your backend GraphQL API.
 
 ### Step 2: Update Backend CORS
 
-**See: `UPDATE_CORS.md` for detailed instructions**
+**See: `docs/UPDATE_CORS.md` for detailed instructions**
 
 Quick version:
 ```bash
@@ -561,7 +561,7 @@ Want `mytower.example.com` instead of `d111111abcdef8.cloudfront.net`?
 
 4. **Update CORS**
    - Update backend CORS to include your custom domain
-   - See `UPDATE_CORS.md`
+   - See `docs/UPDATE_CORS.md`
 
 **Wait 5-10 minutes for DNS propagation, then visit:**
 `https://mytower.example.com`
@@ -671,7 +671,7 @@ A: Yes! The scripts have been tested and work on Windows Git Bash, WSL, Linux, a
 ## Next Steps
 
 1. ✅ Deploy frontend: `./build-web.sh && ./deploy-web-to-aws.sh`
-2. ✅ Update backend CORS: See `UPDATE_CORS.md`
+2. ✅ Update backend CORS: See `docs/UPDATE_CORS.md`
 3. ✅ Share the CloudFront URL with others
 4. ⭐ (Optional) Set up custom domain
 5. ⭐ (Optional) Set up GitHub Actions for auto-deploy
@@ -685,7 +685,7 @@ A: Yes! The scripts have been tested and work on Windows Git Bash, WSL, Linux, a
 1. Check `./web-status.sh` for current state
 2. Review AWS Console (links in output)
 3. Check CloudWatch Logs for backend errors
-4. Review `UPDATE_CORS.md` for CORS issues
+4. Review `docs/UPDATE_CORS.md` for CORS issues
 
 **Resources:**
 - AWS S3 Static Hosting: https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html
