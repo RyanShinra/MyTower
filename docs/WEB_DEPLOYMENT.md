@@ -612,7 +612,7 @@ MyTower/
 ├── deployments/                  # Deployment metadata (auto-created)
 │   └── web-deploy-*.json         # Deployment records
 │
-└── WEB_DEPLOYMENT.md             # This file
+└── docs/WEB_DEPLOYMENT.md        # This file
 ```
 
 ---
