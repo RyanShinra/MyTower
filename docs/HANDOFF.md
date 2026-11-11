@@ -73,6 +73,14 @@ Low priority; no issue on purpose. Pick up when the trigger fires.
   are only exercised indirectly by the subscription tests, which check the result's type and empty lists,
   not field values. Build a snapshot with known values, convert it, and assert the fields. Tests are
   Claude's by default (CLAUDE.md). **Check this when we reach the end of M0**, before starting M1.
+- **An injectable converter on `Subscription`.** One `patch("mytower.api.schema.convert_building_snapshot",
+  side_effect=ValueError(...))` remains, in `test_subscription_handles_convert_snapshot_exception`
+  (`test_subscription_error_handling.py`). Valid data cannot make the real converter fail, so removing it
+  means a production change in `mytower/api/schema.py`: a `converter: Callable[[BuildingSnapshot],
+  BuildingSnapshotGQL] = convert_building_snapshot` parameter next to `game_bridge` in
+  `Subscription.__init__`, with `building_state_stream` calling `self._convert(...)`. The default keeps
+  Strawberry's no-argument construction working. Gets the two subscription test files to no patches at all.
+  **Check this when we reach the end of M0**, after #128.
 
 ## Things learned that are not written anywhere else
 
