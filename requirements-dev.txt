@@ -16,6 +16,8 @@ httpx2>=0.28.0          # HTTP client for API integration tests (starlette testc
 
 # Code quality
 flake8==7.2.0
+flake8-bugbear==26.11.9  # B-rules; B007 is ignored in .flake8
+pre-commit==4.7.0        # local hooks, and the same hooks in CI
 mypy==1.15.0
 
 # Supporting tools

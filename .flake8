@@ -17,6 +17,8 @@ ignore =
     E304,
     E305,
     E306,
+    # B007: loop variable not used in the body; sometimes needed just for the count
+    B007,
 
 # Exclude specific directories/files
 exclude =
