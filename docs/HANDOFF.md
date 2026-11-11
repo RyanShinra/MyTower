@@ -1,10 +1,10 @@
 # Handoff
 
-Last updated: 2026-11-09. Update this file at the end of any session that leaves work in flight.
+Last updated: 2026-11-11. Update this file at the end of any session that leaves work in flight.
 
 ## Where things stand
 
-As of #164 (`dcf855e`), CI runs on every PR and every push to `main`:
+As of #167 (`21f7c76`), CI runs on every PR and every push to `main`:
 `pytest (Python 3.12)`, `pytest (Python 3.13)`, and `flake8 and mypy`. The suite is 498 passed on
 Linux. flake8 is clean and blocking. mypy is a ratchet: the build fails above 243 errors, or if mypy itself fails.
 
@@ -13,6 +13,8 @@ Linux. flake8 is clean and blocking. mypy is a ratchet: the build fails above 24
 | #158 | `21b73e2` | Alpha roadmap; rate limiting fixed (#126); installs from lock files; CLAUDE.md |
 | #161 | `56ff36d` | "Discuss a fix before implementing it" rule |
 | #164 | `dcf855e` | GitHub Actions CI, flake8 cleared, mypy ratchet (#125) |
+| #166 | `392b754` | Handoff refresh |
+| #167 | `21f7c76` | Root scratch files archived, moved to `docs/`, or deleted (#129) |
 
 ## Owner to-dos
 
@@ -26,7 +28,7 @@ Linux. flake8 is clean and blocking. mypy is a ratchet: the build fails above 24
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #129, #127, #128, #163, #165, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: #127, #128, #163, #165, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Decisions the owner makes before the work that depends on them:
@@ -61,3 +63,12 @@ Decisions the owner makes before the work that depends on them:
 - `docker build .` passed on 2026-10-14 from `requirements-server.lock`; the image imports
   `mytower.api.server` without pygame. Not rerun since.
 - Two of the original 11 issues look stale: #15 and #27. Both are labeled `post-alpha`, not closed.
+- Docs layout since #167: guides and design notes in `docs/`, past-session notes in `docs/archive/`
+  (historical, not current). `docs/DI_REFACTORING_REMAINING_WORK.md` stays in `docs/`: it is the
+  work list for #128.
+- `agents.md` became `docs/prompts/design-archaeologist.md` because several agent tools auto-load a
+  root `AGENTS.md`, and on macOS and Windows the lowercase name matches.
+- The Gantt chart's only source is the artifact itself. Read it back with the Artifact tool before
+  changing it; a fresh publish makes a new link.
+- Mechanical M0 issues (#127, #165) suit a Sonnet session. Keep tool output small: `--stat` and a
+  narrow `grep`, not whole files or diffs.
