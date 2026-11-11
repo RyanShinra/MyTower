@@ -68,6 +68,11 @@ Low priority; no issue on purpose. Pick up when the trigger fires.
 - **Cache the pre-commit hook repo in CI.** An `actions/cache` step on `~/.cache/pre-commit`, keyed on
   `hashFiles('.pre-commit-config.yaml')`, in the `lint` job. Each run now re-clones `pre-commit-hooks`.
   For a much later date: worth doing when CI minutes or clone flakiness start to matter, not before.
+- **A `test_type_conversions.py` for the snapshot converters.** `mytower/api/type_conversions.py` has no
+  tests of its own: `convert_building_snapshot` and its floor, elevator, elevator-bank and person helpers
+  are only exercised indirectly by the subscription tests, which check the result's type and empty lists,
+  not field values. Build a snapshot with known values, convert it, and assert the fields. Tests are
+  Claude's by default (CLAUDE.md). **Check this when we reach the end of M0**, before starting M1.
 
 ## Things learned that are not written anywhere else
 
