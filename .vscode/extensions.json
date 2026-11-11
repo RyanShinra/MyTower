@@ -6,7 +6,6 @@
         "ms-python.mypy-type-checker",
         "njpwerner.autodocstring",
         "streetsidesoftware.code-spell-checker",
-        "kevinrose.vsc-python-indent",
-        "charliermarsh.ruff"
+        "kevinrose.vsc-python-indent"
     ]
 }

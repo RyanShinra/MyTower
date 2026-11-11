@@ -1,7 +1,9 @@
 {
     "git.suggestSmartCommit": false,
     "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff",
+        // No Python formatter on purpose: ruff, black and autopep8 all rewrite blank lines
+        // against PEP 8, which fights the X303 rule. flake8 (X303) is the only judge.
+        "editor.defaultFormatter": null,
         "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "never"
@@ -16,8 +18,14 @@
     "flake8.severity": {
         "E": "Warning",
         "F": "Error",
-        "W": "Warning"
+        "W": "Warning",
+        "B": "Warning",
+        "X": "Warning"
     },
+
+    // Same mypy and config as CI (mypy.ini is picked up from the workspace root)
+    "mypy-type-checker.importStrategy": "fromEnvironment",
+    "mypy-type-checker.cwd": "${workspaceFolder}",
 
     "python.analysis.exclude": ["mytower/tests", "**/site-packages/**", "**/__pycache__/**", "**/tests/**", "**/venv/**"],
     "python.analysis.autoImportCompletions": true,
@@ -121,11 +129,6 @@
     },
     "makefile.configureOnOpen": false,
 
-    // Ruff settings (native language server)
-    "ruff.enable": true,
-    "ruff.organizeImports": true,
-    "ruff.fixAll": true,
-    "ruff.configurationPreference": "filesystemFirst",
-    "ruff.lineLength": 120,
-
+    // Ruff is not part of the toolchain: CI and the commit hook use flake8 only (see #169)
+    "ruff.enable": false
 }

@@ -1,16 +1,9 @@
-.PHONY: lint format check test pre-commit
+.PHONY: lint check test pre-commit
 
 # Run all linters: the same pre-commit hooks CI runs (whitespace hooks and flake8)
 lint:
 	@echo "Running pre-commit hooks..."
 	@.venv/bin/pre-commit run --all-files --show-diff-on-failure
-
-# Auto-fix formatting
-format:
-	@echo "Running black..."
-	@.venv/bin/black mytower/ --line-length=120
-	@echo "Running isort..."
-	@.venv/bin/isort mytower/
 
 # Run type checking
 typecheck:
@@ -44,7 +37,6 @@ install:
 help:
 	@echo "Available targets:"
 	@echo "  make lint       - Run the pre-commit hooks CI runs (whitespace + flake8)"
-	@echo "  make format     - Auto-format with black + isort"
 	@echo "  make typecheck  - Run mypy type checker"
 	@echo "  make check      - Run lint + typecheck"
 	@echo "  make test       - Run pytest"
