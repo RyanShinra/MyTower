@@ -35,7 +35,7 @@
 [CHECK] Event target: WebSocket
 [WS] WebSocket connection closed
 [CHECK] Close event code: 1006
-[CHECK] Close event reason: 
+[CHECK] Close event reason:
 [CHECK] Was clean: false
 ```
 

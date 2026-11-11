@@ -198,13 +198,13 @@ def complex_function():
 class ElevatorProtocol(Protocol):
     @property
     def elevator_id(self) -> str: ...
-    
+
     @property
     def elevator_state(self) -> ElevatorState: ...
-    
+
     @property
     def current_floor_int(self) -> int: ...
-    
+
     def set_destination(self, destination: ElevatorDestination) -> None: ...
 # fmt: on
 ```

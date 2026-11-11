@@ -44,10 +44,10 @@ export class UIRenderer {
     this.context.font = '24px Helvetica';
     this.context.textAlign = 'center';
     this.context.textBaseline = 'middle';
-    
+
     const centerX = this.context.canvas.width / 2;
     const centerY = this.canvasHeight / 2;
-    
+
     this.context.fillText(
       'Waiting for game server...',
       centerX,

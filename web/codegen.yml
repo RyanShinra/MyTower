@@ -16,15 +16,15 @@ generates:
         Meters: number
         Pixels: number
         Velocity: number
-      
+
       # Generate clean, readable types
       skipTypename: false
       enumsAsTypes: true
       immutableTypes: true
-      
+
       # Use `type` instead of `interface` (more flexible)
       declarationKind: 'type'
-      
+
       # Add helpful comments
       addDocBlocks: true
 

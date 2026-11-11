@@ -29,11 +29,11 @@ export class PersonRenderer {
     // Person's feet are at the bottom of their block
     const apparentFloor = verticalPosition - 1.0;
     const zBottom = Blocks.from(apparentFloor);
-    
+
     // Center vertically within the floor
     const halfFloorHeight = Blocks.from(0.5);
     const zCentered = zBottom.add(halfFloorHeight);
-    
+
     return this.transform.worldToScreen(zCentered).value;
   }
 
@@ -50,7 +50,7 @@ export class PersonRenderer {
     // Calculate screen positions
     const x = this.calculateXPosition(person.currentHorizontalPosition);
     const y = this.calculateYPosition(person.currentVerticalPosition);
-    
+
     // Calculate destination for debugging
     const destX = this.calculateXPosition(person.destinationHorizontalPosition);
     // If destinationVerticalPosition exists, use it; otherwise, convert floorNum to vertical position
@@ -64,7 +64,7 @@ export class PersonRenderer {
 
     // Draw destination marker
     this.drawDestinationMarker(destX, destY);
-    
+
     // Draw person as circle
     this.drawPersonCircle(x, y, person.drawColor);
   }

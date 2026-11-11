@@ -37,7 +37,7 @@ export class FloorRenderer {
 
     // Screen space (y): convert to pixels from top of canvas
     const floorTopY = this.transform.worldToScreen(floorTopZ);
-    
+
     // Dimensions in pixels
     const leftX = floor.leftEdgeBlock * PIXELS_PER_BLOCK;
     const width = floor.floorWidth * PIXELS_PER_BLOCK;
@@ -45,10 +45,10 @@ export class FloorRenderer {
 
     // Draw floor background
     this.drawFloorBackground(leftX, floorTopY.value, width, height, floor.floorColor);
-    
+
     // Draw floorboard line at top
     this.drawFloorboard(leftX, floorTopY.value, width, floor.floorboardColor);
-    
+
     // Draw floor number
     this.drawFloorNumber(floor.floorNumber, leftX, floorTopY.value);
   }

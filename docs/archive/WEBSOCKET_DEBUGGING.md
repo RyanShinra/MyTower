@@ -57,7 +57,7 @@ WebSocket connection to 'ws://localhost:8000/graphql' failed: Error in connectio
    - System Preferences → Security & Privacy → Firewall
    - Click "Firewall Options"
    - Ensure Python is allowed to accept incoming connections
-   
+
 2. Temporarily disable firewall to test:
    ```bash
    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
