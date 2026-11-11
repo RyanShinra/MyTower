@@ -7,13 +7,14 @@ repos:
       - id: mixed-line-ending
     #   - id: check-toml
     #   - id: check-yaml
-  # - repo: https://github.com/astral-sh/ruff-pre-commit
-  #   rev: v0.14.2  # Use the latest compatible version
-  #   hooks:
-  #     - id: ruff
-  #       args: ["--fix"]
-  # - repo: https://github.com/psf/black
-  #   rev: 23.9.1  # Use the latest compatible version
-  #   hooks:
-  #     - id: black
-  #       language_version: python3
+  # flake8 is the only linter. black and ruff format would rewrite blank lines against the
+  # X303 rule (see CLAUDE.md, "Style"). `language: system` runs the venv's flake8, which has
+  # the flake8_max_blank_lines plugin and flake8-bugbear installed. CI runs this same hook.
+  - repo: local
+    hooks:
+      - id: flake8
+        name: flake8 (X303 blank-line plugin, bugbear)
+        entry: flake8
+        language: system
+        types: [python]
+        files: ^mytower/  # same scope CI's `flake8 mytower/` always had
