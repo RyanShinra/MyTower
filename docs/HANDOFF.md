@@ -68,6 +68,19 @@ Low priority; no issue on purpose. Pick up when the trigger fires.
 - **Cache the pre-commit hook repo in CI.** An `actions/cache` step on `~/.cache/pre-commit`, keyed on
   `hashFiles('.pre-commit-config.yaml')`, in the `lint` job. Each run now re-clones `pre-commit-hooks`.
   For a much later date: worth doing when CI minutes or clone flakiness start to matter, not before.
+- **A `test_type_conversions.py` for the snapshot converters.** `mytower/api/type_conversions.py` has no
+  tests of its own: `convert_building_snapshot` and its floor, elevator, elevator-bank and person helpers
+  are only exercised indirectly by the subscription tests, which check the result's type and empty lists,
+  not field values. Build a snapshot with known values, convert it, and assert the fields. Tests are
+  Claude's by default (CLAUDE.md). **Check this when we reach the end of M0**, before starting M1.
+- **An injectable converter on `Subscription`.** One `patch("mytower.api.schema.convert_building_snapshot",
+  side_effect=ValueError(...))` remains, in `test_subscription_handles_convert_snapshot_exception`
+  (`test_subscription_error_handling.py`). Valid data cannot make the real converter fail, so removing it
+  means a production change in `mytower/api/schema.py`: a `converter: Callable[[BuildingSnapshot],
+  BuildingSnapshotGQL] = convert_building_snapshot` parameter next to `game_bridge` in
+  `Subscription.__init__`, with `building_state_stream` calling `self._convert(...)`. The default keeps
+  Strawberry's no-argument construction working. Gets the two subscription test files to no patches at all.
+  **Check this when we reach the end of M0**, after #128.
 
 ## Things learned that are not written anywhere else
 
@@ -89,19 +102,18 @@ Low priority; no issue on purpose. Pick up when the trigger fires.
 - Two of the original 11 issues look stale: #15 and #27. Both are labeled `post-alpha`, not closed.
 - Docs layout since #167: guides and design notes in `docs/`, past-session notes in `docs/archive/`
   (historical, not current). `docs/DI_REFACTORING_REMAINING_WORK.md` stays in `docs/`: it is the
-  work list for #128, but it is partly stale (counts from a grep on 2026-11-11):
+  work list for #128, but it is partly stale. The converter and logger patches the doc never counted
+  were removed in their own PR (real snapshots instead of a patched `convert_building_snapshot`, `caplog`
+  instead of a patched `schema.logger`). Counts from a grep on 2026-11-11, after that PR:
   - `test_subscription_error_handling.py`: the bridge conversion is done (14 tests use
-    `Subscription(game_bridge=...)`). The doc says 13 patches remain; the 6 left are not bridge patches:
-    4 on `schema.convert_building_snapshot` and 2 on `schema.logger`.
+    `Subscription(game_bridge=...)`). One patch is left on purpose, `schema.convert_building_snapshot` with
+    `side_effect=ValueError` in `test_subscription_handles_convert_snapshot_exception`: forcing a converter
+    failure that valid data cannot produce needs an injectable converter, a production change.
   - `test_game_bridge_threading.py`: the doc's 14 is right. All 14 tests still build `Subscription()` and swap
-    the bridge with `monkeypatch.setattr(game_bridge, "_bridge", ...)`. They also have 9 patches on
-    `schema.convert_building_snapshot`. Both layers remain.
+    the bridge with `monkeypatch.setattr(game_bridge, "_bridge", ...)`. This is the main work left in #128.
   - `test_subscription_integration.py`: the doc calls it complete, but it still has 3
     `monkeypatch.setattr(game_bridge, ...)` and 9 `Subscription()`. Some may be deliberate (default
     construction); not checked.
-  - Many `return_value=None` converter patches may be dead, since the stream skips the converter when the
-    bridge returns `None`. Decide the approach (real snapshot vs an injected converter, `caplog` for the
-    logger) before starting #128.
 - Do not run `pre-commit run --all-files` just to check: its fixers rewrite files. Use `git stash` or
   `git checkout --` afterwards if you did not mean to change them.
 - `docs/subscription_example.py` has 6 flake8 findings and is deliberately not linted (the hook is scoped

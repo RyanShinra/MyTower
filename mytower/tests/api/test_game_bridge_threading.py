@@ -13,7 +13,7 @@ Tests cover:
 
 import asyncio
 from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -45,21 +45,20 @@ class TestGameBridgeThreadSafety:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            # Create 10 concurrent subscriptions
-            streams = [
-                subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
-                for _ in range(10)
-            ]
+        # Create 10 concurrent subscriptions
+        streams = [
+            subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
+            for _ in range(10)
+        ]
 
-            # Get first value from all concurrently
-            results = await asyncio.gather(
-                *[anext(stream) for stream in streams]  # type: ignore[arg-type]
-            )
+        # Get first value from all concurrently
+        results = await asyncio.gather(
+            *[anext(stream) for stream in streams]  # type: ignore[arg-type]
+        )
 
-            # All should succeed
-            assert len(results) == 10
-            assert all(r is None for r in results)
+        # All should succeed
+        assert len(results) == 10
+        assert all(isinstance(r, BuildingSnapshotGQL) for r in results)
 
     async def test_snapshot_doesnt_change_during_iteration(
         self,
@@ -84,15 +83,14 @@ class TestGameBridgeThreadSafety:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
+        stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
-            # Get 5 iterations
-            for _ in range(5):
-                await anext(stream)  # type: ignore[arg-type]
+        # Get 5 iterations
+        for _ in range(5):
+            await anext(stream)  # type: ignore[arg-type]
 
-            # Should have called get_building_state 5 times
-            assert len(snapshot_calls) == 5
+        # Should have called get_building_state 5 times
+        assert len(snapshot_calls) == 5
 
     async def test_multiple_subscriptions_with_different_intervals(
         self,
@@ -115,20 +113,19 @@ class TestGameBridgeThreadSafety:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            # Create streams with different intervals
-            stream_fast = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
-            stream_slow = subscription.building_state_stream(interval_ms=100)  # type: ignore[call-arg]
+        # Create streams with different intervals
+        stream_fast = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
+        stream_slow = subscription.building_state_stream(interval_ms=100)  # type: ignore[call-arg]
 
-            # Fast stream gets 3 values
-            for _ in range(3):
-                await anext(stream_fast)  # type: ignore[arg-type]
+        # Fast stream gets 3 values
+        for _ in range(3):
+            await anext(stream_fast)  # type: ignore[arg-type]
 
-            # Slow stream gets 1 value
-            await anext(stream_slow)  # type: ignore[arg-type]
+        # Slow stream gets 1 value
+        await anext(stream_slow)  # type: ignore[arg-type]
 
-            # Should have called get_building_state 4 times total
-            assert call_count["count"] == 4
+        # Should have called get_building_state 4 times total
+        assert call_count["count"] == 4
 
     async def test_subscription_during_snapshot_update(
         self,
@@ -157,14 +154,13 @@ class TestGameBridgeThreadSafety:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
+        stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
-            # Should transition smoothly between snapshots
-            for _ in range(4):
-                result = await anext(stream)  # type: ignore[arg-type]
-                # All should succeed without error
-                assert result is None
+        # Should transition smoothly between snapshots
+        for _ in range(4):
+            result = await anext(stream)  # type: ignore[arg-type]
+            # All should succeed without error
+            assert isinstance(result, BuildingSnapshotGQL)
 
 
 @pytest.mark.asyncio
@@ -216,23 +212,22 @@ class TestSubscriptionPerformance:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            # Create 50 concurrent subscriptions
-            subscription_count = 50
-            streams = [
-                subscription.building_state_stream(interval_ms=10)  # type: ignore[call-arg]
-                for _ in range(subscription_count)
-            ]
+        # Create 50 concurrent subscriptions
+        subscription_count = 50
+        streams = [
+            subscription.building_state_stream(interval_ms=10)  # type: ignore[call-arg]
+            for _ in range(subscription_count)
+        ]
 
-            # Get first value from all concurrently
-            results = await asyncio.gather(
-                *[anext(stream) for stream in streams],  # type: ignore[arg-type]
-                return_exceptions=True
-            )
+        # Get first value from all concurrently
+        results = await asyncio.gather(
+            *[anext(stream) for stream in streams],  # type: ignore[arg-type]
+            return_exceptions=True
+        )
 
-            # All should succeed
-            assert len(results) == subscription_count
-            assert all(r is None for r in results)
+        # All should succeed
+        assert len(results) == subscription_count
+        assert all(isinstance(r, BuildingSnapshotGQL) for r in results)
 
     async def test_subscription_memory_cleanup(
         self,
@@ -305,18 +300,17 @@ class TestSubscriptionWithGameBridgeMock:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=Mock(spec=BuildingSnapshotGQL)):
-            stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
+        stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
-            # First two yields: None
-            result1 = await anext(stream)  # type: ignore[arg-type]
-            result2 = await anext(stream)  # type: ignore[arg-type]
-            assert result1 is None
-            assert result2 is None
+        # First two yields: None
+        result1 = await anext(stream)  # type: ignore[arg-type]
+        result2 = await anext(stream)  # type: ignore[arg-type]
+        assert result1 is None
+        assert result2 is None
 
-            # Third yield: snapshot converted
-            result3 = await anext(stream)  # type: ignore[arg-type]
-            assert result3 is not None
+        # Third yield: snapshot converted
+        result3 = await anext(stream)  # type: ignore[arg-type]
+        assert isinstance(result3, BuildingSnapshotGQL)
 
     async def test_subscription_handles_slow_synchronous_game_bridge_calls(
         self,
@@ -408,14 +402,13 @@ class TestRealWorldScenarios:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
+        stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
-            # Consume all 100 snapshots
-            for i in range(100):
-                result = await anext(stream)  # type: ignore[arg-type]
-                # Should handle all without error
-                assert result is None
+        # Consume all 100 snapshots
+        for i in range(100):
+            result = await anext(stream)  # type: ignore[arg-type]
+            # Should handle all without error
+            assert isinstance(result, BuildingSnapshotGQL)
 
     async def test_mixed_subscription_types_concurrently(
         self,
@@ -432,24 +425,23 @@ class TestRealWorldScenarios:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=Mock(spec=BuildingSnapshotGQL)):
-            # Create mix of subscription types
-            building_streams = [
-                subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
-                for _ in range(5)
-            ]
-            time_streams = [
-                subscription.game_time_stream(interval_ms=100)  # type: ignore[call-arg]
-                for _ in range(5)
-            ]
+        # Create mix of subscription types
+        building_streams = [
+            subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
+            for _ in range(5)
+        ]
+        time_streams = [
+            subscription.game_time_stream(interval_ms=100)  # type: ignore[call-arg]
+            for _ in range(5)
+        ]
 
-            # Get first value from all
-            results = await asyncio.gather(
-                *[anext(stream) for stream in building_streams + time_streams]  # type: ignore[arg-type]
-            )
+        # Get first value from all
+        results = await asyncio.gather(
+            *[anext(stream) for stream in building_streams + time_streams]  # type: ignore[arg-type]
+        )
 
-            # All should succeed
-            assert len(results) == 10
+        # All should succeed
+        assert len(results) == 10
 
     async def test_subscription_with_stop_and_restart(
         self,
@@ -466,22 +458,21 @@ class TestRealWorldScenarios:
 
         subscription = Subscription()
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            # First subscription
-            stream1 = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
-            task1 = asyncio.create_task(anext(stream1))  # type: ignore[arg-type]
-            result1 = await task1
-            assert result1 is None
+        # First subscription
+        stream1 = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
+        task1 = asyncio.create_task(anext(stream1))  # type: ignore[arg-type]
+        result1 = await task1
+        assert isinstance(result1, BuildingSnapshotGQL)
 
-            # Cancel and start new subscription
-            task1.cancel()
-            try:
-                await task1
-            except asyncio.CancelledError:
-                # Task cancellation is expected here; ignore the exception.
-                pass
+        # Cancel and start new subscription
+        task1.cancel()
+        try:
+            await task1
+        except asyncio.CancelledError:
+            # Task cancellation is expected here; ignore the exception.
+            pass
 
-            # Second subscription should work fine
-            stream2 = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
-            result2 = await anext(stream2)  # type: ignore[arg-type]
-            assert result2 is None
+        # Second subscription should work fine
+        stream2 = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
+        result2 = await anext(stream2)  # type: ignore[arg-type]
+        assert isinstance(result2, BuildingSnapshotGQL)
