@@ -53,7 +53,6 @@ web/.vite
 # Documentation
 *.md
 docs/
-notes/
 
 # AWS and deployment
 .aws/

@@ -54,7 +54,7 @@ make check                   # flake8 + mypy
 ## Style
 
 - Line length 120. Ruff config is in `pyproject.toml`, flake8 in `.flake8`.
-- **Blank lines are non-PEP8 on purpose.** Two blank lines before any function whose body is longer than five lines, one before shorter ones, none between a decorator or leading comment and its function. The `flake8_max_blank_lines` plugin (rule X303) enforces this and `E30x` are disabled. Black will want to reformat; do not let it. Details in `FORMATTING_NOTES.md`.
+- **Blank lines are non-PEP8 on purpose.** Two blank lines before any function whose body is longer than five lines, one before shorter ones, none between a decorator or leading comment and its function. The `flake8_max_blank_lines` plugin (rule X303) enforces this and `E30x` are disabled. Black will want to reformat; do not let it. Details in `docs/FORMATTING_NOTES.md`.
 - Protocol-driven: entities are typed against `mytower/game/entities/entities_protocol.py`, and production vs testing protocols are separate. Add methods to the protocol when you add them to the implementation (a missing `invert()` on the direction protocol was a latent bug).
 - Units are wrapped types (`Blocks`, `Meters`, `Time`, `Velocity` in `mytower/game/core/units.py`). Do not pass raw floats where a unit type is expected.
 - State machines use `match`/`case` on an enum. Keep transitions explicit; the elevator hang in `READY_TO_MOVE` came from an implicit else.
@@ -79,10 +79,10 @@ mytower/game/utilities/    demo_builder (the only initialization path today), si
 mytower/api/               FastAPI app, GraphQL schema/types, GameBridge, rate limiting
 mytower/tests/             mirrors the above; api/ has the most tests
 web/                       Svelte + TypeScript client
-docs/                      roadmap, handoff, design notes (some are historical)
+docs/                      roadmap, handoff, guides, design notes; docs/archive/ is historical
 ```
 
-Root-level `*.md` files other than README, CLAUDE, and TODO are working notes from past sessions; M0 of the roadmap archives them.
+Guides and design notes live in `docs/`. `docs/archive/` holds notes from past sessions, kept for history; don't treat them as current.
 
 ## Working conventions for AI sessions
 

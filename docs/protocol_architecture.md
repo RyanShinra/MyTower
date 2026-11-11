@@ -99,5 +99,5 @@ When creating a new entity:
 ## Further Reading
 
 - PEP 544: Protocols (structural subtyping)
-- MyTower Architecture Doc (`notes/control_loop.md`)
+- MyTower Architecture Doc (`docs/design/control_loop.md`)
 - Test Utilities Demo (`tests/test_utilities_demo.py`)

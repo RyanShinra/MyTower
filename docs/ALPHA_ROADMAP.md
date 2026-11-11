@@ -55,7 +55,7 @@ Nothing here is gameplay. It exists so that every later milestone can be merged 
 - [x] Fix the 7 rate-limiting failures (#126). The router's `__call__` override was never invoked, so rate limiting had never run; the logic moved to `run()`.
 - [ ] Re-enable black and ruff (or flake8) in `.pre-commit-config.yaml`.
 - [ ] Finish the dependency-injection cleanup in `docs/DI_REFACTORING_REMAINING_WORK.md` (two test files, documented at ~35 minutes).
-- [ ] Move root-level scratch files (`COMMAND_QUEUE_FIX.md`, `UPDATE_CORS.md`, `WEBSOCKET_DEBUGGING.md`, `FORMATTING_NOTES.md`, `REQUIREMENTS_MIGRATION.md`, `DEPLOY_SCRIPT_EDGE_CASES.md`, `Hi, let's continue my project from.txt`, `requirements.txt.backup`, `create`) into `docs/archive/` or delete them.
+- [x] Move root-level scratch files (`COMMAND_QUEUE_FIX.md`, `UPDATE_CORS.md`, `WEBSOCKET_DEBUGGING.md`, `FORMATTING_NOTES.md`, `REQUIREMENTS_MIGRATION.md`, `DEPLOY_SCRIPT_EDGE_CASES.md`, `Hi, let's continue my project from.txt`, `requirements.txt.backup`, `create`) into `docs/archive/` or delete them. (Three still in use moved to `docs/` instead; see #167.)
 
 **Exit:** `main` has a green CI badge and a contributor can run `make check test` from a fresh clone.
 

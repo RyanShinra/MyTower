@@ -27,12 +27,7 @@ Your requirements have been split into three files for better organization:
 
 ## Migration Steps
 
-### 1. Backup your current requirements.txt
-```bash
-cp requirements.txt requirements.txt.backup
-```
-
-### 2. Copy the new split files to your project root
+### 1. Copy the new split files to your project root
 ```bash
 # Copy these three files to your project directory:
 # - requirements-base.txt
@@ -40,7 +35,7 @@ cp requirements.txt requirements.txt.backup
 # - requirements-dev.txt
 ```
 
-### 3. Update your virtual environment (local development)
+### 2. Update your virtual environment (local development)
 ```bash
 # Deactivate current venv
 deactivate
@@ -53,10 +48,10 @@ python3.13 -m venv .venv
 source .venv/bin/activate
 
 # Install dev dependencies (includes everything)
-pip install -r requirements-dev.txt
+pip install -r requirements-dev.lock
 ```
 
-### 4. Keep old requirements.txt (optional)
+### 3. Keep old requirements.txt (optional)
 You can keep `requirements.txt` as-is for backward compatibility, but:
 - Use `requirements-dev.txt` for local development
 - Use `requirements-server.txt` for Docker/AWS
@@ -119,7 +114,7 @@ python -c "import pygame; import pytest; print('Dev environment OK')"
 ```bash
 python -c "import fastapi; import strawberry; print('Server environment OK')"
 # This should work:
-python -m mytower.main --mode headless --port 8000
+python -m mytower.main --headless --port 8000
 ```
 
 ---
@@ -136,11 +131,4 @@ pip install -r requirements-dev.txt
 ```bash
 # Make sure both files are in project root
 ls requirements-base.txt requirements-server.txt
-```
-
-### Want to go back to single file
-Just use your `requirements.txt.backup`:
-```bash
-cp requirements.txt.backup requirements.txt
-pip install -r requirements.txt
 ```
