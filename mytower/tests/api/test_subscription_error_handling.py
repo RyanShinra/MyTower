@@ -13,6 +13,7 @@ Tests cover:
 """
 
 import asyncio
+import logging
 from unittest.mock import Mock, patch
 
 import pytest
@@ -50,12 +51,16 @@ class TestSubscriptionErrorHandling:
         async for _ in stream:
             await asyncio.sleep(0.001)
 
-    async def test_subscription_cleanup_on_cancellation(self, mock_game_bridge) -> None:
+    async def test_subscription_cleanup_on_cancellation(
+        self,
+        mock_game_bridge,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
         """Verify finally block executes on cancellation."""
         mock_game_bridge.get_building_snapshot.return_value = None
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        with patch("mytower.api.schema.logger") as mock_logger:
+        with caplog.at_level(logging.INFO, logger="mytower.api.schema"):
             stream = subscription.building_state_stream(interval_ms=50)
 
             task = asyncio.create_task(self._consume_stream(stream))
@@ -71,11 +76,9 @@ class TestSubscriptionErrorHandling:
             await asyncio.sleep(0.01)
 
             # Verify cleanup message was logged
-            cleanup_calls = [
-                call for call in mock_logger.info.call_args_list
-                if "Building State Subscription cleaned up" in str(call)
-            ]
-            assert len(cleanup_calls) > 0, "Cleanup message not logged"
+            assert any(
+                "Building State Subscription cleaned up" in record.getMessage() for record in caplog.records
+            ), "Cleanup message not logged"
 
     async def test_subscription_handles_get_building_state_exception(self, mock_game_bridge) -> None:
         """Verify exception from get_building_state() propagates."""
@@ -105,12 +108,16 @@ class TestSubscriptionErrorHandling:
             with pytest.raises(ValueError, match="Invalid snapshot structure"):
                 await anext(stream)
 
-    async def test_subscription_cleanup_on_exception(self, mock_game_bridge) -> None:
+    async def test_subscription_cleanup_on_exception(
+        self,
+        mock_game_bridge,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
         """Verify finally block executes even on exception."""
         mock_game_bridge.get_building_snapshot.side_effect = RuntimeError("Test error")
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        with patch("mytower.api.schema.logger") as mock_logger:
+        with caplog.at_level(logging.INFO, logger="mytower.api.schema"):
             stream = subscription.building_state_stream(interval_ms=50)
 
             try:
@@ -122,11 +129,7 @@ class TestSubscriptionErrorHandling:
             await asyncio.sleep(0.01)
 
             # Verify cleanup happened
-            cleanup_calls = [
-                call for call in mock_logger.info.call_args_list
-                if "cleaned up" in str(call)
-            ]
-            assert len(cleanup_calls) > 0
+            assert any("cleaned up" in record.getMessage() for record in caplog.records)
 
     async def test_multiple_concurrent_subscriptions(self, mock_game_bridge) -> None:
         """Verify multiple subscriptions can run concurrently."""
@@ -178,16 +181,15 @@ class TestSubscriptionErrorHandling:
         ]
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        with patch("mytower.api.schema.convert_building_snapshot", return_value=None):
-            stream = subscription.building_state_stream(interval_ms=5)
+        stream = subscription.building_state_stream(interval_ms=5)
 
-            # First yield should succeed
-            result1 = await anext(stream)
-            assert result1 is None  # Converted snapshot
+        # First yield should succeed
+        result1 = await anext(stream)
+        assert isinstance(result1, BuildingSnapshotGQL)  # Converted snapshot
 
-            # Second yield should raise
-            with pytest.raises(RuntimeError, match="Unexpected error"):
-                await anext(stream)
+        # Second yield should raise
+        with pytest.raises(RuntimeError, match="Unexpected error"):
+            await anext(stream)
 
 
 @pytest.mark.asyncio
@@ -209,22 +211,19 @@ class TestSubscriptionEdgeCases:
         ]
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
-            mock_convert.return_value = Mock(spec=BuildingSnapshotGQL)
+        stream = subscription.building_state_stream(interval_ms=5)
 
-            stream = subscription.building_state_stream(interval_ms=5)
+        result1 = await anext(stream)
+        assert result1 is None  # None snapshot
 
-            result1 = await anext(stream)
-            assert result1 is None  # None snapshot
+        result2 = await anext(stream)
+        assert isinstance(result2, BuildingSnapshotGQL)  # Converted snapshot
 
-            result2 = await anext(stream)
-            assert result2 is not None  # Converted snapshot
+        result3 = await anext(stream)
+        assert result3 is None  # None again
 
-            result3 = await anext(stream)
-            assert result3 is None  # None again
-
-            result4 = await anext(stream)
-            assert result4 is not None  # Converted snapshot again
+        result4 = await anext(stream)
+        assert isinstance(result4, BuildingSnapshotGQL)  # Converted snapshot again
 
     async def test_subscription_handles_empty_snapshot(
         self,
@@ -235,15 +234,15 @@ class TestSubscriptionEdgeCases:
         mock_game_bridge.get_building_snapshot.return_value = mock_empty_snapshot
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        with patch("mytower.api.schema.convert_building_snapshot") as mock_convert:
-            mock_convert.return_value = Mock(spec=BuildingSnapshotGQL)
+        stream = subscription.building_state_stream(interval_ms=50)
+        result = await anext(stream)
 
-            stream = subscription.building_state_stream(interval_ms=50)
-            result = await anext(stream)
-
-            # Should still convert and yield
-            assert result is not None
-            mock_convert.assert_called_once_with(mock_empty_snapshot)
+        # Should still convert and yield, with nothing in any list
+        assert isinstance(result, BuildingSnapshotGQL)
+        assert result.floors == []
+        assert result.elevators == []
+        assert result.elevator_banks == []
+        assert result.people == []
 
     async def test_subscription_with_zero_time(self, mock_game_bridge) -> None:
         """Verify game_time_stream handles snapshot with time=0."""
