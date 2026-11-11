@@ -20,6 +20,10 @@ pre-commit install
 
 `uv` works too: `uv venv -p 3.13 .venv && uv pip install -r requirements-dev.lock`.
 
+The commit hook runs whatever `flake8` is on your `PATH` (`language: system` in `.pre-commit-config.yaml`), because the
+X303 plugin and bugbear live in the venv. Commit with the venv active; from a shell or git GUI without it, the hook fails
+with "flake8: command not found". CI runs the same hooks with `pre-commit run --all-files`.
+
 Web client:
 
 ```bash

@@ -54,6 +54,7 @@ jobs:
       # Ratchet: fails if mypy finds more errors than the baseline. Lower the
       # baseline as #162 burns the count down; at 0, drop the ratchet.
       - name: mypy (at most 243 errors, see #162)
+        if: ${{ !cancelled() }}  # still report the ratchet when the pre-commit step failed
         shell: bash
         run: |
           set +e
