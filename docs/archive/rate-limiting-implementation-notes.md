@@ -45,7 +45,7 @@ raise  # Naked raise - unclear what's being re-raised
 1. Document global limiter as module-level dependency injection
 2. Break down chained calls with typed variables and comments
 3. Fix `__call__` signature to match parent class
-4. Use explicit `raise exception` (or `raise exception from None` to suppress context in the event the original is handled or you want to prevent details from leaking out via the exception stack) instead of naked `raise` 
+4. Use explicit `raise exception` (or `raise exception from None` to suppress context in the event the original is handled or you want to prevent details from leaking out via the exception stack) instead of naked `raise`
    - Example: `raise rate_limit_error from None` is explicit and preferred over naked `raise`
 
 ### 4. **GraphQL Error Responses**
@@ -76,7 +76,7 @@ Strawberry will intercept exceptions and format them as GraphQL errors. (This ma
 try:
     # risky operation
 except SomeError as e:
-    
+
         logger.error(f"Error: {e}")
         better_message = "better words"
         raise better_message from e

@@ -3,7 +3,7 @@
 
 /**
  * Branded type pattern for compile-time unit safety
- * 
+ *
  * These types prevent mixing units at compile time.
  * The unique symbol makes each type nominally distinct.
  */
