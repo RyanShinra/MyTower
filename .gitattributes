@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# VS Code reads its config as JSON with Comments; tell GitHub so comments aren't shown as errors
+.vscode/*.json linguist-language=JSON-with-Comments

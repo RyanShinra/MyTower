@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-11-11. Update this file at the end of any session that leaves work in flight.
+Last updated: 2026-11-12. Update this file at the end of any session that leaves work in flight.
 
 ## Where things stand
 
@@ -22,12 +22,31 @@ fails above 243 errors, or if mypy itself fails, and it still runs when the pre-
 | #170 | `544ca76` | Trailing whitespace and final newlines fixed in 24 non-Python files, so the hooks pass on the whole tree |
 | #171 | `f592de7` | flake8 as a pre-commit hook; CI runs the hooks; bugbear and pre-commit added to the dev requirements (#127) |
 
+## In flight: #169 editor parity (branch `169-editor-parity`, PR to follow)
+
+The old `claude/cool-ptolemy-hw37pc` branch was rebased onto `main` and pushed under this name (it is
+deleted). Commits: VS Code settings (no Python formatter, ruff off, flake8 severities for `B` and `X`, mypy
+from the venv, `make format` removed), ruff config removed from `pyproject.toml`, `FORMATTING_NOTES.md`
+rewritten, and `.vscode` cleanup (unused-import deletion off for Python, the stale `pytestArgs`, and the
+C++ settings removed).
+
+Why X303 never showed in VS Code, now fixed: the Flake8 extension runs flake8 with `runpy.run_module` from
+the workspace root, so the old `flake8_max_blank_lines/` folder shadowed the installed plugin, flake8 failed
+to load it, and **no** flake8 diagnostics reached the editor (#165, fixed by the rename in #175). Then the
+plugin read the file from disk instead of the buffer (#176, #177). Owner check left: after **Flake8:
+Restart Server**, a saved file with three blank lines between two functions and an unused import shows X303
+and F401.
+
+Format Document asking for a default formatter is expected (`editor.defaultFormatter` is `null`). Still
+open: no formatter (current), ruff on a selection only, or an X303 fixer as its own issue.
+
 ## Owner to-dos
 
 - Add the three CI job names above as required status checks on `main`. Not set as of 2026-11-09.
 - Create the `0.1.0-alpha` GitHub milestone, then bulk-assign issues with the `alpha` label.
-- On the PC: put three blank lines before a function and check that VS Code shows X303. If it
-  doesn't, add that to #165.
+- On the PC after pulling: `rm -rf flake8_max_blank_lines` (git leaves the ignored egg-info behind and it
+  still shadows the plugin), then `pip install -e flake8-max-blank-lines/`. The pull also deletes
+  `.claude/settings.local.json`, which is now untracked (#179).
 - On the PC: `pip install -r requirements-dev.lock` again (it now has `pre-commit` and `flake8-bugbear`),
   then `pre-commit install`. Commit with the venv active; the hook calls the `flake8` on your `PATH`.
 
@@ -36,7 +55,7 @@ fails above 243 errors, or if mypy itself fails, and it still runs when the pre-
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #128, #163, #165, #169, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: #128, #163, #169, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the
@@ -57,7 +76,8 @@ Decisions the owner makes before the work that depends on them:
 - **#160** Load balancer in front of the ECS service. Owner task; about $16 a month, so it goes last. M5.
 - **#162** Get mypy to zero, lowering the ratchet as it goes. M0. Its comments record two `mypy.ini` problems.
 - **#163** The Windows timer-resolution test failure; Windows joins CI after. M0.
-- **#165** Move the flake8 plugin to a src layout so `python -m flake8` works. M0.
+- **#165** Done in #175: the plugin folder was renamed, since a src layout would still have shadowed it.
+- **#176** Done in #177: X303 reads the source flake8 passes, not the file on disk.
 - **#169** Editor parity: the VS Code ruff extension is the default formatter and shows ruff lint CI never
   checks; `make format` still runs black, which is not in the dev requirements. M0.
 
