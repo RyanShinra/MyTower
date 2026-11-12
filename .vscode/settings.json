@@ -6,7 +6,9 @@
         "editor.defaultFormatter": null,
         "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
-            "source.organizeImports": "never"
+            // Pylance would delete unused imports on save, so F401 would never show
+            "source.organizeImports": "never",
+            "source.unusedImports": "never"
         }
     },
     "editor.formatOnSaveMode": "modifications",
@@ -91,15 +93,6 @@
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "files.eol": "\n",
-    "python.testing.pytestArgs": [
-        "mytower",
-        "--cov=mytower.game.elevator",
-        "--cov-report=xml",
-        "--cov-report=html",
-        "--cov-report=term-missing",
-        "--cov-branch"
-
-    ],
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
     "coverage-gutters.coverageFileNames": [
@@ -116,7 +109,6 @@
 
     "editor.inlineSuggest.enabled": true,
     "editor.inlineSuggest.experimental.triggerCommandOnProviderChange": false,
-    "C_Cpp.default.compilerPath": "c:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Tools\\MSVC\\14.29.30133\\bin\\Hostx64\\x64\\cl.exe",
     "cSpell.ignoreWords": [
         "PCAC"
     ],
