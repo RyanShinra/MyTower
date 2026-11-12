@@ -49,7 +49,7 @@ pytest --no-cov -q           # faster, no coverage output
 make check                   # flake8 + mypy
 ```
 
-- The suite is green at every commit and at handoff (498 passed on Linux; on Windows one subscription-cancellation test fails on timer resolution, a known pre-existing issue). Red *mid-change* is fine when it is explained; see "How code gets written" below.
+- The suite is green at every commit and at handoff (501 passed on Linux; on Windows one subscription-cancellation test fails on timer resolution, a known pre-existing issue). Red *mid-change* is fine when it is explained; see "How code gets written" below.
 - mypy is strict (`mypy.ini`): no untyped defs, no explicit `Any`, `warn_unused_ignores`. Some legacy code violates this; do not add new violations, and do not add `type: ignore` without a code in brackets.
 - Tests use `Mock(spec=SomeProtocol)`; never bare `MagicMock()`. Entities expose `testing_*` accessors for internal state; use those rather than reaching into private attributes.
 - Tests that reload `mytower.api.server` (rate limiting, CORS) do so on purpose so env vars are re-read; keep that pattern if you add config-driven tests.
@@ -57,7 +57,7 @@ make check                   # flake8 + mypy
 ## Style
 
 - Line length 120. Ruff config is in `pyproject.toml`, flake8 in `.flake8`.
-- **Blank lines are non-PEP8 on purpose.** Two blank lines before any function whose body is longer than five lines, one before shorter ones, none between a decorator or leading comment and its function. The `flake8_max_blank_lines` plugin (rule X303) enforces this and `E30x` are disabled. Black will want to reformat; do not let it. Details in `docs/FORMATTING_NOTES.md`.
+- **Blank lines are non-PEP8 on purpose.** Two blank lines before any function whose body is longer than five lines, one before shorter ones, none between a decorator or leading comment and its function. The plugin in `flake8-max-blank-lines/` (rule X303) only catches more than two; the rest is kept by hand and in review. `E30x` are disabled. Black will want to reformat; do not let it. Details in `docs/FORMATTING_NOTES.md`.
 - Protocol-driven: entities are typed against `mytower/game/entities/entities_protocol.py`, and production vs testing protocols are separate. Add methods to the protocol when you add them to the implementation (a missing `invert()` on the direction protocol was a latent bug).
 - Units are wrapped types (`Blocks`, `Meters`, `Time`, `Velocity` in `mytower/game/core/units.py`). Do not pass raw floats where a unit type is expected.
 - State machines use `match`/`case` on an enum. Keep transitions explicit; the elevator hang in `READY_TO_MOVE` came from an implicit else.

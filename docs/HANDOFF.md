@@ -4,8 +4,8 @@ Last updated: 2026-11-12. Update this file at the end of any session that leaves
 
 ## Where things stand
 
-As of #171 (`f592de7`), CI runs on every PR and every push to `main`:
-`pytest (Python 3.12)`, `pytest (Python 3.13)`, and `flake8 and mypy`. The suite is 498 passed on
+As of #180 (`fb595f5`), CI runs on every PR and every push to `main`:
+`pytest (Python 3.12)`, `pytest (Python 3.13)`, and `flake8 and mypy`. The suite is 501 passed on
 Linux. The lint job runs `pre-commit run --all-files`, the same hooks a local commit runs
 (`.pre-commit-config.yaml` is the one definition): trailing whitespace, final newline, line endings, and
 flake8 with the X303 plugin and bugbear (B007 ignored), scoped to `mytower/`. mypy is a ratchet: the build
@@ -21,24 +21,23 @@ fails above 243 errors, or if mypy itself fails, and it still runs when the pre-
 | #167 | `21f7c76` | Root scratch files archived, moved to `docs/`, or deleted (#129) |
 | #170 | `544ca76` | Trailing whitespace and final newlines fixed in 24 non-Python files, so the hooks pass on the whole tree |
 | #171 | `f592de7` | flake8 as a pre-commit hook; CI runs the hooks; bugbear and pre-commit added to the dev requirements (#127) |
+| #172 | `2346268` | Handoff refresh after #170 and #171 |
+| #173 | `d1d01e2` | #128 notes in the handoff corrected |
+| #174 | `2d19bc9` | Converter and logger patches replaced in the subscription tests (no issue; ahead of #128) |
+| #175 | `9736d29` | Plugin folder renamed to `flake8-max-blank-lines/` so nothing shadows it (#165) |
+| #177 | `ec52a6b` | X303 reads the source flake8 passes, not the file on disk (#176) |
+| #178 | `437106a` | CI test job installs the plugin; collection had been failing |
+| #179 | `fd2ba2c` | `.claude/settings.local.json` untracked and ignored |
+| #180 | `fb595f5` | Editor parity: VS Code matches flake8 and CI, no Python formatter (#169) |
 
-## In flight: #169 editor parity (branch `169-editor-parity`, PR to follow)
+## Editor setup (#169, done in #180)
 
-The old `claude/cool-ptolemy-hw37pc` branch was rebased onto `main` and pushed under this name (it is
-deleted). Commits: VS Code settings (no Python formatter, ruff off, flake8 severities for `B` and `X`, mypy
-from the venv, `make format` removed), ruff config removed from `pyproject.toml`, `FORMATTING_NOTES.md`
-rewritten, and `.vscode` cleanup (unused-import deletion off for Python, the stale `pytestArgs`, and the
-C++ settings removed).
+VS Code now shows the same flake8 findings as CI, on open and save (the Flake8 extension does not lint
+while typing). If X303 ever goes quiet again, check the Flake8 output log for `FailedToLoadPlugin` first:
+one plugin failing to load drops every flake8 diagnostic, not only X303.
 
-Why X303 never showed in VS Code, now fixed: the Flake8 extension runs flake8 with `runpy.run_module` from
-the workspace root, so the old `flake8_max_blank_lines/` folder shadowed the installed plugin, flake8 failed
-to load it, and **no** flake8 diagnostics reached the editor (#165, fixed by the rename in #175). Then the
-plugin read the file from disk instead of the buffer (#176, #177). Owner check left: after **Flake8:
-Restart Server**, a saved file with three blank lines between two functions and an unused import shows X303
-and F401.
-
-Format Document asking for a default formatter is expected (`editor.defaultFormatter` is `null`). Still
-open: no formatter (current), ruff on a selection only, or an X303 fixer as its own issue.
+Still open, no issue yet: Format Document has no Python formatter on purpose. The options are none
+(current), ruff on a selection only, or an X303-aware fixer as its own issue.
 
 ## Owner to-dos
 
@@ -55,7 +54,7 @@ open: no formatter (current), ruff on a selection only, or an X303 fixer as its 
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #128, #163, #169, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: #128, #163, #181, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the
@@ -78,8 +77,9 @@ Decisions the owner makes before the work that depends on them:
 - **#163** The Windows timer-resolution test failure; Windows joins CI after. M0.
 - **#165** Done in #175: the plugin folder was renamed, since a src layout would still have shadowed it.
 - **#176** Done in #177: X303 reads the source flake8 passes, not the file on disk.
-- **#169** Editor parity: the VS Code ruff extension is the default formatter and shows ruff lint CI never
-  checks; `make format` still runs black, which is not in the dev requirements. M0.
+- **#169** Done in #180: VS Code matches flake8 and CI; no Python formatter; ruff removed.
+- **#181** File-level `# flake8: noqa: CODE` comments turn off flake8 for seven whole files, hiding 14
+  E501s and a W293. Move them to `per-file-ignores`, then fix the lines. M0.
 
 ## Good ideas (not filed)
 
