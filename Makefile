@@ -1,4 +1,4 @@
-.PHONY: lint check test pre-commit
+.PHONY: lint typecheck check test pre-commit
 
 # Run all linters: the same pre-commit hooks CI runs (whitespace hooks and flake8)
 lint:
@@ -7,8 +7,8 @@ lint:
 
 # Run type checking
 typecheck:
-	@echo "Running mypy..."
-	@.venv/bin/mypy mytower/
+	@echo "Running mypy (ratchet, see #162)..."
+	@.venv/bin/python tools/mypy_ratchet.py
 
 # Full check (lint + typecheck)
 check: lint typecheck
@@ -37,7 +37,7 @@ install:
 help:
 	@echo "Available targets:"
 	@echo "  make lint       - Run the pre-commit hooks CI runs (whitespace + flake8)"
-	@echo "  make typecheck  - Run mypy type checker"
+	@echo "  make typecheck  - Run mypy; fails above the #162 baseline, as CI does"
 	@echo "  make check      - Run lint + typecheck"
 	@echo "  make test       - Run pytest"
 	@echo "  make pre-commit - Run pre-commit hooks manually"

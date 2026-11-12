@@ -51,17 +51,8 @@ jobs:
       # exactly what a local commit runs.
       - name: pre-commit (whitespace hooks and flake8)
         run: pre-commit run --all-files --show-diff-on-failure
-      # Ratchet: fails if mypy finds more errors than the baseline. Lower the
-      # baseline as #162 burns the count down; at 0, drop the ratchet.
-      - name: mypy (at most 243 errors, see #162)
+      # Ratchet: fails if mypy finds more errors than MAX_ERRORS in tools/mypy_ratchet.py.
+      # Lower it there as #162 burns the count down; at 0, drop the ratchet.
+      - name: mypy (ratchet, see #162)
         if: ${{ !cancelled() }}  # still report the ratchet when the pre-commit step failed
-        shell: bash
-        run: |
-          set +e
-          mypy mytower/ > mypy.txt
-          status=$?
-          set -e
-          tail -n 1 mypy.txt | tee -a "$GITHUB_STEP_SUMMARY"
-          test "$status" -le 1        # 0 = clean, 1 = type errors; 2 = mypy itself failed
-          count=$(grep -oP '^Found \K[0-9]+' mypy.txt || echo 0)
-          test "$count" -le 243
+        run: python tools/mypy_ratchet.py

@@ -9,8 +9,8 @@ As of #180 (`fb595f5`), CI runs on every PR and every push to `main`:
 Linux. The lint job runs `pre-commit run --all-files`, the same hooks a local commit runs
 (`.pre-commit-config.yaml` is the one definition): trailing whitespace, final newline, line endings, and
 flake8 with the X303 plugin and bugbear (B007 ignored), scoped to `mytower/`. mypy is a ratchet: the build
-fails above 243 errors, or if mypy itself fails, and it still runs when the pre-commit step fails.
-`make lint` and `make check` run the same hooks.
+fails above 243 errors (`MAX_ERRORS` in `tools/mypy_ratchet.py`), or if mypy itself fails, and it still
+runs when the pre-commit step fails. `make lint` and `make check` run the same hooks and the same ratchet.
 
 | PR | Commit | What |
 |---|---|---|
