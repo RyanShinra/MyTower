@@ -187,3 +187,6 @@ logs/*
 
 # Deployment metadata files
 deployments/
+
+# Claude Code per-machine settings: "always allow" approvals land here
+.claude/settings.local.json
