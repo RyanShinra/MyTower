@@ -56,7 +56,7 @@ make check                   # flake8 + mypy
 
 ## Style
 
-- Line length 120. Ruff config is in `pyproject.toml`, flake8 in `.flake8`.
+- Line length 120. flake8 config is in `.flake8`; there is no ruff or other formatter (see `docs/FORMATTING_NOTES.md`).
 - **Blank lines are non-PEP8 on purpose.** Two blank lines before any function whose body is longer than five lines, one before shorter ones, none between a decorator or leading comment and its function. The plugin in `flake8-max-blank-lines/` (rule X303) only catches more than two; the rest is kept by hand and in review. `E30x` are disabled. Black will want to reformat; do not let it. Details in `docs/FORMATTING_NOTES.md`.
 - Protocol-driven: entities are typed against `mytower/game/entities/entities_protocol.py`, and production vs testing protocols are separate. Add methods to the protocol when you add them to the implementation (a missing `invert()` on the direction protocol was a latent bug).
 - Units are wrapped types (`Blocks`, `Meters`, `Time`, `Velocity` in `mytower/game/core/units.py`). Do not pass raw floats where a unit type is expected.
