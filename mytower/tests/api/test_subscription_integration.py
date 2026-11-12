@@ -218,16 +218,9 @@ class TestSubscriptionBehaviorIntegration:
         assert isinstance(subscription, Subscription)
 
     async def test_building_state_stream_can_be_called(
-        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
+        self
     ) -> None:
         """Verify building_state_stream can be called and returns generator."""
-        # Arrange
-        mock_game_bridge.get_building_snapshot.return_value = None
-
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
         # Act
         subscription = Subscription()
         generator = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
@@ -239,16 +232,9 @@ class TestSubscriptionBehaviorIntegration:
         await generator.aclose()  # type: ignore[misc]
 
     async def test_game_time_stream_can_be_called(
-        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
+        self
     ) -> None:
         """Verify game_time_stream can be called and returns generator."""
-        # Arrange
-        mock_game_bridge.get_building_snapshot.return_value = None
-
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
         # Act
         subscription = Subscription()
         generator = subscription.game_time_stream(interval_ms=100)  # type: ignore[call-arg]
