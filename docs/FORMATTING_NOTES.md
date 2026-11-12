@@ -98,7 +98,7 @@ When running linters:
 
 4. **Flake8**: Should pass with custom plugin
    ```bash
-   flake8 mytower  # Should pass. Not `python -m flake8`: from the repo root it cannot load the plugin
+   flake8 mytower  # Should pass
    ```
 
 ## Per-Line and Per-Block Exception Examples

@@ -14,7 +14,7 @@ Python 3.13 is the target and 3.12 is the floor (`requires-python = ">=3.12"` in
 python3.13 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.lock       # exact pins; or requirements-dev.txt for a fresh resolve
-pip install -e flake8_max_blank_lines/     # custom flake8 plugin, see Style below
+pip install -e flake8-max-blank-lines/     # custom flake8 plugin, see Style below
 pre-commit install
 ```
 
@@ -53,7 +53,6 @@ make check                   # flake8 + mypy
 - mypy is strict (`mypy.ini`): no untyped defs, no explicit `Any`, `warn_unused_ignores`. Some legacy code violates this; do not add new violations, and do not add `type: ignore` without a code in brackets.
 - Tests use `Mock(spec=SomeProtocol)`; never bare `MagicMock()`. Entities expose `testing_*` accessors for internal state; use those rather than reaching into private attributes.
 - Tests that reload `mytower.api.server` (rate limiting, CORS) do so on purpose so env vars are re-read; keep that pattern if you add config-driven tests.
-- Run `flake8` as the console script, never `python -m flake8`. From the repo root, `-m` imports the `flake8_max_blank_lines/` project folder as an empty namespace package instead of the installed plugin, and flake8 fails to load it.
 
 ## Style
 

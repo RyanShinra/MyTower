@@ -37,7 +37,7 @@ clean:
 # Install dev dependencies
 install:
 	.venv/bin/pip install -r requirements-dev.lock
-	.venv/bin/pip install -e flake8_max_blank_lines/
+	.venv/bin/pip install -e flake8-max-blank-lines/
 	.venv/bin/pre-commit install
 
 # Help

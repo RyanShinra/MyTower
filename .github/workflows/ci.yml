@@ -44,11 +44,9 @@ jobs:
           cache-dependency-path: requirements-dev.lock
       - run: |
           pip install -r requirements-dev.lock
-          pip install -e flake8_max_blank_lines/
+          pip install -e flake8-max-blank-lines/
       # The hooks in .pre-commit-config.yaml are the single source of truth for lint, so CI runs
-      # exactly what a local commit runs. The flake8 hook calls the console script, not
-      # `python -m flake8`: from the repo root, -m puts the flake8_max_blank_lines/ project
-      # folder ahead of the installed plugin on sys.path.
+      # exactly what a local commit runs.
       - name: pre-commit (whitespace hooks and flake8)
         run: pre-commit run --all-files --show-diff-on-failure
       # Ratchet: fails if mypy finds more errors than the baseline. Lower the
