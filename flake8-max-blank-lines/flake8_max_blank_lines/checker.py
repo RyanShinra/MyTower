@@ -11,17 +11,16 @@ class MaxBlankLinesChecker:
     version = "0.1.0"
     MAX_BLANK_LINES = 2
 
-    def __init__(self, tree, filename) -> None:
+    def __init__(self, tree, filename, lines) -> None:
+        # flake8 injects these by parameter name. `tree` is unused, but asking for it is what makes
+        # this an AST plugin, which runs once per file; without it flake8 refuses to load the plugin.
+        # `lines` is the source flake8 already read, from disk or stdin, with line endings kept.
         self.filename = filename
         self.tree = tree
+        self.lines = lines
 
     def run(self):
-        with open(self.filename, "r", encoding="utf-8", newline="") as f:
-            content = f.read()
-
-        # Normalize line endings to LF
-        content = content.replace("\r\n", "\n").replace("\r", "\n")
-        lines = content.split("\n")
+        lines = [line.rstrip("\r\n") for line in self.lines]
 
         prev_func_end = None
         i = 0
