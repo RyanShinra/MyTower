@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-11-11. Update this file at the end of any session that leaves work in flight.
+Last updated: 2026-11-12. Update this file at the end of any session that leaves work in flight.
 
 ## Where things stand
 
@@ -22,12 +22,41 @@ fails above 243 errors, or if mypy itself fails, and it still runs when the pre-
 | #170 | `544ca76` | Trailing whitespace and final newlines fixed in 24 non-Python files, so the hooks pass on the whole tree |
 | #171 | `f592de7` | flake8 as a pre-commit hook; CI runs the hooks; bugbear and pre-commit added to the dev requirements (#127) |
 
+## In flight: #169 editor parity (branch `claude/cool-ptolemy-hw37pc`, no PR yet)
+
+Two commits are pushed: `46e3a81` (VS Code settings: no Python formatter, ruff off, flake8 severities for
+`B` and `X`, mypy extension from the venv, ruff dropped from `extensions.json`, `make format` removed) and
+`043c190` (ruff config and dev dependency removed from `pyproject.toml`). Not run in a real editor from the
+cloud; the owner is finishing and testing it on the Mac.
+
+What the Mac showed (2026-11-12):
+
+- Mypy squiggles work (mypy-type-checker extension, errors on save). Pylance works on typing.
+- **X303 never reaches the Problems panel, and there is no squiggle, on `main` and on this branch alike.**
+  So it predates #169. A toast appears on save instead, and `make check` does show the errors.
+- Format Document asks for a default formatter. Expected: `editor.defaultFormatter` is `null` on purpose.
+  The owner has not yet chosen between no formatter (current), ruff on a selection only, or an X303 fixer
+  as its own issue.
+
+Leading hypothesis, **not confirmed**: the Flake8 extension runs `python -m flake8` with `flake8.cwd` at the
+repo root, so the `flake8_max_blank_lines/` folder shadows the installed plugin (the CLAUDE.md warning;
+this is #165). A flake8 that fails to load a plugin reports no diagnostics at all. To confirm: read the
+toast text, or `Output` then `Flake8`, after saving a file with three blank lines before a function; look
+for the command line it ran and any plugin-load error. Also check that an unused import shows `F401`.
+
+Candidate fixes, nothing applied: (1) `"flake8.path": ["${workspaceFolder}/.venv/bin/flake8"]` in
+`.vscode/settings.json`, so the extension uses the console script (untested; `.venv/bin` is the Mac and
+Linux path, the PC needs `.venv/Scripts/flake8.exe`); (2) #165, the src layout, after which the setting
+goes away. Then open the PR with `Fixes #169`, run `/code-review`, and update `docs/FORMATTING_NOTES.md`,
+which still describes the removed ruff and black config (lines 35, 43-49, 65-70, 84-96, and the per-line
+and per-file exception sections from 135).
+
 ## Owner to-dos
 
 - Add the three CI job names above as required status checks on `main`. Not set as of 2026-11-09.
 - Create the `0.1.0-alpha` GitHub milestone, then bulk-assign issues with the `alpha` label.
-- On the PC: put three blank lines before a function and check that VS Code shows X303. If it
-  doesn't, add that to #165.
+- X303 does not show in VS Code on the Mac, so it will not on the PC either; see the #169 section above.
+  Add the finding to #165 once the cause is confirmed.
 - On the PC: `pip install -r requirements-dev.lock` again (it now has `pre-commit` and `flake8-bugbear`),
   then `pre-commit install`. Commit with the venv active; the hook calls the `flake8` on your `PATH`.
 
