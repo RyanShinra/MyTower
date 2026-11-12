@@ -20,9 +20,8 @@ from mytower.api.schema import Subscription, schema
 
 if TYPE_CHECKING:
     from unittest.mock import Mock
-
     from pytest import MonkeyPatch
-
+    from mytower.game.models.model_snapshots import BuildingSnapshot
 
 class TestSchemaStructure:
     """Test GraphQL schema structure and configuration."""
@@ -252,7 +251,9 @@ class TestSubscriptionBehaviorIntegration:
         # Arrange
         mock_game_bridge.get_building_snapshot.return_value = None
 
-        # Mock get_game_bridge to return our mock
+        # No bridge is injected, so the streams fall back to get_game_bridge(); patch what it returns.
+        # This covers that fallback with `self` as an instance. The server's path, where `self` is None,
+        # is covered by TestSubscriptionThroughSchema.
         from mytower.api import game_bridge
         monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
 
@@ -344,3 +345,65 @@ class TestSchemaConsistency:
         # Game time stream should return Time
         sig = inspect.signature(Subscription.game_time_stream)
         assert sig.return_annotation is not None
+
+
+@pytest.mark.asyncio
+class TestSubscriptionThroughSchema:
+    """
+    Run subscriptions the way the server does: through the schema, with no root value.
+
+    Under Strawberry, `self` in a root-type resolver is the GraphQL root value. RateLimitedGraphQLRouter
+    is built without a root_value_getter, so the root value, and with it `self`, is None, and no
+    Subscription is ever constructed. Every other subscription test calls the method on a Subscription
+    instance, so none of them exercises this path.
+    """
+
+    async def test_building_state_stream_with_no_root_value(
+        self,
+        mock_game_bridge: "Mock",
+        mock_building_snapshot: "BuildingSnapshot",
+        monkeypatch: "MonkeyPatch",
+    ) -> None:
+        """Verify *buildingStateStream* yields a snapshot when Strawberry passes None as self."""
+        mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
+
+        # The patch is the only way in: on this path there is no instance to inject into
+        from mytower.api import game_bridge
+        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
+        stream = await schema.subscribe(
+            "subscription { buildingStateStream(intervalMs: 50) { time } }",
+            root_value=None,
+        )
+        try:
+            result = await anext(stream)
+        finally:
+            await stream.aclose()
+
+        assert result.errors is None
+        assert result.data == {"buildingStateStream": {"time": 123.45}}
+
+
+    async def test_game_time_stream_with_no_root_value(
+        self,
+        mock_game_bridge: "Mock",
+        mock_building_snapshot: "BuildingSnapshot",
+        monkeypatch: "MonkeyPatch",
+    ) -> None:
+        """Verify *gameTimeStream* yields the game time when Strawberry passes None as self."""
+        mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
+
+        # The patch is the only way in: on this path there is no instance to inject into
+        from mytower.api import game_bridge
+        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
+
+        stream = await schema.subscribe(
+            "subscription { gameTimeStream(intervalMs: 100) }",
+            root_value=None,
+        )
+        try:
+            result = await anext(stream)
+        finally:
+            await stream.aclose()
+
+        assert result.errors is None
+        assert result.data == {"gameTimeStream": 123.45}

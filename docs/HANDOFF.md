@@ -60,14 +60,15 @@ router sets none, so `self` is `None`. Strawberry never constructs `Subscription
 `self._game_bridge` raises `AttributeError` on every real subscription, and the suite stays green
 because no test subscribes through the schema. Checked by probing `schema.subscribe` on 2026-11-12. The
 `Subscription.__init__` docstring (`schema.py`, "Strawberry creates instances ... with no arguments")
-is wrong about this.
+was wrong about this; corrected on the branch.
+
+Also done: `TestSubscriptionThroughSchema` in `test_subscription_integration.py` subscribes through
+`schema.subscribe(..., root_value=None)` and fails against the `self._game_bridge` version. The
+`Subscription.__init__` docstring and the two resolver comments now say why `self` is `None`.
 
 Left before the PR:
 
-1. A regression test that subscribes through `schema.subscribe(..., root_value=None)`. Drafted, waiting
-   on the owner.
-2. Owner decision: correct the `Subscription` docstring in this PR or separately.
-3. In the PR body, list each patch the tracking doc never counted as legitimate or worth converting,
+1. In the PR body, list each patch the tracking doc never counted as legitimate or worth converting,
    and change none (grep on 2026-11-12): `test_input.py` 10, `test_game_bridge_queue.py` 8,
    `test_subscription_integration.py` 6, `test_subscription_timing.py` 5, `test_building_basic.py` 3,
    `test_subscriptions.py` 3, `test_person_state_machine.py` 2, `test_rate_limiting.py` 1. Still
