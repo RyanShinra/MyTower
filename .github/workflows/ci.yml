@@ -29,7 +29,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: requirements-dev.lock
-      - run: pip install -r requirements-dev.lock
+      - run: |
+          pip install -r requirements-dev.lock
+          pip install -e flake8-max-blank-lines/
       - run: pytest -q
 
   lint:
