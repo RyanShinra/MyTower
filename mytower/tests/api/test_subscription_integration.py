@@ -350,11 +350,10 @@ class TestSchemaConsistency:
 @pytest.mark.asyncio
 class TestSubscriptionThroughSchema:
     """
-    Run subscriptions the way the server does: through the schema, with no root value.
+    Run subscriptions the way real clients reach them: through the schema, with no root value.
 
-    Under Strawberry, `self` in a root-type resolver is the GraphQL root value. RateLimitedGraphQLRouter
-    is built without a root_value_getter, so the root value, and with it `self`, is None, and no
-    Subscription is ever constructed. Every other subscription test calls the method on a Subscription
+    Our router, `graphql_app`, does not provide a root value, so `self` in these resolvers is None
+    (see Subscription.__init__). Every other subscription test calls the method on a Subscription
     instance, so none of them exercises this path.
     """
 
