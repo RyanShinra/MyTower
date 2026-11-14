@@ -4,13 +4,15 @@ Last updated: 2026-11-14. Update this file at the end of any session that leaves
 
 ## Where things stand
 
-As of #185 (`dce09d6`), CI runs on every PR and every push to `main`:
+As of #189 (`a302289`), CI runs on every PR and every push to `main`:
 `pytest (Python 3.12)`, `pytest (Python 3.13)`, and `flake8 and mypy`. All three are required checks in
-the **Protect Main** ruleset since 2026-11-12, so a red PR cannot merge. The suite is 509 passed on
-Linux. The lint job runs `pre-commit run --all-files`, the same hooks a local commit runs
+the **Protect Main** ruleset since 2026-11-12, so a red PR cannot merge. Since #189 the test job also
+runs on Windows, as `pytest (Python 3.12, Windows)` and `pytest (Python 3.13, Windows)`; those two are
+not required checks until the owner adds them to the ruleset. The suite is 509 passed on Linux and on
+Windows. The lint job runs `pre-commit run --all-files`, the same hooks a local commit runs
 (`.pre-commit-config.yaml` is the one definition): trailing whitespace, final newline, line endings, and
 flake8 with the X303 plugin and bugbear (B007 ignored), scoped to `mytower/`. mypy is a ratchet: the build
-fails above 243 errors (`MAX_ERRORS` in `tools/mypy_ratchet.py`), or if mypy itself fails, and it still
+fails above 225 errors (`MAX_ERRORS` in `tools/mypy_ratchet.py`), or if mypy itself fails, and it still
 runs when the pre-commit step fails. `make lint` and `make check` run the same hooks and the same ratchet.
 
 | PR | Commit | What |
@@ -33,7 +35,11 @@ runs when the pre-commit step fails. `make lint` and `make check` run the same h
 | #182 | `779ac9a` | Handoff refresh; CLAUDE.md no longer claims X303 enforces the whole convention |
 | #184 | `1cd2d46` | One mypy ratchet script for CI and `make typecheck`, so `make check` passes locally (#183) |
 | #185 | `dce09d6` | DI test cleanup finished; schema and WebSocket tests for the `self is None` path; blank-line counts are ceilings (#128) |
-| #186 | `b683e08` | First-line whitespace fix: one blank line above each class's first method and each short function (no issue; open at time of writing) |
+| #186 | `7b3cb8f` | First-line whitespace fix: one blank line above each class's first method and each short function (no issue) |
+| #187 | `c16dd75` | Handoff refresh after #186 |
+| #188 | `e485794` | Seven file-level `# flake8: noqa: CODE` comments removed; two `per-file-ignores` added; 14 long lines wrapped (#181) |
+| #190 | `ddae93d` | 18 mypy errors outside tests cleared; ratchet 243 to 225 (#162 part 1) |
+| #189 | `a302289` | Cancellation tests wait on an event, not a timer; Windows legs join CI (#163) |
 
 ## Editor setup (#169, done in #180)
 
@@ -59,8 +65,8 @@ converter patches in `test_subscriptions.py` (tests only, like #174) and the `Fl
 
 ## Done: first-line whitespace fix (#186, no issue)
 
-Done on `whitespace-first-method` (`b683e08`, PR #186, open until the owner merges it). It removed 82 blank
-lines across 45 files; the census now finds none. Nothing else is pending from it.
+Merged as #186 (`7b3cb8f`). It removed 82 blank lines across 45 files; the census now finds none. Nothing
+else is pending from it.
 
 **The rule applied.** Blank-line counts are ceilings (CLAUDE.md, Style). On top of that, the owner's
 preference: inside a class, at most one blank line before the first method, which should usually be
@@ -91,18 +97,44 @@ same one-blank-line limit.
 - The `ast` census shows zero in both groups. X303 only flags more than two blank lines, so a clean
   `make check` does not prove the fix.
 
-## Next issue: #163 (Windows timer resolution)
+## #163 (done in #189)
 
-`test_subscription_cleanup_on_cancellation` fails on Windows with Python 3.12 and passes on Linux 3.12 and
-3.13. The #158 diagnosis: Windows' coarse timer makes the test cancel its own consumer, not the subscription
-generator, so the cleanup it checks never runs. The fix should not be a sleep long enough to hide the race.
-Done when the test passes on Windows and a `windows-latest` leg joins the CI matrix. The owner develops on
-Windows, so that part needs the PC to verify. Start on `main` after #186 merges, with a fresh branch named
-`163-<short-slug>`.
+The failure was a race in the test, not in `building_state_stream`. The consumer helper slept 1 ms between
+items. Windows timers tick about every 15.6 ms, so the test's cancel landed in the helper's own sleep, the
+generator sat at its `yield`, and its `finally` did not run before the assertion. The fixed tests wait on an
+`asyncio.Event` set on the first item and use a consumer with no sleep of its own
+(`_consume_and_signal`), so the only place it can be suspended is inside the generator. The root cause is
+in the #189 body.
+
+Two `_consume_stream` helpers with a sleep remain in `test_subscription_error_handling.py`, used at two
+call sites that were not reviewed for the same race.
+
+## Next issue: the rest of #162
+
+#190 cleared 18 of the 40 errors outside tests. The ratchet is at 225: 22 outside tests and 203 in tests.
+The 22 need the owner's decision before any code; the options, with code, are in the #190 body.
+
+- **18 `attr-defined` in `mytower/api/schema.py`.** The four input classes in `mytower/api/input_types.py`
+  have empty bodies under `strawberry.experimental.pydantic.input(..., all_fields=True)`, so mypy sees no
+  fields. Strawberry's mypy plugin does not fix this and adds 4 errors. Recommended: declare the fields
+  on each class with their real types; the generated SDL is unchanged.
+- **4 `explicit-any` on the `class ...Model(BaseModel):` lines in `input_types.py`.** The `Any` is
+  Pydantic's own. Recommended: `plugins = pydantic.mypy` with `init_forbid_extra = True` and
+  `init_typed = True`, measured at 225 down to 221.
+- **#191 belongs with the first decision.** The Pydantic validators never run on GraphQL input, because
+  nothing calls `to_pydantic()`. One of its fixes is the same change as an option for the 18 errors.
+
+Then the 203 errors in tests, most of them in five API test files. Before starting, the owner decides
+whether tests keep `disallow_any_explicit`. The plan: one branch per file, in parallel, with none of them
+touching `MAX_ERRORS`, then one small PR that lowers it to zero and makes mypy blocking. That work also
+takes the two `mypy.ini` fixes in the #162 comments.
 
 ## Owner to-dos
 
 - Create the `0.1.0-alpha` GitHub milestone, then bulk-assign issues with the `alpha` label.
+- Add `pytest (Python 3.12, Windows)` and `pytest (Python 3.13, Windows)` to the required checks in the
+  **Protect Main** ruleset, or say that one Windows leg is enough and drop the other from `ci.yml`.
+- Attach #191 to the M1 epic (#120) as a sub-issue, if M1 is the right milestone for it.
 - On the PC after pulling: `rm -rf flake8_max_blank_lines` (git leaves the ignored egg-info behind and it
   still shadows the plugin), then `pip install -e flake8-max-blank-lines/`. The pull also deletes
   `.claude/settings.local.json`, which is now untracked (#179).
@@ -114,7 +146,8 @@ Windows, so that part needs the PC to verify. Start on `main` after #186 merges,
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #163 (next, see below), #181, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: the remainder of #162 (see above), then the lock regenerate and the two end-of-M0 checks
+   under "Good ideas".
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the
@@ -133,19 +166,25 @@ Decisions the owner makes before the work that depends on them:
 
 - **#159** Rate-limit queries and mutations sent over WebSocket; smaller limiter hardening. M5.
 - **#160** Load balancer in front of the ECS service. Owner task; about $16 a month, so it goes last. M5.
-- **#162** Get mypy to zero, lowering the ratchet as it goes. M0. Its comments record two `mypy.ini` problems.
-- **#163** The Windows timer-resolution test failure; Windows joins CI after. M0.
+- **#162** Get mypy to zero, lowering the ratchet as it goes. M0. Part 1 done in #190; still open. Its
+  comments record two `mypy.ini` problems.
+- **#163** Done in #189: the cancellation tests no longer depend on timer resolution; Windows is in CI.
 - **#165** Done in #175: the plugin folder was renamed, since a src layout would still have shadowed it.
 - **#176** Done in #177: X303 reads the source flake8 passes, not the file on disk.
 - **#169** Done in #180: VS Code matches flake8 and CI; no Python formatter; ruff removed.
 - **#183** Done in #184: `make check` runs the same mypy ratchet as CI (`tools/mypy_ratchet.py`).
-- **#181** File-level `# flake8: noqa: CODE` comments turn off flake8 for seven whole files, hiding 14
-  E501s and a W293. Move them to `per-file-ignores`, then fix the lines. M0.
+- **#181** Done in #188: the seven file-level `# flake8: noqa: CODE` comments are gone. Only `config.py`
+  and `desktop_ui.py` needed a `per-file-ignores` entry, both for E704.
+- **#191** The Pydantic input validators never run on GraphQL mutations. The commands still reject some
+  bad input when they execute, but check no upper bounds, and the client is not told. Labeled M1.
 
 ## Good ideas (not filed)
 
 Low priority; no issue on purpose. Pick up when the trigger fires.
 
+- **A hook that fails on a file-level `# flake8: noqa: CODE`.** A `pygrep` hook in
+  `.pre-commit-config.yaml` matching `^\s*#\s*flake8:\s*noqa:` under `mytower/`, so #181 cannot come
+  back. The bare `# flake8: noqa` in `test_input.py` does not match. From the #188 review.
 - **Cache the pre-commit hook repo in CI.** An `actions/cache` step on `~/.cache/pre-commit`, keyed on
   `hashFiles('.pre-commit-config.yaml')`, in the `lint` job. Each run now re-clones `pre-commit-hooks`.
   For a much later date: worth doing when CI minutes or clone flakiness start to matter, not before.
@@ -192,5 +231,10 @@ Low priority; no issue on purpose. Pick up when the trigger fires.
   root `AGENTS.md`, and on macOS and Windows the lowercase name matches.
 - The Gantt chart's only source is the artifact itself. Read it back with the Artifact tool before
   changing it; a fresh publish makes a new link.
+- `make check` does not run in a git worktree: the Makefile calls `.venv/bin/pre-commit` and
+  `.venv/bin/python`, and a worktree has no `.venv`. Put the main checkout's `.venv/bin` on `PATH` and run
+  `pre-commit run --all-files` and `python tools/mypy_ratchet.py` directly.
+- Parallel sub-agents in worktrees worked for #163, #181 and #162 part 1 on 2026-11-14: one issue each,
+  no shared files beyond `entities_protocol.py`, and only one branch allowed to change `MAX_ERRORS`.
 - Mechanical M0 issues (#165) suit a Sonnet session. Keep tool output small: `--stat` and a
   narrow `grep`, not whole files or diffs.

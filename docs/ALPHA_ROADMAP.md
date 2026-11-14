@@ -51,9 +51,9 @@ Each milestone ends with something you can show someone. Sizes are in **focused 
 
 Nothing here is gameplay. It exists so that every later milestone can be merged with confidence.
 
-- [ ] Add GitHub Actions: Python 3.13, `pytest`, `mypy`, `flake8`. Fail the build on red.
+- [x] Add GitHub Actions: Python 3.13, `pytest`, `mypy`, `flake8`. Fail the build on red. (#125; mypy is a ratchet until #162 reaches zero.)
 - [x] Fix the 7 rate-limiting failures (#126). The router's `__call__` override was never invoked, so rate limiting had never run; the logic moved to `run()`.
-- [ ] Re-enable black and ruff (or flake8) in `.pre-commit-config.yaml`.
+- [x] Re-enable black and ruff (or flake8) in `.pre-commit-config.yaml`. (flake8 only, on purpose; #127.)
 - [x] Finish the dependency-injection cleanup (#128). The threading tests inject the bridge; schema-path and WebSocket tests now cover the server's `self is None` path. The tracking doc is in `docs/archive/`.
 - [x] Move root-level scratch files (`COMMAND_QUEUE_FIX.md`, `UPDATE_CORS.md`, `WEBSOCKET_DEBUGGING.md`, `FORMATTING_NOTES.md`, `REQUIREMENTS_MIGRATION.md`, `DEPLOY_SCRIPT_EDGE_CASES.md`, `Hi, let's continue my project from.txt`, `requirements.txt.backup`, `create`) into `docs/archive/` or delete them. (Three still in use moved to `docs/` instead; see #167.)
 
