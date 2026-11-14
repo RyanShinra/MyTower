@@ -49,7 +49,7 @@ pytest --no-cov -q           # faster, no coverage output
 make check                   # flake8 + mypy
 ```
 
-- The suite is green at every commit and at handoff (501 passed on Linux; on Windows one subscription-cancellation test fails on timer resolution, a known pre-existing issue). Red *mid-change* is fine when it is explained; see "How code gets written" below.
+- The suite is green at every commit and at handoff (509 passed on Linux and on Windows). Red *mid-change* is fine when it is explained; see "How code gets written" below.
 - mypy is strict (`mypy.ini`): no untyped defs, no explicit `Any`, `warn_unused_ignores`. Some legacy code violates this; do not add new violations, and do not add `type: ignore` without a code in brackets.
 - Tests use `Mock(spec=SomeProtocol)`; never bare `MagicMock()`. Entities expose `testing_*` accessors for internal state; use those rather than reaching into private attributes.
 - Tests that reload `mytower.api.server` (rate limiting, CORS) do so on purpose so env vars are re-read; keep that pattern if you add config-driven tests.
