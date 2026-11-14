@@ -15,6 +15,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from mytower.api import game_bridge
 from mytower.api.game_bridge_protocol import GameBridgeProtocol
 from mytower.api.graphql_types import (
     BuildingSnapshotGQL,
@@ -172,6 +173,19 @@ def mock_game_bridge() -> Mock:
     bridge = Mock(spec=GameBridgeProtocol)
     bridge.get_building_snapshot.return_value = None
     return bridge
+
+
+@pytest.fixture
+def global_game_bridge(mock_game_bridge: Mock, monkeypatch: pytest.MonkeyPatch) -> Mock:
+    """
+    Install mock_game_bridge as the module-level bridge that get_game_bridge() returns.
+
+    Use this only where there is nothing to inject into: a Subscription built with no bridge, or a
+    subscription run through the schema or the router, where `self` is None (see
+    Subscription.__init__). Everywhere else, pass the mock to Subscription(game_bridge=...).
+    """
+    monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
+    return mock_game_bridge
 
 
 @pytest.fixture

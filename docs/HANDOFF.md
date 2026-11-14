@@ -4,8 +4,9 @@ Last updated: 2026-11-12. Update this file at the end of any session that leaves
 
 ## Where things stand
 
-As of #180 (`fb595f5`), CI runs on every PR and every push to `main`:
-`pytest (Python 3.12)`, `pytest (Python 3.13)`, and `flake8 and mypy`. The suite is 501 passed on
+As of #184 (`1cd2d46`), CI runs on every PR and every push to `main`:
+`pytest (Python 3.12)`, `pytest (Python 3.13)`, and `flake8 and mypy`. All three are required checks in
+the **Protect Main** ruleset since 2026-11-12, so a red PR cannot merge. The suite is 505 passed on
 Linux. The lint job runs `pre-commit run --all-files`, the same hooks a local commit runs
 (`.pre-commit-config.yaml` is the one definition): trailing whitespace, final newline, line endings, and
 flake8 with the X303 plugin and bugbear (B007 ignored), scoped to `mytower/`. mypy is a ratchet: the build
@@ -29,6 +30,8 @@ runs when the pre-commit step fails. `make lint` and `make check` run the same h
 | #178 | `437106a` | CI test job installs the plugin; collection had been failing |
 | #179 | `fd2ba2c` | `.claude/settings.local.json` untracked and ignored |
 | #180 | `fb595f5` | Editor parity: VS Code matches flake8 and CI, no Python formatter (#169) |
+| #182 | `779ac9a` | Handoff refresh; CLAUDE.md no longer claims X303 enforces the whole convention |
+| #184 | `1cd2d46` | One mypy ratchet script for CI and `make typecheck`, so `make check` passes locally (#183) |
 
 ## Editor setup (#169, done in #180)
 
@@ -39,9 +42,71 @@ one plugin failing to load drops every flake8 diagnostic, not only X303.
 Still open, no issue yet: Format Document has no Python formatter on purpose. The options are none
 (current), ruff on a selection only, or an X303-aware fixer as its own issue.
 
+## #128 in review (#185, branch `128-finish-di-test-cleanup`)
+
+The PR is open and green; the owner merges. What it does:
+
+- All 14 tests in `test_game_bridge_threading.py` use `Subscription(game_bridge=...)`; no `_bridge`
+  monkeypatch is left in that file.
+- `docs/DI_REFACTORING_REMAINING_WORK.md` moved to `docs/archive/`; the roadmap item is ticked.
+- `test_subscription_integration.py`: two inert `_bridge` patches removed (owner's edit). Those tests never
+  iterate the generator, and an async generator's body does not run until the first `anext()`.
+- New `global_game_bridge` fixture in `mytower/tests/api/conftest.py`: the one place the module-level
+  bridge is patched, for the paths with nothing to inject into.
+- New tests: `TestSubscriptionThroughSchema` (both streams through `schema.subscribe(..., root_value=None)`)
+  and `TestSubscriptionThroughRouter` (a graphql-transport-ws socket to `graphql_app`).
+- `schema.py`: the bridge fallback checks `is None` instead of truthiness, so a falsy injected bridge is
+  still used. The `Subscription.__init__` docstring explains where `self` comes from.
+
+Found along the way: under Strawberry, `self` in a root-type resolver is the operation's root value,
+which defaults to `None`, and `graphql_app` provides none. Strawberry never constructs `Subscription`.
+Writing `self._game_bridge` instead of `getattr(self, '_game_bridge', None)` breaks every real
+subscription; before #185 no test caught that, because none went through the schema.
+
+The #185 body classifies every patch left in the suite. Two groups are worth converting later: the
+converter patches in `test_subscriptions.py` (tests only, like #174) and the `Floor` patches in
+`test_building_basic.py` (needs a floor factory on `Building`).
+
+Review finding 7 (one blank line before a long method) was not a problem: the owner's blank-line counts
+are ceilings, not floors. CLAUDE.md and `docs/FORMATTING_NOTES.md` read as requirements, so #185 rewords
+both to say "up to" and "at most".
+
+## Next branch: first-line whitespace fix (no issue)
+
+A one-time, whitespace-only cleanup the owner decided on in the #185 review. Mechanical; suits a Sonnet or
+Haiku session. Branch off `main` after #185 merges, with a no-issue name such as `whitespace-first-method`.
+
+**The rule being applied.** Blank-line counts are ceilings (CLAUDE.md, Style). On top of that, the owner's
+preference: inside a class, at most one blank line before the first method, which should usually be
+`__init__`. This preference is guidance, not a written rule; the owner chose not to encode it.
+
+**Scope**, measured over `mytower/` on 2026-11-14:
+
+1. **72 first methods** with two blank lines between the class line, or the class docstring, and the
+   method. Reduce each to one. 13 are `__init__`; 59 are other methods, mostly the first test in a test
+   class.
+2. **10 short functions**, bodies of five lines or fewer with the docstring excluded, that have two blank
+   lines before them, across 6 files. Reduce each to one.
+
+**Definitions, for finding them with an `ast` walk:** count blank lines upward from the first decorator
+if there is one, else from the `def` line. Body length is `end_lineno` minus the line of the first
+statement after any docstring, plus one.
+
+**Leave alone:** blank lines before classes; before long methods other than a class's first; between a
+decorator or leading comment and its function. Do not move methods to put `__init__` first: that is not
+whitespace.
+
+**Ask the owner first:** test classes have no `__init__`. Proposed: their first test method gets the
+same one-blank-line limit.
+
+**Done when:**
+- `git diff --ignore-blank-lines --stat` prints nothing, which proves the diff is whitespace only.
+- `pytest` passes with the same count as `main`, and `make check` is clean.
+- The `ast` census shows zero in both groups. X303 only flags more than two blank lines, so a clean
+  `make check` does not prove the fix.
+
 ## Owner to-dos
 
-- Add the three CI job names above as required status checks on `main`. Not set as of 2026-11-09.
 - Create the `0.1.0-alpha` GitHub milestone, then bulk-assign issues with the `alpha` label.
 - On the PC after pulling: `rm -rf flake8_max_blank_lines` (git leaves the ignored egg-info behind and it
   still shadows the plugin), then `pip install -e flake8-max-blank-lines/`. The pull also deletes
@@ -54,7 +119,7 @@ Still open, no issue yet: Format Document has no Python formatter on purpose. Th
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #128, #163, #181, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: #128 (in review, see above), the first-line whitespace fix (see above), #163, #181, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the
@@ -78,6 +143,7 @@ Decisions the owner makes before the work that depends on them:
 - **#165** Done in #175: the plugin folder was renamed, since a src layout would still have shadowed it.
 - **#176** Done in #177: X303 reads the source flake8 passes, not the file on disk.
 - **#169** Done in #180: VS Code matches flake8 and CI; no Python formatter; ruff removed.
+- **#183** Done in #184: `make check` runs the same mypy ratchet as CI (`tools/mypy_ratchet.py`).
 - **#181** File-level `# flake8: noqa: CODE` comments turn off flake8 for seven whole files, hiding 14
   E501s and a W293. Move them to `per-file-ignores`, then fix the lines. M0.
 
@@ -121,19 +187,8 @@ Low priority; no issue on purpose. Pick up when the trigger fires.
   `mytower.api.server` without pygame. Not rerun since.
 - Two of the original 11 issues look stale: #15 and #27. Both are labeled `post-alpha`, not closed.
 - Docs layout since #167: guides and design notes in `docs/`, past-session notes in `docs/archive/`
-  (historical, not current). `docs/DI_REFACTORING_REMAINING_WORK.md` stays in `docs/`: it is the
-  work list for #128, but it is partly stale. The converter and logger patches the doc never counted
-  were removed in their own PR (real snapshots instead of a patched `convert_building_snapshot`, `caplog`
-  instead of a patched `schema.logger`). Counts from a grep on 2026-11-11, after that PR:
-  - `test_subscription_error_handling.py`: the bridge conversion is done (14 tests use
-    `Subscription(game_bridge=...)`). One patch is left on purpose, `schema.convert_building_snapshot` with
-    `side_effect=ValueError` in `test_subscription_handles_convert_snapshot_exception`: forcing a converter
-    failure that valid data cannot produce needs an injectable converter, a production change.
-  - `test_game_bridge_threading.py`: the doc's 14 is right. All 14 tests still build `Subscription()` and swap
-    the bridge with `monkeypatch.setattr(game_bridge, "_bridge", ...)`. This is the main work left in #128.
-  - `test_subscription_integration.py`: the doc calls it complete, but it still has 3
-    `monkeypatch.setattr(game_bridge, ...)` and 9 `Subscription()`. Some may be deliberate (default
-    construction); not checked.
+  (historical, not current). The DI tracking doc went to the archive in #128; its patch counts were
+  stale by then.
 - Do not run `pre-commit run --all-files` just to check: its fixers rewrite files. Use `git stash` or
   `git checkout --` afterwards if you did not mean to change them.
 - `docs/subscription_example.py` has 6 flake8 findings and is deliberately not linted (the hook is scoped

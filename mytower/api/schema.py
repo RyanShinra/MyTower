@@ -193,9 +193,21 @@ class Subscription:
         """
         Initialize the Subscription with an optional game bridge for dependency injection.
 
-        Note: When Strawberry creates instances via the schema, __init__() is called with no
-        arguments (game_bridge=None). Tests can directly instantiate with a mock game_bridge
-        for dependency injection.
+        Note on `self`: Strawberry never calls __init__(). It calls each resolver with the field's
+        parent object as `self`. A field on a root type such as Subscription has no parent object,
+        so Strawberry uses the operation's root value instead. The root value defaults to None,
+        unless the caller provides one.
+
+        Our router, `graphql_app` in server.py, does not provide one: it keeps Strawberry's default
+        root_value_getter, because no resolver has needed a root value (Query and Mutation call
+        get_game_bridge() directly). So when a real client subscribes, `self` is None and the
+        resolvers fall back to get_game_bridge().
+
+        `self` is a Subscription only when a caller builds one, which today means tests:
+        - calling the method on Subscription(game_bridge=...) directly, bypassing Strawberry, as
+          most subscription tests do;
+        - passing root_value=Subscription(...) to schema.subscribe().
+        Giving `graphql_app` a root_value_getter would do the same for real clients; nothing does yet.
 
         Args:
             game_bridge: Optional GameBridgeProtocol instance for testing. If None, uses get_game_bridge()
@@ -226,8 +238,9 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        # Use getattr for safe access - _game_bridge will be None when called via Strawberry schema
-        game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
+        # self is usually None here, so use getattr; see __init__ for details
+        injected: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
+        game_bridge: GameBridgeProtocol = injected if injected is not None else get_game_bridge()
 
         message_count = 0
 
@@ -285,8 +298,9 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        # Use getattr for safe access - _game_bridge will be None when called via Strawberry schema
-        game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
+        # self is usually None here, so use getattr; see __init__ for details
+        injected: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
+        game_bridge: GameBridgeProtocol = injected if injected is not None else get_game_bridge()
 
         try:
             while True:

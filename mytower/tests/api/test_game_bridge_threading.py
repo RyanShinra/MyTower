@@ -12,7 +12,6 @@ Tests cover:
 """
 
 import asyncio
-from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
 import pytest
@@ -21,9 +20,6 @@ from mytower.api.graphql_types import BuildingSnapshotGQL
 from mytower.api.schema import Subscription
 from mytower.game.core.units import Time
 from mytower.game.models.model_snapshots import BuildingSnapshot
-
-if TYPE_CHECKING:
-    from pytest import MonkeyPatch
 
 
 @pytest.mark.asyncio
@@ -34,16 +30,11 @@ class TestGameBridgeThreadSafety:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify multiple subscriptions can safely call get_building_state() concurrently."""
         mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         # Create 10 concurrent subscriptions
         streams = [
@@ -64,7 +55,6 @@ class TestGameBridgeThreadSafety:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify snapshot reference remains consistent within single iteration."""
         snapshot_calls = []
@@ -77,11 +67,7 @@ class TestGameBridgeThreadSafety:
 
         mock_game_bridge.get_building_snapshot.side_effect = track_snapshot_call
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
@@ -96,7 +82,6 @@ class TestGameBridgeThreadSafety:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscriptions with different intervals don't interfere."""
         call_count = {"count": 0}
@@ -107,11 +92,7 @@ class TestGameBridgeThreadSafety:
 
         mock_game_bridge.get_building_snapshot.side_effect = count_calls
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         # Create streams with different intervals
         stream_fast = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
@@ -131,7 +112,6 @@ class TestGameBridgeThreadSafety:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription handles snapshot updates gracefully."""
         # Create two different snapshots
@@ -148,11 +128,7 @@ class TestGameBridgeThreadSafety:
         snapshots = [snapshot1, snapshot2, snapshot2, snapshot2]
         mock_game_bridge.get_building_snapshot.side_effect = snapshots
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
@@ -170,16 +146,11 @@ class TestSubscriptionPerformance:
     async def test_subscription_doesnt_block_async_loop(
         self,
         mock_game_bridge: "Mock",
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription doesn't block the asyncio event loop."""
         mock_game_bridge.get_building_snapshot.return_value = None
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
 
@@ -201,16 +172,11 @@ class TestSubscriptionPerformance:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify system handles many concurrent subscriptions."""
         mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         # Create 50 concurrent subscriptions
         subscription_count = 50
@@ -232,16 +198,11 @@ class TestSubscriptionPerformance:
     async def test_subscription_memory_cleanup(
         self,
         mock_game_bridge: "Mock",
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription properly cleans up when cancelled."""
         mock_game_bridge.get_building_snapshot.return_value = None
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
 
@@ -268,16 +229,11 @@ class TestSubscriptionWithGameBridgeMock:
     async def test_get_building_state_returns_none_initially(
         self,
         mock_game_bridge: "Mock",
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription handles None from GameBridge (game not started)."""
         mock_game_bridge.get_building_snapshot.return_value = None
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
         result = await anext(stream)  # type: ignore[arg-type]
@@ -288,17 +244,12 @@ class TestSubscriptionWithGameBridgeMock:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription starts yielding data when game starts."""
         # Simulate game starting: None -> snapshot
         mock_game_bridge.get_building_snapshot.side_effect = [None, None, mock_building_snapshot]
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
@@ -315,7 +266,6 @@ class TestSubscriptionWithGameBridgeMock:
     async def test_subscription_handles_slow_synchronous_game_bridge_calls(
         self,
         mock_game_bridge: "Mock",
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription handles slow synchronous get_building_snapshot calls gracefully."""
         # Simulate a slow synchronous call (e.g., due to lock contention in the game thread)
@@ -327,11 +277,7 @@ class TestSubscriptionWithGameBridgeMock:
 
         mock_game_bridge.get_building_snapshot.side_effect = slow_get_state
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
 
@@ -343,16 +289,11 @@ class TestSubscriptionWithGameBridgeMock:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify game_time_stream is also thread-safe."""
         mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         # Create 20 concurrent game_time_stream subscriptions
         streams = [
@@ -378,7 +319,6 @@ class TestRealWorldScenarios:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription handles rapid snapshot updates (high game speed)."""
         # Create 100 different snapshots (simulating fast game)
@@ -396,11 +336,7 @@ class TestRealWorldScenarios:
 
         mock_game_bridge.get_building_snapshot.side_effect = snapshots
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         stream = subscription.building_state_stream(interval_ms=5)  # type: ignore[call-arg]
 
@@ -414,16 +350,11 @@ class TestRealWorldScenarios:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify building_state_stream and game_time_stream can run together."""
         mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         # Create mix of subscription types
         building_streams = [
@@ -447,16 +378,11 @@ class TestRealWorldScenarios:
         self,
         mock_game_bridge: "Mock",
         mock_building_snapshot: BuildingSnapshot,
-        monkeypatch: "MonkeyPatch",
     ) -> None:
         """Verify subscription can be cancelled and restarted."""
         mock_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
-        subscription = Subscription()
+        subscription = Subscription(game_bridge=mock_game_bridge)
 
         # First subscription
         stream1 = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]

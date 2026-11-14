@@ -11,18 +11,20 @@ Tests cover:
 - Type system correctness
 """
 
+from collections import defaultdict
 from typing import TYPE_CHECKING
+from unittest.mock import Mock
 
 import pytest
+from fastapi.testclient import TestClient
 
+from mytower.api.game_bridge_protocol import GameBridgeProtocol
 from mytower.api.graphql_types import BuildingSnapshotGQL
 from mytower.api.schema import Subscription, schema
 
 if TYPE_CHECKING:
-    from unittest.mock import Mock
-
     from pytest import MonkeyPatch
-
+    from mytower.game.models.model_snapshots import BuildingSnapshot
 
 class TestSchemaStructure:
     """Test GraphQL schema structure and configuration."""
@@ -218,16 +220,9 @@ class TestSubscriptionBehaviorIntegration:
         assert isinstance(subscription, Subscription)
 
     async def test_building_state_stream_can_be_called(
-        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
+        self
     ) -> None:
         """Verify building_state_stream can be called and returns generator."""
-        # Arrange
-        mock_game_bridge.get_building_snapshot.return_value = None
-
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
         # Act
         subscription = Subscription()
         generator = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
@@ -239,16 +234,9 @@ class TestSubscriptionBehaviorIntegration:
         await generator.aclose()  # type: ignore[misc]
 
     async def test_game_time_stream_can_be_called(
-        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
+        self
     ) -> None:
         """Verify game_time_stream can be called and returns generator."""
-        # Arrange
-        mock_game_bridge.get_building_snapshot.return_value = None
-
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
-
         # Act
         subscription = Subscription()
         generator = subscription.game_time_stream(interval_ms=100)  # type: ignore[call-arg]
@@ -259,16 +247,34 @@ class TestSubscriptionBehaviorIntegration:
         # Clean up generator
         await generator.aclose()  # type: ignore[misc]
 
-    async def test_multiple_subscription_instances(
-        self, mock_game_bridge: "Mock", monkeypatch: "MonkeyPatch"
-    ) -> None:
-        """Verify multiple Subscription instances can coexist."""
-        # Arrange
-        mock_game_bridge.get_building_snapshot.return_value = None
+    async def test_falsy_injected_bridge_is_still_used(self) -> None:
+        """Verify an injected bridge is used even when it is falsy; get_game_bridge() is not consulted."""
+        # A bridge that defines __bool__ or __len__ can be falsy; `bridge or get_game_bridge()` would drop it.
+        # A spec'd Mock refuses __bool__ as an attribute, so the override goes on a subclass.
+        class FalsyBridge(Mock):
+            def __bool__(self) -> bool:
+                return False
 
-        # Mock get_game_bridge to return our mock
-        from mytower.api import game_bridge
-        monkeypatch.setattr(game_bridge, "_bridge", mock_game_bridge)
+        mock_game_bridge = FalsyBridge(spec=GameBridgeProtocol)
+        mock_game_bridge.get_building_snapshot.return_value = None
+        assert not mock_game_bridge
+
+        subscription = Subscription(game_bridge=mock_game_bridge)
+        stream = subscription.building_state_stream(interval_ms=50)  # type: ignore[call-arg]
+        try:
+            result = await anext(stream)  # type: ignore[call-overload]
+        finally:
+            await stream.aclose()  # type: ignore[attr-defined]
+
+        assert result is None
+        mock_game_bridge.get_building_snapshot.assert_called_once()
+
+    async def test_multiple_subscription_instances(self, global_game_bridge: "Mock") -> None:
+        """Verify multiple Subscription instances can coexist."""
+        # Arrange: no bridge is injected, so the streams fall back to get_game_bridge(), which returns
+        # global_game_bridge. This covers that fallback with `self` as an instance. The server's path,
+        # where `self` is None, is covered by TestSubscriptionThroughSchema and TestSubscriptionThroughRouter.
+        global_game_bridge.get_building_snapshot.return_value = None
 
         # Act: Create multiple subscriptions
         sub1 = Subscription()
@@ -358,3 +364,85 @@ class TestSchemaConsistency:
         # Game time stream should return Time
         sig = inspect.signature(Subscription.game_time_stream)
         assert sig.return_annotation is not None
+
+
+@pytest.mark.asyncio
+class TestSubscriptionThroughSchema:
+    """
+    Run subscriptions the way real clients reach them: through the schema, with no root value.
+
+    Our router, `graphql_app`, does not provide a root value, so `self` in these resolvers is None
+    (see Subscription.__init__). Every other subscription test calls the method on a Subscription
+    instance, so none of them exercises this path.
+    """
+
+    @pytest.mark.parametrize(
+        ("query", "expected"),
+        [
+            pytest.param(
+                "subscription { buildingStateStream(intervalMs: 50) { time } }",
+                {"buildingStateStream": {"time": 123.45}},
+                id="buildingStateStream",
+            ),
+            pytest.param(
+                "subscription { gameTimeStream(intervalMs: 100) }",
+                {"gameTimeStream": 123.45},
+                id="gameTimeStream",
+            ),
+        ],
+    )
+    async def test_stream_with_no_root_value(
+        self,
+        global_game_bridge: "Mock",
+        mock_building_snapshot: "BuildingSnapshot",
+        query: str,
+        expected: dict[str, object],
+    ) -> None:
+        """Verify each stream yields data when Strawberry passes None as self."""
+        global_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
+
+        stream = await schema.subscribe(query, root_value=None)
+        try:
+            result = await anext(stream)
+        finally:
+            await stream.aclose()
+
+        assert result.errors is None
+        assert result.data == expected
+
+
+class TestSubscriptionThroughRouter:
+    """
+    Run a subscription the whole way a real client does: a graphql-transport-ws socket to graphql_app.
+
+    This is the test that checks the router itself provides no root value; the schema tests above
+    pass root_value=None themselves.
+    """
+
+    def test_game_time_stream_over_websocket(
+        self,
+        global_game_bridge: "Mock",
+        mock_building_snapshot: "BuildingSnapshot",
+        monkeypatch: "MonkeyPatch",
+    ) -> None:
+        """Verify a WebSocket client receives the game time from gameTimeStream."""
+        global_game_bridge.get_building_snapshot.return_value = mock_building_snapshot
+
+        from mytower.api import server
+        # Start from no open connections, whatever earlier tests left in the per-IP count
+        monkeypatch.setattr(server, "ws_connections", defaultdict(int))
+        client = TestClient(server.app)
+
+        with client.websocket_connect("/graphql", subprotocols=["graphql-transport-ws"]) as ws:
+            ws.send_json({"type": "connection_init"})
+            assert ws.receive_json()["type"] == "connection_ack"
+
+            ws.send_json({
+                "id": "1",
+                "type": "subscribe",
+                "payload": {"query": "subscription { gameTimeStream(intervalMs: 100) }"},
+            })
+            message = ws.receive_json()
+            ws.send_json({"id": "1", "type": "complete"})
+
+        assert message == {"id": "1", "type": "next", "payload": {"data": {"gameTimeStream": 123.45}}}
