@@ -18,6 +18,7 @@ from fastapi.responses import Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+from starlette.middleware.base import RequestResponseEndpoint
 from starlette.requests import HTTPConnection
 from strawberry import UNSET
 from strawberry.fastapi import GraphQLRouter
@@ -198,7 +199,7 @@ async def decrement_ws_connection(ip: str) -> None:
 
 # Add middleware to log all requests and apply rate limiting
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
+async def log_requests(request: Request, call_next: RequestResponseEndpoint) -> Response:
     logger.info(f"[HTTP] Incoming request: {request.method} {request.url}")
     logger.info(f"[CHECK] Client: {request.client.host if request.client else 'unknown'}")
     logger.info(f"[CHECK] Headers: {dict(request.headers)}")
@@ -451,7 +452,7 @@ async def run_server_async(
 
     # If shutdown_event provided, monitor it in background
     if shutdown_event is not None:
-        async def shutdown_monitor():
+        async def shutdown_monitor() -> None:
             """Monitor shutdown event and trigger server shutdown"""
             try:
                 while not shutdown_event.is_set():

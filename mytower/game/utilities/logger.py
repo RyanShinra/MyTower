@@ -126,7 +126,7 @@ class LoggerProvider:
         file_log_level: int = TRACE,
     ) -> None:
         if root_logger:
-            self._root_logger = root_logger
+            self._root_logger: logging.Logger = root_logger
         else:
             file_name_part, file_ext_part = os.path.splitext(log_file) if log_file else ("mytower", ".log")
             date_string: str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')

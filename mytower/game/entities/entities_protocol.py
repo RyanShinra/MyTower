@@ -8,8 +8,9 @@ Defines interfaces for game entities to avoid circular imports and improve testa
 
 from __future__ import annotations
 
+from collections import deque
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, NamedTuple, Protocol, TypeAlias
+from typing import TYPE_CHECKING, NamedTuple, Protocol, TypeAlias
 
 from mytower.game.core.types import Color, ElevatorState, FloorType, HorizontalDirection, PersonState, VerticalDirection
 from mytower.game.core.units import Blocks, Time, Velocity
@@ -225,9 +226,9 @@ class ElevatorBankProtocol(Protocol):
 class ElevatorBankTestingProtocol(Protocol):
     """Testing-only protocol for ElevatorBank"""
 
-    def testing_get_upward_queue(self, floor: int) -> Any: ...  # Returns deque but avoid circular import
+    def testing_get_upward_queue(self, floor: int) -> deque[PersonProtocol]: ...
 
-    def testing_get_downward_queue(self, floor: int) -> Any: ...
+    def testing_get_downward_queue(self, floor: int) -> deque[PersonProtocol]: ...
 
     def testing_update_idle_elevator(self, elevator: ElevatorProtocol, dt: Time) -> None: ...  # Changed
 

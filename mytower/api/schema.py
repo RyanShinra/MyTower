@@ -5,7 +5,6 @@ import asyncio
 import logging
 import queue
 from collections.abc import AsyncGenerator
-from typing import Any
 
 import strawberry
 
@@ -21,6 +20,7 @@ from mytower.game.controllers.controller_commands import (
     AddFloorCommand,
     AddPersonCommand,
     Command,
+    T,
 )
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 # TODO: Find a way to disable this so that for debugging, set MYTOWER_FAIL_FAST=true to propagate exceptions.
 # ============================================================================
 
-def queue_command(command: Command[Any], timeout: float = 5.0) -> str:
+def queue_command(command: Command[T], timeout: float = 5.0) -> str:
     """
     Queue a command with backpressure handling.
 
