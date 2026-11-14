@@ -36,9 +36,11 @@ class TestSubscriptionErrorHandling:
 
         stream = subscription.building_state_stream(interval_ms=50)
 
-        # Start consuming stream in a task
-        task = asyncio.create_task(self._consume_stream(stream))
-        await asyncio.sleep(0.01)  # Let it start
+        # Wait for the first item, not for a timer, so the consumer is parked inside the generator
+        # when the cancel arrives; test_subscription_cleanup_on_cancellation explains why (#163).
+        first_item = asyncio.Event()
+        task = asyncio.create_task(self._consume_and_signal(stream, first_item))
+        await asyncio.wait_for(first_item.wait(), timeout=5.0)
 
         # Cancel the task
         task.cancel()
