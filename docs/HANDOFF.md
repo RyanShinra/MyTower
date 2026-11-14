@@ -1,12 +1,12 @@
 # Handoff
 
-Last updated: 2026-11-12. Update this file at the end of any session that leaves work in flight.
+Last updated: 2026-11-14. Update this file at the end of any session that leaves work in flight.
 
 ## Where things stand
 
-As of #184 (`1cd2d46`), CI runs on every PR and every push to `main`:
+As of #185 (`dce09d6`), CI runs on every PR and every push to `main`:
 `pytest (Python 3.12)`, `pytest (Python 3.13)`, and `flake8 and mypy`. All three are required checks in
-the **Protect Main** ruleset since 2026-11-12, so a red PR cannot merge. The suite is 505 passed on
+the **Protect Main** ruleset since 2026-11-12, so a red PR cannot merge. The suite is 509 passed on
 Linux. The lint job runs `pre-commit run --all-files`, the same hooks a local commit runs
 (`.pre-commit-config.yaml` is the one definition): trailing whitespace, final newline, line endings, and
 flake8 with the X303 plugin and bugbear (B007 ignored), scoped to `mytower/`. mypy is a ratchet: the build
@@ -32,6 +32,7 @@ runs when the pre-commit step fails. `make lint` and `make check` run the same h
 | #180 | `fb595f5` | Editor parity: VS Code matches flake8 and CI, no Python formatter (#169) |
 | #182 | `779ac9a` | Handoff refresh; CLAUDE.md no longer claims X303 enforces the whole convention |
 | #184 | `1cd2d46` | One mypy ratchet script for CI and `make typecheck`, so `make check` passes locally (#183) |
+| #185 | `dce09d6` | DI test cleanup finished; schema and WebSocket tests for the `self is None` path; blank-line counts are ceilings (#128) |
 
 ## Editor setup (#169, done in #180)
 
@@ -42,39 +43,28 @@ one plugin failing to load drops every flake8 diagnostic, not only X303.
 Still open, no issue yet: Format Document has no Python formatter on purpose. The options are none
 (current), ruff on a selection only, or an X303-aware fixer as its own issue.
 
-## #128 in review (#185, branch `128-finish-di-test-cleanup`)
+## #128 (done in #185)
 
-The PR is open and green; the owner merges. What it does:
-
-- All 14 tests in `test_game_bridge_threading.py` use `Subscription(game_bridge=...)`; no `_bridge`
-  monkeypatch is left in that file.
-- `docs/DI_REFACTORING_REMAINING_WORK.md` moved to `docs/archive/`; the roadmap item is ticked.
-- `test_subscription_integration.py`: two inert `_bridge` patches removed (owner's edit). Those tests never
-  iterate the generator, and an async generator's body does not run until the first `anext()`.
-- New `global_game_bridge` fixture in `mytower/tests/api/conftest.py`: the one place the module-level
-  bridge is patched, for the paths with nothing to inject into.
-- New tests: `TestSubscriptionThroughSchema` (both streams through `schema.subscribe(..., root_value=None)`)
-  and `TestSubscriptionThroughRouter` (a graphql-transport-ws socket to `graphql_app`).
-- `schema.py`: the bridge fallback checks `is None` instead of truthiness, so a falsy injected bridge is
-  still used. The `Subscription.__init__` docstring explains where `self` comes from.
-
-Found along the way: under Strawberry, `self` in a root-type resolver is the operation's root value,
-which defaults to `None`, and `graphql_app` provides none. Strawberry never constructs `Subscription`.
+Worth keeping from it: under Strawberry, `self` in a root-type resolver is the operation's root value,
+which defaults to `None`, and `graphql_app` provides none, so Strawberry never constructs `Subscription`.
 Writing `self._game_bridge` instead of `getattr(self, '_game_bridge', None)` breaks every real
-subscription; before #185 no test caught that, because none went through the schema.
+subscription. `TestSubscriptionThroughSchema` and `TestSubscriptionThroughRouter` now catch that, and
+the `Subscription.__init__` docstring explains it. The root cause is also on #128.
 
 The #185 body classifies every patch left in the suite. Two groups are worth converting later: the
 converter patches in `test_subscriptions.py` (tests only, like #174) and the `Floor` patches in
-`test_building_basic.py` (needs a floor factory on `Building`).
-
-Review finding 7 (one blank line before a long method) was not a problem: the owner's blank-line counts
-are ceilings, not floors. CLAUDE.md and `docs/FORMATTING_NOTES.md` read as requirements, so #185 rewords
-both to say "up to" and "at most".
+`test_building_basic.py` (needs a floor factory on `Building`). The `global_game_bridge` fixture in
+`mytower/tests/api/conftest.py` is the one place the module-level bridge is patched.
 
 ## Next branch: first-line whitespace fix (no issue)
 
 A one-time, whitespace-only cleanup the owner decided on in the #185 review. Mechanical; suits a Sonnet or
-Haiku session. Branch off `main` after #185 merges, with a no-issue name such as `whitespace-first-method`.
+Haiku session. Start on `main`. This handoff edit is uncommitted on `main` on purpose; it rides along onto
+the branch and gets committed there:
+
+```bash
+git switch -c whitespace-first-method
+```
 
 **The rule being applied.** Blank-line counts are ceilings (CLAUDE.md, Style). On top of that, the owner's
 preference: inside a class, at most one blank line before the first method, which should usually be
@@ -119,7 +109,7 @@ same one-blank-line limit.
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #128 (in review, see above), the first-line whitespace fix (see above), #163, #181, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: the first-line whitespace fix (next branch, see above), #163, #181, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the

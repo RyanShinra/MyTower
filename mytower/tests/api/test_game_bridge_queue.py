@@ -22,7 +22,6 @@ from mytower.game.controllers.controller_commands import AddFloorCommand
 from mytower.game.core.types import FloorType
 from mytower.game.utilities.logger import LoggerProvider
 
-
 @pytest.fixture
 def mock_controller():
     """Create a mock GameController for testing."""
@@ -31,7 +30,6 @@ def mock_controller():
     controller.update.return_value = None
     controller.get_building_state.return_value = Mock()
     return controller
-
 
 @pytest.fixture
 def mock_logger_provider():

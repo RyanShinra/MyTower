@@ -11,7 +11,6 @@ from mytower.game.entities.person import Person
 class TestPersonWaitingBehavior:
     """Test Person waiting and timeout behavior"""
 
-
     def test_idle_timeout_prevents_constant_checking(
         self, person_with_floor: Person, mock_building_with_floor: MagicMock
     ) -> None:

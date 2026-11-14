@@ -39,7 +39,6 @@ from mytower.game.utilities.simulation_loop import start_simulation_thread
 # Global shutdown event for coordinating graceful shutdown
 _shutdown_event: threading.Event | None = None
 
-
 def get_shutdown_event() -> threading.Event:
     """Get or create the global shutdown event"""
     global _shutdown_event

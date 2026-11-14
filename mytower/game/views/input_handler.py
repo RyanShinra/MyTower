@@ -53,7 +53,6 @@ class InputHandler:
         handler.draw(surface)  # Every frame
     """
 
-
     def __init__(
         self,
         logger_provider: LoggerProvider,

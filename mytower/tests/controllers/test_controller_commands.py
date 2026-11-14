@@ -104,7 +104,6 @@ class TestAddFloorCommand:
 class TestAddPersonCommand:
     """Test AddPersonCommand functionality"""
 
-
     def test_command_creation(self) -> None:
         """Test creating AddPersonCommand"""
         command: Final[AddPersonCommand] = AddPersonCommand(

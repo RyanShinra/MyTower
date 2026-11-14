@@ -206,7 +206,6 @@ class UIConfig:
 # pylint: enable=invalid-name
 class GameConfig:
 
-
     def __init__(self) -> None:
         self._elevator: ElevatorConfigProtocol = ElevatorConfig()
         self._person: PersonConfigProtocol = PersonConfig()

@@ -9,7 +9,6 @@ from mytower.game.entities.entities_protocol import ElevatorDestination
 
 class TestStateMachine:
 
-
     def test_update_idle_stays_idle(self, elevator: Elevator) -> None:
         """Test that IDLE elevator transitions to MOVING when destination is set"""
         # Set up conditions for transition

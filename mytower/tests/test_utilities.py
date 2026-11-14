@@ -70,7 +70,6 @@ class TypedMockFactory:
         person: PersonProtocol = cast(PersonProtocol, mock)
     """
 
-
     def create_person_mock(
         self,
         current_floor: int = 1,
@@ -240,7 +239,6 @@ class TypedMockFactory:
 class StateAssertions:
     """Common state assertion helpers for improved test readability"""
 
-
     @staticmethod
     def assert_person_state(
         person: PersonProtocol | Mock,  # Accept both for flexibility
@@ -328,7 +326,6 @@ class StateAssertions:
 
 class BoundaryTestMixin:
     """Mixin providing common boundary testing patterns"""
-
 
     @staticmethod
     def assert_boundary_validation(

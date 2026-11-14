@@ -17,7 +17,6 @@ from mytower.tests.conftest import PersonFactory
 class TestReadyElevatorLogic:
     """Tests for the core elevator dispatch algorithm in _update_ready_elevator()"""
 
-
     def test_ready_elevator_prioritizes_passengers_when_no_closer_requests(
         self, elevator_bank: ElevatorBank, mock_elevator: MagicMock
     ) -> None:
@@ -304,7 +303,6 @@ class TestReadyElevatorLogic:
 class TestDestinationCollection:
     """Test the helper methods used by ready elevator logic"""
 
-
     def test_collect_destinations_passengers_first(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Test that _collect_destinations includes passenger destinations first"""
         mock_elevator.get_passenger_destinations_in_direction.return_value = [7, 9]
@@ -347,7 +345,6 @@ class TestDestinationCollection:
 
 class TestRequestClearing:
     """Test that requests get properly cleared when elevators are assigned"""
-
 
     def test_request_cleared_after_destination_set(self, elevator_bank: ElevatorBank, mock_elevator: MagicMock) -> None:
         """Integration test: request should be cleared after elevator is assigned"""

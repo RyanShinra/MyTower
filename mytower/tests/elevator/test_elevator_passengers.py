@@ -16,7 +16,6 @@ from mytower.tests.conftest import PersonFactory
 
 class TestPassengers:
 
-
     def test_passengers_who_want_off_current_floor(
         self, elevator: Elevator, mock_person_factory: PersonFactory
     ) -> None:

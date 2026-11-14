@@ -38,7 +38,6 @@ class ElevatorBank(ElevatorBankProtocol, ElevatorBankTestingProtocol):
 
     _id_generator: IDGenerator = IDGenerator("elevator_bank")
 
-
     def __init__(
         self,
         logger_provider: LoggerProvider,

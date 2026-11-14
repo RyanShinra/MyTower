@@ -30,7 +30,6 @@ class DesktopView:
     Manages the overall game state including the building, UI, and game controls.
     """
 
-
     def __init__(
         self, logger_provider: LoggerProvider, config: GameConfig, screen_width: int, screen_height: int
     ) -> None:

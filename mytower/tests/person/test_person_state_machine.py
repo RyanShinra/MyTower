@@ -11,7 +11,6 @@ from mytower.game.entities.person import Person
 class TestPersonStateMachine:
     """Test Person state machine transitions and update logic"""
 
-
     def test_update_routes_to_correct_state_method(self, person_with_floor: Person) -> None:
         """Test that update() calls the correct state-specific method"""
         with patch.object(person_with_floor, "update_idle") as mock_idle:

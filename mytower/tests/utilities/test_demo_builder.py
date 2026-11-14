@@ -19,7 +19,6 @@ from mytower.game.utilities.demo_builder import build_model_building
 class TestDemoBuilder:
     """Test demo building functionality"""
 
-
     def test_build_model_building_success(self, mock_logger_provider: MagicMock) -> None:
         """Test successful demo building creation"""
         mock_controller = MagicMock(spec=GameController)

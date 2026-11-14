@@ -59,7 +59,6 @@ class Floor(FloorProtocol):
         FloorType.RETAIL: FloorInfo(RETAIL_COLOR, RETAIL_HEIGHT),
     }
 
-
     def __init__(
         self,
         logger_provider: LoggerProvider,

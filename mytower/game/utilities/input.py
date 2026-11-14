@@ -13,7 +13,6 @@ from mytower.game.utilities.logger import LoggerProvider, MyTowerLogger
 class MouseState:
     """Class to store and manage mouse state"""
 
-
     def __init__(self, logger_provider: LoggerProvider) -> None:
         self._logger: MyTowerLogger = logger_provider.get_logger("input")
         self._position: MousePos = (0, 0)

@@ -59,7 +59,6 @@ class Button:
     A simple button UI element
     """
 
-
     def __init__(
         self,
         logger_provider: LoggerProvider,
@@ -134,7 +133,6 @@ class Toolbar:
     """
     A toolbar for building tools and controls
     """
-
 
     def __init__(
         self, logger_provider: LoggerProvider, x: int, y: int, width: int, height: int, ui_config: UIConfigProtocol

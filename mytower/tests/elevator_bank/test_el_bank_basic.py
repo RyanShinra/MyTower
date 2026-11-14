@@ -15,7 +15,6 @@ from mytower.game.entities.person import PersonProtocol
 
 class TestPassengerQueueing:
 
-
     def test_add_passenger_going_up(self, elevator_bank: ElevatorBank) -> None:
         # Test the most basic case - person going up gets added to up queue
         mock_person = MagicMock()

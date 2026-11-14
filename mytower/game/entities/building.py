@@ -25,7 +25,6 @@ class Building(BuildingProtocol):
     The main building class that contains all floors, elevators, and people.
     """
 
-
     def __init__(
         self,
         logger_provider: LoggerProvider,
