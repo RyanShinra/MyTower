@@ -48,7 +48,6 @@ class Meters:
     def __mul__(self, factor: float) -> Meters:
         return Meters(self.value * factor)
 
-    # flake8: noqa: E704
     @overload
     def __truediv__(self, divisor: float) -> Meters: ...
 

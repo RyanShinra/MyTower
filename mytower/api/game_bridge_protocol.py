@@ -15,7 +15,6 @@ from typing import Protocol
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
 
-# flake8: noqa: E704
 class GameBridgeProtocol(Protocol):
     """
     Protocol defining the interface for accessing game state.

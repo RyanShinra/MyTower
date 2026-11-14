@@ -1,8 +1,6 @@
 # Copyright (c) 2025 Ryan Osterday. All rights reserved.
 # See LICENSE file for details.
 
-# flake8: noqa: E701
-
 from __future__ import annotations  # Defer type evaluation
 
 import threading
@@ -277,14 +275,16 @@ class Person(PersonProtocol, PersonTestingProtocol):
             if self._next_elevator_bank:
                 current_destination_block = self._next_elevator_bank.get_waiting_position()
                 self._logger.trace(
-                    f"IDLE Person: Destination fl. {self.destination_floor_num} != current fl. {self.current_floor_num} -> WALKING to Elevator block: {current_destination_block}"
+                    f"IDLE Person: Destination fl. {self.destination_floor_num} != current fl. {self.current_floor_num}"
+                    f" -> WALKING to Elevator block: {current_destination_block}"
                 )
                 self._state = PersonState.WALKING
             else:
                 # There's no elevator on this floor, maybe one is coming soon...
                 current_destination_block = self._current_horiz_position  # why move? There's nowhere to go
                 self._logger.trace(
-                    f"IDLE Person: Destination fl. {self.destination_floor_num} != current fl. {self.current_floor_num} -> IDLE b/c no Elevator on this floor"
+                    f"IDLE Person: Destination fl. {self.destination_floor_num} != current fl. {self.current_floor_num}"
+                    " -> IDLE b/c no Elevator on this floor"
                 )
                 self._state = PersonState.IDLE
                 # Set a timer so that we don't run this constantly
@@ -293,14 +293,16 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if current_destination_block < self._current_horiz_position:
             # Already on the right floor (or walking to elevator?)
             self._logger.trace(
-                f"IDLE Person: Destination is on this floor: {self.destination_floor_num}, WALKING LEFT to block: {current_destination_block}"
+                f"IDLE Person: Destination is on this floor: {self.destination_floor_num}"
+                f", WALKING LEFT to block: {current_destination_block}"
             )
             self._state = PersonState.WALKING
             self.direction = HorizontalDirection.LEFT
 
         elif current_destination_block > self._current_horiz_position:
             self._logger.trace(
-                f"IDLE Person: Destination is on this floor: {self.destination_floor_num}, WALKING RIGHT to block: {current_destination_block}"
+                f"IDLE Person: Destination is on this floor: {self.destination_floor_num}"
+                f", WALKING RIGHT to block: {current_destination_block}"
             )
             self._state = PersonState.WALKING
             self.direction = HorizontalDirection.RIGHT
@@ -339,14 +341,16 @@ class Person(PersonProtocol, PersonTestingProtocol):
             else:
                 self._state = PersonState.IDLE
             self._logger.debug(
-                f"WALKING Person: Arrived at destination (fl {self.current_floor_num}, bk {horiz_waypoint}) -> {self.state}"
+                f"WALKING Person: Arrived at destination (fl {self.current_floor_num}, bk {horiz_waypoint})"
+                f" -> {self.state}"
             )
 
         # TODO: Update these with floor extents, not building extents
         if next_horiz_position < Blocks(0) or next_horiz_position > self.building.building_width:
             # TODO: Consider raising an exception here instead of just clamping
             self._logger.warning(
-                f"WALKING Person: Attempted to walk out of bounds to block {next_horiz_position} on floor {self.current_floor_num}. Clamping to valid range."
+                f"WALKING Person: Attempted to walk out of bounds to block {next_horiz_position}"
+                f" on floor {self.current_floor_num}. Clamping to valid range."
             )
 
         next_horiz_position = min(next_horiz_position, self.building.building_width)

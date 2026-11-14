@@ -12,12 +12,12 @@ from mytower.game.core.units import Blocks, Meters, Time, Velocity
 if TYPE_CHECKING:
     from mytower.game.views.desktop_ui import UIConfigProtocol
 
-# It can't seem to make up its mind whether to use snake_case because they are class properties or UPPER_CASE for constants
+# It can't seem to make up its mind whether to use snake_case because they are class properties
+# or UPPER_CASE for constants
 # So, it gets neither
 # pylint: disable=invalid-name
 
 
-# flake8: noqa: E704
 # Protocol definitions for configuration
 class ElevatorConfigProtocol(Protocol):
     """Config requirements for Elevator class"""

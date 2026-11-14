@@ -38,5 +38,7 @@ exclude =
 per-file-ignores =
     mytower/game/entities/entities_protocol.py:E704
     mytower/game/core/units.py:E704
+    mytower/game/core/config.py:E704
+    mytower/game/views/desktop_ui.py:E704
     mytower/tests/conftest.py:E704
     mytower/tests/test_utilities.py:E704
