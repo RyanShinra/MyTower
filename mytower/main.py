@@ -19,9 +19,9 @@ from typing import TYPE_CHECKING, NoReturn
 
 # noqa: F401
 if TYPE_CHECKING:
-    import pygame  # type: ignore # noqa: F401
-    from pygame.surface import Surface  # type: ignore # noqa: F401
-    from pygame.time import Clock  # type: ignore # noqa: F401
+    import pygame  # noqa: F401
+    from pygame.surface import Surface  # noqa: F401
+    from pygame.time import Clock  # noqa: F401
 
 from mytower.api.game_bridge import GameBridge, initialize_game_bridge
 from mytower.api.server import run_server
@@ -164,9 +164,9 @@ def run_desktop_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoRetur
     - Pygame cleanup runs
     """
     # Import pygame only when needed for desktop mode
-    import pygame  # type: ignore # noqa: F811
-    from pygame.surface import Surface  # type: ignore # noqa: F811
-    from pygame.time import Clock  # type: ignore # noqa: F811
+    import pygame  # noqa: F811
+    from pygame.surface import Surface  # noqa: F811
+    from pygame.time import Clock  # noqa: F811
 
     from mytower.game.utilities.input import MouseState
     from mytower.game.views.desktop_view import DesktopView
@@ -299,9 +299,9 @@ def run_hybrid_mode(args: GameArgs, logger_provider: LoggerProvider) -> NoReturn
     - Pygame cleanup runs
     """
     # Import pygame only when needed for hybrid mode
-    import pygame  # type: ignore # noqa: F811
-    from pygame.surface import Surface  # type: ignore # noqa: F811
-    from pygame.time import Clock  # type: ignore # noqa: F811
+    import pygame  # noqa: F811
+    from pygame.surface import Surface  # noqa: F811
+    from pygame.time import Clock  # noqa: F811
 
     from mytower.game.utilities.input import MouseState
     from mytower.game.views.desktop_view import DesktopView

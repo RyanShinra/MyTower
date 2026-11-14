@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 from typing import Final
 
-MAX_ERRORS: Final = 243
+MAX_ERRORS: Final = 225
 REPO_ROOT: Final = Path(__file__).resolve().parent.parent
 
 

@@ -5,7 +5,7 @@ import asyncio
 import logging
 import queue
 from collections.abc import AsyncGenerator
-from typing import Any
+from typing import TypeVar
 
 import strawberry
 
@@ -29,6 +29,9 @@ from mytower.game.models.model_snapshots import BuildingSnapshot
 # Configure logging for subscriptions
 logger = logging.getLogger(__name__)
 
+# The result type of a queued command; queue_command() passes the command through without reading it.
+T = TypeVar("T")
+
 # ============================================================================
 # Exception Handling Strategy
 # ============================================================================
@@ -51,7 +54,7 @@ logger = logging.getLogger(__name__)
 # TODO: Find a way to disable this so that for debugging, set MYTOWER_FAIL_FAST=true to propagate exceptions.
 # ============================================================================
 
-def queue_command(command: Command[Any], timeout: float = 5.0) -> str:
+def queue_command(command: Command[T], timeout: float = 5.0) -> str:
     """
     Queue a command with backpressure handling.
 
