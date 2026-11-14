@@ -5,7 +5,6 @@ import asyncio
 import logging
 import queue
 from collections.abc import AsyncGenerator
-from typing import TypeVar
 
 import strawberry
 
@@ -21,6 +20,7 @@ from mytower.game.controllers.controller_commands import (
     AddFloorCommand,
     AddPersonCommand,
     Command,
+    T,
 )
 from mytower.game.core.types import FloorType
 from mytower.game.core.units import Blocks, Meters, Pixels, Time, Velocity
@@ -28,9 +28,6 @@ from mytower.game.models.model_snapshots import BuildingSnapshot
 
 # Configure logging for subscriptions
 logger = logging.getLogger(__name__)
-
-# The result type of a queued command; queue_command() passes the command through without reading it.
-T = TypeVar("T")
 
 # ============================================================================
 # Exception Handling Strategy
