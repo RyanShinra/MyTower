@@ -194,9 +194,10 @@ class Subscription:
         Initialize the Subscription with an optional game bridge for dependency injection.
 
         Note: Strawberry never calls __init__(). It passes the GraphQL root value as `self`, and
-        RateLimitedGraphQLRouter is built without a root_value_getter, so under the server `self` is
-        None. `self` is a Subscription only when a caller supplies one: a root_value_getter on the
-        router, root_value= on schema.subscribe(), or a test calling the method on Subscription(...).
+        RateLimitedGraphQLRouter is built without a root_value_getter, so `self` is None when the
+        server calls these resolvers. `self` is a Subscription only when a caller supplies one: a
+        root_value_getter on the router, root_value= on schema.subscribe(), or a test calling the
+        method on Subscription(...).
 
         Args:
             game_bridge: Optional GameBridgeProtocol instance for testing. If None, uses get_game_bridge()
@@ -227,7 +228,7 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        # self is the GraphQL root value: None under the server (no root_value_getter), so use getattr
+        # self is the GraphQL root value, None when the server calls this (no root_value_getter); use getattr
         game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
 
         message_count = 0
@@ -286,7 +287,7 @@ class Subscription:
             raise ValueError("interval_ms must be between 5 and 10000")
 
         interval_seconds: float = interval_ms / 1000.0
-        # self is the GraphQL root value: None under the server (no root_value_getter), so use getattr
+        # self is the GraphQL root value, None when the server calls this (no root_value_getter); use getattr
         game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
 
         try:
