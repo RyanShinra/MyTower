@@ -33,6 +33,7 @@ runs when the pre-commit step fails. `make lint` and `make check` run the same h
 | #182 | `779ac9a` | Handoff refresh; CLAUDE.md no longer claims X303 enforces the whole convention |
 | #184 | `1cd2d46` | One mypy ratchet script for CI and `make typecheck`, so `make check` passes locally (#183) |
 | #185 | `dce09d6` | DI test cleanup finished; schema and WebSocket tests for the `self is None` path; blank-line counts are ceilings (#128) |
+| #186 | `b683e08` | First-line whitespace fix: one blank line above each class's first method and each short function (no issue; open at time of writing) |
 
 ## Editor setup (#169, done in #180)
 
@@ -56,17 +57,12 @@ converter patches in `test_subscriptions.py` (tests only, like #174) and the `Fl
 `test_building_basic.py` (needs a floor factory on `Building`). The `global_game_bridge` fixture in
 `mytower/tests/api/conftest.py` is the one place the module-level bridge is patched.
 
-## Next branch: first-line whitespace fix (no issue)
+## Done: first-line whitespace fix (#186, no issue)
 
-A one-time, whitespace-only cleanup the owner decided on in the #185 review. Mechanical; suits a Sonnet or
-Haiku session. Start on `main`. This handoff edit is uncommitted on `main` on purpose; it rides along onto
-the branch and gets committed there:
+Done on `whitespace-first-method` (`b683e08`, PR #186, open until the owner merges it). It removed 82 blank
+lines across 45 files; the census now finds none. Nothing else is pending from it.
 
-```bash
-git switch -c whitespace-first-method
-```
-
-**The rule being applied.** Blank-line counts are ceilings (CLAUDE.md, Style). On top of that, the owner's
+**The rule applied.** Blank-line counts are ceilings (CLAUDE.md, Style). On top of that, the owner's
 preference: inside a class, at most one blank line before the first method, which should usually be
 `__init__`. This preference is guidance, not a written rule; the owner chose not to encode it.
 
@@ -95,6 +91,15 @@ same one-blank-line limit.
 - The `ast` census shows zero in both groups. X303 only flags more than two blank lines, so a clean
   `make check` does not prove the fix.
 
+## Next issue: #163 (Windows timer resolution)
+
+`test_subscription_cleanup_on_cancellation` fails on Windows with Python 3.12 and passes on Linux 3.12 and
+3.13. The #158 diagnosis: Windows' coarse timer makes the test cancel its own consumer, not the subscription
+generator, so the cleanup it checks never runs. The fix should not be a sleep long enough to hide the race.
+Done when the test passes on Windows and a `windows-latest` leg joins the CI matrix. The owner develops on
+Windows, so that part needs the PC to verify. Start on `main` after #186 merges, with a fresh branch named
+`163-<short-slug>`.
+
 ## Owner to-dos
 
 - Create the `0.1.0-alpha` GitHub milestone, then bulk-assign issues with the `alpha` label.
@@ -109,7 +114,7 @@ same one-blank-line limit.
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: the first-line whitespace fix (next branch, see above), #163, #181, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: #163 (next, see below), #181, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the
