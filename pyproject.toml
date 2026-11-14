@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "SimTower-inspired elevator simulation game"
 readme = "README.md"
 requires-python = ">=3.12"  # [OK] Requires 3.12 minimum, targets 3.13 for performance (5-15% faster, JIT, lower memory)
-license = "GPL-3.0-or-later"
+license = "LicenseRef-MyTower-Portfolio"
+license-files = ["LICENSE"]
 authors = [
     { name = "Ryan" }
 ]
@@ -35,7 +36,7 @@ mytower = "mytower.main:main"
 include = ["mytower*"]
 
 [build-system]
-requires = ["setuptools>=75.0.0", "wheel"]
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 # spell-checker: ignore-file
