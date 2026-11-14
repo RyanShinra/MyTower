@@ -239,7 +239,8 @@ class Subscription:
 
         interval_seconds: float = interval_ms / 1000.0
         # self is usually None here, so use getattr; see __init__ for details
-        game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
+        injected: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
+        game_bridge: GameBridgeProtocol = injected if injected is not None else get_game_bridge()
 
         message_count = 0
 
@@ -298,7 +299,8 @@ class Subscription:
 
         interval_seconds: float = interval_ms / 1000.0
         # self is usually None here, so use getattr; see __init__ for details
-        game_bridge: GameBridgeProtocol = getattr(self, '_game_bridge', None) or get_game_bridge()
+        injected: GameBridgeProtocol | None = getattr(self, '_game_bridge', None)
+        game_bridge: GameBridgeProtocol = injected if injected is not None else get_game_bridge()
 
         try:
             while True:
