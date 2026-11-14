@@ -16,12 +16,23 @@ concurrency:
 
 jobs:
   test:
-    name: pytest (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    # Branch protection requires the checks named "pytest (Python 3.12)" and "pytest (Python 3.13)",
+    # so the Ubuntu legs keep those names (suffix is empty there) and only Windows gets a suffix.
+    name: pytest (Python ${{ matrix.python-version }}${{ matrix.suffix }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        # Windows is here because its coarse timers (about 15.6 ms) expose timing-dependent tests
+        # that pass on Linux; see #163.
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.12", "3.13"]   # 3.12 is the floor in pyproject.toml, 3.13 the target
+        include:
+          - os: windows-latest
+            suffix: ", Windows"
+    defaults:
+      run:
+        shell: bash   # Windows defaults to PowerShell, which keeps going after a failed line in a multi-line step
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
