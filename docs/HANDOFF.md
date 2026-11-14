@@ -42,37 +42,33 @@ one plugin failing to load drops every flake8 diagnostic, not only X303.
 Still open, no issue yet: Format Document has no Python formatter on purpose. The options are none
 (current), ruff on a selection only, or an X303-aware fixer as its own issue.
 
-## #128 in flight (branch `128-finish-di-test-cleanup`)
+## #128 in review (#185, branch `128-finish-di-test-cleanup`)
 
-Done on the branch, no PR yet:
+The PR is open and green; the owner merges. What it does:
 
 - All 14 tests in `test_game_bridge_threading.py` use `Subscription(game_bridge=...)`; no `_bridge`
   monkeypatch is left in that file.
-- `docs/DI_REFACTORING_REMAINING_WORK.md` moved to `docs/archive/`; the roadmap points at the new path.
-- `test_subscription_integration.py`: two of its three `_bridge` patches removed (owner's edit). Those two
-  tests never iterate the generator, and an async generator's body does not run until the first
-  `anext()`, so the bridge lookup never happened. `test_multiple_subscription_instances` iterates, so it
-  keeps its patch.
+- `docs/DI_REFACTORING_REMAINING_WORK.md` moved to `docs/archive/`; the roadmap item is ticked.
+- `test_subscription_integration.py`: two inert `_bridge` patches removed (owner's edit). Those tests never
+  iterate the generator, and an async generator's body does not run until the first `anext()`.
+- New `global_game_bridge` fixture in `mytower/tests/api/conftest.py`: the one place the module-level
+  bridge is patched, for the paths with nothing to inject into.
+- New tests: `TestSubscriptionThroughSchema` (both streams through `schema.subscribe(..., root_value=None)`)
+  and `TestSubscriptionThroughRouter` (a graphql-transport-ws socket to `graphql_app`).
+- `schema.py`: the bridge fallback checks `is None` instead of truthiness, so a falsy injected bridge is
+  still used. The `Subscription.__init__` docstring explains where `self` comes from.
 
-Found along the way: under Strawberry, `self` in a root-type resolver is the **root value**, and the
-router sets none, so `self` is `None`. Strawberry never constructs `Subscription`. That is why
-`building_state_stream` and `game_time_stream` use `getattr(self, '_game_bridge', None)`: writing
-`self._game_bridge` raises `AttributeError` on every real subscription, and the suite stays green
-because no test subscribes through the schema. Checked by probing `schema.subscribe` on 2026-11-12. The
-`Subscription.__init__` docstring (`schema.py`, "Strawberry creates instances ... with no arguments")
-was wrong about this; corrected on the branch.
+Found along the way: under Strawberry, `self` in a root-type resolver is the operation's root value,
+which defaults to `None`, and `graphql_app` provides none. Strawberry never constructs `Subscription`.
+Writing `self._game_bridge` instead of `getattr(self, '_game_bridge', None)` breaks every real
+subscription; before #185 no test caught that, because none went through the schema.
 
-Also done: `TestSubscriptionThroughSchema` in `test_subscription_integration.py` subscribes through
-`schema.subscribe(..., root_value=None)` and fails against the `self._game_bridge` version. The
-`Subscription.__init__` docstring and the two resolver comments now say why `self` is `None`.
+The #185 body classifies every patch left in the suite. Two groups are worth converting later: the
+converter patches in `test_subscriptions.py` (tests only, like #174) and the `Floor` patches in
+`test_building_basic.py` (needs a floor factory on `Building`).
 
-Left before the PR:
-
-1. In the PR body, list each patch the tracking doc never counted as legitimate or worth converting,
-   and change none (grep on 2026-11-12): `test_input.py` 10, `test_game_bridge_queue.py` 8,
-   `test_subscription_integration.py` 6, `test_subscription_timing.py` 5, `test_building_basic.py` 3,
-   `test_subscriptions.py` 3, `test_person_state_machine.py` 2, `test_rate_limiting.py` 1. Still
-   unread. Keep the converter patch in `test_subscription_error_handling.py` (see "Good ideas").
+Still open from the #185 review: finding 7, the blank-line rule for the first method in a class (CLAUDE.md
+says two before any function longer than five lines; existing classes use one). Owner to discuss.
 
 ## Owner to-dos
 
@@ -88,7 +84,7 @@ Left before the PR:
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #128 (in flight, see above), #163, #181, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: #128 (in review, see above), #163, #181, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the
