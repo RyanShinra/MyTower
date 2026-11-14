@@ -13,7 +13,6 @@ from mytower.game.utilities.input import MouseState
 class TestMouseState:
     """Test MouseState functionality"""
 
-
     def test_initialization(self, mock_logger_provider: MagicMock) -> None:
         """Test MouseState initialization"""
         mouse_state = MouseState(mock_logger_provider)

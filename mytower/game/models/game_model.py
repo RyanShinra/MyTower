@@ -47,7 +47,6 @@ class GameModel:
 
     """
 
-
     def __init__(self, logger_provider: LoggerProvider) -> None:
         self._logger_provider: LoggerProvider = logger_provider
         self._logger: MyTowerLogger = logger_provider.get_logger("GameModel")

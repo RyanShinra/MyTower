@@ -17,7 +17,6 @@ from mytower.game.core.types import FloorType
 from mytower.game.entities.floor import Floor
 from mytower.game.entities.person import PersonProtocol
 
-
 @pytest.fixture
 def floor(mock_logger_provider: MagicMock, mock_building_no_floor: MagicMock) -> Floor:
     return Floor(
@@ -128,7 +127,6 @@ class TestFloorPeopleOwnership:
 
 class TestFloorPersonOwnershipEdgeCases:
     """Test edge cases and error conditions for floor person ownership"""
-
 
     def test_add_none_person_handled_gracefully(self, floor: Floor) -> None:
         """Test that adding None doesn't crash (though it might not be useful)"""

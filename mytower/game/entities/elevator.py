@@ -32,7 +32,6 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
     _id_generator: IDGenerator = IDGenerator("elevator")
 
-
     def __init__(
         self,
         logger_provider: LoggerProvider,

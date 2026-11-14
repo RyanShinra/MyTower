@@ -10,7 +10,6 @@ from mytower.game.core.id_generator import IDGenerator
 class TestIDGeneratorBasics:
     """Test basic IDGenerator functionality"""
 
-
     def test_initial_state(self) -> None:
         """Test that IDGenerator initializes with correct values"""
         generator = IDGenerator("test", radix=1, first_id=1)

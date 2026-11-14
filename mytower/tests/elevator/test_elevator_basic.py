@@ -18,7 +18,6 @@ from mytower.tests.conftest import PersonFactory
 
 class TestElevatorBasics:
 
-
     def test_initial_state(self, elevator: Elevator) -> None:
         """Test that elevator initializes with correct values"""
         assert elevator.elevator_state == ElevatorState.IDLE

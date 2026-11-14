@@ -78,7 +78,6 @@ class TestBuildingBasics:
 class TestBuildingFloorRetrieval:
     """Test floor retrieval methods"""
 
-
     @patch("mytower.game.entities.building.Floor")
     def test_get_floors(self, mock_floor_class: MagicMock, mock_logger_provider: MagicMock) -> None:
         """Test getting all floors in order"""
@@ -124,7 +123,6 @@ class TestBuildingFloorRetrieval:
 
 class TestBuildingElevatorOperations:
     """Test elevator-related operations"""
-
 
     def test_get_elevator_banks_on_floor(self, mock_logger_provider: MagicMock) -> None:
         """Test getting elevator banks that serve a specific floor"""
@@ -201,7 +199,6 @@ class TestBuildingElevatorOperations:
 
 class TestBuildingUpdateAndDraw:
     """Test update and draw methods"""
-
 
     def test_update(self, mock_logger_provider: MagicMock) -> None:
         """Test update method (currently just passes)"""

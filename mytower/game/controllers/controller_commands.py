@@ -58,7 +58,6 @@ class AddPersonCommand(Command[str]):
     dest_floor: int
     dest_horiz_position: Blocks
 
-
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
         if self.init_floor == self.dest_floor and self.init_horiz_position == self.dest_horiz_position:
@@ -99,7 +98,6 @@ class AddElevatorBankCommand(Command[str]):
     min_floor: int
     max_floor: int
 
-
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:
         if self.horiz_position < Blocks(0):
@@ -128,7 +126,6 @@ class AddElevatorBankCommand(Command[str]):
 @dataclass
 class AddElevatorCommand(Command[str]):
     elevator_bank_id: str
-
 
     @override
     def execute(self, model: GameModel) -> CommandResult[str]:

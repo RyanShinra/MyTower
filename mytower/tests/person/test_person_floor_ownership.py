@@ -16,7 +16,6 @@ from mytower.game.entities.person import Person
 class TestPersonFloorOwnership:
     """Test Person floor ownership during elevator interactions"""
 
-
     def test_board_elevator_removes_from_current_floor(self, person_with_floor: Person) -> None:
         """Test that boarding elevator removes person from their current floor"""
         mock_elevator = MagicMock()
@@ -118,7 +117,6 @@ class TestPersonFloorOwnership:
 class TestPersonFloorOwnershipEdgeCases:
     """Test edge cases in floor ownership"""
 
-
     def test_board_elevator_floor_removal_fails_handled_gracefully(self, person_with_floor: Person) -> None:
         """Test behavior when floor removal fails during boarding"""
         mock_elevator = MagicMock()
@@ -155,7 +153,6 @@ class TestPersonFloorOwnershipEdgeCases:
 
 class TestPersonCurrentFloorProperty:
     """Test the current_floor property behavior"""
-
 
     def test_current_floor_set_during_initialization_when_floor_exists(
         self, mock_building_with_floor: MagicMock, mock_game_config: MagicMock, mock_logger_provider: MagicMock

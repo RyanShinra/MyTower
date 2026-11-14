@@ -17,7 +17,6 @@ class TestRequestElevator:
     DIRECTIONS: Final = [VerticalDirection.UP, VerticalDirection.DOWN]
     INVALID_FLOORS: Final = [-1, 0, 11, 100]
 
-
     @pytest.mark.parametrize("floor", VALID_FLOORS)
     @pytest.mark.parametrize("direction", DIRECTIONS)
     def test_request_elevator_valid_floor(

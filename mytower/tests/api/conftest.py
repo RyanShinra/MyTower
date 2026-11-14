@@ -157,7 +157,6 @@ def mock_building_snapshot_gql() -> BuildingSnapshotGQL:
         elevator_banks=[],
     )
 
-
 @pytest.fixture
 def mock_game_bridge() -> Mock:
     """
@@ -173,7 +172,6 @@ def mock_game_bridge() -> Mock:
     bridge = Mock(spec=GameBridgeProtocol)
     bridge.get_building_snapshot.return_value = None
     return bridge
-
 
 @pytest.fixture
 def global_game_bridge(mock_game_bridge: Mock, monkeypatch: pytest.MonkeyPatch) -> Mock:

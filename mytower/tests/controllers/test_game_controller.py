@@ -23,7 +23,6 @@ from mytower.game.models.model_snapshots import (
 class TestGameControllerBasics:
     """Test basic GameController functionality"""
 
-
     def test_initialization(self, mock_logger_provider: MagicMock) -> None:
         """Test GameController initialization"""
         mock_model: MagicMock = MagicMock(spec=GameModel)
@@ -50,7 +49,6 @@ class TestGameControllerBasics:
 
 class TestCommandExecution:
     """Test command execution functionality"""
-
 
     def test_execute_successful_command(self, mock_logger_provider: MagicMock) -> None:
         """Test executing a successful command"""
@@ -132,7 +130,6 @@ class TestCommandExecution:
 
 class TestQueryInterface:
     """Test query interface methods"""
-
 
     def test_get_building_state(self, mock_logger_provider: MagicMock) -> None:
         """Test getting building state"""
@@ -255,7 +252,6 @@ class TestQueryInterface:
 
 class TestSimulationManagement:
     """Test simulation management functionality"""
-
 
     def test_update(self, mock_logger_provider: MagicMock) -> None:
         """Test updating simulation"""

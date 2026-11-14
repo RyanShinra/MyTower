@@ -21,7 +21,6 @@ from mytower.tests.test_utilities import StateAssertions
 class TestPersonBasics:
     """Test basic Person properties and initialization"""
 
-
     def test_initial_state(self, person_with_floor: Person, state_assertions: StateAssertions) -> None:
         """Test that person initializes with correct values"""
         state_assertions.assert_person_state(

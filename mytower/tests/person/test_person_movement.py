@@ -15,7 +15,6 @@ from mytower.game.entities.person import Person
 class TestPersonMovement:
     """Test Person movement and path finding logic"""
 
-
     def test_no_movement_when_already_at_destination(self, person_with_floor: Person) -> None:
         """Test that person stays idle when already at destination"""
         # Use the person's current location as their destination

@@ -55,7 +55,6 @@ class TestGameGridConstants:
 class TestFloorConstants:
     """Test floor-related constants"""
 
-
     def test_floor_colors(self) -> None:
         """Test that all floor colors are valid RGB tuples"""
         floor_colors = [
@@ -127,7 +126,6 @@ class TestGameBalanceConstants:
 
 class TestConstantTypes:
     """Test that constants have correct types"""
-
 
     def test_integer_constants(self) -> None:
         """Test that integer constants are actually integers"""

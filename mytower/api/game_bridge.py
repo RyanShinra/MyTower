@@ -329,7 +329,6 @@ class GameBridge:
 # Module-level singleton
 _bridge: GameBridge | None = None
 
-
 def initialize_game_bridge(
     controller: GameController,
     command_queue_size: int | None = None,
@@ -351,7 +350,6 @@ def initialize_game_bridge(
         controller=controller, command_queue_size=command_queue_size, logger_provider=logger_provider
     )
     return _bridge
-
 
 def get_game_bridge() -> GameBridge:
     if _bridge is None:

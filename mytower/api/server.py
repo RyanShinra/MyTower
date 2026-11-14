@@ -264,7 +264,6 @@ def looks_like_mutation(body: bytes) -> bool:
 async def _query_probe(request: Request) -> None:
     """Rate-limit probe for GraphQL queries. Does nothing; the decorator does the work."""
 
-
 async def _mutation_probe(request: Request) -> None:
     """Rate-limit probe for GraphQL mutations. Does nothing; the decorator does the work."""
 
@@ -473,7 +472,6 @@ async def run_server_async(
     # The shutdown monitor will be automatically cancelled when the event loop exits.
     # No need to explicitly wait for it since it's just monitoring the shutdown_event
     # which becomes irrelevant once the server has already stopped.
-
 
 def run_server(host: str = "127.0.0.1", port: int = 8000, shutdown_event: threading.Event | None = None) -> None:
     """

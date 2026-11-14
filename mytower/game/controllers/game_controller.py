@@ -27,7 +27,6 @@ class GameController:
     Acts as the interface between external systems (pygame, GraphQL) and the model
     """
 
-
     def __init__(
         self, model: GameModel, logger_provider: LoggerProvider, fail_fast: bool, print_exceptions: bool
     ) -> None:

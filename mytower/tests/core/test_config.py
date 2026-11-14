@@ -15,7 +15,6 @@ from mytower.game.core.units import Blocks, Meters, Time, Velocity  # Add Veloci
 class TestElevatorConfig:
     """Test ElevatorConfig dataclass"""
 
-
     def test_default_values(self) -> None:
         """Test that ElevatorConfig has expected default values"""
         config = ElevatorConfig()
@@ -38,7 +37,6 @@ class TestElevatorConfig:
 
 class TestElevatorCosmetics:
     """Test ElevatorCosmetics dataclass"""
-
 
     def test_default_values(self) -> None:
         """Test that ElevatorCosmetics has expected default values"""
@@ -66,7 +64,6 @@ class TestElevatorCosmetics:
 class TestPersonConfig:
     """Test PersonConfig dataclass"""
 
-
     def test_default_values(self) -> None:
         """Test that PersonConfig has expected default values"""
         config = PersonConfig()
@@ -91,7 +88,6 @@ class TestPersonConfig:
 
 class TestPersonCosmetics:
     """Test PersonCosmetics dataclass"""
-
 
     def test_default_values(self) -> None:
         """Test that PersonCosmetics has expected default values"""
@@ -135,7 +131,6 @@ class TestPersonCosmetics:
 class TestUIConfig:
     """Test UIConfig dataclass"""
 
-
     def test_default_values(self) -> None:
         """Test that UIConfig has expected default values"""
         config = UIConfig()
@@ -164,7 +159,6 @@ class TestUIConfig:
 
 class TestGameConfig:
     """Test GameConfig main configuration class"""
-
 
     def test_initialization(self) -> None:
         """Test that GameConfig initializes properly"""

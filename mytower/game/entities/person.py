@@ -30,7 +30,6 @@ class Person(PersonProtocol, PersonTestingProtocol):
     _color_index: int = 0  # Static counter for color palette
     _color_lock: threading.Lock = threading.Lock()  # Thread safety for color index
 
-
     def __init__(
         self,
         logger_provider: LoggerProvider,

@@ -14,7 +14,6 @@ from mytower.tests.test_utilities import StateAssertions, TypedMockFactory
 class TestPersonElevatorInteraction:
     """Test Person interactions with elevators"""
 
-
     def test_board_elevator_changes_state(
         self, person_with_floor: Person, typed_mock_factory: TypedMockFactory, state_assertions: StateAssertions
     ) -> None:

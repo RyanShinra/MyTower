@@ -17,7 +17,6 @@ from mytower.game.models.model_snapshots import (
 class TestPersonSnapshot:
     """Test PersonSnapshot dataclass"""
 
-
     def test_creation(self) -> None:
         """Test PersonSnapshot creation with all fields"""
         snapshot = PersonSnapshot(
@@ -68,7 +67,6 @@ class TestPersonSnapshot:
 
 class TestElevatorSnapshot:
     """Test ElevatorSnapshot dataclass"""
-
 
     def test_creation(self) -> None:
         """Test ElevatorSnapshot creation with all fields"""
@@ -132,7 +130,6 @@ class TestElevatorSnapshot:
 class TestElevatorBankSnapshot:
     """Test ElevatorBankSnapshot dataclass"""
 
-
     def test_creation(self) -> None:
         """Test ElevatorBankSnapshot creation with all fields"""
         snapshot = ElevatorBankSnapshot(
@@ -164,7 +161,6 @@ class TestElevatorBankSnapshot:
 
 class TestFloorSnapshot:
     """Test FloorSnapshot dataclass"""
-
 
     def test_creation(self) -> None:
         """Test FloorSnapshot creation with all fields"""
@@ -217,7 +213,6 @@ class TestFloorSnapshot:
 
 class TestBuildingSnapshot:
     """Test BuildingSnapshot dataclass"""
-
 
     def test_creation(self) -> None:
         """Test BuildingSnapshot creation with all fields"""

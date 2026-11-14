@@ -21,7 +21,6 @@ from mytower.game.models.snapshot_builders import (
 class TestBuildFloorSnapshot:
     """Test build_floor_snapshot function"""
 
-
     def test_build_floor_snapshot(self) -> None:
         """Test building floor snapshot from floor entity"""
         mock_floor = MagicMock(spec=Floor)
@@ -68,7 +67,6 @@ class TestBuildFloorSnapshot:
 
 class TestBuildElevatorSnapshot:
     """Test build_elevator_snapshot function"""
-
 
     def test_build_elevator_snapshot(self) -> None:
         """Test building elevator snapshot from elevator entity"""
@@ -124,7 +122,6 @@ class TestBuildElevatorSnapshot:
 class TestBuildElevatorBankSnapshot:
     """Test build_elevator_bank_snapshot function"""
 
-
     def test_build_elevator_bank_snapshot(self) -> None:
         """Test building elevator bank snapshot from elevator bank entity"""
         mock_bank = MagicMock(spec=ElevatorBank)
@@ -162,7 +159,6 @@ class TestBuildElevatorBankSnapshot:
 
 class TestBuildPersonSnapshot:
     """Test build_person_snapshot function"""
-
 
     def test_build_person_snapshot(self) -> None:
         """Test building person snapshot from person entity"""
@@ -268,7 +264,6 @@ class TestBuildPersonSnapshot:
 
 class TestSnapshotBuilderIntegration:
     """Test integration between different snapshot builders"""
-
 
     def test_all_builders_return_correct_types(self) -> None:
         """Test that all builders return the expected snapshot types"""
