@@ -270,8 +270,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._logger.info(f"{self.elevator_state} Elevator: Loading: {direction}")
         else:
             err_str: str = (
-                f"{self.elevator_state} Elevator: Cannot load passengers "
-                f"while elevator is in {self.elevator_state} state"
+                f"{self.elevator_state} Elevator: Cannot load passengers"
+                f" while elevator is in {self.elevator_state} state"
             )
             self._logger.warning(err_str)
             raise RuntimeError(err_str)

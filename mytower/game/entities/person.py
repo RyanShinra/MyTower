@@ -349,8 +349,8 @@ class Person(PersonProtocol, PersonTestingProtocol):
         if next_horiz_position < Blocks(0) or next_horiz_position > self.building.building_width:
             # TODO: Consider raising an exception here instead of just clamping
             self._logger.warning(
-                f"WALKING Person: Attempted to walk out of bounds to block {next_horiz_position} "
-                f"on floor {self.current_floor_num}. Clamping to valid range."
+                f"WALKING Person: Attempted to walk out of bounds to block {next_horiz_position}"
+                f" on floor {self.current_floor_num}. Clamping to valid range."
             )
 
         next_horiz_position = min(next_horiz_position, self.building.building_width)
