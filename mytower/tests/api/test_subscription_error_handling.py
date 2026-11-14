@@ -14,6 +14,7 @@ Tests cover:
 
 import asyncio
 import logging
+from collections.abc import AsyncGenerator
 from unittest.mock import Mock, patch
 
 import pytest
@@ -35,9 +36,11 @@ class TestSubscriptionErrorHandling:
 
         stream = subscription.building_state_stream(interval_ms=50)
 
-        # Start consuming stream in a task
-        task = asyncio.create_task(self._consume_stream(stream))
-        await asyncio.sleep(0.01)  # Let it start
+        # Wait for the first item, not for a timer, so the consumer is parked inside the generator
+        # when the cancel arrives; test_subscription_cleanup_on_cancellation explains why (#163).
+        first_item = asyncio.Event()
+        task = asyncio.create_task(self._consume_and_signal(stream, first_item))
+        await asyncio.wait_for(first_item.wait(), timeout=5.0)
 
         # Cancel the task
         task.cancel()
@@ -63,22 +66,44 @@ class TestSubscriptionErrorHandling:
         with caplog.at_level(logging.INFO, logger="mytower.api.schema"):
             stream = subscription.building_state_stream(interval_ms=50)
 
-            task = asyncio.create_task(self._consume_stream(stream))
-            await asyncio.sleep(0.01)
+            first_item = asyncio.Event()
+            task = asyncio.create_task(self._consume_and_signal(stream, first_item))
+
+            # The timeout only stops a broken stream from hanging the suite; the test does not rely on it.
+            await asyncio.wait_for(first_item.wait(), timeout=5.0)
+
+            # No extra yield to the loop is needed before cancelling. set() only schedules this test
+            # to resume; the consumer keeps running in the same step, goes straight back into anext,
+            # and does not give up control until the generator's own asyncio.sleep(interval). So when
+            # this line runs, the consumer is parked inside the generator, and the CancelledError is
+            # thrown there, where its except and finally can see it.
             task.cancel()
 
-            try:
+            # The finally block runs while the CancelledError unwinds through the generator, which is
+            # before the task finishes, so the log record exists as soon as this await returns.
+            with pytest.raises(asyncio.CancelledError):
                 await task
-            except asyncio.CancelledError:
-                pass
-
-            # Give finally block time to execute
-            await asyncio.sleep(0.01)
 
             # Verify cleanup message was logged
             assert any(
                 "Building State Subscription cleaned up" in record.getMessage() for record in caplog.records
             ), "Cleanup message not logged"
+
+    async def _consume_and_signal(
+        self,
+        stream: AsyncGenerator[BuildingSnapshotGQL | None, None],
+        first_item: asyncio.Event,
+    ) -> None:
+        """
+        Consume stream indefinitely, setting first_item once an item has arrived.
+
+        It has no sleep of its own, unlike _consume_stream, so the only place it can be suspended is
+        inside the generator. A consumer suspended in its own sleep leaves the generator sitting at
+        its yield, where a cancellation never reaches it; with a 1 ms sleep that is what happened on
+        Windows, whose timers tick about every 15.6 ms (#163).
+        """
+        async for _ in stream:
+            first_item.set()
 
     async def test_subscription_handles_get_building_state_exception(self, mock_game_bridge) -> None:
         """Verify exception from get_building_state() propagates."""
