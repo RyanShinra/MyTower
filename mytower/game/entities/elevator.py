@@ -22,8 +22,6 @@ from mytower.game.utilities.logger import LoggerProvider
 if TYPE_CHECKING:
     from mytower.game.utilities.logger import MyTowerLogger
 
-# flake8: noqa: E701
-
 
 class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
     """
@@ -223,7 +221,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             )
 
         self._logger.info(
-            f"{self.elevator_state} Elevator: Setting destination floor to {destination} from current floor {self.current_floor_int}"
+            f"{self.elevator_state} Elevator: Setting destination floor to {destination}"
+            f" from current floor {self.current_floor_int}"
         )
         if self.current_floor_int < destination.floor:
             self._logger.info(f"{self.elevator_state} Elevator: Going UP")
@@ -270,7 +269,10 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
             self._nominal_direction = direction
             self._logger.info(f"{self.elevator_state} Elevator: Loading: {direction}")
         else:
-            err_str: str = f"{self.elevator_state} Elevator: Cannot load passengers while elevator is in {self.elevator_state} state"
+            err_str: str = (
+                f"{self.elevator_state} Elevator: Cannot load passengers "
+                f"while elevator is in {self.elevator_state} state"
+            )
             self._logger.warning(err_str)
             raise RuntimeError(err_str)
 
@@ -370,7 +372,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
         if self._moving_log_timer >= self._config.MOVING_LOG_TIMEOUT:
             self._logger.trace(
-                f"{self.elevator_state} Elevator: Moving {self.motion_direction} from {self._vertical_position} to {cur_floor}"
+                f"{self.elevator_state} Elevator: Moving {self.motion_direction}"
+                f" from {self._vertical_position} to {cur_floor}"
             )
             self._moving_log_timer = Time(0.0)
 
@@ -402,7 +405,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
         else:
             self._state = ElevatorState.IDLE
         self._logger.debug(
-            f"{self.elevator_state} Elevator: Having arrived, elevator has {len(who_wants_off)} passengers to disembark -> {self._state}"
+            f"{self.elevator_state} Elevator: Having arrived, elevator has {len(who_wants_off)} passengers to disembark"
+            f" -> {self._state}"
         )
 
 
@@ -443,7 +447,8 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
         # There is still room, add a person
         self._logger.debug(
-            f"{self.elevator_state} Elevator: Trying to dequeue a passenger going {self.nominal_direction} from {self.current_floor_int}"
+            f"{self.elevator_state} Elevator: Trying to dequeue a passenger going {self.nominal_direction}"
+            f" from {self.current_floor_int}"
         )
         who_wants_on: PersonProtocol | None = self.parent_elevator_bank.try_dequeue_waiting_passenger(
             self.current_floor_int, self.nominal_direction
@@ -462,11 +467,13 @@ class Elevator(ElevatorProtocol, ElevatorTestingProtocol):
 
     def _update_ready_to_move(self, dt: Time) -> None:
         self._logger.debug(
-            f"{self.elevator_state} Elevator: Elevator ready to move from floor {self.current_floor_int} to {self.destination_floor}"
+            f"{self.elevator_state} Elevator: Elevator ready to move"
+            f" from floor {self.current_floor_int} to {self.destination_floor}"
         )
         if self.current_floor_int != self.destination_floor:
             self._logger.info(
-                f"{self.elevator_state} Elevator: Elevator starting to MOVE {self.nominal_direction} towards floor {self.destination_floor}"
+                f"{self.elevator_state} Elevator: Elevator starting to MOVE {self.nominal_direction}"
+                f" towards floor {self.destination_floor}"
             )
             self._state = ElevatorState.MOVING
         elif len(self._passengers) == 0:
