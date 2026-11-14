@@ -4,9 +4,11 @@
 
 The project deviates from PEP 8 on blank lines, on purpose:
 
-- **Two blank lines** before a class, and before a function or method whose body is longer than five lines.
-- **One blank line** before a function or method of five lines or fewer.
+- **Up to two blank lines** before a class, and before a function or method whose body is longer than five lines.
+- **At most one blank line** before a function or method of five lines or fewer.
 - **No blank line** between a decorator, or a comment that belongs to a function, and that function.
+
+These are ceilings. Fewer is fine; how much space to leave under the limit is a judgement call.
 
 ## What the tools check
 

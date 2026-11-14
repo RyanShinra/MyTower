@@ -67,8 +67,43 @@ The #185 body classifies every patch left in the suite. Two groups are worth con
 converter patches in `test_subscriptions.py` (tests only, like #174) and the `Floor` patches in
 `test_building_basic.py` (needs a floor factory on `Building`).
 
-Still open from the #185 review: finding 7, the blank-line rule for the first method in a class (CLAUDE.md
-says two before any function longer than five lines; existing classes use one). Owner to discuss.
+Review finding 7 (one blank line before a long method) was not a problem: the owner's blank-line counts
+are ceilings, not floors. CLAUDE.md and `docs/FORMATTING_NOTES.md` read as requirements, so #185 rewords
+both to say "up to" and "at most".
+
+## Next branch: first-line whitespace fix (no issue)
+
+A one-time, whitespace-only cleanup the owner decided on in the #185 review. Mechanical; suits a Sonnet or
+Haiku session. Branch off `main` after #185 merges, with a no-issue name such as `whitespace-first-method`.
+
+**The rule being applied.** Blank-line counts are ceilings (CLAUDE.md, Style). On top of that, the owner's
+preference: inside a class, at most one blank line before the first method, which should usually be
+`__init__`. This preference is guidance, not a written rule; the owner chose not to encode it.
+
+**Scope**, measured over `mytower/` on 2026-11-14:
+
+1. **72 first methods** with two blank lines between the class line, or the class docstring, and the
+   method. Reduce each to one. 13 are `__init__`; 59 are other methods, mostly the first test in a test
+   class.
+2. **10 short functions**, bodies of five lines or fewer with the docstring excluded, that have two blank
+   lines before them, across 6 files. Reduce each to one.
+
+**Definitions, for finding them with an `ast` walk:** count blank lines upward from the first decorator
+if there is one, else from the `def` line. Body length is `end_lineno` minus the line of the first
+statement after any docstring, plus one.
+
+**Leave alone:** blank lines before classes; before long methods other than a class's first; between a
+decorator or leading comment and its function. Do not move methods to put `__init__` first: that is not
+whitespace.
+
+**Ask the owner first:** test classes have no `__init__`. Proposed: their first test method gets the
+same one-blank-line limit.
+
+**Done when:**
+- `git diff --ignore-blank-lines --stat` prints nothing, which proves the diff is whitespace only.
+- `pytest` passes with the same count as `main`, and `make check` is clean.
+- The `ast` census shows zero in both groups. X303 only flags more than two blank lines, so a clean
+  `make check` does not prove the fix.
 
 ## Owner to-dos
 
@@ -84,7 +119,7 @@ says two before any function longer than five lines; existing classes use one). 
 The plan with dates is the "MyTower Alpha Plan" Gantt chart:
 https://claude.ai/artifact/34Nqvd5DNTUtK1RW5ngKKF. In order:
 
-1. Rest of M0: #128 (in review, see above), #163, #181, then #162 part 1, the mypy errors outside tests.
+1. Rest of M0: #128 (in review, see above), the first-line whitespace fix (see above), #163, #181, then #162 part 1, the mypy errors outside tests.
 2. M1, starting with #132.
 
 Also on the list, with no issue yet: **regenerate `requirements-dev.lock`** as its own small PR, per the
