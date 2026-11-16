@@ -131,7 +131,7 @@ the work happens matters as much as what ships.
   and the exact code in a fenced block. New files go in whole. The owner then either types it in or says
   "apply it", and Claude lands it verbatim. Either way the code has been read and understood before it
   is in the tree, which is the point, and a locale list is reviewable in a way a finished diff is not.
-  Reading comes before landing for every change. Typing is different: see the next two bullets.
+  Reading comes before landing for every change. Who types it is a separate question: see "learning versus tedium" below.
 - **Explain the Python where it differs from TypeScript or C++.** A `Protocol` is not an interface,
   `match` is not `switch`, `@override` and `Final` exist for reasons. One sentence on *why* the idiom
   is shaped that way, next to the code, is worth more than the code.
