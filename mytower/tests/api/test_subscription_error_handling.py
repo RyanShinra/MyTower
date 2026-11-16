@@ -25,6 +25,22 @@ from mytower.game.core.units import Time
 from mytower.game.models.model_snapshots import BuildingSnapshot
 
 
+async def _consume_and_signal(stream: AsyncGenerator[object, None], first_item: asyncio.Event) -> None:
+    """
+    Consume stream indefinitely, setting first_item once an item has arrived.
+
+    It has no sleep of its own, so the only place it can be suspended is inside the generator. A
+    consumer suspended in its own sleep leaves the generator sitting at its yield, where a
+    cancellation never reaches it; with a 1 ms sleep that is what happened on Windows, whose timers
+    tick about every 15.6 ms (#163).
+
+    The stream's item type is object so that both building_state_stream and game_time_stream fit:
+    AsyncGenerator is covariant in what it yields, and the items are never looked at.
+    """
+    async for _ in stream:
+        first_item.set()
+
+
 @pytest.mark.asyncio
 class TestSubscriptionErrorHandling:
     """Test error handling and cancellation behavior."""
@@ -39,7 +55,7 @@ class TestSubscriptionErrorHandling:
         # Wait for the first item, not for a timer, so the consumer is parked inside the generator
         # when the cancel arrives; test_subscription_cleanup_on_cancellation explains why (#163).
         first_item = asyncio.Event()
-        task = asyncio.create_task(self._consume_and_signal(stream, first_item))
+        task = asyncio.create_task(_consume_and_signal(stream, first_item))
         await asyncio.wait_for(first_item.wait(), timeout=5.0)
 
         # Cancel the task
@@ -48,11 +64,6 @@ class TestSubscriptionErrorHandling:
         # Should raise CancelledError
         with pytest.raises(asyncio.CancelledError):
             await task
-
-    async def _consume_stream(self, stream):
-        """Helper to consume stream indefinitely."""
-        async for _ in stream:
-            await asyncio.sleep(0.001)
 
     async def test_subscription_cleanup_on_cancellation(
         self,
@@ -67,7 +78,7 @@ class TestSubscriptionErrorHandling:
             stream = subscription.building_state_stream(interval_ms=50)
 
             first_item = asyncio.Event()
-            task = asyncio.create_task(self._consume_and_signal(stream, first_item))
+            task = asyncio.create_task(_consume_and_signal(stream, first_item))
 
             # The timeout only stops a broken stream from hanging the suite; the test does not rely on it.
             await asyncio.wait_for(first_item.wait(), timeout=5.0)
@@ -88,22 +99,6 @@ class TestSubscriptionErrorHandling:
             assert any(
                 "Building State Subscription cleaned up" in record.getMessage() for record in caplog.records
             ), "Cleanup message not logged"
-
-    async def _consume_and_signal(
-        self,
-        stream: AsyncGenerator[BuildingSnapshotGQL | None, None],
-        first_item: asyncio.Event,
-    ) -> None:
-        """
-        Consume stream indefinitely, setting first_item once an item has arrived.
-
-        It has no sleep of its own, unlike _consume_stream, so the only place it can be suspended is
-        inside the generator. A consumer suspended in its own sleep leaves the generator sitting at
-        its yield, where a cancellation never reaches it; with a 1 ms sleep that is what happened on
-        Windows, whose timers tick about every 15.6 ms (#163).
-        """
-        async for _ in stream:
-            first_item.set()
 
     async def test_subscription_handles_get_building_state_exception(self, mock_game_bridge) -> None:
         """Verify exception from get_building_state() propagates."""
@@ -179,19 +174,33 @@ class TestSubscriptionErrorHandling:
         assert results[1] is None  # building_state_stream yields None
         assert results[2] == Time(0.0)  # game_time_stream yields Time(0.0)
 
-    async def test_game_time_stream_handles_cancellation(self, mock_game_bridge) -> None:
-        """Verify game_time_stream also handles cancellation correctly."""
+    async def test_game_time_stream_handles_cancellation(
+        self,
+        mock_game_bridge,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """Verify game_time_stream sees the cancellation and cleans up."""
         mock_game_bridge.get_building_snapshot.return_value = None
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        stream = subscription.game_time_stream(interval_ms=100)
+        with caplog.at_level(logging.INFO, logger="mytower.api.schema"):
+            stream = subscription.game_time_stream(interval_ms=100)
 
-        task = asyncio.create_task(self._consume_stream(stream))
-        await asyncio.sleep(0.01)
-        task.cancel()
+            # Wait for the first item, not for a timer; test_subscription_cleanup_on_cancellation
+            # explains why (#163).
+            first_item = asyncio.Event()
+            task = asyncio.create_task(_consume_and_signal(stream, first_item))
+            await asyncio.wait_for(first_item.wait(), timeout=5.0)
+            task.cancel()
 
-        with pytest.raises(asyncio.CancelledError):
-            await task
+            with pytest.raises(asyncio.CancelledError):
+                await task
+
+            # The task raises CancelledError wherever the cancel lands. These two records are what
+            # show it landed inside the generator, in its except and then its finally.
+            messages = [record.getMessage() for record in caplog.records]
+            assert any("Game time subscription cancelled" in message for message in messages)
+            assert any("Game time subscription cleaned up" in message for message in messages)
 
     async def test_exception_in_middle_of_stream(
         self,
@@ -307,34 +316,38 @@ class TestSubscriptionEdgeCases:
         with pytest.raises(asyncio.CancelledError):
             await task
 
-    async def test_multiple_cancellations(self, mock_game_bridge) -> None:
-        """Verify multiple concurrent subscriptions can all be cancelled."""
+    async def test_multiple_cancellations(self, mock_game_bridge, caplog: pytest.LogCaptureFixture) -> None:
+        """Verify multiple concurrent subscriptions can all be cancelled, and each one cleans up."""
         mock_game_bridge.get_building_snapshot.return_value = None
         subscription = Subscription(game_bridge=mock_game_bridge)
 
-        # Create 5 concurrent subscriptions
-        streams = [
-            subscription.building_state_stream(interval_ms=50)
-            for _ in range(5)
-        ]
+        with caplog.at_level(logging.INFO, logger="mytower.api.schema"):
+            # Create 5 concurrent subscriptions
+            streams = [
+                subscription.building_state_stream(interval_ms=50)
+                for _ in range(5)
+            ]
 
-        # Start tasks
-        tasks = [
-            asyncio.create_task(self._consume_stream(stream))
-            for stream in streams
-        ]
+            # One Event per stream, so every consumer is parked inside its generator before any
+            # cancel; test_subscription_cleanup_on_cancellation explains why (#163).
+            events = [asyncio.Event() for _ in streams]
+            tasks = [
+                asyncio.create_task(_consume_and_signal(stream, event))
+                for stream, event in zip(streams, events, strict=True)
+            ]
+            await asyncio.wait_for(asyncio.gather(*(event.wait() for event in events)), timeout=5.0)
 
-        await asyncio.sleep(0.01)  # Let them start
+            # Cancel all
+            for task in tasks:
+                task.cancel()
 
-        # Cancel all
-        for task in tasks:
-            task.cancel()
+            # All should raise CancelledError
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            assert all(isinstance(r, asyncio.CancelledError) for r in results)
 
-        # All should raise CancelledError
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        assert all(isinstance(r, asyncio.CancelledError) for r in results)
-
-    async def _consume_stream(self, stream):
-        """Helper to consume stream indefinitely."""
-        async for _ in stream:
-            await asyncio.sleep(0.001)
+            # One cleanup record per stream shows that every cancel reached its generator.
+            cleanups = [
+                record for record in caplog.records
+                if "Building State Subscription cleaned up" in record.getMessage()
+            ]
+            assert len(cleanups) == 5
