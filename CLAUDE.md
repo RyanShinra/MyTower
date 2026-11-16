@@ -131,18 +131,29 @@ the work happens matters as much as what ships.
   and the exact code in a fenced block. New files go in whole. The owner then either types it in or says
   "apply it", and Claude lands it verbatim. Either way the code has been read and understood before it
   is in the tree, which is the point, and a locale list is reviewable in a way a finished diff is not.
-  This applies to boilerplate too: typing it is how the Python sticks.
+  Reading comes before landing for every change. Typing is different: see the next two bullets.
 - **Explain the Python where it differs from TypeScript or C++.** A `Protocol` is not an interface,
   `match` is not `switch`, `@override` and `Final` exist for reasons. One sentence on *why* the idiom
   is shaped that way, next to the code, is worth more than the code.
-- **The judgment-carrying pieces are the owner's to write.** State-machine transitions, elevator
-  scheduling, command validation, what a snapshot exposes. Mark the spot with a `TODO`, name the
-  trade-offs, and wait.
-- **Claude's by default:** tests (the owner has said so, including writing them first so there is
-  something to code against), and mechanical fallout a change already made has decided: a rename's
-  call sites, an import that went dead, a protocol method the implementation now needs. When in doubt,
-  show rather than land. Landing it and reporting clearly is the fallback, not the default.
-  Fixing findings that already exist in the code is not fallout; see "Discuss a fix before implementing it".
+- **The split is learning versus tedium, not deciding versus typing.** If writing a piece would teach
+  the owner something, it is the owner's to write: an idiom they have not written before, a library
+  surface that is new to them, a design call in the simulation. Mark the spot with a `TODO`, name the
+  trade-offs, and wait. State-machine transitions, elevator scheduling, command validation, and what a
+  snapshot exposes usually land here, but the test is what the piece teaches, not how much judgment it
+  carries. A mechanical edit is the owner's when its idiom is new; boilerplate is worth typing once for
+  that reason, and the copies after it are not.
+- **Claude's by default: the tedium.** Repeats of a shape the owner has already written once, matched
+  to what they wrote. Fallout a change already made has decided: a rename's call sites, an import that
+  went dead, a protocol method the implementation now needs. Ask "would the owner learn from writing
+  this?", not "is this mechanical?", and when the answer is unclear, ask the owner. Show rather than
+  land; landing it and reporting clearly is the fallback, not the default. Fixing findings that already
+  exist in the code is not fallout; see "Discuss a fix before implementing it".
+- **Tests are usually Claude's to type, and never to write unbriefed.** The owner has said tests are
+  Claude's, including writing them first so there is something to code against. Before writing, brief
+  each test, or one prototype of each kind: what it sets up, what it does, what it asserts, and why it
+  would fail if the code were wrong. Then wait. This covers changes to existing tests too. When the
+  idea is new to the owner, or hard to follow in prose, show the prototype's code and walk through it;
+  a one-word go-ahead to a description the owner only half followed is not a briefing.
 - **Consult the linter before saying "run it."** `make check` is the pre-run gate. Reason about the
   installed library's real signatures, not remembered ones: Strawberry moved from 0.285 to 0.327 on
   this branch and its API surface moved with it.
