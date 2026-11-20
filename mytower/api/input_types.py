@@ -2,14 +2,32 @@
 # See LICENSE file for details.
 
 """
-GraphQL input types for mutations.
+GraphQL input types for mutations, and the Pydantic models that validate them.
+https://github.com/pydantic/pydantic
 
-These input types provide proper GraphQL design patterns where mutations
-accept input objects rather than individual parameters. They mirror the
-command objects from controller_commands.py but are specifically designed
-for the GraphQL API layer.
+Each mutation input is defined twice, and the two classes do different jobs:
 
-Uses Pydantic for robust input validation with field validators.
+- ``AddElevatorBankInputModel(BaseModel)`` is the validator. Each of its fields is annotated with a type
+  that should match the same field on ``AddElevatorBankInput`` below. Each ``@field_validator("name")``
+  function checks one field's value: is ``max_floor`` in range, is the bank ID valid. These functions run
+  each time the model is constructed, either directly with ``AddElevatorBankInputModel(...)`` or by
+  ``input.to_pydantic()``, which constructs it from a GraphQL input. Pydantic checks the names in
+  ``@field_validator`` when the class is defined, so a misspelled name fails at import.
+- ``AddElevatorBankInput``, decorated with
+  ``@strawberry.experimental.pydantic.input(model=AddElevatorBankInputModel)``, is the GraphQL interface:
+  its fields become the input type in the schema, and it is what a mutation receives. The decorator links
+  each field to the model field of the same name. It does not check the names: one the model lacks, such
+  as ``mx_floor``, becomes an extra GraphQL-only field, and the model field it was meant to match
+  (``max_floor``) disappears from the schema without an error.
+
+The fields are written out on both classes. The decorator has an option, ``all_fields=True``, that copies
+every model field onto the GraphQL class at import time, so they need not be written twice. It is not used
+here because mypy never runs the decorator; it reads only what is written in the class body. With
+``all_fields=True`` that body was empty, so every ``input.max_floor`` in schema.py was an error and a real
+typo looked the same as a correct name. With the fields written out, mypy accepts ``input.max_floor`` and
+flags ``input.mx_floor``.
+
+TODO(#191): the validators do not run on GraphQL input yet, because no mutation constructs the model.
 """
 
 import strawberry
@@ -186,25 +204,30 @@ class AddElevatorInputModel(BaseModel):
 # - Check for updates quarterly or when major features are needed
 
 
-@strawberry.experimental.pydantic.input(model=AddFloorInputModel, all_fields=True)
+@strawberry.experimental.pydantic.input(model=AddFloorInputModel)
 class AddFloorInput:
     """Input for adding a new floor to the building"""
-    pass
+    floor_type: FloorTypeGQL
 
 
-@strawberry.experimental.pydantic.input(model=AddPersonInputModel, all_fields=True)
+@strawberry.experimental.pydantic.input(model=AddPersonInputModel)
 class AddPersonInput:
     """Input for adding a new person to the building"""
-    pass
+    init_floor: int
+    init_horiz_position: Blocks
+    dest_floor: int
+    dest_horiz_position: Blocks
 
 
-@strawberry.experimental.pydantic.input(model=AddElevatorBankInputModel, all_fields=True)
+@strawberry.experimental.pydantic.input(model=AddElevatorBankInputModel)
 class AddElevatorBankInput:
     """Input for adding a new elevator bank to the building"""
-    pass
+    horiz_position: Blocks
+    min_floor: int
+    max_floor: int
 
 
-@strawberry.experimental.pydantic.input(model=AddElevatorInputModel, all_fields=True)
+@strawberry.experimental.pydantic.input(model=AddElevatorInputModel)
 class AddElevatorInput:
     """Input for adding a new elevator to an existing elevator bank"""
-    pass
+    elevator_bank_id: str
