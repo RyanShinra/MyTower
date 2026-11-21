@@ -164,7 +164,7 @@ Every unchecked box above now has a GitHub issue, attached as a sub-issue of its
 | M4 Web UI | #123 |
 | M5 Ship | #124 |
 
-Progress per milestone is the epic's sub-issue completion bar. A `0.1.0-alpha` GitHub milestone still needs to be created by hand (the API used here cannot create milestones); once it exists, filter by the `alpha` label and bulk-assign.
+Progress per milestone is the epic's sub-issue completion bar. The `0.1.0-Alpha` GitHub milestone (capital A, as created) holds every `alpha` issue, open and closed, since 2026-11-14.
 
 ---
 
